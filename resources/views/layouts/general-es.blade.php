@@ -100,29 +100,27 @@
                     </div>
                 </div>
             </div>
-            <div class="sub-footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-12 text-center">
-                            <div class="widget">
-                                <p class="text-center mt-5">Copyright 2019 &copy; Andean Exclusive Tours | Todos los
-                                    derechos reservados | <a href="https://www.facebook.com/DjmWebMaster"
-                                        rel="nofollow" id="afoot" target="_blank">DJM2</a>
-                                </p>
-                            </div>
+        </div>
+        <div class="sub-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <div class="widget">
+                            <p class="text-center mt-5 mb-0 small">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | Todos los
+                                derechos reservados | <a href="https://www.facebook.com/DjmWebMaster"
+                                    rel="nofollow noopener" id="afoot" target="_blank">DJM2</a>
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </footer>
     <script type='text/javascript' src='{{ asset('js/jquery4a5f.js') }}'></script>
     <script type='text/javascript' src='{{ asset('js/mediaelement-and-player.min45a0.js') }}'></script>
     <script type='text/javascript' src='{{ asset('js/swiper.minbb49.js?ver=5.2.2') }}'></script>
     <script type='text/javascript' src='{{ asset('js/isotope.pkgd.min5243.js?ver=5.4.5') }}'></script>
     <script type='text/javascript' src='{{ asset('js/scripts.js') }}'></script>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
-    </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
     </script>

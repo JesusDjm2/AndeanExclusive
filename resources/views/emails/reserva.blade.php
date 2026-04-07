@@ -139,8 +139,9 @@
             </div>
         </section>
         <div id="separador"></div>
-        @include('layouts.foot-blog')
-        
+        <footer style="padding:24px 16px;text-align:center;font-size:13px;color:#666;">
+            <p style="margin:0;">&copy; {{ date('Y') }} Andean Exclusive Tours &mdash; operaciones@andeanexclusive.com</p>
+        </footer>
 </body>
 
 </html>

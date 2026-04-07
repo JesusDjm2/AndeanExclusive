@@ -68,6 +68,8 @@
                                             <a href="{{ route('users.index') }}" class="btn btn-info btn-sm">Usuarios</a>
                                             <a href="{{ route('proveedors.index') }}"
                                                 class="btn btn-info btn-sm">Proveedores</a>
+                                                <a href=""
+                                                class="btn btn-info btn-sm">Programas</a>
                                         </div>
                                     </div>
                                 </div>

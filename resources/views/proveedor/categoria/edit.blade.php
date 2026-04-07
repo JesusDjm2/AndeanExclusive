@@ -1,24 +1,19 @@
 @extends('layouts.app')
 
-@section('titulo', 'Crear nueva categoria')
-
 @section('contenido')
     <section class="content container-fluid">
-        <div class="row">
+        <div class="">
             <div class="col-md-12">
-
                 @includeif('partials.errors')
-
                 <div class="card card-default">
                     <div class="card-header">
-                        <span class="card-title">Create Categoria</span>
+                        <span class="card-title">Actualizar Categoria</span>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ route('categorias.store') }}"  role="form" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('categoriasproveedor.update', $categoria->id) }}"  role="form" enctype="multipart/form-data">
+                            {{ method_field('PATCH') }}
                             @csrf
-
-                            @include('categoria.form')
-
+                            @include('proveedor.categoria.form')
                         </form>
                     </div>
                 </div>

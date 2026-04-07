@@ -22,7 +22,7 @@
                         <div class="header-wrapper">
                             <div class="site-branding">
                                 <a href="{{ route('inicio') }}" rel="home" class="logo-text-link"><img
-                                        src="img/andean-exclusive-logo.png" id="logo"></a>
+                                        src="{{ asset('img/andean-exclusive-logo.png') }}" id="logo" alt="Andean Exclusive"></a>
                             </div>
                             <nav class="main-nav">
                                 <ul class="one-page-menu">
@@ -51,7 +51,7 @@
             </div>
         </header>
         <div class="fullscreen-section">
-            <img src="{{ $tour->imgFull }}" alt="Imagen Full" class="fullscreen-img">
+            <img src="{{ asset($tour->imgFull) }}" alt="{{ $tour->nombre }}" class="fullscreen-img" loading="eager" decoding="async">
             <div class="content-overlay">
                 <h1>{{ $tour->nombre }}</h1>
                 <p><i class="fa fa-map-marker"></i> {{ $tour->recorrido }}</p>
@@ -90,7 +90,7 @@
                             <i class="fa fa-map-marker"></i> {{ $tour->recorrido }}
                         </p>
                     </div>
-                    <div class="contenidoInicial" style="margin-top: 2em">
+                    <div class="contenidoInicial rich-html-content" style="margin-top: 2em">
                         {!! $tour->presentacion !!}
                     </div>
                     <div id="separador"></div>
@@ -101,7 +101,7 @@
                         <button class="tab-button" data-tab="tab4"><i class="fa fa-exclamation"></i> Importante</button>
                     </div>
 
-                    <div class="tab-content">
+                    <div class="tab-content rich-html-content">
                         <div id="tab1" class="tab-pane active">
                             {!! $tour->itinerario !!}
                         </div>
@@ -160,7 +160,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4" style="padding: 2em;position: sticky;top:3em">
+            <div class="col-lg-4 tour-sidebar-booking">
                 <div>
                     <div class="card">
                         <div class="text-center">
@@ -174,7 +174,7 @@
                         <h4 class="text-center" style="font-family: 'Dancing Script', cursive">Similar Tours</h4>
                         <div id="separadordjm2"></div>
                         @foreach ($tours as $t)
-                            <a href="{{ route('tour.show', $tour->slug) }}"><span>⮞</span> {{ $t->nombre }}</a>
+                            <a href="{{ route('tour.show', $t->slug) }}"><span>⮞</span> {{ $t->nombre }}</a>
                         @endforeach
                     </div>
                     <div id="similares">

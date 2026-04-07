@@ -1,0 +1,68 @@
+// Variables
+@use "sass:color";
+$rojo-eliminar: #dc3545;
+$azul-logout: #3085d6;
+
+.btn-logout {
+  background: $azul-logout;
+  color: #fff !important;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: .9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform .12s ease-in-out, box-shadow .12s ease-in-out;
+
+  i {
+    font-size: .9rem;
+  }
+
+  &:hover {
+    background: color.adjust($azul-logout, $lightness: -10%);
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+  }
+
+  &:active {
+    transform: scale(.97);
+    box-shadow: none;
+  }
+}
+// ------------------------------
+// Estilos para el botón eliminar
+// ------------------------------
+.btn-eliminar-programa {
+  background: $rojo-eliminar;
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform .12s ease-in-out, box-shadow .12s ease-in-out;
+  font-size: .85rem;
+
+  i {
+    font-size: 0.9rem;
+  }
+
+  &:hover {
+    /* Uso de color.adjust (recomendado) para oscurecer */
+    background: $rojo-eliminar;
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: none;
+  }
+}
+
+/* Para dar margen si lo usas en tablas */
+.form-eliminar-programa {
+  display: inline-block;
+  margin-left: 4px;
+}

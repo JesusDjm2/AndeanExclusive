@@ -10,9 +10,9 @@
     <link rel='stylesheet' href="{{ asset('styles/bootstrap.minbb49.css') }}" type='text/css' media='all' />
     <link rel='stylesheet' href='{{ asset('styles/js_composer.min5243.css') }}' type='text/css' media='all' />
     <link rel="stylesheet" href="{{ asset('css/wasa.css') }}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('css/nuevos.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('img/logoico.png') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('styles/estilo.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/nuevos.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('font-awesome/css/font-awesome.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,10 +47,10 @@
                         <h5 class="widget-title">Query</h5>
                         <div id="separadordjm2"></div>
                         <ul>
-                            <li><a href="about">About Us</a></li>
-                            <li><a href="testimonials">Testimonials</a></li>
-                            <li><a href="terms-conditions-aet">Terms & Conditions</a></li>
-                            <li><a href="faqs">FAQS</a></li>
+                            <li><a href="{{ route('about') }}">About Us</a></li>
+                            <li><a href="{{ route('testimonials') }}">Testimonials</a></li>
+                            <li><a href="{{ route('terms') }}">Terms &amp; Conditions</a></li>
+                            <li><a href="{{ route('faqs') }}">FAQs</a></li>
                         </ul>
                     </div>
                 </div>
@@ -92,28 +92,28 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="sub-footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-sm-12 text-center">
-                            <div class="widget">
-                                <p>Copyright 2019 &copy; Andean Exclusive Tours | All Rights Reserved | Designed by <a
-                                        href="https://www.facebook.com/DjmWebMaster" id="afoot" target="_blank"
-                                        rel="nofollow">DJM2</a>
-                                </p>
-                            </div>
+        <div class="sub-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 text-center">
+                        <div class="widget">
+                            <p class="mb-0 small">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | All Rights Reserved | Designed by <a
+                                    href="https://www.facebook.com/DjmWebMaster" id="afoot" target="_blank"
+                                    rel="nofollow noopener">DJM2</a>
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </footer>
     <script type='text/javascript' src='{{ asset('js/jquery4a5f.js') }}'></script>
     <script type='text/javascript' src='{{ asset('js/mediaelement-and-player.min45a0.js') }}'></script>
     <script type='text/javascript' src='{{ asset('js/swiper.minbb49.js?ver=5.2.2') }}'></script>
     <script type='text/javascript' src='{{ asset('js/isotope.pkgd.min5243.js?ver=5.4.5') }}'></script>
     <script type='text/javascript' src='{{ asset('js/scripts.js') }}'></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">

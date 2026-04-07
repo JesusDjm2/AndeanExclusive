@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgenteController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\EnblogController;
@@ -10,8 +11,12 @@ use App\Http\Controllers\EsblogController;
 use App\Http\Controllers\EsCatController;
 use App\Http\Controllers\EstagController;
 use App\Http\Controllers\EsTourController;
+use App\Http\Controllers\HabitacionController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HotelController;
 use App\Http\Controllers\ImagenController;
+use App\Http\Controllers\PaxController;
+use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
@@ -38,8 +43,16 @@ Route::middleware('auth')->group(function () {
     Route::resource('imagenes', ImagenController::class)->names('imagenes');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
     Route::resource('proveedors', ProveedorController::class)->names('proveedors');
+    Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
+    Route::resource('agentes', AgenteController::class)->names('agentes');
+    Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
+    Route::resource('programas', ProgramaController::class)->names('programas');
+    Route::resource('paxs', PaxController::class)->names('paxs');
+    Route::resource('hoteles', HotelController::class)->names('hotel')->parameters(['hoteles' => 'hotel']);
+    Route::resource('habitaciones', HabitacionController::class)->names('habitacion');
 });
 
+Route::get('programas/{programa}', [ProgramaController::class, 'show'])->name('programas.show');
 
 Route::get('around-peru', [EnEnlacesController::class, 'around'])->name('around');
 Route::get('exclusive-tours', [EnEnlacesController::class, 'experiences'])->name('experiences');
@@ -70,6 +83,7 @@ Route::get('en/blog/{slug}', [EnblogController::class, 'show'])->name('enblog.sh
 Route::get('es/blog/{slug}', [EsblogController::class, 'show'])->name('esblog.show');
 Route::get('en/tag/{slug}', [EntagController::class, 'show'])->name('entag.show');
 Route::get('es/tag/{slug}', [EstagController::class, 'show'])->name('estag.show');
+Route::get('programas/{programa}', [ProgramaController::class, 'show'])->name('programas.show');
 
 // Rutas en Ingles
 /* Route::get('/', function () {return view('index');})->name('index'); */

@@ -15,12 +15,6 @@ class ProveedorController extends Controller
             ->with('i', (request()->input('page', 1) - 1) * $proveedors->perPage());
     }
 
-    /* public function create()
-    {
-        $proveedor = new Proveedor();
-        $categorias = Categoria::pluck('nombre', 'id');
-        return view('proveedor.create', compact('proveedor', 'categorias'));
-    } */
     public function create()
     {
         $categorias = Categoria::pluck('nombre', 'id');
@@ -41,7 +35,6 @@ class ProveedorController extends Controller
     public function show($id)
     {
         $proveedor = Proveedor::find($id);
-
         return view('proveedor.show', compact('proveedor'));
     }
 
@@ -72,7 +65,6 @@ class ProveedorController extends Controller
     public function destroy($id)
     {
         $proveedor = Proveedor::find($id)->delete();
-
         return redirect()->route('proveedors.index')
             ->with('success', 'Proveedor borrado exitosamente');
     }

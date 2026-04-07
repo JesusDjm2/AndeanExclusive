@@ -23,7 +23,7 @@ class CreateProveedorsTable extends Migration
             $table->string('telefono');
             $table->string('correo');
             $table->string('img')->nullable();
-            $table->string('detalles')->nullable();
+            $table->text('detalles')->nullable();
             $table->timestamps();
         });
     }

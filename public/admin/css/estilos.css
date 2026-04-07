@@ -1,0 +1,57 @@
+.btn-logout {
+  background: #3085d6;
+  color: #fff !important;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+}
+.btn-logout i {
+  font-size: 0.9rem;
+}
+.btn-logout:hover {
+  background: rgb(34.8830645161, 107.2016129032, 176.1169354839);
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+}
+.btn-logout:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+.btn-eliminar-programa {
+  background: #dc3545;
+  border: none;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease-in-out, box-shadow 0.12s ease-in-out;
+  font-size: 0.85rem;
+}
+.btn-eliminar-programa i {
+  font-size: 0.9rem;
+}
+.btn-eliminar-programa:hover {
+  /* Uso de color.adjust (recomendado) para oscurecer */
+  background: #dc3545;
+  transform: scale(1.05);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+.btn-eliminar-programa:active {
+  transform: scale(0.98);
+  box-shadow: none;
+}
+
+/* Para dar margen si lo usas en tablas */
+.form-eliminar-programa {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+/*# sourceMappingURL=estilos.css.map */

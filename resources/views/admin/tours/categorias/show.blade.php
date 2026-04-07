@@ -59,11 +59,11 @@
     <div class="container relacionados" style="margin-top:2em; margin-bottom:2em">
         <div class="row">
             @foreach ($tours as $tour)
-                <div class="col-lg-4"> 
-                    <div class="card">
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100">
                         <a href="{{ route('tour.show', $tour->slug) }}">
-                            <img class="card-img-top" src="{{asset( $tour->imgThumb )}}" alt="{{ $tour->nombre }}"
-                                loading="lazy">
+                            <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
+                                loading="lazy" decoding="async">
                         </a>
                         <div class="card-body">
                             <h5>{{ $tour->nombre }}</h5>
@@ -72,24 +72,24 @@
                                 <i class="fa fa-map-marker"></i>&nbsp;
                                 <span>{{ $tour->recorrido }}</span>
                             </div>
-                            <p class="card-text">{{ $tour->descripcionCorta }}</p>
-                            <div class="cuerpo">
-                                <div class="col-sm-6">
+                            <p class="card-text flex-grow-1">{{ $tour->descripcionCorta }}</p>
+                            <div class="cuerpo row no-gutters mx-0 w-100">
+                                <div class="col-6">
                                     <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
                                 </div>
-                                <div class="col-sm-6">
-                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
+                                <div class="col-6 text-right">
+                                    <p><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
                                 </div>
                             </div>
                             <div class="categorias">
-                                @foreach ($tour->categorias as $categoria)
-                                    <a href="{{ route('category.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
+                                @foreach ($tour->categorias as $cat)
+                                    <a href="{{ route('category.show', $cat->slug) }}">{{ $cat->nombre }}</a>
                                     @if (!$loop->last)
                                         -&nbsp;
                                     @endif
                                 @endforeach
                             </div>
-                            <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023">
+                            <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023 mt-auto">
                                 Read more
                             </a>
                         </div>

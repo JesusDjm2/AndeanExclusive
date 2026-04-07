@@ -102,7 +102,7 @@
                         <h2 class="tituloBlog text-center">{{ $blog->nombre }}</h2>
                         <img src="{{ asset('img/full/' . $blog->imgFull) }}" alt="{{ $blog->nombre }}" loading="lazy"
                             width="100%">
-                        <div class="contenidoBLogs">
+                        <div class="contenidoBLogs rich-html-content">
                             {!! $blog->descripcion !!}
                         </div>
                     </div>
@@ -134,7 +134,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3" style="position: sticky;top:5em">
+            <div class="col-lg-3 blog-sidebar-related">
                 <h4 class="text-center" style="font-family: 'Dancing Script', cursive;color:#000; font-size:25px">Similar
                     Blogs
                 </h4>
@@ -165,47 +165,47 @@
     </div>
     <div class="container">
         <div class="row relacionados">
-            <div class="col-lg-12">
+            <div class="col-12 mb-3">
                 <h2>Exclusive Tours for Perú</h2>
-                @foreach ($tours->take(3) as $tour)
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <a href="{{ route('tour.show', $tour->slug) }}">
-                                <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
-                                    loading="lazy">
-                            </a>
-                            <div class="card-body">
-                                <h5>{{ $tour->nombre }}</h5>
-                                <div class="linea"></div>
-                                <div class="recorrido">
-                                    <i class="fa fa-map-marker"></i>&nbsp;
-                                    <span>{{ $tour->recorrido }}</span>
-                                </div>
-                                <p class="card-text">{{ $tour->descripcionCorta }}</p>
-                                <div class="cuerpo">
-                                    <div class="col-sm-6">
-                                        <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p class="right"><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
-                                    </div>
-                                </div>
-                                <div class="categorias">
-                                    @foreach ($tour->categorias as $categoria)
-                                        <a href="">{{ $categoria->nombre }}</a>
-                                        @if (!$loop->last)
-                                            -&nbsp;
-                                        @endif
-                                    @endforeach
-                                </div>
-                                <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023">
-                                    Read more
-                                </a>
+            </div>
+            @foreach ($tours->take(3) as $relatedTour)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <a href="{{ route('tour.show', $relatedTour->slug) }}">
+                            <img class="card-img-top" src="{{ asset($relatedTour->imgThumb) }}" alt="{{ $relatedTour->nombre }}"
+                                loading="lazy" decoding="async">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5>{{ $relatedTour->nombre }}</h5>
+                            <div class="linea"></div>
+                            <div class="recorrido">
+                                <i class="fa fa-map-marker"></i>&nbsp;
+                                <span>{{ $relatedTour->recorrido }}</span>
                             </div>
+                            <p class="card-text flex-grow-1">{{ $relatedTour->descripcionCorta }}</p>
+                            <div class="cuerpo row no-gutters">
+                                <div class="col-sm-6">
+                                    <p><i class="fa fa-usd"></i> {{ $relatedTour->precio }}.00</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $relatedTour->dias }} days</p>
+                                </div>
+                            </div>
+                            <div class="categorias">
+                                @foreach ($relatedTour->categorias as $categoria)
+                                    <a href="{{ route('category.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
+                                    @if (!$loop->last)
+                                        -&nbsp;
+                                    @endif
+                                @endforeach
+                            </div>
+                            <a href="{{ route('tour.show', $relatedTour->slug) }}" class="boton2023 mt-2">
+                                Read more
+                            </a>
                         </div>
                     </div>
-                @endforeach
-            </div>
+                </div>
+            @endforeach
         </div>
     </div>
 @endsection

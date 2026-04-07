@@ -11,128 +11,136 @@
     <link href="{{ asset('admin/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
     <link href="{{ asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link rel="icon" href="{{ asset('img/thumb/favicon-admin.png') }}" />
+    <link rel="stylesheet" href="{{ asset('admin/css/estilos.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-
 </head>
 
 <body id="page-top">
     <div id="wrapper">
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-    <!-- Logo -->
-    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('index') }}">
-        <img src="{{ asset('img/Logo-blanco-andean.png') }}" width="100%" style="padding: 0.6em">
-    </a>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="{{ route('index') }}">
+                <img src="{{ asset('img/Logo-blanco-andean.png') }}" width="100%" style="padding: 0.6em">
+            </a>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('home') }}">
+                    <i class="fas fa-fw fa-home"></i>
+                    <span>Inicio</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider">
+            <div class="sidebar-heading text-uppercase">Inglés</div>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEn"
+                    aria-expanded="false" aria-controls="toursEn">
+                    <i class="fas fa-fw fa-map-marked-alt"></i>
+                    <span>Tours EN</span>
+                </a>
+                <div id="toursEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('tours.index') }}">Tours</a>
+                        <a class="collapse-item" href="{{ route('categories.index') }}">Categorías</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEn"
+                    aria-expanded="false" aria-controls="blogsEn">
+                    <i class="fas fa-fw fa-blog"></i>
+                    <span>Blogs EN</span>
+                </a>
+                <div id="blogsEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('entags.index') }}">Tags</a>
+                        <a class="collapse-item" href="{{ route('enblogs.index') }}">Blogs</a>
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider">
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEs"
+                    aria-expanded="false" aria-controls="toursEs">
+                    <i class="fas fa-fw fa-map"></i>
+                    <span>Tours ES</span>
+                </a>
+                <div id="toursEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('estours.index') }}">Tours</a>
+                        <a class="collapse-item" href="{{ route('categorias.index') }}">Categorías</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEs"
+                    aria-expanded="false" aria-controls="blogsEs">
+                    <i class="fas fa-fw fa-pen"></i>
+                    <span>Blogs ES</span>
+                </a>
+                <div id="blogsEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('estags.index') }}">Tags</a>
+                        <a class="collapse-item" href="{{ route('esblogs.index') }}">Blogs</a>
+                    </div>
+                </div>
+            </li>
+            <hr class="sidebar-divider">
+            <!-- Sección: Administración -->
+            <div class="sidebar-heading text-uppercase">Administración</div>
 
-    <!-- Home -->
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('home') }}">
-            <i class="fas fa-fw fa-home"></i>
-            <span>Inicio</span>
-        </a>
-    </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#programa"
+                    aria-expanded="false" aria-controls="programa">
+                    <i class="fas fa-fw fa-pen"></i>
+                    <span>Programas</span>
+                </a>
+                <div id="programa" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('programas.index') }}">Programas</a>
+                        <a class="collapse-item" href="{{ route('paxs.index') }}">Pasajeros</a>
 
-    <hr class="sidebar-divider">
-
-    <!-- Sección: Inglés -->
-    <div class="sidebar-heading text-uppercase">Inglés</div>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEn" aria-expanded="false" aria-controls="toursEn">
-            <i class="fas fa-fw fa-map-marked-alt"></i>
-            <span>Tours EN</span>
-        </a>
-        <div id="toursEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('tours.index') }}">Tours</a>
-                <a class="collapse-item" href="{{ route('categories.index') }}">Categorías</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#proveedor"
+                    aria-expanded="false" aria-controls="proveedor">
+                    <i class="fas fa-fw fa-pen"></i>
+                    <span>Proveedores</span>
+                </a>
+                <div id="proveedor" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                    <div class="bg-white py-2 collapse-inner rounded">
+                        <a class="collapse-item" href="{{ route('proveedors.index') }}">Proveedores</a>
+                        <a class="collapse-item" href="{{ route('categoriasproveedor.index') }}">Categoria de
+                            Proveedores</a>
+                        <a class="collapse-item" href="{{ route('hotel.index') }}">Hoteles</a>
+                        <a class="collapse-item" href="{{ route('agentes.index') }}">Agentes</a>
+                    </div>
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('imagenes.index') }}">
+                    <i class="fas fa-fw fa-images"></i>
+                    <span>Imágenes</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('users.index') }}">
+                    <i class="fas fa-fw fa-user"></i>
+                    <span>Usuarios</span>
+                </a>
+            </li>
+            <hr class="sidebar-divider d-none d-md-block">
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
             </div>
-        </div>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEn" aria-expanded="false" aria-controls="blogsEn">
-            <i class="fas fa-fw fa-blog"></i>
-            <span>Blogs EN</span>
-        </a>
-        <div id="blogsEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('entags.index') }}">Tags</a>
-                <a class="collapse-item" href="{{ route('enblogs.index') }}">Blogs</a>
-            </div>
-        </div>
-    </li>
-
-    <hr class="sidebar-divider">
-
-    <!-- Sección: Español -->
-    <div class="sidebar-heading text-uppercase">Español</div>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEs" aria-expanded="false" aria-controls="toursEs">
-            <i class="fas fa-fw fa-map"></i>
-            <span>Tours ES</span>
-        </a>
-        <div id="toursEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('estours.index') }}">Tours</a>
-                <a class="collapse-item" href="{{ route('categorias.index') }}">Categorías</a>
-            </div>
-        </div>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEs" aria-expanded="false" aria-controls="blogsEs">
-            <i class="fas fa-fw fa-pen"></i>
-            <span>Blogs ES</span>
-        </a>
-        <div id="blogsEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-            <div class="bg-white py-2 collapse-inner rounded">
-                <a class="collapse-item" href="{{ route('estags.index') }}">Tags</a>
-                <a class="collapse-item" href="{{ route('esblogs.index') }}">Blogs</a>
-            </div>
-        </div>
-    </li>
-
-    <hr class="sidebar-divider">
-
-    <!-- Sección: Administración -->
-    <div class="sidebar-heading text-uppercase">Administración</div>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('imagenes.index') }}">
-            <i class="fas fa-fw fa-images"></i>
-            <span>Imágenes</span>
-        </a>
-    </li>
-
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('users.index') }}">
-            <i class="fas fa-fw fa-user"></i>
-            <span>Usuarios</span>
-        </a>
-    </li>
-
-    {{-- ✅ Nuevo módulo: Proveedores --}}
-    <li class="nav-item">
-        <a class="nav-link" href="{{ route('proveedors.index') }}">
-            <i class="fas fa-fw fa-truck"></i>
-            <span>Proveedores</span>
-        </a>
-    </li>
-
-    <hr class="sidebar-divider d-none d-md-block">
-
-    <div class="text-center d-none d-md-inline">
-        <button class="rounded-circle border-0" id="sidebarToggle"></button>
-    </div>
-</ul>
-
+        </ul>
 
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <h5 class="text-primary">Hola {{ $firstName }}!</h5>
+                    <h6 class="text-muted mb-0 d-flex align-items-center gap-2">
+                        Qué gusto verte, <span class="fw-semibold text-dark">{{ $firstName }}</span>
+                    </h6>
                     <ul class="navbar-nav ml-auto">
                         <li class="nav-item dropdown no-arrow d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
@@ -157,23 +165,46 @@
                         </li>
                         <li class="nav-item no-arrow mx-1">
                             <ul class="navbar-nav ms-auto">
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link mr-4" href="#" role="button" data-bs-toggle="dropdown"
-                                        aria-haspopup="true" aria-expanded="false" v-pre>
-                                       {{--  {{ Auth::user()->name }} --}}
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="btn btn-danger mt-3 btn-sm" href="{{ route('logout') }}"
-                                        onclick="event.preventDefault();
-                                                             document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST"
-                                        class="d-none">
-                                        @csrf
-                                    </form>
-                                </li>
+                                @auth
+                                    <li>
+                                        <button type="button" id="logoutButton" class="btn-logout">
+                                            <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                                        </button>
+
+                                        <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                            class="d-none">
+                                            @csrf
+                                        </form>
+
+                                        <script>
+                                            document.getElementById('logoutButton').addEventListener('click', function(e) {
+                                                e.preventDefault();
+
+                                                Swal.fire({
+                                                    title: '¿Deseas salir del sistema?',
+                                                    text: 'Podrás volver a iniciar sesión cuando quieras.',
+                                                    icon: 'question',
+                                                    showCancelButton: true,
+                                                    confirmButtonColor: '#3085d6',
+                                                    cancelButtonColor: '#6c757d',
+                                                    cancelButtonText: 'Seguir conectado',
+                                                    confirmButtonText: 'Sí, cerrar sesión',
+                                                    background: '#fff',
+                                                    customClass: {
+                                                        popup: 'rounded-3 shadow-lg',
+                                                        title: 'fw-bold',
+                                                        confirmButton: 'px-4',
+                                                        cancelButton: 'px-4'
+                                                    }
+                                                }).then((result) => {
+                                                    if (result.isConfirmed) {
+                                                        document.getElementById('logout-form').submit();
+                                                    }
+                                                });
+                                            });
+                                        </script>
+                                    </li>
+                                @endauth
                             </ul>
                         </li>
                     </ul>
@@ -182,21 +213,152 @@
                     @yield('contenido')
                 </div>
             </div>
-            <footer class="sticky-footer bg-white">
+            {{--   <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
                         <span>Copyright &copy; Made by <a target="_blank"
                                 href="https://www.facebook.com/DjmWebMaster/">DJM2</a></span>
                     </div>
                 </div>
+            </footer> --}}
+            <footer class="sticky-footer animated-footer">
+                <div class="container my-auto text-center py-3">
+                    <div class="copyright my-auto">
+                        <span class="text-white">
+                            © {{ date('Y') }} Made by
+                            <a target="_blank" href="https://www.facebook.com/DjmWebMaster/" class="footer-link">
+                                DJM2
+                            </a>
+                        </span>
+                    </div>
+                </div>
             </footer>
+
+            <style>
+                /* 🎨 Estilos base */
+                .animated-footer {
+                    background-color: #313131;
+                    color: #ffffff;
+                    opacity: 0;
+                    transform: translateY(100%);
+                    visibility: hidden;
+                    position: relative;
+                    transition: opacity 0.3s ease, transform 0.3s ease;
+                }
+
+                /* 💫 Cuando aparece */
+                .animated-footer.show {
+                    animation: slideUpBounce 0.5s ease-in-out forwards;
+                    /* ⏱️ más rápido */
+                    opacity: 1;
+                    transform: translateY(0);
+                    visibility: visible;
+                    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+                }
+
+                /* 🌟 Enlaces */
+                .footer-link {
+                    color: #f9d342;
+                    text-decoration: none;
+                    transition: color 0.1s ease;
+                }
+
+                .footer-link:hover {
+                    color: #ffffff;
+                }
+
+                /* 🧩 Animación */
+                @keyframes slideUpBounce {
+                    0% {
+                        transform: translateY(100%);
+                        opacity: 0;
+                    }
+
+                    55% {
+                        transform: translateY(0.2em);
+                        opacity: 1;
+                    }
+
+                    75% {
+                        transform: translateY(0.1em);
+                    }
+
+                    100% {
+                        transform: translateY(0);
+                        opacity: 1;
+                        visibility: visible;
+                    }
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const footer = document.querySelector('.animated-footer');
+                    let visible = false;
+
+                    window.addEventListener('scroll', function() {
+                        const scrollBottom = window.scrollY + window.innerHeight;
+                        const docHeight = document.documentElement.scrollHeight;
+
+                        if (scrollBottom >= docHeight - 10 && !visible) {
+                            footer.classList.add('show');
+                            visible = true;
+                        } else if (scrollBottom < docHeight - 100 && visible) {
+                            footer.classList.remove('show');
+                            visible = false;
+                        }
+                    });
+                });
+            </script>
+
         </div>
     </div>
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-    <script src="//cdn.ckeditor.com/4.14.1/full/ckeditor.js"></script>
+    <style>
+        /* Eliminar scrollbars duplicadas */
+        html,
+        body {
+            overflow-x: hidden;
+            overflow-y: auto;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
 
+        #wrapper {
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        #content-wrapper {
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .container-fluid {
+            overflow-y: visible;
+            max-height: none;
+        }
+
+        /* Arreglar acordeones */
+        .accordion .card {
+            overflow: visible;
+        }
+
+        .collapse {
+            overflow: visible;
+        }
+
+        /* Botón flotante */
+        .fixed-bottom {
+            position: fixed;
+            bottom: 80px;
+            z-index: 9999;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2/ckeditor.js"></script>
     <script src="{{ asset('admin/vendor/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('admin/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('admin/vendor/jquery-easing/jquery.easing.min.js') }}"></script>
@@ -204,7 +366,10 @@
     <script src="{{ asset('admin/vendor/chart.js/Chart.min.js') }}"></script>
     <script src="{{ asset('admin/js/demo/chart-area-demo.js') }}"></script>
     <script src="{{ asset('admin/js/demo/chart-pie-demo.js') }}"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
 
 </html>

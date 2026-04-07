@@ -10,7 +10,7 @@ class Proveedor extends Model
         'nombre' => 'required',
         'categoria_id' => 'required',
         'telefono' => 'required',
-        'correo' => 'required',
+        'correo' => 'required',        
     ];
 
     protected $fillable = ['nombre', 'categoria_id', 'direccion', 'ruc',  'telefono', 'correo', 'detalles'];
@@ -18,5 +18,10 @@ class Proveedor extends Model
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
+    }
+
+    public function programas()
+    {
+        return $this->belongsToMany(Programa::class, 'programa_proveedor');
     }
 }

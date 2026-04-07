@@ -13,6 +13,15 @@
   object-fit: cover;
   z-index: -1;
 }
+#header {
+    background: linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0.6) 0%,
+        rgba(0, 0, 0, 0.5) 40%,
+        rgba(0, 0, 0, 0.404) 60%,
+        rgba(0, 0, 0, 0) 100%
+    );
+}
 
 .content-overlay {
   position: absolute;
@@ -23,6 +32,7 @@
   color: white;
   z-index: 1;
 }
+
 .content-overlay h1 {
   font-size: 50px;
   text-shadow: 1px 1px 1px #000;
@@ -31,6 +41,7 @@
   letter-spacing: 3pt;
   font-weight: BOLD;
 }
+
 .content-overlay h1:after {
   content: "";
   position: absolute;
@@ -41,6 +52,7 @@
   height: 3px;
   background-color: #09ccbd;
 }
+
 .content-overlay p {
   text-align: center;
   color: #fff;
@@ -50,23 +62,45 @@
   background: rgba(128, 128, 128, 0.3490196078);
 }
 
+/* Tour itinerary tabs: muted UI (readable, not neon) */
 .tabs {
   display: flex;
   justify-content: center;
-  border-radius: 5px;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 10px;
+  background: #eef2f5;
+  border: 1px solid #dde4ea;
 }
 
 .tab-button {
-  flex-grow: 1;
-  background-color: transparent;
-  border: 1px solid rgba(128, 128, 128, 0.5019607843);
-  padding: 10px 20px;
+  flex: 1 1 auto;
+  min-height: 44px;
+  background-color: #f8fafb;
+  border: 1px solid #cfd8e0;
+  color: #4a5568;
+  padding: 10px 16px;
   cursor: pointer;
+  border-radius: 8px;
+  font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.tab-button:hover {
+  background: #fff;
+  border-color: #b8c9d4;
+  color: #2d3748;
 }
 
 .tab-button.active {
-  background-color: #09ccbd;
-  color: #fff;
+  background: #e2f0ee;
+  border-color: #8fb8b0;
+  color: #1a5f5b;
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(26, 95, 91, 0.12);
 }
 
 .tab-content .tab-pane {
@@ -82,16 +116,19 @@
 .socialesShare {
   text-align: center;
 }
+
 .socialesShare h3 {
   color: #616161;
   font-family: "Dancing Script", cursive;
   font-size: 26px;
   margin-bottom: 10px;
 }
+
 .socialesShare .redes-sociales {
   display: flex;
   justify-content: center;
 }
+
 .socialesShare .redes-sociales a {
   display: inline-block;
   width: 40px;
@@ -105,6 +142,7 @@
   font-size: 20px;
   transition: box-shadow 0.3s ease;
 }
+
 .socialesShare .redes-sociales a:hover {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
@@ -124,6 +162,7 @@
   transition: all 0.3s ease;
   cursor: pointer;
 }
+
 .boton2023:hover {
   color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -133,12 +172,64 @@
   margin-top: 2em;
   margin-bottom: 2em;
 }
+
+/* Equal-height cards per row (row.relacionados OR .relacionados > .row) */
+.relacionados.row,
+.relacionados > .row,
+.container.relacionados > .row {
+  align-items: stretch;
+}
+.relacionados.row > [class*="col-"],
+.relacionados > .row > [class*="col-"],
+.container.relacionados > .row > [class*="col-"] {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+.relacionados.row > [class*="col-"] > .card,
+.relacionados > .row > [class*="col-"] > .card,
+.container.relacionados > .row > [class*="col-"] > .card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.relacionados.row > [class*="col-"] > .card > .card-body,
+.relacionados > .row > [class*="col-"] > .card > .card-body,
+.container.relacionados > .row > [class*="col-"] > .card > .card-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+.relacionados.row > [class*="col-"] > .card > a:first-child,
+.relacionados > .row > [class*="col-"] > .card > a:first-child,
+.container.relacionados > .row > [class*="col-"] > .card > a:first-child {
+  flex-shrink: 0;
+}
+
+/* Fill vertical space when theme Bootstrap lacks .flex-grow-1 */
+.relacionados .card-body > p.card-text {
+  flex: 1 1 auto;
+}
+.relacionados .card-body > a.boton2023.mt-auto {
+  margin-top: auto !important;
+}
+
+/* Tour main column title: sans, aligned with programas (not Dancing Script) */
+.vc_row-fluid.vc_custom_1461248392126 #titulo1 {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 700;
+  font-size: 2.2rem;
+  color: #1a5f5b;
+  letter-spacing: normal;
+}
+
 .relacionados .recorrido {
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 1em;
 }
+
 .relacionados .linea {
   width: 30px;
   height: 1px;
@@ -146,21 +237,25 @@
   margin: auto;
   margin-bottom: 1em;
 }
+
 .relacionados .cuerpo {
   width: 100%;
   display: flex;
   margin-top: 0.6em;
   margin-bottom: 0.2em;
 }
+
 .relacionados .cuerpo .right {
   float: right;
 }
+
 .relacionados .categorias {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 1.2em;
 }
+
 .relacionados .categorias a {
   margin-right: 0.8em;
   color: #0c8178;
@@ -171,13 +266,16 @@
   border-bottom: 1px solid transparent;
   text-transform: uppercase;
 }
+
 .relacionados .categorias a:hover {
   color: #545454;
 }
+
 .relacionados .categorias a:hover:after {
   transform: scale(1);
   transform-origin: bottom left;
 }
+
 .relacionados .categorias a::after {
   content: "";
   position: absolute;
@@ -190,11 +288,13 @@
   transform-origin: bottom right;
   transition: transform 0.6s ease;
 }
+
 .relacionados img {
   height: 240px;
   width: 100%;
   object-fit: cover;
 }
+
 .relacionados h2 {
   font-family: "Dancing Script";
   margin-bottom: 2em;
@@ -204,6 +304,7 @@
   color: #545454;
   text-align: center;
 }
+
 .relacionados h2::after {
   content: "";
   display: block;
@@ -215,6 +316,7 @@
   left: 50%;
   transform: translateX(-50%);
 }
+
 .relacionados h5 {
   color: #0c8178;
   font-size: 14px;
@@ -229,6 +331,7 @@
   position: relative;
   padding-bottom: 0.3em;
 }
+
 .contenidoBLogs h2:before {
   content: "";
   position: absolute;
@@ -238,14 +341,23 @@
   background: #09ccbd;
 }
 
-.tab-content h2 {
+/* Blog body prose: programa-style H2 (no extra teal bar) */
+.contenidoBLogs.rich-html-content h2::before,
+.contenidoBLogs .rich-html-content h2::before {
+  content: none !important;
+  display: none !important;
+}
+
+/* Legacy tab headings — scoped so .rich-html-content can use programa-style prose */
+.tab-content:not(.rich-html-content) h2 {
   color: #000;
   padding-bottom: 0.4em;
   position: relative;
   text-transform: uppercase;
   font-size: 20px;
 }
-.tab-content h2::before {
+
+.tab-content:not(.rich-html-content) h2::before {
   content: "";
   display: block;
   background-color: #09ccbd;
@@ -255,7 +367,8 @@
   bottom: -5px;
   left: 0;
 }
-.tab-content h3 {
+
+.tab-content:not(.rich-html-content) h3 {
   color: #484848;
   font-size: 16px;
   font-style: italic;
@@ -272,6 +385,7 @@
   margin-left: -4em;
   transition: 1s ease;
 }
+
 .boton-editar:hover {
   margin-left: -0.4em;
   color: #fff;
@@ -284,10 +398,12 @@
   border-radius: 10px;
   transition: 1s ease;
 }
+
 #similares:hover {
   box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
   transition: 1s ease;
 }
+
 #similares .categorias {
   display: inline-block;
 }
@@ -296,23 +412,28 @@
   0% {
     transform: scale(1);
   }
+
   100% {
     transform: scale(1.1);
   }
 }
+
 .blogContenedor {
   position: relative;
   height: 450px;
   overflow: hidden;
   background: rgba(0, 0, 0, 0.4);
 }
+
 .blogContenedor .zoom-infinite {
   animation: zoom-infinite 10s infinite alternate linear;
   transform-origin: center;
 }
+
 .blogContenedor p {
   font-size: 16px;
 }
+
 .blogContenedor .tags {
   background: #0c8178;
   color: #fff;
@@ -321,6 +442,7 @@
   font-size: 14px;
   cursor: pointer;
 }
+
 .blogContenedor .tags:hover {
   background: #12aea1;
 }
@@ -333,6 +455,7 @@
   position: relative;
   margin-bottom: 1em;
 }
+
 .tituloBlog:before {
   content: "";
   position: absolute;
@@ -354,10 +477,12 @@
 .blogsRelacionados {
   padding: 0.1em;
 }
+
 .blogsRelacionados:hover .div {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   transition: 0.6s ease;
 }
+
 .blogsRelacionados .div {
   border: 1px solid rgba(75, 75, 75, 0.1215686275);
   margin-bottom: 0.6em;
@@ -365,11 +490,13 @@
   overflow: hidden;
   background: #fff;
 }
+
 .blogsRelacionados img {
   width: 100%;
   height: 140px;
   object-fit: cover;
 }
+
 .blogsRelacionados h3 {
   font-size: 14px;
   text-align: center;
@@ -381,10 +508,12 @@
   font-weight: 500;
   font-family: "elegante";
 }
+
 .blogsRelacionados h3:hover {
   color: #0c8178;
   transition: 0.4s ease;
 }
+
 .blogsRelacionados h3:before {
   content: "";
   position: absolute;
@@ -395,6 +524,7 @@
   left: 50%;
   transform: translateX(-50%);
 }
+
 .blogsRelacionados p {
   text-align: center;
   font-size: 13px;
@@ -404,10 +534,12 @@
   padding: 1em;
   margin-top: -2em;
 }
+
 .tags:hover .div {
   box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
   transition: 0.6s ease;
 }
+
 .tags h3 {
   font-size: 25px;
   text-align: center;
@@ -415,6 +547,7 @@
   font-family: "Dancing Script", cursive;
   position: relative;
 }
+
 .tags h3:before {
   content: "";
   position: absolute;
@@ -425,6 +558,7 @@
   left: 50%;
   transform: translateX(-50%);
 }
+
 .tags .div {
   background: #fff;
   border: 1px solid rgba(75, 75, 75, 0.1215686275);
@@ -432,6 +566,7 @@
   text-align: center;
   margin-top: 1.4em;
 }
+
 .tags .div a {
   color: #000;
   padding: 0.3em;
@@ -444,6 +579,7 @@
   transition: 0.5s ease;
   cursor: pointer;
 }
+
 .tags .div a:hover {
   background: #09ccbd;
   color: #fff;
@@ -454,8 +590,197 @@
   .content-overlay h1 {
     font-size: 25px !important;
   }
+
   .relaciones {
     margin-bottom: 2em;
+  }
+}
+
+/* --- Public footer & tour/blog prose (aligned with programas overview) --- */
+.site-footer-public .footer-link-muted {
+  color: rgba(248, 248, 248, 0.75);
+  text-decoration: none;
+}
+.site-footer-public .footer-link-muted:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.tour-sidebar-booking {
+  padding: 2em;
+}
+@media (min-width: 992px) {
+  .tour-sidebar-booking {
+    position: sticky;
+    top: 1.5rem;
+    align-self: flex-start;
+  }
+}
+
+.blog-sidebar-related {
+  padding-top: 0.5rem;
+}
+@media (min-width: 992px) {
+  .blog-sidebar-related {
+    position: sticky;
+    top: 5rem;
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 576px) {
+  .tabs {
+    flex-direction: column;
+  }
+  .tab-button {
+    width: 100%;
+    font-size: 1.05rem;
+    padding: 10px 12px;
+  }
+}
+
+/* Prose blocks: system stack (same idea as programas .overview-content), override body "elegante" */
+.rich-html-content,
+.rich-html-content p,
+.rich-html-content li,
+.rich-html-content td,
+.rich-html-content th,
+.rich-html-content blockquote {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+.rich-html-content {
+  font-size: 1.5rem;
+  line-height: 1.75;
+  color: #2d3748;
+}
+.rich-html-content > *:first-child {
+  margin-top: 0;
+}
+.rich-html-content > * + * {
+  margin-top: 1rem;
+}
+.rich-html-content h1,
+.rich-html-content h2,
+.rich-html-content h3,
+.rich-html-content h4 {
+  font-weight: 700;
+  color: #1a5f5b;
+  line-height: 1.3;
+  margin-top: 1.75rem;
+  margin-bottom: 0.65rem;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+.rich-html-content h2::before,
+.rich-html-content h2::after,
+.rich-html-content h3::before {
+  content: none !important;
+  display: none !important;
+}
+.rich-html-content h1 {
+  font-size: 1.5rem;
+}
+.rich-html-content h2 {
+  font-size: 1.8rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid #c9a96b;
+}
+.rich-html-content h3 {
+  font-size: 1.4rem;
+  color: #234e52;
+}
+.rich-html-content h4 {
+  font-size: 1rem;
+}
+.rich-html-content p {
+  margin-bottom: 1rem;
+  text-align: justify;
+}
+.rich-html-content ul,
+.rich-html-content ol {
+  padding-left: 1.35rem;
+  margin-bottom: 1rem;
+}
+.rich-html-content li {
+  margin-bottom: 0.4rem;
+}
+.rich-html-content li::marker {
+  color: #0c8178;
+}
+.rich-html-content a {
+  color: #0c8178;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.rich-html-content a:hover {
+  color: #065f56;
+}
+.rich-html-content strong {
+  color: #1a202c;
+  font-weight: 600;
+}
+.rich-html-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.25rem 0;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+.rich-html-content blockquote {
+  margin: 1.25rem 0;
+  padding: 1rem 1rem 1rem 1.15rem;
+  border-left: 4px solid #c9a96b;
+  background: #f7fafc;
+  color: #4a5568;
+  font-style: italic;
+  border-radius: 0 10px 10px 0;
+}
+.tab-content.rich-html-content {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.rich-html-content table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+  margin: 1.25rem 0;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.rich-html-content th,
+.rich-html-content td {
+  border: 1px solid #e2e8f0;
+  padding: 0.55rem 0.75rem;
+  text-align: left;
+}
+.rich-html-content th {
+  background: #1a5f5b;
+  color: #fff;
+  font-weight: 600;
+}
+.rich-html-content tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+.rich-html-content hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
+  margin: 1.5rem 0;
+}
+@media (max-width: 576px) {
+  .rich-html-content {
+    font-size: 1.125rem;
+  }
+  .rich-html-content h2 {
+    font-size: 1.35rem;
+  }
+  .rich-html-content h3 {
+    font-size: 1.15rem;
+  }
+  .vc_row-fluid.vc_custom_1461248392126 #titulo1 {
+    font-size: 1.65rem;
   }
 }
 

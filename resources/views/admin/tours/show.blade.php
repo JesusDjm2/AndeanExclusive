@@ -61,7 +61,7 @@
             </div>
         </header>
         <div class="fullscreen-section">
-            <img src="{{ asset($tour->imgFull) }}" alt="{{ $tour->nombre }}" class="fullscreen-img">
+            <img src="{{ asset($tour->imgFull) }}" alt="{{ $tour->nombre }}" class="fullscreen-img" loading="eager" decoding="async">
             <div class="content-overlay">
                 <h1>{{ $tour->nombre }}</h1>
                 <p><i class="fa fa-map-marker"></i> {{ $tour->recorrido }}</p>
@@ -99,7 +99,7 @@
                             <i class="fa fa-map-marker"></i> {{ $tour->recorrido }}
                         </p>
                     </div>
-                    <div class="contenidoInicial" style="margin-top: 2em">
+                    <div class="contenidoInicial rich-html-content" style="margin-top: 2em">
                         {!! $tour->presentacion !!}
                     </div>
                     <div id="separador"></div>
@@ -111,7 +111,7 @@
                         <button class="tab-button" data-tab="tab4"><i class="fa fa-exclamation"></i> Important</button>
                     </div>
 
-                    <div class="tab-content">
+                    <div class="tab-content rich-html-content">
                         <div id="tab1" class="tab-pane active">
                             {!! $tour->itinerario !!}
                         </div>
@@ -167,7 +167,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4" style="padding: 2em;position: sticky;top:3em">
+            <div class="col-lg-4 tour-sidebar-booking">
                 <div>
                     <div class="card">
                         <div class="text-center">
@@ -193,47 +193,47 @@
     </div>
     <div class="container">
         <div class="row relacionados">
-            <div class="col-lg-12">
+            <div class="col-12 mb-3">
                 <h2>Popular tours</h2>
-                @foreach ($tours as $tour)
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <a href="{{ route('tour.show', $tour->slug) }}">
-                                <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
-                                    loading="lazy">
-                            </a>
-                            <div class="card-body">
-                                <h5>{{ $tour->nombre }}</h5>
-                                <div class="linea"></div>
-                                <div class="recorrido">
-                                    <i class="fa fa-map-marker"></i>&nbsp;
-                                    <span>{{ $tour->recorrido }}</span>
-                                </div>
-                                <p class="card-text">{{ $tour->descripcionCorta }}</p>
-                                <div class="cuerpo">
-                                    <div class="col-sm-6">
-                                        <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <p class="right"><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
-                                    </div>
-                                </div>
-                                <div class="categorias">
-                                    @foreach ($tour->categorias as $categoria)
-                                        <a href="">{{ $categoria->nombre }}</a>
-                                        @if (!$loop->last)
-                                            -&nbsp;
-                                        @endif
-                                    @endforeach
-                                </div>
-                                <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023">
-                                    Read more
-                                </a>
+            </div>
+            @foreach ($tours as $relatedTour)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <a href="{{ route('tour.show', $relatedTour->slug) }}">
+                            <img class="card-img-top" src="{{ asset($relatedTour->imgThumb) }}" alt="{{ $relatedTour->nombre }}"
+                                loading="lazy" decoding="async">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5>{{ $relatedTour->nombre }}</h5>
+                            <div class="linea"></div>
+                            <div class="recorrido">
+                                <i class="fa fa-map-marker"></i>&nbsp;
+                                <span>{{ $relatedTour->recorrido }}</span>
                             </div>
+                            <p class="card-text flex-grow-1">{{ $relatedTour->descripcionCorta }}</p>
+                            <div class="cuerpo row no-gutters">
+                                <div class="col-sm-6">
+                                    <p><i class="fa fa-usd"></i> {{ $relatedTour->precio }}.00</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $relatedTour->dias }} days</p>
+                                </div>
+                            </div>
+                            <div class="categorias">
+                                @foreach ($relatedTour->categorias as $categoria)
+                                    <a href="{{ route('category.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
+                                    @if (!$loop->last)
+                                        -&nbsp;
+                                    @endif
+                                @endforeach
+                            </div>
+                            <a href="{{ route('tour.show', $relatedTour->slug) }}" class="boton2023 mt-2">
+                                Read more
+                            </a>
                         </div>
                     </div>
-                @endforeach
-            </div>
+                </div>
+            @endforeach
         </div>
     </div>
 @endsection

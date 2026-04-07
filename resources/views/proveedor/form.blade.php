@@ -20,7 +20,7 @@
                 <label for="categoria_id">Categoría</label>
                 <select name="categoria_id" id="categoria_id"
                     class="form-control form-control-sm @error('categoria_id') is-invalid @enderror">
-                    <option value="">Seleccionar categoría</option>
+                    <option selected disabled>Seleccionar categoría</option>
                     @foreach ($categorias as $id => $nombre)
                         <option value="{{ $id }}"
                             {{ old('categoria_id', $proveedor->categoria_id ?? '') == $id ? 'selected' : '' }}>

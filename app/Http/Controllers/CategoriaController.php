@@ -13,43 +13,26 @@ use Illuminate\Support\Facades\DB;
  */
 class CategoriaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $categorias = Categoria::paginate();
         $proveedor = Proveedor::all();
-        return view('categoria.index', compact('categorias'))
+        return view('proveedor.categoria.index', compact('categorias'))
             ->with('i', (request()->input('page', 1) - 1) * $categorias->perPage());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         $categoria = new Categoria();
-        return view('categoria.create', compact('categoria'));
+        return view('proveedor.categoria.create', compact('categoria'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         request()->validate(Categoria::$rules);
-
         $categoria = Categoria::create($request->all());
 
-        return redirect()->route('categorias.index')
+        return redirect()->route('categoriasproveedor.index')
             ->with('success', 'Categoria creada exitosamente.');
     }
 
@@ -66,7 +49,7 @@ class CategoriaController extends Controller
     public function show($id)
     {
         $categorias = Categoria::find($id)->proveedors;
-        return view('categoria.show', compact('categorias'));
+        return view('proveedor.categoria.show', compact('categorias'));
     }
     /**
      * Show the form for editing the specified resource.
@@ -78,24 +61,19 @@ class CategoriaController extends Controller
     {
         $categoria = Categoria::find($id);
 
-        return view('categoria.edit', compact('categoria'));
+        return view('proveedor.categoria.edit', compact('categoria'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request $request
-     * @param  Categoria $categoria
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Categoria $categoria)
+    public function update(Request $request, $id)
     {
-        request()->validate(Categoria::$rules);
+        $request->validate(Categoria::$rules);
 
+        $categoria = Categoria::findOrFail($id);
         $categoria->update($request->all());
 
-        return redirect()->route('categorias.index')
-            ->with('success', 'Categoria actualizada exitosamente!');
+        return redirect()
+            ->route('categoriasproveedor.index')
+            ->with('success', 'Categoría actualizada exitosamente!');
     }
 
     /**
@@ -107,7 +85,7 @@ class CategoriaController extends Controller
     {
         $categoria = Categoria::find($id)->delete();
 
-        return redirect()->route('categorias.index')
+        return redirect()->route('categoriasproveedor.index')
             ->with('success', 'Categoria borrada exitosamente!');
     }
 }

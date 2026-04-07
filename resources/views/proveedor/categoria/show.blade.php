@@ -4,7 +4,7 @@
     {{ $categoria->name ?? 'Show Categoria' }}
 @endsection
 
-@section('content')
+@section('contenido')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.1/css/dataTables.bootstrap5.min.css">
     <section class="content container-fluid">
@@ -16,7 +16,7 @@
                             <span class="card-title">Show Categoria</span>
                         </div>
                         <div class="float-right">
-                            <a class="btn btn-primary" href="{{ route('categorias.index') }}"> Back</a>
+                            <a class="btn btn-primary" href="{{ route('cateogriasproveedor.index') }}"> Back</a>
                         </div>
                         <div class="card-body" style="background: #fff; margin:1em">
                             <table class="table table-hover" id="andean">

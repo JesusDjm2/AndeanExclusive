@@ -4,7 +4,7 @@
     Categoria
 @endsection
 
-@section('content')
+@section('contenido')
     <div class="container-fluid">
         <div class="row">
             <div class="col-sm-12">
@@ -12,14 +12,20 @@
                     <div class="card-header">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
 
-                            <span id="card_title">
-                                {{ __('Categoria') }}
-                            </span>
+                            <div class="col text-start">
+                                <h2 class="mb-0 fw-bold">
+                                    <i class="fas fa-fw fa-tags text-primary me-2"></i>
+                                    Categorías de Proveedores
+                                </h2>
+                                <small class="text-muted">
+                                    Organiza y gestiona las categorías de tus proveedores
+                                </small>
+                            </div>
 
                             <div class="float-right">
-                                <a href="{{ route('categorias.create') }}" class="btn btn-primary btn-sm float-right"
-                                    data-placement="left">
-                                    {{ __('Create New') }}
+                                <a href="{{ route('categoriasproveedor.create') }}"
+                                    class="btn btn-primary btn-sm float-right" data-placement="left">
+                                    {{ __('Crear nuevo') }}
                                 </a>
                             </div>
                         </div>
@@ -36,7 +42,6 @@
                                 <thead class="thead">
                                     <tr>
                                         <th>No</th>
-
                                         <th>Nombre</th>
 
                                         <th></th>
@@ -46,31 +51,18 @@
                                     @foreach ($categorias as $categoria)
                                         <tr>
                                             <td>{{ ++$i }}</td>
-
-                                            <td>{{-- 
-                                                @if (Str::contains($categoria->nombre, 'Transporte'))
-                                                    <a
-                                                        href="{{ route('mostrar', $categoria->id) }}">{{ $categoria->nombre }}</a>
-                                                @endif
-                                                @if (Str::contains($categoria->nombre, 'Guia'))
-                                                    <a
-                                                        href="{{ route('mostrar', $categoria->id) }}">{{ $categoria->nombre }}</a>
-                                                @endif
-                                                @if (Str::contains($categoria->nombre, 'Hoteles'))
-                                                <a
-                                                    href="{{ route('mostrar', $categoria->id) }}">{{ $categoria->nombre }}</a>
-                                            @endif --}}
+                                            <td>
                                                 {{ $categoria->nombre }}
                                             </td>
 
                                             <td>
-                                                <form action="{{ route('categorias.destroy', $categoria->id) }}"
+                                                <form action="{{ route('categoriasproveedor.destroy', $categoria->id) }}"
                                                     method="POST">
-                                                    <a class="btn btn-sm btn-primary "
-                                                        href="{{ route('categorias.show', $categoria->id) }}"><i
-                                                            class="fa fa-fw fa-eye"></i> Show</a>
+                                                    {{-- <a class="btn btn-sm btn-primary "
+                                                        href="{{ route('categoriasproveedor.show', $categoria->id) }}"><i
+                                                            class="fa fa-fw fa-eye"></i> Show</a> --}}
                                                     <a class="btn btn-sm btn-success"
-                                                        href="{{ route('categorias.edit', $categoria->id) }}"><i
+                                                        href="{{ route('categoriasproveedor.edit', $categoria->id) }}"><i
                                                             class="fa fa-fw fa-edit"></i> Edit</a>
                                                     @csrf
                                                     @method('DELETE')
