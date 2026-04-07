@@ -5,13 +5,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>{{ $programa->nombre }} | Andean Exclusive Tours</title>
-    {{-- Meta tags --}}
-    <meta name="description" content="{{ Str::limit(strip_tags($programa->presentacion), 150) }}">
-    <meta property="og:title" content="{{ $programa->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="https://andeanexclusive.com/img/cusco-de-noche.jpg">
+    <title>{{ $programa->nombre }} | {{ config('seo.brand') }}</title>
+    <meta name="description" content="{{ Str::limit(strip_tags($programa->presentacion), 160) }}">
+    <meta name="robots" content="noindex, nofollow">
     <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ config('seo.brand') }}">
+    <meta property="og:locale" content="{{ $programa->lang === 'es' ? 'es_PE' : 'en_US' }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="{{ $programa->nombre }}">
+    <meta property="og:description" content="{{ Str::limit(strip_tags($programa->presentacion), 200) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{{ rtrim(config('seo.site_url'), '/') }}/img/cusco-de-noche.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $programa->nombre }}">
+    <meta name="twitter:image" content="{{ rtrim(config('seo.site_url'), '/') }}/img/cusco-de-noche.jpg">
     <link rel="preconnect" href="https://stackpath.bootstrapcdn.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="dns-prefetch" href="https://andeanexclusivetours.com">

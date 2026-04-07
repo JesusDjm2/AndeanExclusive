@@ -1,16 +1,11 @@
 @extends('layouts.general-es')
 @section('metas')
-    <title>Blog - Temas Populares para viajeros a Perú ✅ - Andean Exclusive Tours. </title>
-    <meta name="keywords"
-        content="Cusco tours, Luxury peru, viajes exclusivos, andean exclusive tours, exclusive tours, andean exclusive, Peru travels, Travel agency, Tours in peru, Travel agency Cusco." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/blog-castellano" />
-    <meta property="og:title" content="Blog - Popular themes - Andean Exclusive Tours.">
-    <meta property="og:type" content="webside">
-    <meta name="description"
-        content="Blog de Perú, encuentre los temas turísticos más populares. ✅ Disfruta de la magia de esta increíble tierra." />
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/blog-hiking-peru.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/blog-castellano" />
+    @include('layouts.seo-head', [
+        'locale' => 'es',
+        'page' => 'blog',
+        'canonical' => route('blog-es', [], true),
+        'og_image' => '/img/blog-hiking-peru.jpg',
+    ])
 @endsection
 @section('contenido')
     <div class="wrapper">

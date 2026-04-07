@@ -1,15 +1,30 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>{{ $blog->nombre }}</title>
-    <meta name="keywords" content="{{ $blog->keywords }}" />
-    <meta name="description" content="" />
-    <meta property="og:url" content="https://www.andeanexclusive.com/en/blog/{{ $blog->slug }}">
-    <meta property="og:title" content="{{ $blog->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="{{ asset($blog->imgThumb) }}" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/en/blog/{{ $blog->slug }}" />
+    @include('layouts.seo-head', [
+        'locale' => 'en',
+        'page' => null,
+        'title' => $blog->nombre . ' | ' . config('seo.brand'),
+        'description' => Str::limit(strip_tags($blog->descripcionCorta ?: $blog->descripcion), 165),
+        'canonical' => route('enblog.show', $blog->slug, true),
+        'og_image' => asset($blog->imgThumb),
+        'og_type' => 'article',
+        'keywords' => $blog->keywords,
+    ])
 @endsection
+@push('seo-structured-data')
+<script type="application/ld+json">{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'BlogPosting',
+    'headline' => $blog->nombre,
+    'description' => Str::limit(strip_tags($blog->descripcionCorta ?: $blog->descripcion), 300),
+    'url' => route('enblog.show', $blog->slug, true),
+    'image' => [asset($blog->imgThumb)],
+    'datePublished' => $blog->created_at?->toIso8601String(),
+    'dateModified' => $blog->updated_at?->toIso8601String(),
+    'author' => ['@type' => 'Organization', 'name' => config('seo.brand')],
+    'publisher' => ['@type' => 'Organization', 'name' => config('seo.brand'), 'logo' => ['@type' => 'ImageObject', 'url' => rtrim(config('seo.site_url'), '/') . '/img/andean-exclusive-logo.png']],
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
 @section('contenido')
     <div class="wrapper">
         <header id="header">

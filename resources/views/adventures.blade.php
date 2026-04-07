@@ -1,14 +1,6 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>Find your exclusive experience around Perú!</title>
-    <meta name="keywords" content="Experiences in Perú, luxury tours, Lima, Cusco, Exclusive Cusco" />
-    <meta name="description" content="We present you a list of luxury experiences for Peru." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/adventures">
-    <meta property="og:title" content="Tours en Perú">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/Machu-Picchu-exclusive.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/adventures" />
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'adventures', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
 @endsection
 @section('contenido')
     <div class="wrapper">
@@ -35,7 +27,8 @@
                                     <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
                                             target="_blank">+51 979 721 194</a></li>
                                     <li id="display2" class="menu-has-children">
-                                        <a href="caminatas-peru">ES</a>
+                                        <a href="{{ route('caminatas') }}">ES</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{{ route('adventures') }}">EN</a>
                                     </li>
                                 </ul>
                                 <a href="javascript:;" id="mobile-menu"><span></span></a>

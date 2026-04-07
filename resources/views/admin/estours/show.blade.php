@@ -1,14 +1,22 @@
 @extends('layouts.general-es')
 @section('metas')
-    <title>{{ $tour->nombre }}</title>
-    <meta name="keywords" content="{{ $tour->keywords }}" />
-    <meta name="description" content="{{ $tour->descripcionCorta }}" />
-    <meta property="og:url" content="https://www.andeanexclusive.com/{{ $tour->slug }}">
-    <meta property="og:title" content="{{ $tour->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="{{ asset($tour->imgThumb) }}" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/{{ $tour->slug }}" />
+    @php
+        $siteBase = rtrim(config('seo.site_url'), '/');
+    @endphp
+    @include('layouts.seo-head', [
+        'locale' => 'es',
+        'title' => $tour->nombre . ' | ' . config('seo.brand'),
+        'description' => \Illuminate\Support\Str::limit(strip_tags($tour->descripcionCorta), 165),
+        'canonical' => $siteBase . '/' . $tour->slug,
+        'keywords' => $tour->keywords,
+        'og_image' => $tour->imgThumb,
+        'og_type' => 'article',
+    ])
+    @if ($entour)
+        <link rel="alternate" hreflang="en" href="{{ $siteBase . '/en/' . $entour->slug }}">
+        <link rel="alternate" hreflang="es" href="{{ $siteBase . '/' . $tour->slug }}">
+        <link rel="alternate" hreflang="x-default" href="{{ $siteBase . '/en/' . $entour->slug }}">
+    @endif
 @endsection
 @section('contenido')
 @auth
@@ -28,18 +36,32 @@
                                 <ul class="one-page-menu">
                                     @include('layouts.menu-castellano')
                                     <li id="display">
-                                        <a href="{{ route('tour.show', $entour->slug) }}">
-                                            <button type="button" class="botondjm">
-                                                <i class="fa fa-language"></i> English
-                                            </button>
-                                        </a>
+                                        @if ($entour)
+                                            <a href="{{ route('tour.show', $entour->slug) }}">
+                                                <button type="button" class="botondjm">
+                                                    <i class="fa fa-language"></i> English
+                                                </button>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('index') }}">
+                                                <button type="button" class="botondjm">
+                                                    <i class="fa fa-language"></i> English
+                                                </button>
+                                            </a>
+                                        @endif
                                     </li>
                                     <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
                                             target="_blank">+51 979 721 194</a></li>
                                     <li id="display2">
-                                        <a href="{{ route('tour.show', $entour->slug) }}">
-                                            <button type="button" class="botondjm">English</button>
-                                        </a>
+                                        @if ($entour)
+                                            <a href="{{ route('tour.show', $entour->slug) }}">
+                                                <button type="button" class="botondjm">English</button>
+                                            </a>
+                                        @else
+                                            <a href="{{ route('index') }}">
+                                                <button type="button" class="botondjm">English</button>
+                                            </a>
+                                        @endif
                                     </li>
                                 </ul>
                                 <a href="javascript:;" id="mobile-menu"><span></span></a>
@@ -174,7 +196,7 @@
                         <h4 class="text-center" style="font-family: 'Dancing Script', cursive">Similar Tours</h4>
                         <div id="separadordjm2"></div>
                         @foreach ($tours as $t)
-                            <a href="{{ route('tour.show', $t->slug) }}"><span>⮞</span> {{ $t->nombre }}</a>
+                            <a href="{{ route('estour.show', $t->slug) }}"><span>⮞</span> {{ $t->nombre }}</a>
                         @endforeach
                     </div>
                     <div id="similares">

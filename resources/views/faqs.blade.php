@@ -1,14 +1,6 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>Frequently asked and questions</title>
-    <meta name="keywords" content="days tour, Luxury Cusco, Peru tours, Machu Picchu luxury" />
-    <meta name="escription" content="We present you the most popular question about your travel to Perú." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/faqs">
-    <meta property="og:title" content="Tours en Perú">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/faqs.JPG" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/faqs" />
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'faqs', 'og_image' => '/img/faqs.JPG', 'og_type' => 'article'])
 @endsection
 @section('contenido')
     <div class="wrapper">

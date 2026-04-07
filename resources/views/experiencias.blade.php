@@ -1,15 +1,6 @@
 @extends('layouts.general-es')
 @section('metas')
-    <title>Encuentre su experiencia, su destino en Perú! Viajes a Perú para el 2022</title>
-    <meta name="keywords"
-        content="Experiencias únicas en Perú, tours de lujo, Lima, Cusco, Exclusivo Cusco, viajes 2022, viaja a Perú este 2022, Tours Peru 2022" />
-    <meta name="description" content="Te presentamos una lista de experiencias de lujo para disfrutar en Perú." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/experiencias">
-    <meta property="og:title" content="Encuentre su experiencia en Perú!">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/Machu-Picchu-exclusive.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/experiencias" />
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'experiencias', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
 @endsection
 @section('contenido')
     <div class="wrapper">

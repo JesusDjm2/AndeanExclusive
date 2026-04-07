@@ -1,11 +1,11 @@
 <footer id="footer" class="site-footer-public">
     <div class="container footer-container">
-        <div class="row text-center">
+        <div class="row text-center footer-widgets-row">
             <div class="col-sm-6 col-md-4 pb-3 pb-md-0">
                 <div class="footer_widget widget widget_recent_entries">
                     <h5 class="widget-title">Query</h5>
                     <div id="separadordjm2"></div>
-                    <ul class="list-unstyled mb-0">
+                    <ul class="list-unstyled mb-0 footer-link-list">
                         <li><a href="{{ route('about') }}">About Us</a></li>
                         <li><a href="{{ route('testimonials') }}">Testimonials</a></li>
                         <li><a href="{{ route('terms') }}">Terms &amp; Conditions</a></li>
@@ -17,7 +17,7 @@
                 <div class="footer_widget widget widget_text">
                     <h5 class="widget-title">Contact</h5>
                     <div id="separadordjm2"></div>
-                    <div class="textwidget">
+                    <div class="textwidget footer-contact-block">
                         <i class="fa fa-envelope"></i>
                         <a class="footer-link-muted" href="mailto:operaciones@andeanexclusive.com">operaciones@andeanexclusive.com</a>
                         <br>
@@ -30,7 +30,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-sm-6 col-md-4 footer-column-4">
+            <div class="col-sm-6 col-md-4 footer-column-4 pb-3 pb-md-0">
                 <div class="footer_widget widget widget_search">
                     <h5 class="widget-title">Get in Touch</h5>
                     <div id="separadordjm2"></div>
@@ -51,8 +51,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 text-center">
-                    <div class="widget">
-                        <p class="mb-0 small">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | All Rights Reserved | Designed by
+                    <div class="widget mb-0">
+                        <p class="footer-copy">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | All Rights Reserved | Designed by
                             <a href="https://www.facebook.com/DjmWebMaster" id="afoot" target="_blank" rel="nofollow noopener">DJM2</a>
                         </p>
                     </div>

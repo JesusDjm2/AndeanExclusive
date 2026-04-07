@@ -1,18 +1,11 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>Blog - Popular themes for Perú 2023 - Andean Exclusive Tours. </title>
-    <meta name="keywords"
-        content="Cusco tours, Luxury peru, Travel agency Peru, Peru travels, Exclusive Travel agency, Blog for peru, Travel agency Cusco." />
-    <meta name="description"
-        content="Peru blog, find the most popular tourism topics. ✅ Enjoy the magic of this amazing land.">
-    <meta property="og:url" content="https://www.andeanexclusive.com/blog" />
-    <meta property="og:title" content="Blog - Popular themes 2022 - Andean Exclusive Tours.">
-    <meta property="og:type" content="webside">
-    <meta property="og:description"
-        content="A luxury travel agency in Cusco - Perú. ✅ Enjoy the magic of this amazing land." />
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/blog-hiking-peru.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/blog" />
+    @include('layouts.seo-head', [
+        'locale' => 'en',
+        'page' => 'blog',
+        'canonical' => route('blog-en', [], true),
+        'og_image' => '/img/blog-hiking-peru.jpg',
+    ])
 @endsection
 @section('contenido')
     <!--End Boton wasa-->

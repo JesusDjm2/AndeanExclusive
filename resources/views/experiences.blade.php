@@ -1,15 +1,6 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>Find your exclusive experience in Perú! travel this 2022</title>
-    <meta name="keywords"
-        content="Experiences in Perú, luxury tours, Lima, Cusco, Exclusive Cusco, Peru 2022, exclusive tours" />
-    <meta name="description" content="We present you a list of luxury experiences for Peru." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/experiences">
-    <meta property="og:title" content="Tours en Perú">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/Machu-Picchu-exclusive.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/experiences" />
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'experiences', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
 @endsection
 @section('contenido')
     <div class="wrapper">
@@ -124,7 +115,7 @@
                 </div>
             </div>
             <div class="container relacionados">
-                <div class="row">                    
+                <div class="row">
                     @foreach ($tours as $tour)
                         <div class="col-lg-4">
                             <div class="card" style="margin-bottom: 2em">

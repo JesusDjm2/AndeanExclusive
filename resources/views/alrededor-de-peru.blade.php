@@ -1,16 +1,6 @@
 @extends('layouts.general-es')
 @section('metas')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-    <title>Tours alrededor de Perú, encuentre tours por Perú!</title>
-    <meta name="keywords" content="Experiences in Perú, luxury tours, Lima, Cusco, Exclusive Cusco" />
-    <meta name="description" content="We present you a list of luxury experiences for Peru." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/alrededor-de-peru">
-    <meta property="og:title" content="Tours en Perú">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/Machu-Picchu-exclusive.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/alrededor-de-peru" />
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'alrededor', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
 @endsection
 @section('contenido')
     <div class="wrapper">

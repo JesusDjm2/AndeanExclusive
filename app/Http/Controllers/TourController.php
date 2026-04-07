@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categoria;
-use App\Models\Estour;
 use App\Models\Tour;
 use App\Models\TourCategory;
 use Illuminate\Http\Request;
@@ -15,13 +13,17 @@ class TourController extends Controller
     {
         $tours = Tour::all();
         $totalTours = Tour::count();
+
         return view('admin.tours.index', compact('tours', 'totalTours'));
     }
+
     public function create()
     {
         $categorias = TourCategory::pluck('nombre', 'id');
+
         return view('admin.tours.create', compact('categorias'));
     }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -41,7 +43,7 @@ class TourController extends Controller
             'keywords' => 'required',
         ]);
 
-        $tour = new Tour();
+        $tour = new Tour;
         $tour->nombre = $request->input('nombre');
         $tour->recorrido = $request->input('recorrido');
         $tour->dias = $request->input('dias');
@@ -49,20 +51,20 @@ class TourController extends Controller
 
         if ($request->hasFile('imgThumb')) {
             $img = $request->file('imgThumb');
-            $rutaImg = "img/Thumbs/";
-            $imgThumb = $rutaImg . $img->getClientOriginalName();
+            $rutaImg = 'img/Thumbs/';
+            $imgThumb = $rutaImg.$img->getClientOriginalName();
             $img->move($rutaImg, $imgThumb);
             $tour->imgThumb = $imgThumb;
         }
 
         if ($request->hasFile('imgFull')) {
             $img = $request->file('imgFull');
-            $rutaImg = "img/Fondos/";
-            $imgFull = $rutaImg . $img->getClientOriginalName();
+            $rutaImg = 'img/Fondos/';
+            $imgFull = $rutaImg.$img->getClientOriginalName();
             $img->move($rutaImg, $imgFull);
             $tour->imgFull = $imgFull;
         }
-        $tour->mapa=$request->get('mapa');
+        $tour->mapa = $request->get('mapa');
         /* if ($request->hasFile('mapa')) {
             $rutaMapa = "img/mapa/";
             $mapa = $request->file('mapa');
@@ -88,10 +90,12 @@ class TourController extends Controller
 
         return redirect()->route('tours.index')->with('success', 'Tour creado exitosamente!');
     }
+
     public function edit($id)
     {
         $tour = Tour::findOrFail($id);
         $categorias = TourCategory::pluck('nombre', 'id');
+
         return view('admin.tours.edit', compact('tour', 'categorias'));
     }
 
@@ -110,7 +114,7 @@ class TourController extends Controller
             'incluye' => 'required',
             'mapa' => 'nullable',
             'importante' => 'required',
-            'slug' => 'required|unique:tours,slug,' . $id,
+            'slug' => 'required|unique:tours,slug,'.$id,
             'keywords' => 'required',
         ]);
 
@@ -122,29 +126,29 @@ class TourController extends Controller
 
         if ($request->hasFile('imgThumb')) {
             $img = $request->file('imgThumb');
-            $rutaImg = "img/Thumbs/";
-            $imgThumb = $rutaImg . $img->getClientOriginalName();
+            $rutaImg = 'img/Thumbs/';
+            $imgThumb = $rutaImg.$img->getClientOriginalName();
             $img->move($rutaImg, $imgThumb);
             $tour->imgThumb = $imgThumb;
         }
 
         if ($request->hasFile('imgFull')) {
             $img = $request->file('imgFull');
-            $rutaImg = "img/Fondos/";
-            $imgFull = $rutaImg . $img->getClientOriginalName();
+            $rutaImg = 'img/Fondos/';
+            $imgFull = $rutaImg.$img->getClientOriginalName();
             $img->move($rutaImg, $imgFull);
             $tour->imgFull = $imgFull;
         }
-        $tour->mapa=$request->get('mapa');
-       /*  if ($request->hasFile('mapa')) {
-            $rutaMapa = "img/mapa/";
-            $mapa = $request->file('mapa');
-            $mapaTour = $rutaMapa . $mapa->getClientOriginalName();
-            $mapa->move($rutaMapa, $mapaTour);
-            $tour->mapa = $mapaTour;
-        } else {
-            $tour->mapa = $tour->mapa;
-        } */
+        $tour->mapa = $request->get('mapa');
+        /*  if ($request->hasFile('mapa')) {
+             $rutaMapa = "img/mapa/";
+             $mapa = $request->file('mapa');
+             $mapaTour = $rutaMapa . $mapa->getClientOriginalName();
+             $mapa->move($rutaMapa, $mapaTour);
+             $tour->mapa = $mapaTour;
+         } else {
+             $tour->mapa = $tour->mapa;
+         } */
 
         $tour->descripcionCorta = $request->input('descripcionCorta');
         $tour->presentacion = $request->input('presentacion');
@@ -160,15 +164,26 @@ class TourController extends Controller
         $tour->categorias()->sync($categorias);
 
         return redirect()->route('tours.index')->with('success', 'Tour actualizado exitosamente!');
-    } 
-    public function show($slug)
+    }
+
+    /**
+     * Público: /en/{slug}. Admin resource: /tours-en-ingles/{id} — ambos comparten este método.
+     */
+    public function show($slugOrId)
     {
-        $tour = Tour::where('slug', $slug)->firstOrFail();
+        $tour = Tour::where('slug', $slugOrId)->first();
+        if (! $tour && ctype_digit((string) $slugOrId)) {
+            $tour = Tour::find($slugOrId);
+        }
+        abort_if(! $tour, 404);
+
         $tours = Tour::where('id', '!=', $tour->id)->orderByDesc('updated_at')->take(3)->get();
         $estour = $tour->estour;
         $categorias = TourCategory::all();
+
         return view('admin.tours.show', compact('tour', 'tours', 'estour', 'categorias'));
     }
+
     public function destroy($id)
     {
         $tour = Tour::findOrFail($id);

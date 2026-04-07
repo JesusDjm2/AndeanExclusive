@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\AgenteController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\EnblogController;
 use App\Http\Controllers\EnCatController;
@@ -18,17 +17,16 @@ use App\Http\Controllers\ImagenController;
 use App\Http\Controllers\PaxController;
 use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RobotsController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
-
-
 Auth::routes();
 Route::middleware('web')->post('/login', [UserController::class, 'login'])->name('login.submit');
-
 
 Route::middleware('auth')->group(function () {
     Route::resource('users', UserController::class)->names('users');
@@ -73,6 +71,8 @@ Route::get('preguntas-frecuentes', [EnEnlacesController::class, 'preguntas'])->n
 Route::get('nosotros', [EnEnlacesController::class, 'nosotros'])->name('nosotros');
 Route::get('testimonios', [EnEnlacesController::class, 'testimonios'])->name('testimonios');
 
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 Route::get('mostrar', [CategoriaController::class, 'mostrar'])->name('mostrar');
 Route::get('/en/{slug}', [TourController::class, 'show'])->name('tour.show');
@@ -83,7 +83,6 @@ Route::get('en/blog/{slug}', [EnblogController::class, 'show'])->name('enblog.sh
 Route::get('es/blog/{slug}', [EsblogController::class, 'show'])->name('esblog.show');
 Route::get('en/tag/{slug}', [EntagController::class, 'show'])->name('entag.show');
 Route::get('es/tag/{slug}', [EstagController::class, 'show'])->name('estag.show');
-Route::get('programas/{programa}', [ProgramaController::class, 'show'])->name('programas.show');
 
 // Rutas en Ingles
 /* Route::get('/', function () {return view('index');})->name('index'); */

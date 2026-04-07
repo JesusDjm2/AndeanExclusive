@@ -597,6 +597,61 @@
 }
 
 /* --- Public footer & tour/blog prose (aligned with programas overview) --- */
+footer#footer.site-footer-public .footer_widget,
+footer#footer.site-footer-public .widget:not(.mb-0) {
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+footer#footer.site-footer-public .widget .widget-title {
+  font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin: 0 0 0.45rem;
+  padding: 0;
+  color: #f8f8f8;
+}
+
+footer#footer.site-footer-public .footer-link-list li {
+  margin-bottom: 0.15rem;
+  line-height: 1.65;
+}
+
+footer#footer.site-footer-public .footer-link-list a {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+footer#footer.site-footer-public .footer-contact-block,
+footer#footer.site-footer-public .footer-contact-block a.footer-link-muted {
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+footer#footer.site-footer-public .sub-footer {
+  margin-top: 1rem;
+}
+
+footer#footer.site-footer-public .footer-copy,
+footer#footer.site-footer-public .footer-copy a,
+footer#footer.site-footer-public #afoot {
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  color: rgba(248, 248, 248, 0.88);
+}
+
+footer#footer.site-footer-public .footer-copy a:hover,
+footer#footer.site-footer-public #afoot:hover {
+  color: #fff;
+}
+
 .site-footer-public .footer-link-muted {
   color: rgba(248, 248, 248, 0.75);
   text-decoration: none;

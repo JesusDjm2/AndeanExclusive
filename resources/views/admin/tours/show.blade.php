@@ -1,14 +1,22 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>{{ $tour->nombre }} - {{$tour->dias}} days</title>
-    <meta name="keywords" content="{{ $tour->keywords }}" />
-    <meta name="description" content="{{ $tour->descripcionCorta }}" />
-    <meta property="og:url" content="https://www.andeanexclusive.com/{{ $tour->slug }}">
-    <meta property="og:title" content="{{ $tour->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="{{ asset($tour->imgThumb) }}" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/{{ $tour->slug }}" />
+    @php
+        $siteBase = rtrim(config('seo.site_url'), '/');
+    @endphp
+    @include('layouts.seo-head', [
+        'locale' => 'en',
+        'title' => $tour->nombre . ' | ' . $tour->dias . ' days | ' . config('seo.brand'),
+        'description' => \Illuminate\Support\Str::limit(strip_tags($tour->descripcionCorta), 165),
+        'canonical' => $siteBase . '/en/' . $tour->slug,
+        'keywords' => $tour->keywords,
+        'og_image' => $tour->imgThumb,
+        'og_type' => 'article',
+    ])
+    @if ($estour)
+        <link rel="alternate" hreflang="es" href="{{ $siteBase . '/' . $estour->slug }}">
+        <link rel="alternate" hreflang="en" href="{{ $siteBase . '/en/' . $tour->slug }}">
+        <link rel="alternate" hreflang="x-default" href="{{ $siteBase . '/en/' . $tour->slug }}">
+    @endif
 @endsection
 @section('contenido')
 @auth

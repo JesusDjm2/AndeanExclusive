@@ -1,14 +1,6 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>Find what our customer says about Andean Exclusive Tours</title>
-    <meta name="keywords" content="Experiences in Perú, opinions, Lima, Cusco, Exclusive, luxury, testimonials" />
-    <meta property="og:description" content="opinions from customer of Andean Exclusive." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/testimonials">
-    <meta property="og:title" content="Find what our customer says about Andean Exclusive Tours">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/testimonials.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/testimonials" />
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'testimonials', 'og_image' => '/img/testimonials.jpg'])
 @endsection
 @section('contenido')
     <div class="wrapper">

@@ -10,7 +10,7 @@
             <p>Tours: <strong>{{ $totalTours }}</strong></p>
         </div>
         <div class="col-lg-4 col-md-3 text-end">
-            <a href="{{ route('tours.create') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('estours.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus"></i> Nuevo Tour
             </a>
         </div>
@@ -78,13 +78,13 @@
                                     @endif
                                 </td>
                                 <td style="width: 140px">
-                                    <form action="{{ route('tours.destroy', $tour->id) }}" method="POST">
+                                    <form action="{{ route('estours.destroy', $tour->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
-                                        <a href="{{ route('tours.edit', $tour->id) }}" class="btn btn-info btn-sm"
+                                        <a href="{{ route('estours.edit', $tour->id) }}" class="btn btn-info btn-sm"
                                             title="Editar">
                                             <i class="fa fa-edit"></i> </a>
-                                        <a href="{{ route('tour.show', $tour->slug) }}" class="btn btn-success btn-sm"
+                                        <a href="{{ route('estour.show', $tour->slug) }}" class="btn btn-success btn-sm"
                                             title="Ver tour" target="_blank"><i class="fa fa-eye"></i></a>
                                         <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"
                                             onclick="alerta();"><i class="fa fa-trash"></i></button>

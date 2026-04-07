@@ -1,16 +1,6 @@
 @extends('layouts.general-es')
 @section('metas')
-    <title>Conoce más sobre Andean Exclusive Tours. </title>
-    <meta name="keywords"
-        content="Cusco tours,Cusco de Lujo, Agencia de Viajes Perú, Peru viajes, Tours en Perú, Tours en Cusco, Agencia de Viajes Cusco." />
-    <meta name="description"
-        content="Agencia de viajes de lujo en Cusco - Perú. ✅ Disfrute de la magia de de esta increible tierra.">
-    <meta property="og:url" content="https://www.andeanexclusive.com/nosotros" />
-    <meta property="og:title" content="Conóce más sobre nuestra agencia de viajes: Andean Exclusive Tours.">
-    <meta property="og:type" content="webside">
-    <meta property="og:image" content="https://www.andeanexclusive.com/img/cusco-de-noche.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/nosotros" />
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'nosotros', 'og_image' => '/img/cusco-de-noche.jpg', 'og_type' => 'article'])
 @endsection
 @section('contenido')
     <div class="wrapper">

@@ -170,11 +170,19 @@ class EsTourController extends Controller
         return redirect()->route('estours.index')->with('success', 'Tour actualizado exitosamente!');
     }
 
-    public function show($slug)
+    /**
+     * Público: /{slug}. Admin resource: /tours-espanol/{id} — ambos comparten este método.
+     */
+    public function show($slugOrId)
     {
-        $tour = Estour::where('slug', $slug)->firstOrFail();
-        $tours = Estour::where('id', '!=', $tour->id)->orderByDesc('updated_at')->get();
-        $entour = Tour::findOrFail($tour->relacionado_id);
+        $tour = Estour::where('slug', $slugOrId)->first();
+        if (! $tour && ctype_digit((string) $slugOrId)) {
+            $tour = Estour::find($slugOrId);
+        }
+        abort_if(! $tour, 404);
+
+        $tours = Estour::where('id', '!=', $tour->id)->orderByDesc('updated_at')->take(12)->get();
+        $entour = $tour->relacionado_id ? Tour::find($tour->relacionado_id) : null;
         $categorias = EsCategoria::all();
 
         return view('admin.estours.show', compact('tour', 'tours', 'entour', 'categorias'));

@@ -5,6 +5,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    @yield('metas')
+    <meta name="theme-color" content="#0c8178">
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+    @include('layouts.partials.seo-jsonld')
+    @stack('seo-structured-data')
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro&display=swap" rel="stylesheet">
     <link rel='stylesheet' href="{{asset('styles/bootstrap.minbb49.css')}}" type='text/css' media='all' />
     <link rel='stylesheet' href='{{asset('styles/js_composer.min5243.css')}}' type='text/css' media='all' />
@@ -15,7 +20,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="{{ asset('css/nuevos.css') }}">
-    @yield('metas')
 </head>
 
 <body class="home page-template-default page page-id-44 wpb-js-composer js-comp-ver-5.4.5 vc_responsive">
@@ -47,55 +51,47 @@
             }
         </script>
     </div>
-    <footer id="footer">
+    <footer id="footer" class="site-footer-public">
         <div class="container footer-container">
-            <div class="row text-center">
-                <div class='col-sm-6 col-md-4'>
-                    <div id="recent-posts-3" class="footer_widget widget widget_recent_entries">
+            <div class="row text-center footer-widgets-row">
+                <div class="col-sm-6 col-md-4 pb-3 pb-md-0">
+                    <div class="footer_widget widget widget_recent_entries">
                         <h5 class="widget-title">Consulta</h5>
                         <div id="separadordjm2"></div>
-                        <ul>
+                        <ul class="list-unstyled mb-0 footer-link-list">
                             <li><a href="{{ route('nosotros') }}">Nosotros</a></li>
                             <li><a href="{{ route('testimonios') }}">Testimonios</a></li>
-                            <li><a href="{{ route('terms') }}">Términos & Condiciones</a></li>
-                            <li><a href="{{ route('preguntas-frecuentes') }}">Preguntas Frecuentes</a></li>
+                            <li><a href="{{ route('terms') }}">Términos &amp; Condiciones</a></li>
+                            <li><a href="{{ route('preguntas-frecuentes') }}">Preguntas frecuentes</a></li>
                         </ul>
                     </div>
                 </div>
-                <div class='col-sm-6 col-md-4 footer-column-4'>
-                    <div id="text-3" class="footer_widget widget widget_text">
+                <div class="col-sm-6 col-md-4 footer-column-4 pb-3 pb-md-0">
+                    <div class="footer_widget widget widget_text">
                         <h5 class="widget-title">Contacto</h5>
                         <div id="separadordjm2"></div>
-                        <div class="textwidget">
-                            <i class="fa fa-envelope"></i><a style="color: rgba(248, 248, 248, 0.5)"
-                                href="mailto:operaciones@andeanexclusive.com"> operaciones@andeanexclusive.com</a>
-                            <br>
-                            <i class="fa fa-mobile"></i> <a href='https://bit.ly/3kYXpXr' target="_blank"
-                                style="color: rgba(248, 248, 248, 0.5)"> +51 979 721 194</a>
-                            <br>
-                            <i class="fa fa-phone"></i> +51 084 242791
-                            <br>
-                            <i class="fa fa-map-marker"></i> Balconcillo Alto c-6 Cusco - Perú
+                        <div class="textwidget footer-contact-block">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <a class="footer-link-muted" href="mailto:operaciones@andeanexclusive.com">operaciones@andeanexclusive.com</a><br>
+                            <i class="fa fa-mobile" aria-hidden="true"></i>
+                            <a class="footer-link-muted" href="https://bit.ly/3kYXpXr" target="_blank" rel="noopener">+51 979 721 194</a><br>
+                            <i class="fa fa-phone" aria-hidden="true"></i> +51 084 242791<br>
+                            <i class="fa fa-map-marker" aria-hidden="true"></i> Balconcillo Alto c-6 Cusco - Perú
                         </div>
                     </div>
                 </div>
-                <div class='col-sm-6 col-md-4 footer-column-4'>
-                    <div id="search-4" class="footer_widget widget widget_search">
+                <div class="col-sm-6 col-md-4 footer-column-4 pb-3 pb-md-0">
+                    <div class="footer_widget widget widget_search">
                         <h5 class="widget-title">Sociales</h5>
                         <div id="separadordjm2"></div>
                     </div>
-                    <div id="tt_sociallinkswidget-4" class="footer_widget widget widget_social">
+                    <div class="footer_widget widget widget_social">
                         <div class="social-links">
-                            <a href="https://www.facebook.com/AndeanExclusiveTours" rel="nofollow" target="_blank"><i
-                                    class="fa fa-facebook fa-2x"></i></a>
-                            <a href="https://twitter.com/AndeanExclusive" rel="nofollow" target="_blank"><i
-                                    class="fa fa-twitter fa-2x"></i></a>
-                            <a href="https://n9.cl/cjx4" target="_blank" rel="nofollow"><i
-                                    class="fa fa-tripadvisor fa-2x"></i></a>
-                            <a href="https://www.instagram.com/andean.exclusive/" rel="nofollow" target="_blank"><i
-                                    class="fa fa-instagram fa-2x"></i></a>
-                            <a href="https://www.pinterest.com/andeanexclusive/" rel="nofollow" target="_blank"><i
-                                    class="fa fa-pinterest fa-2x"></i></a>
+                            <a href="https://www.facebook.com/AndeanExclusiveTours" target="_blank" rel="nofollow noopener"><i class="fa fa-facebook fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://twitter.com/AndeanExclusive" target="_blank" rel="nofollow noopener"><i class="fa fa-twitter fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://n9.cl/cjx4" target="_blank" rel="nofollow noopener"><i class="fa fa-tripadvisor fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://www.instagram.com/andean.exclusive/" target="_blank" rel="nofollow noopener"><i class="fa fa-instagram fa-2x" aria-hidden="true"></i></a>
+                            <a href="https://www.pinterest.com/andeanexclusive/" target="_blank" rel="nofollow noopener"><i class="fa fa-pinterest fa-2x" aria-hidden="true"></i></a>
                         </div>
                     </div>
                 </div>
@@ -105,10 +101,9 @@
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12 text-center">
-                        <div class="widget">
-                            <p class="text-center mt-5 mb-0 small">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | Todos los
-                                derechos reservados | <a href="https://www.facebook.com/DjmWebMaster"
-                                    rel="nofollow noopener" id="afoot" target="_blank">DJM2</a>
+                        <div class="widget mb-0">
+                            <p class="footer-copy">Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | Todos los derechos reservados |
+                                <a href="https://www.facebook.com/DjmWebMaster" id="afoot" target="_blank" rel="nofollow noopener">DJM2</a>
                             </p>
                         </div>
                     </div>

@@ -1,13 +1,6 @@
 @extends('layouts.general-en')
 @section('metas')
-    <title>More about Andean Exclusive Tours. Travel Agency </title>
-    <meta name="description" content="Find a lot of experiences around Perú, luxury tours for enjoy each moment." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/about">
-    <meta property="og:title" content="More about travel agency: Andean Exclusive Tours.">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="https://andeanexclusive.com/img/cusco-de-noche.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/about" />
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'about', 'og_image' => '/img/cusco-de-noche.jpg', 'og_type' => 'article'])
 @endsection
 @section('contenido')
     <!--End Boton wasa-->

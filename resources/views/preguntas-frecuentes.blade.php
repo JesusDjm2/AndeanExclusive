@@ -1,15 +1,6 @@
 @extends('layouts.general-es')
 @section('metas')
-    <title>Preguntas frecuentes para viajar a Perú</title>
-    <meta name="keywords"
-        content="como viajar a Perú 2022, viajar a perú, Peru tours, Machu Picchu luxury, ¿Cómo viajar a Perú?, que se necesita para viajar a Peru" />
-    <meta name="description" content="La respuesta a las preguntas más frecuentes para viajar a Perú." />
-    <meta property="og:url" content="https://www.andeanexclusive.com/preguntas-frecuentes">
-    <meta property="og:title" content="Preguntas Frecuentes al viajar a Perú">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="https://andeanexclusive.com/img/faqs.jpg" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com/preguntas-frecuentes" />
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'preguntas', 'og_image' => '/img/faqs.jpg', 'og_type' => 'article'])
 @endsection
 @section('contenido')
     <div class="wrapper">

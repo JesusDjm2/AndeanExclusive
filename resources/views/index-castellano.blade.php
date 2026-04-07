@@ -1,6 +1,6 @@
-@extends('layouts.general-en')
+@extends('layouts.general-es')
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'home', 'og_image' => '/img/machupicchu.png'])
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'home', 'og_image' => '/img/machupicchu.png'])
 @endsection
 @section('contenido')
     <div class="wrapper">
@@ -16,11 +16,11 @@
                             </div>
                             <nav class="main-nav">
                                 <ul class="one-page-menu">
-                                    @include('layouts.menu')
+                                    @include('layouts.menu-castellano')
                                     <li id="display">
-                                        <a href="{{ route('inicio') }}">
+                                        <a href="{{ route('index') }}">
                                             <button type="button" class="btn botondjm">
-                                                <i class="fa fa-language"></i> Español
+                                                <i class="fa fa-language"></i> English
                                             </button>
                                         </a>
                                     </li>
@@ -131,7 +131,7 @@
                                                 <div class='swiper-slide'>
                                                     <div class='travel-item'>
                                                         <div class='entry-img'>
-                                                            <a href='{{ route('tour.show', $tour->slug) }}' class='entry-link'>
+                                                            <a href='{{ route('estour.show', $tour->slug) }}' class='entry-link'>
                                                                 <img src="{{ asset($tour->imgThumb) }}"
                                                                     class="attachment-post-grid-s size-post-grid-s"
                                                                     alt="{{ $tour->nombre }}" loading="lazy" style="height: 245px!important"/>
@@ -152,7 +152,7 @@
                                                                             class="fa fa-usd"></i>
                                                                         {{$tour->precio}}.00</span>
                                                                 </div>
-                                                                <a href="{{ route('tour.show', $tour->slug) }}" class='button'>More
+                                                                <a href="{{ route('estour.show', $tour->slug) }}" class='button'>More
                                                                     Info</a>
                                                             </div>
                                                         </div>
@@ -287,7 +287,7 @@
                     @foreach ($tours2 as $tour)
                     <div class="col-md-4 mb-3">
                         <div class="card" style="padding-bottom: 35px">
-                            <a href='{{ route('tour.show', $tour->slug) }}'>
+                            <a href='{{ route('estour.show', $tour->slug) }}'>
                                 <img class="img-fluid" alt="{{$tour->nombre}}"
                                     src="{{ asset($tour->imgThumb) }}" loading="lazy" style="width:100%;height: 200px; objet-fit:cover">
                             </a>
@@ -301,7 +301,7 @@
                                         <span style="float: right"><i class="fa fa-dollar"></i>
                                             {{$tour->precio}}.00</span>
                                     </div>
-                                    <a href='{{ route('tour.show', $tour->slug) }}' id='botonnuevo'>Read
+                                    <a href='{{ route('estour.show', $tour->slug) }}' id='botonnuevo'>Read
                                         more</a>
                                 </div>
                             </div>
