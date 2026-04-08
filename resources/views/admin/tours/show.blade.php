@@ -151,24 +151,28 @@
                     <div class="socialesShare" style="margin-bottom: 2em">
                         <h3>Share</h3>
                         <div id="separadordjm2"></div>
+                        @php
+                            $shareUrlEn = route('tour.show', $tour->slug, true);
+                        @endphp
                         <div class="redes-sociales">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Facebook">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($shareUrlEn) }}"
+                                target="_blank" rel="noopener noreferrer" title="Share on Facebook">
                                 <i class="fa fa-facebook"></i>
                             </a>
-                            <a href="mailto:?subject=Recomendación de tour&body={{ urlencode('Te recomiendo este increíble tour: ' . url('/' . $tour->slug)) }}"
-                                title="Compartir por correo electrónico">
+                            <a href="mailto:?subject={{ rawurlencode('Recommended tour — Andean Exclusive') }}&body={{ rawurlencode('I recommend this tour: ' . $shareUrlEn) }}"
+                                title="Share by email">
                                 <i class="fa fa-envelope"></i>
                             </a>
-                            <a href="https://www.pinterest.com/pin/create/button/?url={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Pinterest">
+                            <a href="https://www.pinterest.com/pin/create/button/?url={{ urlencode($shareUrlEn) }}"
+                                target="_blank" rel="noopener noreferrer" title="Share on Pinterest">
                                 <i class="fa fa-pinterest"></i>
                             </a>
-                            <a href="whatsapp://send?text={{ urlencode(url('/' . $tour->slug)) }}" title="Compartir en WhatsApp" data-action="share/whatsapp/share">
+                            <a href="https://wa.me/?text={{ urlencode($shareUrlEn) }}" target="_blank" rel="noopener noreferrer"
+                                title="Share on WhatsApp">
                                 <i class="fa fa-whatsapp"></i>
                             </a>
-                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Twitter">
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode($shareUrlEn) }}"
+                                target="_blank" rel="noopener noreferrer" title="Share on Twitter">
                                 <i class="fa fa-twitter"></i>
                             </a>
                         </div>

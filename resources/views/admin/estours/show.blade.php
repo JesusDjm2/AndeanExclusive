@@ -154,28 +154,31 @@
                     </script>
 
 
-                    <div class="socialesShare">
+                    <div class="socialesShare" style="margin-bottom: 2em">
                         <h3>Compartir</h3>
                         <div id="separadordjm2"></div>
+                        @php
+                            $shareUrl = route('estour.show', $tour->slug, true);
+                        @endphp
                         <div class="redes-sociales">
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Facebook">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode($shareUrl) }}"
+                                target="_blank" rel="noopener noreferrer" title="Compartir en Facebook">
                                 <i class="fa fa-facebook"></i>
                             </a>
-                            <a href="mailto:?subject=Recomendación de tour&body={{ urlencode('Te recomiendo este increíble tour: ' . url('/' . $tour->slug)) }}"
+                            <a href="mailto:?subject={{ rawurlencode('Tour recomendado — Andean Exclusive') }}&body={{ rawurlencode('Te recomiendo este tour: ' . $shareUrl) }}"
                                 title="Compartir por correo electrónico">
                                 <i class="fa fa-envelope"></i>
                             </a>
-                            <a href="https://www.pinterest.com/pin/create/button/?url={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Pinterest">
+                            <a href="https://www.pinterest.com/pin/create/button/?url={{ urlencode($shareUrl) }}"
+                                target="_blank" rel="noopener noreferrer" title="Compartir en Pinterest">
                                 <i class="fa fa-pinterest"></i>
                             </a>
-                            <a href="whatsapp://send?text=https://www.andeanexclusive.com/{{ $tour->slug }}"
-                                data-action="share/whatsapp/share" title="Compartir en WhatsApp">
+                            <a href="https://wa.me/?text={{ urlencode($shareUrl) }}" target="_blank" rel="noopener noreferrer"
+                                title="Compartir en WhatsApp">
                                 <i class="fa fa-whatsapp"></i>
                             </a>
-                            <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/' . $tour->slug)) }}"
-                                target="_blank" title="Compartir en Twitter">
+                            <a href="https://twitter.com/intent/tweet?url={{ urlencode($shareUrl) }}"
+                                target="_blank" rel="noopener noreferrer" title="Compartir en Twitter">
                                 <i class="fa fa-twitter"></i>
                             </a>
                         </div>
@@ -193,14 +196,9 @@
                         @include('layouts.booking-castellano')
                     </div>
                     <div id="similares">
-                        <h4 class="text-center" style="font-family: 'Dancing Script', cursive">Similar Tours</h4>
-                        <div id="separadordjm2"></div>
-                        @foreach ($tours as $t)
-                            <a href="{{ route('estour.show', $t->slug) }}"><span>⮞</span> {{ $t->nombre }}</a>
-                        @endforeach
-                    </div>
-                    <div id="similares">
-                        <h3 style="font-family: 'Dancing Script', cursive; text-align: center; font-size: 1.8em; font-weight: 500">Categories of tours</h3>
+                        <h3
+                            style="font-family: 'Dancing Script', cursive; text-align: center; font-size: 1.8em; font-weight: 500">
+                            Categorías de tours</h3>
                         <div id="separadordjm2"></div>
                         @foreach ($categorias as $categoria)
                             <a class="categorias" href="{{ route('categoria.show', $categoria->slug) }}"><span>·</span>
@@ -209,6 +207,52 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row relacionados">
+            <div class="col-12 mb-3">
+                <h2>Tours populares</h2>
+            </div>
+            @foreach ($tours as $relatedTour)
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <a href="{{ route('estour.show', $relatedTour->slug) }}">
+                            <img class="card-img-top" src="{{ asset($relatedTour->imgThumb) }}" alt="{{ $relatedTour->nombre }}"
+                                loading="lazy" decoding="async">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h5>{{ $relatedTour->nombre }}</h5>
+                            <div class="linea"></div>
+                            <div class="recorrido">
+                                <i class="fa fa-map-marker"></i>&nbsp;
+                                <span>{{ $relatedTour->recorrido }}</span>
+                            </div>
+                            <p class="card-text flex-grow-1">{{ $relatedTour->descripcionCorta }}</p>
+                            <div class="cuerpo row no-gutters">
+                                <div class="col-sm-6">
+                                    <p><i class="fa fa-usd"></i> {{ $relatedTour->precio }}.00</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $relatedTour->dias }}
+                                        {{ $relatedTour->dias == 1 ? 'día' : 'días' }}</p>
+                                </div>
+                            </div>
+                            <div class="categorias">
+                                @foreach ($relatedTour->categorias as $categoria)
+                                    <a href="{{ route('categoria.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
+                                    @if (!$loop->last)
+                                        -&nbsp;
+                                    @endif
+                                @endforeach
+                            </div>
+                            <a href="{{ route('estour.show', $relatedTour->slug) }}" class="boton2023 mt-2">
+                                Ver más
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 @endsection

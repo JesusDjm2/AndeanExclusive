@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
@@ -31,7 +31,7 @@
 
 <body>
     {{-- HERO SECTION --}}
-    <div class="wrapper">
+    {{-- <div class="wrapper">
         @auth
             <a href="{{ route('programas.edit', $programa) }}" class="btn-floating-edit" title="Editar programa">
                 <i class="fa fa-edit"></i>
@@ -42,9 +42,8 @@
                 class="fullscreen-img" width="1920" height="1080" decoding="async" fetchpriority="high">
             <div class="content-overlay-paxs">
                 <div class="program-info-card">
-                    {{-- Header con nombre y código --}}
                     <div class="program-header">
-                        <div class="program-code-badge">{{ $programa->codigo }}</div><br>
+                        @include('layouts.partials.programa-show-hero-logo', ['locale' => 'es'])
                         <h1 class="mb-2">
                             {{ $programa->nombre }}
                             <span class="title-dot"></span>
@@ -67,9 +66,7 @@
                             }
                         @endphp
 
-                        {{-- Métricas principales en grid --}}
                         <div class="program-metrics-grid">
-                            {{-- Duración --}}
                             <div class="metric-item">
                                 <div class="metric-icon">
                                     <i class="fa fa-calendar-alt"></i>
@@ -81,7 +78,6 @@
                                 </div>
                             </div>
 
-                            {{-- Pasajeros --}}
                             <div class="metric-item">
                                 <div class="metric-icon">
                                     <i class="fa fa-users"></i>
@@ -92,7 +88,6 @@
                                 </div>
                             </div>
 
-                            {{-- Precio total (si existe) --}}
                             @if (isset($totalGeneral) && $totalGeneral > 0)
                                 <div class="metric-item highlight">
                                     <div class="metric-icon">
@@ -106,7 +101,6 @@
                             @endif
                         </div>
 
-                        {{-- Fechas del programa --}}
                         <div class="program-dates-compact">
                             <div class="date-compact-item">
                                 <i class="fa fa-calendar-check"></i>
@@ -123,101 +117,112 @@
                         </div>
                     @endif
 
-                    @if ($programa->agentes && $programa->agentes->count() > 0)
-                        <div class="program-section">
-                            <div class="section-header">
-                                <i class="fa fa-group"></i>
-                                <h3>Agentes Asignados:</h3>
-                            </div>
+                    @if (($programa->agentes && $programa->agentes->count() > 0) || $programa->paxs->count() > 0)
+                        @include('layouts.partials.programa-show-hero-lists', [
+                            'locale' => 'es',
+                            'programa' => $programa,
+                        ])
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div> --}}
+    {{-- HERO SECTION --}}
+    <div class="wrapper">
+        @auth
+            <a href="{{ route('programas.edit', $programa) }}" class="btn-floating-edit" title="Editar programa">
+                <i class="fa fa-edit"></i>
+            </a>
+        @endauth
+        <div class="fullscreen-section">
+            <img src="https://andeanexclusivetours.com/img/Fondos/blog-peru.webp" alt="Andean Exclusive Tours"
+                class="fullscreen-img" width="1920" height="1080" decoding="async" fetchpriority="high">
+            <div class="content-overlay-paxs">
+                <div class="program-info-card">
+                    {{-- Header con logo --}}
+                    <div class="program-header">
+                        @include('layouts.partials.programa-show-hero-logo', ['locale' => 'es'])
+                        <h1 class="mb-2">
+                            {{ $programa->nombre }}
+                            <span class="title-dot"></span>
+                        </h1>
+                    </div>
 
-                            <div class="participants-vertical-grid">
-                                @foreach ($programa->agentes as $agente)
-                                    <div class="participant-vcard">
-                                        <div class="vcard-row">
-                                            <div class="vcard-icon">
-                                                @if ($agente->foto)
-                                                    <img src="{{ asset($agente->foto) }}" alt="{{ $agente->nombre }}"
-                                                        style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                                @else
-                                                    <i class="fa fa-user-circle"></i>
-                                                @endif
-                                            </div>
-                                            <div class="vcard-name">{{ $agente->nombre }}</div>
-                                        </div>
+                    @if ($programa->inicio && $programa->fin)
+                        @php
+                            $dias =
+                                \Carbon\Carbon::parse($programa->inicio)->diffInDays(
+                                    \Carbon\Carbon::parse($programa->fin),
+                                ) + 1;
 
-                                        <div class="vcard-details">
-                                            @if ($agente->telefono)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-phone"></i>
-                                                    <span>{{ $agente->telefono }}</span>
-                                                </div>
-                                            @endif
+                            // Formato corto de fechas
+                            $inicioFormateado = \Carbon\Carbon::parse($programa->inicio)->format('d M');
+                            $finFormateado = \Carbon\Carbon::parse($programa->fin)->format('d M Y');
 
-                                            @if ($agente->email)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-envelope"></i>
-                                                    <span>{{ $agente->email }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
+                            if ($programa->precioAdulto > 0 || $programa->precioChild > 0) {
+                                $totalAdultos = $programa->paxs->where('edad', '>=', 12)->count();
+                                $totalNinos = $programa->paxs->whereBetween('edad', [5, 11])->count();
+                                $totalGeneral =
+                                    $totalAdultos * floatval($programa->precioAdulto) +
+                                    $totalNinos * floatval($programa->precioChild);
+                            }
+                        @endphp
+
+                        {{-- Métricas principales en grid --}}
+                        <div class="program-metrics-grid program-metrics-grid--compact">
+                            {{-- Duración + Fechas (integrado) --}}
+                            <div class="metric-item metric-item-dates">
+                                <div class="metric-icon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <span class="metric-label">Duración</span>
+                                    <span class="metric-value">{{ $dias }}
+                                        {{ $dias > 1 ? 'Días' : 'Día' }}</span>
+                                    <div class="metric-subdates">
+                                        <span>{{ $inicioFormateado }} — {{ $finFormateado }}</span>
                                     </div>
-                                @endforeach
+                                </div>
                             </div>
+
+                            {{-- Pasajeros --}}
+                            <div class="metric-item">
+                                <div class="metric-icon">
+                                    <i class="fa fa-users"></i>
+                                </div>
+                                <div class="metric-content">
+                                    <span class="metric-label">Viajeros</span>
+                                    <span class="metric-value">{{ $programa->paxs->count() }}</span>
+                                </div>
+                            </div>
+
+                            {{-- Precio total --}}
+                            @if (isset($totalGeneral) && $totalGeneral > 0)
+                                <div class="metric-item highlight">
+                                    <div class="metric-icon">
+                                        <i class="fa fa-tag"></i>
+                                    </div>
+                                    <div class="metric-content">
+                                        <span class="metric-label">Precio total</span>
+                                        <span class="metric-value">${{ number_format($totalGeneral, 0) }},00</span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
+
+                        {{-- Eliminé el bloque program-dates-compact --}}
                     @endif
 
-                    {{-- Participantes con detalles --}}
-                    @if ($programa->paxs->count() > 0)
-                        <div class="program-section">
-                            <div class="section-header">
-                                <i class="fa fa-users"></i>
-                                <h3>Viajeros:</h3>
-                            </div>
-
-                            <div class="participants-vertical-grid">
-                                @foreach ($programa->paxs as $pax)
-                                    <div class="participant-vcard">
-                                        <div class="vcard-row">
-                                            <div class="vcard-icon">
-                                                @if ($pax->edad < 5)
-                                                    <i class="fa fa-baby"></i>
-                                                @elseif($pax->edad < 12)
-                                                    <i class="fa fa-child"></i>
-                                                @else
-                                                    <i class="fa fa-user"></i>
-                                                @endif
-                                            </div>
-                                            <div class="vcard-name">{{ $pax->nombre }}</div>
-                                        </div>
-
-                                        <div class="vcard-details">
-                                            <div class="vcard-detail">
-                                                <i class="fa fa-birthday-cake"></i>
-                                                <span>{{ $pax->edad }} años</span>
-                                            </div>
-
-                                            <div class="vcard-detail">
-                                                <i class="fa fa-flag"></i>
-                                                <span>{{ $pax->nacionalidad }}</span>
-                                            </div>
-
-                                            @if ($pax->alimentacion)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-cutlery"></i>
-                                                    <span>{{ $pax->alimentacion }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+                    @if (($programa->agentes && $programa->agentes->count() > 0) || $programa->paxs->count() > 0)
+                        @include('layouts.partials.programa-show-hero-lists', [
+                            'locale' => 'es',
+                            'programa' => $programa,
+                        ])
                     @endif
                 </div>
             </div>
         </div>
     </div>
-
     {{-- AGENTES FLOTANTES - Solo aparece si existen agentes --}}
     @if ($programa->agentes->isNotEmpty())
         <div class="floating-agents" id="floatingAgents">
@@ -258,36 +263,38 @@
     <div class="container">
         <div class="mt-5">
             <div class="program-tabs-scroll">
-            <ul class="nav nav-pills mb-0 program-tabs-nav" id="programTabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview" role="tab">
-                        <i class="fa fa-info-circle mr-2"></i>
-                        <span class="d-none d-sm-inline">Descripción del programa</span>
-                        <span class="d-inline d-sm-none">Descripción general</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="services-tab" data-toggle="tab" href="#services" role="tab">
-                        <i class="fa fa-cutlery mr-2"></i>
-                        <span class="d-none d-sm-inline">Servicios y proveedores</span>
-                        <span class="d-inline d-sm-none">Servicios</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="hotels-tab" data-toggle="tab" href="#hotels" role="tab">
-                        <i class="fa fa-bed mr-2"></i>
-                        <span class="d-none d-sm-inline">Alojamiento</span>
-                        <span class="d-inline d-sm-none">Hoteles</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="passengers-tab" data-toggle="tab" href="#passengers" role="tab">
-                        <i class="fa fa-users mr-2"></i>
-                        <span class="d-none d-sm-inline">Pasajeros</span>
-                        <span class="d-inline d-sm-none">Pax</span>
-                    </a>
-                </li>
-            </ul>
+                <ul class="nav nav-pills mb-0 program-tabs-nav" id="programTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="overview-tab" data-toggle="tab" href="#overview"
+                            role="tab">
+                            <i class="fa fa-info-circle mr-2"></i>
+                            <span class="d-none d-sm-inline">Descripción del programa</span>
+                            <span class="d-inline d-sm-none">Descripción general</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="services-tab" data-toggle="tab" href="#services" role="tab">
+                            <i class="fa fa-cutlery mr-2"></i>
+                            <span class="d-none d-sm-inline">Servicios y proveedores</span>
+                            <span class="d-inline d-sm-none">Servicios</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="hotels-tab" data-toggle="tab" href="#hotels" role="tab">
+                            <i class="fa fa-bed mr-2"></i>
+                            <span class="d-none d-sm-inline">Alojamiento</span>
+                            <span class="d-inline d-sm-none">Hoteles</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="passengers-tab" data-toggle="tab" href="#passengers"
+                            role="tab">
+                            <i class="fa fa-users mr-2"></i>
+                            <span class="d-none d-sm-inline">Pasajeros</span>
+                            <span class="d-inline d-sm-none">Pax</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
 
             {{-- Tab Content --}}
@@ -303,7 +310,8 @@
                             @else
                                 <div class="text-center py-4">
                                     <i class="fa fa-file-text-o fa-3x text-muted mb-3"></i>
-                                    <p class="text-muted mb-0">La descripción general del programa estará disponible próximamente.</p>
+                                    <p class="text-muted mb-0">La descripción general del programa estará disponible
+                                        próximamente.</p>
                                 </div>
                             @endif
                         </div>
@@ -403,7 +411,7 @@
                                                             </span>
                                                         @endif
                                                     </div>
-                                                    
+
                                                     <div>
                                                         @foreach ($habitaciones as $habitacion)
                                                             @php
@@ -535,6 +543,8 @@
             </div>
         </div>
     </div>
+
+    @include('layouts.partials.programa-show-footer', ['locale' => 'es'])
 
     {{-- Scripts --}}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

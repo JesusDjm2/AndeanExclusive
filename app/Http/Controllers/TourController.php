@@ -176,7 +176,12 @@ class TourController extends Controller
         }
         abort_if(! $tour, 404);
 
-        $tours = Tour::where('id', '!=', $tour->id)->orderByDesc('updated_at')->take(3)->get();
+        $tours = Tour::query()
+            ->where('id', '!=', $tour->id)
+            ->with('categorias')
+            ->orderByDesc('updated_at')
+            ->take(3)
+            ->get();
         $estour = $tour->estour;
         $categorias = TourCategory::all();
 

@@ -181,7 +181,12 @@ class EsTourController extends Controller
         }
         abort_if(! $tour, 404);
 
-        $tours = Estour::where('id', '!=', $tour->id)->orderByDesc('updated_at')->take(12)->get();
+        $tours = Estour::query()
+            ->where('id', '!=', $tour->id)
+            ->with('categorias')
+            ->orderByDesc('updated_at')
+            ->take(3)
+            ->get();
         $entour = $tour->relacionado_id ? Tour::find($tour->relacionado_id) : null;
         $categorias = EsCategoria::all();
 

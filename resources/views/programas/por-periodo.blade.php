@@ -67,13 +67,13 @@
             </div>
         @else
             <div class="card shadow mb-4">
-                <div class="card-header py-3 bg-white border-bottom">
+                <div class="card-header py-3 bg-white border-bottom text-center">
                     <h6 class="m-0 fw-bold text-primary">
                         <i class="fas fa-calendar-day me-2"></i>Año
                     </h6>
                 </div>
                 <div class="card-body">
-                    <div class="d-flex flex-wrap gap-1 gap-md-2">
+                    <div class="d-flex flex-wrap gap-1 gap-md-2 justify-content-center">
                         @foreach ($anios as $anio)
                             @php
                                 $cnt = (int) ($countsByAnio[$anio->id] ?? 0);
@@ -175,7 +175,7 @@
                                             @endif
                                         </p>
                                         <div class="d-flex flex-wrap gap-1">
-                                            @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
+                                            {{-- @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
                                                 <form action="{{ route('programas.enviar-correo', $programa) }}"
                                                     method="POST" class="d-inline"
                                                     onsubmit="return confirm('¿Enviar correo con PDF a {{ e($programa->email) }}?');">
@@ -186,7 +186,7 @@
                                             @else
                                                 <button type="button" class="btn btn-sm btn-outline-secondary disabled"
                                                     title="Sin correo válido"><i class="fas fa-paper-plane"></i></button>
-                                            @endif
+                                            @endif --}}
                                             <a href="{{ route('programas.show', $programa) }}" target="_blank"
                                                 class="btn btn-sm btn-info" title="Ver"><i class="fas fa-eye"></i></a>
                                             <a href="{{ route('programas.edit', $programa) }}"

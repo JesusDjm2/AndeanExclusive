@@ -45,7 +45,7 @@ class ProgramaController extends Controller
      */
     public function porPeriodo(Request $request)
     {
-        $anios = Anio::query()->orderByDesc('anio')->get();
+        $anios = Anio::query()->orderBy('anio')->get();
         $meses = Mes::query()->orderBy('numero')->get();
 
         $countsByAnio = Programa::query()
