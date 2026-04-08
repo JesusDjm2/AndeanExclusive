@@ -37,6 +37,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
 
         <div class="card shadow mb-3 ae-admin-filter-card">
             <div class="card-body">
@@ -365,6 +371,23 @@
                                     </td>
 
                                     <td class="text-center">
+                                        @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
+                                            <form action="{{ route('programas.enviar-correo', $programa) }}" method="POST"
+                                                class="d-inline-block"
+                                                onsubmit="return confirm('¿Enviar correo con el programa en PDF a {{ e($programa->email) }}?');">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm"
+                                                    style="margin-top: -0.3em" title="Enviar correo con PDF">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="btn btn-outline-secondary btn-sm disabled"
+                                                style="margin-top: -0.3em;pointer-events:none;opacity:0.65;"
+                                                title="Agregue un correo válido en el programa">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </span>
+                                        @endif
                                         <a href="{{ route('programas.pdf', $programa) }}" class="btn btn-danger btn-sm"
                                             style="margin-top: -0.3em" title="Exportar PDF">
                                             <i class="fas fa-file-pdf"></i>

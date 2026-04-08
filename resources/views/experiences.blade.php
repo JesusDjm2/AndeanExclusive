@@ -27,8 +27,8 @@
                                     <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
                                             target="_blank">+51 979 721 194</a></li>
                                     <li id="display2" class="menu-has-children">
-                                        <a href="experiencias">ES</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <a>ES</a>
+                                        <a href="{{ route('experiencias') }}">ES</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="{{ route('experiences') }}">EN</a>
                                     </li>
                                 </ul>
                                 <a href="javascript:;" id="mobile-menu"><span></span></a>

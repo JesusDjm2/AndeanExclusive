@@ -98,7 +98,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-lg-6 col-sm-12"><a href="{{ route('inicio') }}">Inicio</a> /
-                                                    <a href="experiencias">Populares</a> /
+                                                    <a href="{{ route('experiencias') }}">Populares</a> /
                                                     <a>Huacachina - Perú</a>
                                                 </div>
                                                 <div class="col-lg-3 col-sm-2" id="display2">

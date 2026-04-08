@@ -30,6 +30,19 @@
             </div>
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         @if ($sinAsignarCount > 0)
             <div class="alert alert-warning alert-dismissible fade show border-0 shadow-sm" role="alert">
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
@@ -162,6 +175,18 @@
                                             @endif
                                         </p>
                                         <div class="d-flex flex-wrap gap-1">
+                                            @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
+                                                <form action="{{ route('programas.enviar-correo', $programa) }}"
+                                                    method="POST" class="d-inline"
+                                                    onsubmit="return confirm('¿Enviar correo con PDF a {{ e($programa->email) }}?');">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Enviar correo"><i
+                                                            class="fas fa-paper-plane"></i></button>
+                                                </form>
+                                            @else
+                                                <button type="button" class="btn btn-sm btn-outline-secondary disabled"
+                                                    title="Sin correo válido"><i class="fas fa-paper-plane"></i></button>
+                                            @endif
                                             <a href="{{ route('programas.show', $programa) }}" target="_blank"
                                                 class="btn btn-sm btn-info" title="Ver"><i class="fas fa-eye"></i></a>
                                             <a href="{{ route('programas.edit', $programa) }}"

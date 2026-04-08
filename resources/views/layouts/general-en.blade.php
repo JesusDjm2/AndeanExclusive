@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
     @yield('metas')
     <meta name="theme-color" content="#0c8178">
     <link rel="dns-prefetch" href="https://www.googletagmanager.com">

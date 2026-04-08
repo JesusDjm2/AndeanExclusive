@@ -4,39 +4,7 @@
 @endsection
 @section('contenido')
     <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="index-castellano" rel="home" class="logo-text-link"><img
-                                        src="img/andean-exclusive-logo.png" id="logo"></a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu-castellano')
-                                    <li id="display">
-                                        <a href="{{ route('testimonials') }}">
-                                            <button type="button" class="btn botondjm">English</button>
-                                        </a>
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2">
-                                        <a href="{{ route('testimonials') }}">
-                                            <button type="button" class="btn botondjm">English</button>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        @include('layouts.partials.header-public-es', ['enRoute' => 'testimonials'])
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">

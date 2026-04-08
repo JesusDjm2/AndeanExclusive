@@ -9,52 +9,18 @@
 @endsection
 @section('contenido')
     <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="{{ route('inicio') }}" rel="home" class="logo-text-link">
-                                    <img src="img/andean-exclusive-logo.png" id="logo">
-                                </a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu-castellano')
-                                    <li id="display" class="menu-has-children">
-                                        <a href="{{ route('blog-en') }}">
-                                            <button type="button" class="btn botondjm">
-                                                <i class="fa fa-language"></i> English
-                                            </button>
-                                        </a>
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2" style="border-style: none">
-                                        <a href="{{ route('blog-en') }}">
-                                            <button type="button" class="btn botondjm">English</button>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
+        @include('layouts.partials.header-public-es', ['enRoute' => 'blog-en'])
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">
                     <div class="col-sm-12">
                         <article class="blog-item blog-single">
                             <div class="entry-excerpt">
+                                @if ($lastBlog)
                                 <div data-vc-full-width="true" data-vc-full-width-init="false" data-onepage-title="Home"
                                     data-onepage-slug="home"
                                     class="vc_row wpb_row vc_row-fluid vc_row-has-fill vc_row-o-full-height vc_row-o-columns-middle vc_row-o-content-middle vc_row-flex"
-                                    style="background: url('{{ asset( $lastBlog->imgFull ) }}') !important; margin-bottom: 0px; background-position: center !important; background-repeat: no-repeat !important; background-size: cover !important;">
+                                    style="background: url('{{ asset($lastBlog->imgFull) }}') !important; margin-bottom: 0px; background-position: center !important; background-repeat: no-repeat !important; background-size: cover !important;">
                                     <div class="wpb_column vc_column_container vc_col-sm-12">
                                         <div class="vc_column-inner vc_custom_1461317698190">
                                             <div class="wpb_wrapper">
@@ -63,10 +29,10 @@
                                                         <div class='swiper-wrapper'>
                                                             <div class='swiper-slide'>
                                                                 <div class='cover-text ph5 text-light text-center pvb0'>
-                                                                    <h1>Blog Perú </h1>
-                                                                    <p>Imagen: <a 
+                                                                    <h1>Blog de turismo en el Perú</h1>
+                                                                    <p>Destacado: <a
                                                                             href="{{ route('esblog.show', $lastBlog->slug) }}"
-                                                                            target="_blank"> {{ $lastBlog->nombre }}</a>
+                                                                            target="_blank" rel="noopener">{{ $lastBlog->nombre }}</a>
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -77,6 +43,17 @@
                                         </div>
                                     </div>
                                 </div>
+                                @else
+                                <div class="vc_row wpb_row vc_row-fluid vc_row-has-fill py-5"
+                                    style="background: linear-gradient(135deg,#1e3a5f 0%,#0c8178 100%); margin-bottom: 0;">
+                                    <div class="wpb_column vc_column_container vc_col-sm-12">
+                                        <div class="vc_column-inner text-center text-white py-4">
+                                            <h1 class="text-white">Blog de turismo en el Perú</h1>
+                                            <p class="mb-0">Próximamente publicaremos artículos. Vuelva pronto o visite la versión en <a href="{{ route('blog-en') }}" class="text-white" style="text-decoration: underline;">inglés</a>.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
                                 <div class="vc_row-full-width vc_clearfix"></div>
                                 <div data-vc-full-width="true" data-vc-full-width-init="false"
                                     data-vc-stretch-content="true" data-onepage-title="Gallery"
@@ -106,8 +83,7 @@
                                                                             </div> <br>
                                                                             <div class="readmore text-center">
                                                                                 <a id="botonblog"
-                                                                                    href="{{ route('esblog.show', $blog->slug) }}">Read
-                                                                                    article</a>
+                                                                                    href="{{ route('esblog.show', $blog->slug) }}">Leer artículo</a>
                                                                             </div>
                                                                         </div>
                                                                     </div>

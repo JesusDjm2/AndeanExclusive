@@ -87,29 +87,75 @@ class EnEnlacesController extends Controller
 
     public function experiencias()
     {
-        $tours = Estour::all();
+        $tours = Estour::query()
+            ->whereHas('categorias', function ($query) {
+                $query->whereIn('nombre', [
+                    'Tours Exclusivos',
+                    'Exclusive Tours',
+                    'Exclusivos',
+                ]);
+            })
+            ->get();
+
+        if ($tours->isEmpty()) {
+            $tours = Estour::query()->latest()->get();
+        }
 
         return view('experiencias', compact('tours'));
     }
 
     public function alrededor()
     {
-        $tours = Estour::all();
+        $tours = Estour::query()
+            ->whereHas('categorias', function ($query) {
+                $query->whereIn('nombre', [
+                    'Tours en Perú',
+                    'Around Perú',
+                    'Alrededor de Perú',
+                    'Alrededor Peru',
+                ]);
+            })
+            ->get();
+
+        if ($tours->isEmpty()) {
+            $tours = Estour::query()->latest()->get();
+        }
 
         return view('alrededor-de-peru', compact('tours'));
     }
 
     public function caminatas()
     {
-        $tours = Estour::all();
+        $tours = Estour::query()
+            ->whereHas('categorias', function ($query) {
+                $query->whereIn('nombre', [
+                    'Tours de Aventura',
+                    'Aventuras',
+                    'Adventure tours',
+                ]);
+            })
+            ->get();
+
+        if ($tours->isEmpty()) {
+            $tours = Estour::query()->latest()->get();
+        }
 
         return view('caminatas-peru', compact('tours'));
     }
 
     public function bloges()
     {
-        $lastBlog = Esblog::latest('updated_at')->first();
-        $blogs = Esblog::where('updated_at', '<', $lastBlog->updated_at)
+        $lastBlog = Esblog::query()->latest('updated_at')->first();
+
+        if (! $lastBlog) {
+            return view('blog-castellano', [
+                'lastBlog' => null,
+                'blogs' => collect(),
+            ]);
+        }
+
+        $blogs = Esblog::query()
+            ->where('updated_at', '<', $lastBlog->updated_at)
             ->latest('updated_at')
             ->get();
 

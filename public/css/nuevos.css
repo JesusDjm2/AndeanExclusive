@@ -839,4 +839,32 @@ footer#footer.site-footer-public #afoot:hover {
   }
 }
 
+/* —— Público: formulario hero (inicio ES/EN) apilable en móvil —— */
+@media (max-width: 991px) {
+  .fondoindex .carousel-headings .form .col-lg-2 {
+    width: 100% !important;
+    max-width: 100%;
+    flex: 0 0 100%;
+    margin-bottom: 0.5rem;
+  }
+  .fondoindex .carousel-headings .form .col-lg-12 {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+}
+/* Logos aliados: scroll horizontal en pantallas pequeñas */
+@media (max-width: 767px) {
+  #divdjm.row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start !important;
+    padding-bottom: 0.5rem;
+  }
+  #divdjm .col-lg-2 {
+    flex: 0 0 auto;
+    min-width: 120px;
+  }
+}
+
 /*# sourceMappingURL=nuevos.css.map */

@@ -4,43 +4,7 @@
 @endsection
 @section('contenido')
     <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="/" rel="home" class="logo-text-link">
-                                    <div class="logo2"></div>
-                                </a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu-castellano')
-                                    <li id="display" class="menu-has-children">
-                                        <a href="{{ route('adventures') }}">
-                                            <button type="button" class="btn botondjm">
-                                                <i class="fa fa-language"></i> English
-                                            </button>
-                                        </a>
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2" class="menu-has-children">
-                                        <a href="{{ route('caminatas') }}">ES</a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <a href="{{ route('adventures') }}">EN</a>
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </header>
+        @include('layouts.partials.header-public-es', ['enRoute' => 'adventures'])
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">

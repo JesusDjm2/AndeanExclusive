@@ -11,8 +11,10 @@ use App\Models\HabitacionFecha;
 use App\Models\Hotel;
 use App\Models\Pax;
 use App\Models\Proveedor;
+use App\Mail\ProgramaBienvenidaMailable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -141,6 +143,7 @@ class ProgramaController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'codigo' => 'required|string|max:50|unique:programas,codigo',
+            'email' => 'nullable|email|max:255',
 
             'inicio' => 'nullable',
             'fin' => 'nullable|date|after_or_equal:inicio',
@@ -300,6 +303,7 @@ class ProgramaController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'codigo' => 'required|string|max:50|unique:programas,codigo,' . $programa->id,
+            'email' => 'nullable|email|max:255',
             'inicio' => 'nullable|date',
             'fin' => 'nullable|date|after_or_equal:inicio',
             'precioAdulto' => 'nullable|numeric|min:0',
@@ -477,6 +481,89 @@ class ProgramaController extends Controller
 
     public function exportPdf(Programa $programa)
     {
+        ['binary' => $binary, 'filename' => $filename] = $this->buildProgramaPdf($programa);
+
+        return response($binary, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    /**
+     * Envía al correo del programa un saludo de bienvenida y el PDF adjunto.
+     */
+    public function enviarCorreo(Programa $programa)
+    {
+        $email = trim((string) ($programa->email ?? ''));
+
+        if ($email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return redirect()
+                ->back()
+                ->with('error', 'Este programa no tiene un correo electrónico válido. Edítalo y guarda un email correcto.');
+        }
+
+        $from = config('mail.from.address');
+        if (empty($from) || ! filter_var(trim((string) $from), FILTER_VALIDATE_EMAIL)) {
+            return redirect()
+                ->back()
+                ->with('error', 'Configure MAIL_FROM_ADDRESS en .env con un correo válido (el remitente debe ser una cuenta autorizada en su SMTP).');
+        }
+
+        if (config('mail.default') === 'smtp' && empty(config('mail.mailers.smtp.username'))) {
+            return redirect()
+                ->back()
+                ->with('error', 'MAIL_USERNAME está vacío en .env. La mayoría de servidores SMTP (Gmail, Outlook, etc.) requieren usuario y contraseña.');
+        }
+
+        try {
+            ['binary' => $binary, 'filename' => $filename] = $this->buildProgramaPdf($programa);
+
+            Mail::to($email)->send(new ProgramaBienvenidaMailable($programa, $binary, $filename));
+
+            return redirect()
+                ->back()
+                ->with('success', 'Correo enviado correctamente a ' . $email . ' con el programa en PDF adjunto.');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->back()
+                ->with('error', $this->mensajeErrorEnvioCorreo($e));
+        }
+    }
+
+    /**
+     * Texto útil para el usuario (y detalle técnico solo en depuración).
+     */
+    protected function mensajeErrorEnvioCorreo(\Throwable $e): string
+    {
+        $base = 'No se pudo enviar el correo. ';
+        $hints = 'Revise MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD y MAIL_ENCRYPTION en .env. '
+            . 'Gmail: active verificación en 2 pasos y cree una contraseña de aplicación; use puerto 587 con tls. '
+            . 'Desde la terminal: php artisan mail:test su@correo.com';
+
+        if (config('app.debug')) {
+            return $base . 'Detalle: ' . $e->getMessage() . ' — ' . $hints;
+        }
+
+        $msg = strtolower($e->getMessage());
+
+        if (str_contains($msg, 'authenticate') || str_contains($msg, '535') || str_contains($msg, 'authentication')) {
+            $base .= 'El servidor SMTP rechazó usuario o contraseña. ';
+        } elseif (str_contains($msg, 'connection') || str_contains($msg, 'timed out') || str_contains($msg, 'could not connect')) {
+            $base .= 'No hubo conexión con el servidor de correo (host, puerto, firewall o antivirus). ';
+        } elseif (str_contains($msg, 'certificate') || str_contains($msg, 'ssl') || str_contains($msg, 'tls')) {
+            $base .= 'Problema de certificado SSL/TLS. Pruebe MAIL_ENCRYPTION=tls con puerto 587 o ssl con 465. ';
+        }
+
+        return $base . $hints . ' Más detalle en storage/logs/laravel.log.';
+    }
+
+    /**
+     * @return array{binary: string, filename: string}
+     */
+    protected function buildProgramaPdf(Programa $programa): array
+    {
         $programa->load([
             'agentes',
             'proveedores.categoria',
@@ -487,7 +574,6 @@ class ProgramaController extends Controller
 
         $presentacionPdf = $programa->presentacion;
         if ($presentacionPdf && ! extension_loaded('gd')) {
-            // Dompdf exige GD para PNG/WebP/GIF en el HTML; sin GD se omiten <img>.
             $presentacionPdf = preg_replace('/<img\b[^>]*>/i', '', $presentacionPdf);
         }
 
@@ -508,10 +594,10 @@ class ProgramaController extends Controller
         $suffix = $programa->lang === 'es' ? '' : '-en';
         $filename = 'programa-' . $slug . $suffix . '.pdf';
 
-        return response($dompdf->output(), 200, [
-            'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-        ]);
+        return [
+            'binary' => $dompdf->output(),
+            'filename' => $filename,
+        ];
     }
 
     public function destroy(Programa $programa)

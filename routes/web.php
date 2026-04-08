@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('agentes', AgenteController::class)->names('agentes');
     Route::get('programas/por-periodo', [ProgramaController::class, 'porPeriodo'])->name('programas.por-periodo');
     Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
+    Route::post('programas/{programa}/enviar-correo', [ProgramaController::class, 'enviarCorreo'])->name('programas.enviar-correo');
     Route::resource('programas', ProgramaController::class)->names('programas');
     Route::resource('paxs', PaxController::class)->names('paxs');
     Route::resource('hoteles', HotelController::class)->names('hotel')->parameters(['hoteles' => 'hotel']);

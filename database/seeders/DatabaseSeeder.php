@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             MesSeeder::class,
             AnioSeeder::class,
+            ProgramaSeeder::class,
         ]);
     }
 }
