@@ -12,6 +12,7 @@
     <link href="{{ asset('admin/css/sb-admin-2.min.css') }}" rel="stylesheet">
     <link rel="icon" href="{{ asset('img/thumb/favicon-admin.png') }}" />
     <link rel="stylesheet" href="{{ asset('admin/css/estilos.css') }}">
+    @stack('styles')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 </head>
@@ -28,58 +29,81 @@
                     <span>Inicio</span>
                 </a>
             </li>
+            @php
+                $navToursEn = request()->routeIs('tours.*', 'categories.*');
+                $navBlogsEn = request()->routeIs('entags.*', 'enblogs.*');
+                $navToursEs = request()->routeIs('estours.*', 'categorias.*');
+                $navBlogsEs = request()->routeIs('estags.*', 'esblogs.*');
+            @endphp
             <hr class="sidebar-divider">
             <div class="sidebar-heading text-uppercase">Inglés</div>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEn"
-                    aria-expanded="false" aria-controls="toursEn">
+                <a class="nav-link {{ $navToursEn ? '' : 'collapsed' }}" href="#" data-toggle="collapse"
+                    data-target="#collapseToursEn" aria-expanded="{{ $navToursEn ? 'true' : 'false' }}"
+                    aria-controls="collapseToursEn">
                     <i class="fas fa-fw fa-map-marked-alt"></i>
                     <span>Tours EN</span>
                 </a>
-                <div id="toursEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseToursEn" class="collapse {{ $navToursEn ? 'show' : '' }}"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="{{ route('tours.index') }}">Tours</a>
-                        <a class="collapse-item" href="{{ route('categories.index') }}">Categorías</a>
+                        <a class="collapse-item {{ request()->routeIs('tours.*') ? 'active' : '' }}"
+                            href="{{ route('tours.index') }}">Tours</a>
+                        <a class="collapse-item {{ request()->routeIs('categories.*') ? 'active' : '' }}"
+                            href="{{ route('categories.index') }}">Categorías</a>
                     </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEn"
-                    aria-expanded="false" aria-controls="blogsEn">
+                <a class="nav-link {{ $navBlogsEn ? '' : 'collapsed' }}" href="#" data-toggle="collapse"
+                    data-target="#collapseBlogsEn" aria-expanded="{{ $navBlogsEn ? 'true' : 'false' }}"
+                    aria-controls="collapseBlogsEn">
                     <i class="fas fa-fw fa-blog"></i>
                     <span>Blogs EN</span>
                 </a>
-                <div id="blogsEn" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseBlogsEn" class="collapse {{ $navBlogsEn ? 'show' : '' }}"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="{{ route('entags.index') }}">Tags</a>
-                        <a class="collapse-item" href="{{ route('enblogs.index') }}">Blogs</a>
+                        <a class="collapse-item {{ request()->routeIs('entags.*') ? 'active' : '' }}"
+                            href="{{ route('entags.index') }}">Tags</a>
+                        <a class="collapse-item {{ request()->routeIs('enblogs.*') ? 'active' : '' }}"
+                            href="{{ route('enblogs.index') }}">Blogs</a>
                     </div>
                 </div>
             </li>
             <hr class="sidebar-divider">
+            <div class="sidebar-heading text-uppercase">Español</div>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#toursEs"
-                    aria-expanded="false" aria-controls="toursEs">
+                <a class="nav-link {{ $navToursEs ? '' : 'collapsed' }}" href="#" data-toggle="collapse"
+                    data-target="#collapseToursEs" aria-expanded="{{ $navToursEs ? 'true' : 'false' }}"
+                    aria-controls="collapseToursEs">
                     <i class="fas fa-fw fa-map"></i>
                     <span>Tours ES</span>
                 </a>
-                <div id="toursEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseToursEs" class="collapse {{ $navToursEs ? 'show' : '' }}"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="{{ route('estours.index') }}">Tours</a>
-                        <a class="collapse-item" href="{{ route('categorias.index') }}">Categorías</a>
+                        <a class="collapse-item {{ request()->routeIs('estours.*') ? 'active' : '' }}"
+                            href="{{ route('estours.index') }}">Tours</a>
+                        <a class="collapse-item {{ request()->routeIs('categorias.*') ? 'active' : '' }}"
+                            href="{{ route('categorias.index') }}">Categorías</a>
                     </div>
                 </div>
             </li>
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#blogsEs"
-                    aria-expanded="false" aria-controls="blogsEs">
+                <a class="nav-link {{ $navBlogsEs ? '' : 'collapsed' }}" href="#" data-toggle="collapse"
+                    data-target="#collapseBlogsEs" aria-expanded="{{ $navBlogsEs ? 'true' : 'false' }}"
+                    aria-controls="collapseBlogsEs">
                     <i class="fas fa-fw fa-pen"></i>
                     <span>Blogs ES</span>
                 </a>
-                <div id="blogsEs" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseBlogsEs" class="collapse {{ $navBlogsEs ? 'show' : '' }}"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="{{ route('estags.index') }}">Tags</a>
-                        <a class="collapse-item" href="{{ route('esblogs.index') }}">Blogs</a>
+                        <a class="collapse-item {{ request()->routeIs('estags.*') ? 'active' : '' }}"
+                            href="{{ route('estags.index') }}">Tags</a>
+                        <a class="collapse-item {{ request()->routeIs('esblogs.*') ? 'active' : '' }}"
+                            href="{{ route('esblogs.index') }}">Blogs</a>
                     </div>
                 </div>
             </li>
@@ -87,17 +111,25 @@
             <!-- Sección: Administración -->
             <div class="sidebar-heading text-uppercase">Administración</div>
 
+            @php
+                $programasNavOpen = request()->routeIs('programas.*', 'paxs.*');
+            @endphp
             <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#programa"
-                    aria-expanded="false" aria-controls="programa">
-                    <i class="fas fa-fw fa-pen"></i>
+                <a class="nav-link {{ $programasNavOpen ? '' : 'collapsed' }}" href="#" data-toggle="collapse"
+                    data-target="#collapseProgramas" aria-expanded="{{ $programasNavOpen ? 'true' : 'false' }}"
+                    aria-controls="collapseProgramas">
+                    <i class="fas fa-fw fa-layer-group"></i>
                     <span>Programas</span>
                 </a>
-                <div id="programa" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div id="collapseProgramas" class="collapse {{ $programasNavOpen ? 'show' : '' }}"
+                    data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
-                        <a class="collapse-item" href="{{ route('programas.index') }}">Programas</a>
-                        <a class="collapse-item" href="{{ route('paxs.index') }}">Pasajeros</a>
-
+                        <a class="collapse-item {{ request()->routeIs('programas.index', 'programas.create', 'programas.edit', 'programas.pdf') ? 'active' : '' }}"
+                            href="{{ route('programas.index') }}">Listado completo</a>
+                        <a class="collapse-item {{ request()->routeIs('programas.por-periodo') ? 'active' : '' }}"
+                            href="{{ route('programas.por-periodo') }}">Por año y mes</a>
+                        <a class="collapse-item {{ request()->routeIs('paxs.*') ? 'active' : '' }}"
+                            href="{{ route('paxs.index') }}">Pasajeros</a>
                     </div>
                 </div>
             </li>
@@ -370,6 +402,7 @@
         integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    @stack('scripts')
 </body>
 
 </html>

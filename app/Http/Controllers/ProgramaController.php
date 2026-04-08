@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Anio;
+use App\Models\Mes;
 use App\Models\Programa;
 use App\Http\Controllers\Controller;
 use App\Models\Agente;
@@ -17,14 +19,110 @@ use Dompdf\Options;
 
 class ProgramaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $programas = Programa::query()
-            ->with(['agentes', 'paxs', 'habitaciones.hotel', 'proveedores.categoria', 'habitacionesFechas'])
-            ->latest()
-            ->get();
+        $query = Programa::query()
+            ->with(['agentes', 'paxs', 'habitaciones.hotel', 'proveedores.categoria', 'habitacionesFechas', 'anio', 'mes']);
 
-        return view('programas.index', compact('programas'));
+        if ($request->filled('anio_id')) {
+            $query->where('anio_id', $request->integer('anio_id'));
+        }
+        if ($request->filled('mes_id')) {
+            $query->where('mes_id', $request->integer('mes_id'));
+        }
+
+        $programas = $query->latest()->get();
+        $anios = Anio::query()->orderByDesc('anio')->get();
+        $meses = Mes::query()->orderBy('numero')->get();
+
+        return view('programas.index', compact('programas', 'anios', 'meses'));
+    }
+
+    /**
+     * Vista exploración: elegir año → mes → listado visual de programas.
+     */
+    public function porPeriodo(Request $request)
+    {
+        $anios = Anio::query()->orderByDesc('anio')->get();
+        $meses = Mes::query()->orderBy('numero')->get();
+
+        $countsByAnio = Programa::query()
+            ->whereNotNull('anio_id')
+            ->selectRaw('anio_id, COUNT(*) as total')
+            ->groupBy('anio_id')
+            ->pluck('total', 'anio_id');
+
+        $anioId = $request->filled('anio_id')
+            ? $request->integer('anio_id')
+            : null;
+
+        if ($anioId !== null && !$anios->contains(fn ($a) => (int) $a->id === (int) $anioId)) {
+            $anioId = null;
+        }
+
+        if ($anioId === null && $anios->isNotEmpty()) {
+            $anioId = Anio::query()
+                ->whereHas('programas', function ($q) {
+                    $q->whereNotNull('mes_id');
+                })
+                ->orderByDesc('anio')
+                ->value('id');
+
+            if ($anioId === null) {
+                $anioId = $anios->first()->id;
+            }
+        }
+
+        $monthCounts = collect();
+        if ($anioId) {
+            $raw = Programa::query()
+                ->where('anio_id', $anioId)
+                ->whereNotNull('mes_id')
+                ->selectRaw('mes_id, COUNT(*) as c')
+                ->groupBy('mes_id')
+                ->pluck('c', 'mes_id');
+            foreach ($meses as $mes) {
+                $monthCounts[$mes->id] = (int) ($raw[$mes->id] ?? 0);
+            }
+        }
+
+        $mesId = $request->filled('mes_id') ? $request->integer('mes_id') : null;
+
+        if ($mesId !== null && !$meses->contains(fn ($m) => (int) $m->id === (int) $mesId)) {
+            $mesId = null;
+        }
+
+        $programas = collect();
+        if ($anioId && $mesId) {
+            $programas = Programa::query()
+                ->with(['paxs', 'agentes', 'anio', 'mes'])
+                ->where('anio_id', $anioId)
+                ->where('mes_id', $mesId)
+                ->orderBy('nombre')
+                ->get();
+        }
+
+        $sinAsignarCount = Programa::query()
+            ->where(function ($q) {
+                $q->whereNull('anio_id')->orWhereNull('mes_id');
+            })
+            ->count();
+
+        $anioActivo = $anioId ? $anios->firstWhere('id', $anioId) : null;
+        $mesActivo = $mesId ? $meses->firstWhere('id', $mesId) : null;
+
+        return view('programas.por-periodo', compact(
+            'anios',
+            'meses',
+            'countsByAnio',
+            'anioId',
+            'mesId',
+            'monthCounts',
+            'programas',
+            'sinAsignarCount',
+            'anioActivo',
+            'mesActivo',
+        ));
     }
 
     public function create()
@@ -32,7 +130,10 @@ class ProgramaController extends Controller
         $agentes = Agente::all();
         $proveedorsPorCategoria = Proveedor::with('categoria')->get()->groupBy(fn($p) => $p->categoria->nombre);
         $hoteles = Hotel::with('habitaciones')->get();
-        return view('programas.create', compact('agentes', 'proveedorsPorCategoria', 'hoteles'));
+        $anios = Anio::query()->orderByDesc('anio')->get();
+        $meses = Mes::query()->orderBy('numero')->get();
+
+        return view('programas.create', compact('agentes', 'proveedorsPorCategoria', 'hoteles', 'anios', 'meses'));
     }
 
     public function store(Request $request)
@@ -49,6 +150,9 @@ class ProgramaController extends Controller
             'lang' => 'nullable|string|max:10',
 
             'presentacion' => 'nullable|string',
+
+            'anio_id' => 'nullable|exists:anios,id',
+            'mes_id' => 'nullable|exists:meses,id',
 
             'agentes' => 'array',
             'agentes.*' => 'exists:agentes,id',
@@ -84,6 +188,8 @@ class ProgramaController extends Controller
                 'precioAdulto' => $request->precioAdulto,
                 'precioChild' => $request->precioChild,
                 'presentacion' => $request->presentacion,
+                'anio_id' => $request->anio_id,
+                'mes_id' => $request->mes_id,
                 'agente_id' => $request->agente_id,
             ]);
 
@@ -172,6 +278,9 @@ class ProgramaController extends Controller
         // Crear array de fechas por habitación para fácil acceso en la vista
         $fechasPorHabitacion = $programa->habitacionesFechas->keyBy('habitacion_id');
 
+        $anios = Anio::query()->orderByDesc('anio')->get();
+        $meses = Mes::query()->orderBy('numero')->get();
+
         return view('programas.edit', compact(
             'programa',
             'agentes',
@@ -181,7 +290,9 @@ class ProgramaController extends Controller
             'proveedoresSeleccionados',
             'hoteles',
             'habitacionesSeleccionadas',
-            'fechasPorHabitacion' // Agregar esta variable
+            'fechasPorHabitacion',
+            'anios',
+            'meses',
         ));
     }
     public function update(Request $request, Programa $programa)
@@ -195,6 +306,8 @@ class ProgramaController extends Controller
             'precioChild' => 'nullable|numeric|min:0',
             'lang' => 'nullable|string|max:10',
             'presentacion' => 'nullable|string',
+            'anio_id' => 'nullable|exists:anios,id',
+            'mes_id' => 'nullable|exists:meses,id',
             'agentes' => 'array',
             'agentes.*' => 'exists:agentes,id',
             'proveedores' => 'nullable|array',
@@ -223,6 +336,8 @@ class ProgramaController extends Controller
                 'precioAdulto' => $request->precioAdulto,
                 'precioChild' => $request->precioChild,
                 'presentacion' => $request->presentacion,
+                'anio_id' => $request->anio_id,
+                'mes_id' => $request->mes_id,
                 'agente_id' => $request->agente_id,
             ]);
 

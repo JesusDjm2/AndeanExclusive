@@ -1,34 +1,28 @@
 @extends('layouts.app')
+@section('titulo', 'Programas')
 @section('title', 'Programas')
 @section('contenido')
-    <style>
-        thead.sticky-top th {
-            position: sticky;
-            top: 0;
-            z-index: 1020;
-        }
-
-        .subtitulos {
-            font-weight: 500;
-            font-size: 15px;
-        }
-    </style>
     <div class="container-fluid">
-        <div class="row align-items-center mb-4">
+        <div class="row align-items-center ae-admin-page-header">
             <div class="col text-start">
-                <h2 class="mb-0 fw-bold">
+                <h2 class="ae-admin-page-title">
                     <i class="fas fa-fw fa-layer-group text-primary me-2"></i>
                     Programas
                 </h2>
-                <small class="text-muted">
+                <small class="ae-admin-page-desc">
                     Gestión y visualización de programas
                 </small>
             </div>
 
             <div class="col text-center">
-                <a href="{{ route('programas.create') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus-circle"></i> Nuevo Programa
-                </a>
+                <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-2">
+                    <a href="{{ route('programas.por-periodo') }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-calendar-alt"></i> Por año y mes
+                    </a>
+                    <a href="{{ route('programas.create') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus-circle"></i> Nuevo Programa
+                    </a>
+                </div>
             </div>
             <div class="col text-end">
                 <a href="{{ url()->previous() }}" class="btn btn-danger btn-sm">
@@ -43,11 +37,50 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
+
+        <div class="card shadow mb-3 ae-admin-filter-card">
+            <div class="card-body">
+                <form method="GET" action="{{ route('programas.index') }}"
+                    class="row g-2 align-items-end">
+                    <div class="col-md-3 col-lg-2">
+                        <label class="form-label small text-muted mb-0">Año</label>
+                        <select name="anio_id" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            @foreach ($anios as $anio)
+                                <option value="{{ $anio->id }}"
+                                    {{ (string) request('anio_id') === (string) $anio->id ? 'selected' : '' }}>
+                                    {{ $anio->anio }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 col-lg-2">
+                        <label class="form-label small text-muted mb-0">Mes</label>
+                        <select name="mes_id" class="form-select form-select-sm">
+                            <option value="">Todos</option>
+                            @foreach ($meses as $mes)
+                                <option value="{{ $mes->id }}"
+                                    {{ (string) request('mes_id') === (string) $mes->id ? 'selected' : '' }}>
+                                    {{ $mes->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-auto d-flex gap-2 flex-wrap">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                        <a href="{{ route('programas.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <div class="card shadow">
             <div class="card-body">
                 <div class="table-responsive" style="max-height: 70vh;">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-dark sticky-top">
+                    <table class="table table-hover align-middle mb-0 ae-admin-data-table ae-admin-table-sticky">
+                        <thead class="table-dark">
                             <tr>
                                 <th>#</th>
                                 <th><i class="fas fa-signature fa-sm"></i> Nombre</th>
@@ -62,9 +95,21 @@
                                 <tr>
                                     <td>{{ $programa->id }}</td>
                                     <td>
-                                        <div class="fw-bold d-flex align-items-center gap-2">
+                                        <div class="fw-bold d-flex align-items-center gap-2 flex-wrap">
                                             {{ $programa->nombre }}
-
+                                            @if ($programa->anio || $programa->mes)
+                                                <span class="badge bg-secondary fw-normal">
+                                                    @if ($programa->anio)
+                                                        {{ $programa->anio->anio }}
+                                                    @endif
+                                                    @if ($programa->mes)
+                                                        @if ($programa->anio)
+                                                            ·
+                                                        @endif
+                                                        {{ $programa->mes->nombre }}
+                                                    @endif
+                                                </span>
+                                            @endif
                                         </div>
                                         <span class="small d-flex align-items-center">
                                             <i class="fas fa-fw fa-users me-1"></i>

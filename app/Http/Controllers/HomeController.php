@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Anio;
+use App\Models\Mes;
+
 class HomeController extends Controller
 {
     public function __construct()
@@ -11,6 +14,9 @@ class HomeController extends Controller
 
     public function index()
     {
-        return view('home');
+        $anios = Anio::query()->orderByDesc('anio')->get();
+        $meses = Mes::query()->orderBy('numero')->get();
+
+        return view('home', compact('anios', 'meses'));
     }
 }

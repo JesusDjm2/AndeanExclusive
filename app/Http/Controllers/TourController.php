@@ -13,7 +13,6 @@ class TourController extends Controller
     {
         $tours = Tour::all();
         $totalTours = Tour::count();
-
         return view('admin.tours.index', compact('tours', 'totalTours'));
     }
 

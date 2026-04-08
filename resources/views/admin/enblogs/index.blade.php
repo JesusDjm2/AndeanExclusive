@@ -1,78 +1,113 @@
 @extends('layouts.app')
 @section('titulo', 'Listado de blog en inglés')
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap5.min.css">
+@endpush
 @section('contenido')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12">
-                <h4>Listado de Blogs</h4>
-                <a href="{{ route('enblogs.create') }}" class="btn btn-primary btn-sm float-right">
-                    Crear nuevo Blog
-                </a>
-                @if (session('success'))
-                    <div class="alert alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col-lg-8 text-start mb-2 mb-lg-0">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-blog text-primary me-2"></i>
+                    Blogs en inglés
+                </h2>
+                <small class="ae-admin-page-desc">Listado de entradas EN</small>
             </div>
-            <div class="table-responsive">
-                <table id="tabladatos" class="table table-hover">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Nombre</th>
-                            <th>Descripción Corta</th>
-                            <th>Tags</th>
-                            <th>Img Thumb</th>
-                            <th>Img Full</th>
-                            <th>Slug</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($blogs as $registro)
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('enblogs.create') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Crear nuevo Blog
+                </a>
+            </div>
+        </div>
+
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive p-2 p-md-3">
+                    <table id="tabladatos" class="table table-hover table-bordered w-100 ae-admin-data-table">
+                        <thead class="table-dark">
                             <tr>
-                                <td>{{ $registro->id }}</td>
-                                <td>{{ $registro->nombre }}</td>
-                                <td>{{ $registro->descripcionCorta }}</td>
-                                <td>
-                                    @foreach ($registro->tags as $tag)
-                                        <span class="badge badge-info">{{ $tag->nombre }}</span>
-                                    @endforeach
-                                </td>
-                                <td>
-                                    <img src="{{ asset('img/thumb/' . $registro->imgThumb) }}" width="90px" style="height: 50px; object-fit: cover">
-                                </td>
-                                <td>
-                                    <img src="{{ asset('img/full/' . $registro->imgFull) }}" width="90px" style="height: 50px; object-fit: cover">
-                                </td>
-                                <td>{{ $registro->slug }}</td>
-                                <td style="width: 120px">
-                                    <a href="{{ route('enblog.show', $registro->slug) }}"
-                                        class="btn btn-primary btn-sm" target="_blank"><i class="fa fa-eye"></i></a>
-                                    <a href="{{ route('enblogs.edit', $registro->id) }}"
-                                        class="btn btn-info btn-sm"><i class="fa fa-edit"></i></a>
-                                    <form action="{{ route('enblogs.destroy', $registro->id) }}" method="POST"
-                                        style="display: inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm"><i class="fa fa-trash"></i></button>
-                                    </form>
-                                </td>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Descripción corta</th>
+                                <th>Tags</th>
+                                <th>Img Thumb</th>
+                                <th>Img Full</th>
+                                <th>Slug</th>
+                                <th class="text-center" style="width: 140px">Acciones</th>
                             </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach ($blogs as $registro)
+                                <tr>
+                                    <td>{{ $registro->id }}</td>
+                                    <td class="fw-semibold">{{ $registro->nombre }}</td>
+                                    <td>{{ Str::limit($registro->descripcionCorta ?? '', 80) }}</td>
+                                    <td>
+                                        @foreach ($registro->tags as $tag)
+                                            <span class="badge bg-info text-dark me-1">{{ $tag->nombre }}</span>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        <img src="{{ asset('img/thumb/' . $registro->imgThumb) }}" width="90"
+                                            height="50" class="rounded object-fit-cover" style="object-fit: cover"
+                                            alt="">
+                                    </td>
+                                    <td>
+                                        <img src="{{ asset('img/full/' . $registro->imgFull) }}" width="90"
+                                            height="50" class="rounded object-fit-cover" style="object-fit: cover"
+                                            alt="">
+                                    </td>
+                                    <td><code class="small">{{ $registro->slug }}</code></td>
+                                    <td class="text-center">
+                                        <div class="d-inline-flex flex-wrap gap-1 justify-content-center">
+                                            <a href="{{ route('enblog.show', $registro->slug) }}"
+                                                class="btn btn-success btn-sm" target="_blank" title="Ver"><i
+                                                    class="fas fa-eye"></i></a>
+                                            <a href="{{ route('enblogs.edit', $registro->id) }}"
+                                                class="btn btn-info btn-sm" title="Editar"><i
+                                                    class="fas fa-edit"></i></a>
+                                            <form action="{{ route('enblogs.destroy', $registro->id) }}" method="POST"
+                                                class="d-inline"
+                                                onsubmit="return confirm('¿Eliminar este blog?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" title="Eliminar"><i
+                                                        class="fas fa-trash-alt"></i></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+@endsection
+@push('scripts')
     <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        var j = jQuery.noConflict();
-        j(document).ready(function() {
-            j('#tabladatos').DataTable();
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.jQuery && jQuery.fn.DataTable) {
+                jQuery('#tabladatos').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json'
+                    },
+                    pageLength: 25,
+                    order: [
+                        [0, 'desc']
+                    ]
+                });
+            }
         });
     </script>
-@endsection
+@endpush

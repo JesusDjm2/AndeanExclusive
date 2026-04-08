@@ -54,4 +54,68 @@
   margin-left: 4px;
 }
 
+/* =============================================================================
+   Admin — patrones visuales unificados (listados / CRUD)
+   Alineado con SB Admin 2 + Bootstrap del panel
+   ============================================================================= */
+
+.subtitulos {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.ae-admin-table-sticky thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+/* Encabezado estándar de página (título + subtítulo + acciones) */
+.ae-admin-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.ae-admin-page-title {
+  margin-bottom: 0;
+  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  color: #5a5c69;
+}
+
+.ae-admin-page-title .text-primary {
+  color: #4e73df !important;
+}
+
+.ae-admin-page-desc {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #858796;
+}
+
+/* Tarjeta contenedora de filtros / búsqueda (mismo tono que programas) */
+.ae-admin-filter-card .card-body {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+/* Tabla de listados: cabecera oscura tipo programas */
+.table.ae-admin-data-table thead.table-dark th {
+  border-color: #454d55;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-weight: 600;
+}
+
+.table.ae-admin-data-table.table-bordered {
+  border-color: #e3e6f0;
+}
+
+.table.ae-admin-data-table.table-bordered td,
+.table.ae-admin-data-table.table-bordered th {
+  border-color: #e3e6f0;
+}
+
 /*# sourceMappingURL=estilos.css.map */

@@ -13,8 +13,24 @@ class PaxController extends Controller
 {
     public function index()
     {
-        $paxs = Pax::with('programa')->latest()->get();
-        return view('paxs.index', compact('paxs'));
+        $paxs = Pax::query()
+            ->with([
+                'programa.agentes',
+                'programa.agenteResponsable',
+                'programa.anio',
+                'programa.mes',
+            ])
+            ->get()
+            ->sortBy(function (Pax $pax) {
+                $prog = mb_strtolower(optional($pax->programa)->nombre ?? '');
+
+                return [$prog, mb_strtolower($pax->nombre)];
+            })
+            ->values();
+
+        $paxsPorPrograma = $paxs->groupBy('programa_id');
+
+        return view('paxs.index', compact('paxsPorPrograma'));
     }
 
     public function create()

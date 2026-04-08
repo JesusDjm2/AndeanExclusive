@@ -1,24 +1,19 @@
 @extends('layouts.app')
 @section('titulo', 'Banco de imágenes')
 @section('contenido')
-    <div class="container-fluid px-4">
-        <!-- Encabezado mejorado -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-0 fw-bold">
-                            <i class="fas fa-fw fa-images text-primary me-2"></i>
-                            Banco de Imágenes
-                        </h2>
-                        <small class="text-muted">
-                            Gestión y visualización de imágenes del sistema
-                        </small>
-                    </div>
-                    <a href="{{ route('imagenes.create') }}" class="btn btn-primary">
-                        <i class="fas fa-upload me-2"></i>Subir nueva imagen
-                    </a>
-                </div>
+    <div class="container-fluid">
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col-lg-8 text-start mb-2 mb-lg-0">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-images text-primary me-2"></i>
+                    Banco de imágenes
+                </h2>
+                <small class="ae-admin-page-desc">Gestión y visualización de imágenes del sistema</small>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('imagenes.create') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-upload me-1"></i> Subir nueva imagen
+                </a>
             </div>
         </div>
 
@@ -38,7 +33,7 @@
         <!-- Barra de búsqueda -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card">
+                <div class="card shadow ae-admin-filter-card">
                     <div class="card-body">
                         <div class="input-group">
                             <span class="input-group-text bg-light">
@@ -79,9 +74,10 @@
         <!-- Tabla de imágenes -->
         <div class="row">
             <div class="col-12">
-                <div class="table-responsive">
-                    <table class="table table-hover table-striped" id="tablaImagenes">
-                        <thead class="table-light">
+                <div class="card shadow">
+                    <div class="table-responsive">
+                        <table class="table table-hover table-striped mb-0 ae-admin-data-table" id="tablaImagenes">
+                        <thead class="table-dark">
                             <tr>
                                 <th width="80" class="text-center">ID</th>
                                 <th width="150" class="text-center">Imagen</th>
@@ -150,7 +146,8 @@
                                 </tr>
                             @endforeach
                         </tbody>
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

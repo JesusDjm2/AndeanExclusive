@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('proveedors', ProveedorController::class)->names('proveedors');
     Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
     Route::resource('agentes', AgenteController::class)->names('agentes');
+    Route::get('programas/por-periodo', [ProgramaController::class, 'porPeriodo'])->name('programas.por-periodo');
     Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
     Route::resource('programas', ProgramaController::class)->names('programas');
     Route::resource('paxs', PaxController::class)->names('paxs');

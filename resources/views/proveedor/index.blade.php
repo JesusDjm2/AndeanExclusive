@@ -1,29 +1,30 @@
 @extends('layouts.app')
-@section('title')
-    Proveedores
-@endsection
+@section('titulo', 'Proveedores')
+@section('title', 'Proveedores')
 @section('contenido')
     <div class="container-fluid">
-        <div class="container-fluid">
-            <div class="row align-items-center mb-4">
-                <div class="col-sm-12">
-                    <nav aria-label="breadcrumb" class="mb-3">
-                        <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{{ url('/home') }}">Inicio</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
-                        </ol>
-                    </nav>
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url('/home') }}">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
+            </ol>
+        </nav>
 
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h4 class="mb-0">
-                            <i class="fas fa-truck text-primary me-2"></i>
-                            Gestión de Proveedores
-                        </h4>
-                        <a href="{{ route('proveedors.create') }}" class="btn btn-primary">
-                            <i class="fas fa-plus-circle me-2"></i>
-                            Nuevo Proveedor
-                        </a>
-                    </div>
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col-lg-8 text-start mb-2 mb-lg-0">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-truck text-primary me-2"></i>
+                    Gestión de proveedores
+                </h2>
+                <small class="ae-admin-page-desc">Proveedores, contacto y categorías</small>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i>
+                    Nuevo proveedor
+                </a>
+            </div>
+        </div>
 
                     <!-- Tarjetas de resumen -->
                     <div class="row mb-4">
@@ -91,14 +92,15 @@
                     @endif
 
                     <!-- Buscador -->
-                    <div class="row mb-3">
-                        <div class="col-md-12">
-                            <div class="input-group">
-                                <span class="input-group-text bg-white">
+                    <div class="card shadow mb-3 ae-admin-filter-card">
+                        <div class="card-body">
+                            <label class="form-label small text-muted mb-1">Buscar</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-white border-end-0">
                                     <i class="fas fa-search text-muted"></i>
                                 </span>
-                                <input type="text" class="form-control" id="buscarProveedor"
-                                    placeholder="Buscar por nombre, RUC, teléfono...">
+                                <input type="text" class="form-control border-start-0" id="buscarProveedor"
+                                    placeholder="Nombre, RUC, teléfono...">
                             </div>
                         </div>
                     </div>
@@ -163,20 +165,20 @@
                     </div>
 
                     <!-- Vista desktop: Tabla -->
-                    <div class="card d-none d-md-block">
-                        <div class="card-header bg-secondary">
+                    <div class="card shadow d-none d-md-block">
+                        <div class="card-header py-3 bg-white border-bottom">
                             <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-white">
-                                    <i class="fas fa-list me-2"></i>
-                                    Listado de Proveedores
+                                <span class="fw-bold text-secondary">
+                                    <i class="fas fa-list text-primary me-2"></i>
+                                    Listado de proveedores
                                 </span>
-                                <span class="badge bg-secondary">{{ $proveedors->total() }} registros</span>
+                                <span class="badge bg-primary rounded-pill">{{ $proveedors->total() }} registros</span>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
-                                <table class="table table-hover" id="tablaProveedores">
-                                    <thead class="table-light">
+                                <table class="table table-hover mb-0 ae-admin-data-table" id="tablaProveedores">
+                                    <thead class="table-dark">
                                         <tr>
                                             <th>#</th>
                                             <th>Nombre</th>
@@ -194,7 +196,7 @@
                                                 <td>{{ ++$i }}</td>
                                                 <td>{{ $proveedor->nombre }}</td>
                                                 <td>
-                                                    <span class="badge bg-primary bg-opacity-10 text-white">
+                                                    <span class="badge bg-primary">
                                                         {{ $proveedor->categoria->nombre }}
                                                     </span>
                                                 </td>
@@ -262,21 +264,15 @@
                             </div>
                         @endif
                     </div>
-                </div>
-            </div>
-        </div>
     </div>
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@endsection
+@push('scripts')
     <script>
-        $(document).ready(function() {
-            // Función para quitar tildes
+        jQuery(function($) {
             function sinTildes(texto) {
                 return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
             }
 
-            // Búsqueda simple
             $("#buscarProveedor").on("keyup", function() {
                 var busqueda = sinTildes($(this).val());
 
@@ -291,7 +287,6 @@
                 });
             });
 
-            // SweetAlert para eliminar
             $(".btn-eliminar").on("click", function(e) {
                 e.preventDefault();
                 var form = $(this).closest("form");
@@ -313,14 +308,15 @@
             });
         });
 
-        // Notificación de éxito (si existe)
         @if (session('success'))
-            Swal.fire({
-                icon: "success",
-                title: "{{ session('success') }}",
-                showConfirmButton: false,
-                timer: 3000
+            document.addEventListener('DOMContentLoaded', function() {
+                Swal.fire({
+                    icon: "success",
+                    title: @json(session('success')),
+                    showConfirmButton: false,
+                    timer: 3000
+                });
             });
         @endif
     </script>
-@endsection
+@endpush

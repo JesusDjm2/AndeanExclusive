@@ -15,9 +15,15 @@
         </p>
 
         @if ($pax->pasaporte)
-            <a href="{{ asset('storage/' . $pax->pasaporte) }}" target="_blank">
-                Ver pasaporte
-            </a>
+            @php
+                $p = $pax->pasaporte;
+                $pasUrl = \Illuminate\Support\Str::startsWith($p, ['http://', 'https://'])
+                    ? $p
+                    : (\Illuminate\Support\Str::startsWith($p, 'img/')
+                        ? asset($p)
+                        : asset('storage/' . ltrim($p, '/')));
+            @endphp
+            <a href="{{ $pasUrl }}" target="_blank" rel="noopener">Ver pasaporte</a>
         @endif
     </div>
 @endsection

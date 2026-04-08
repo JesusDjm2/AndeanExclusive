@@ -120,6 +120,47 @@
                 </div>
             </div>
 
+            <h6 class="text-secondary mb-2">Organización por calendario (opcional)</h6>
+            <p class="small text-muted">Asigna el año y el mes para agrupar el programa en listados y filtros.</p>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Año:</label>
+                        <select name="anio_id"
+                            class="form-control form-control-sm @error('anio_id') is-invalid @enderror">
+                            <option value="">Sin asignar</option>
+                            @foreach ($anios as $anio)
+                                <option value="{{ $anio->id }}"
+                                    {{ (string) old('anio_id') === (string) $anio->id ? 'selected' : '' }}>
+                                    {{ $anio->anio }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('anio_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <label class="form-label font-weight-bold">Mes:</label>
+                        <select name="mes_id"
+                            class="form-control form-control-sm @error('mes_id') is-invalid @enderror">
+                            <option value="">Sin asignar</option>
+                            @foreach ($meses as $mes)
+                                <option value="{{ $mes->id }}"
+                                    {{ (string) old('mes_id') === (string) $mes->id ? 'selected' : '' }}>
+                                    {{ $mes->nombre }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('mes_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             {{-- =========================== SECCIÓN DE PRECIOS ============================ --}}
             <h5 class="text-primary mb-3 mt-4">Precios:</h5>
             <div class="row">

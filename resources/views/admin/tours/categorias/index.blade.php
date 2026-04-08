@@ -1,75 +1,67 @@
 @extends('layouts.app')
-@section('titulo', 'Lista de Categorias')
+@section('titulo', 'Categorías tours EN')
 @section('contenido')
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-default">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <h3>Lista de Categorias en Inglés</h3>
-                            </div>
-                            <div class="col-lg-6">
-                                <a href="{{ route('categories.create') }}" class="btn btn-primary btn-sm float-right">
-                                    Crear nueva categoria
-                                </a>
-                            </div>
-                            <div class="col-lg-12">
-                                @if ($message = Session::get('success'))
-                                    @if ($message = Session::get('success'))
-                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            <p>{{ $message }}</p>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                    @endif
-                                @endif
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead class="thead">
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nombre</th>
-                                                    <th>Slug</th>
-                                                    <th>Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($categorias as $cat)
-                                                    <tr>
-                                                        <td>{{ $cat->id }}</td>
-                                                        <td>{{ $cat->nombre }}</td>
-                                                        <td>{{ $cat->slug }}</td>
-                                                        <td>
-                                                            <form action="{{ route('categories.destroy', $cat->id) }}"
-                                                                method="POST">
-                                                                <a class="btn btn-sm btn-primary "
-                                                                    href="{{ route('category.show', $cat->slug) }}"><i
-                                                                        class="fa fa-fw fa-eye"></i> Show</a>
-                                                                <a class="btn btn-sm btn-success"
-                                                                    href="{{ route('categories.edit', $cat->id) }}"><i
-                                                                        class="fa fa-fw fa-edit"></i> Edit</a>
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm"><i
-                                                                        class="fa fa-fw fa-trash"></i> Delete</button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container-fluid">
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col-lg-8 text-start mb-2 mb-lg-0">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-folder text-primary me-2"></i>
+                    Categorías en inglés
+                </h2>
+                <small class="ae-admin-page-desc">Categorías para tours EN</small>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('categories.create') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Nueva categoría
+                </a>
+            </div>
+        </div>
+
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ $message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 ae-admin-data-table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Nombre</th>
+                                <th>Slug</th>
+                                <th class="text-center" style="width: 220px">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($categorias as $cat)
+                                <tr>
+                                    <td>{{ $cat->id }}</td>
+                                    <td class="fw-semibold">{{ $cat->nombre }}</td>
+                                    <td><code class="small">{{ $cat->slug }}</code></td>
+                                    <td class="text-center">
+                                        <form action="{{ route('categories.destroy', $cat->id) }}" method="POST"
+                                            class="d-inline-flex flex-wrap gap-1 justify-content-center">
+                                            <a class="btn btn-sm btn-success" href="{{ route('category.show', $cat->slug) }}"
+                                                target="_blank" title="Ver"><i class="fas fa-eye"></i></a>
+                                            <a class="btn btn-sm btn-info" href="{{ route('categories.edit', $cat->id) }}"
+                                                title="Editar"><i class="fas fa-edit"></i></a>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar categoría?');" title="Eliminar"><i
+                                                    class="fas fa-trash-alt"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-    </section>
+        </div>
+    </div>
 @endsection

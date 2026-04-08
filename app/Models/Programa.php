@@ -18,11 +18,19 @@ class Programa extends Model
         'precioAdulto',
         'precioChild',
         'presentacion',
+        'anio_id',
+        'mes_id',
     ];
 
     public function agentes()
     {
         return $this->belongsToMany(Agente::class, 'agente_programa', 'programa_id', 'agente_id');
+    }
+
+    /** Agente principal guardado en programas.agente_id (puede coexistir con la tabla agente_programa). */
+    public function agenteResponsable()
+    {
+        return $this->belongsTo(Agente::class, 'agente_id');
     }
 
     public function paxs()
@@ -42,5 +50,15 @@ class Programa extends Model
     public function habitacionesFechas()
     {
         return $this->hasMany(HabitacionFecha::class, 'programa_id');
+    }
+
+    public function anio()
+    {
+        return $this->belongsTo(Anio::class, 'anio_id');
+    }
+
+    public function mes()
+    {
+        return $this->belongsTo(Mes::class, 'mes_id');
     }
 }

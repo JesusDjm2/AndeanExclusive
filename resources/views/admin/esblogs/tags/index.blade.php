@@ -1,76 +1,89 @@
 @extends('layouts.app')
-@section('titulo', 'Listado de Tags en español')
+@section('titulo', 'Listado de Tags ES')
+@push('styles')
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/dataTables.bootstrap5.min.css">
+@endpush
 @section('contenido')
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.2/css/jquery.dataTables.min.css">
-    <section class="content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card card-default">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <h3>Lista de Tags en Español</h3>
-                            </div>
-                            <div class="col-lg-6">
-                                <a href="{{ route('estags.create') }}" class="btn btn-primary btn-sm float-right">
-                                    Crear nuevo tags
-                                </a>
-                            </div>
-                            <div class="col-lg-12">
-                                @if ($message = Session::get('success'))
-                                    @if ($message = Session::get('success'))
-                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                            <p>{{ $message }}</p>
-                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                    @endif
-                                @endif
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="card-body">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover">
-                                            <thead class="thead">
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nombre</th>
-                                                    <th>Slug</th>
-                                                    <th>Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($tags as $cat)
-                                                    <tr>
-                                                        <td>{{ $cat->id }}</td>
-                                                        <td>{{ $cat->nombre }}</td>
-                                                        <td>{{ $cat->slug }}</td>
-                                                        <td>
-                                                            <form action="{{ route('estags.destroy', $cat->id) }}"
-                                                                method="POST">
-                                                                <a class="btn btn-sm btn-primary "
-                                                                    href="{{ route('estag.show', $cat->slug) }}"><i
-                                                                        class="fa fa-fw fa-eye"></i> Show</a>
-                                                                <a class="btn btn-sm btn-success"
-                                                                    href="{{ route('estags.edit', $cat->id) }}"><i
-                                                                        class="fa fa-fw fa-edit"></i> Edit</a>
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-danger btn-sm"><i
-                                                                        class="fa fa-fw fa-trash"></i> Delete</button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <div class="container-fluid">
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col-lg-8 text-start mb-2 mb-lg-0">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-tags text-primary me-2"></i>
+                    Tags en español
+                </h2>
+                <small class="ae-admin-page-desc">Etiquetas para blogs ES</small>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ route('estags.create') }}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Crear nuevo tag
+                </a>
+            </div>
+        </div>
+
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                {{ $message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive p-2 p-md-3">
+                    <table id="tabladatos" class="table table-hover table-bordered w-100 ae-admin-data-table">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>No</th>
+                                <th>Nombre</th>
+                                <th>Slug</th>
+                                <th class="text-center" style="width: 220px">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($tags as $cat)
+                                <tr>
+                                    <td>{{ $cat->id }}</td>
+                                    <td class="fw-semibold">{{ $cat->nombre }}</td>
+                                    <td><code class="small">{{ $cat->slug }}</code></td>
+                                    <td class="text-center">
+                                        <form action="{{ route('estags.destroy', $cat->id) }}" method="POST"
+                                            class="d-inline-flex flex-wrap gap-1 justify-content-center">
+                                            <a class="btn btn-sm btn-success" href="{{ route('estag.show', $cat->slug) }}"
+                                                target="_blank"><i class="fas fa-eye"></i></a>
+                                            <a class="btn btn-sm btn-info" href="{{ route('estags.edit', $cat->id) }}"><i
+                                                    class="fas fa-edit"></i></a>
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar?');"><i
+                                                    class="fas fa-trash-alt"></i></button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
-    </section>
+        </div>
+    </div>
 @endsection
+@push('scripts')
+    <script src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.1/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.jQuery && jQuery.fn.DataTable) {
+                jQuery('#tabladatos').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.1/i18n/es-ES.json'
+                    },
+                    pageLength: 25,
+                    order: [
+                        [0, 'desc']
+                    ]
+                });
+            }
+        });
+    </script>
+@endpush

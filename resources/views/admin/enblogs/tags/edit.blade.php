@@ -1,67 +1,53 @@
 @extends('layouts.app')
-@section('titulo', 'Editar Tag')
+@section('titulo', 'Editar tag EN')
 @section('contenido')
-<section class="content container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-default">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <h3>Editar Tag: <strong>{{ $tag->nombre }}</strong></h3>
-                        </div>
-                        <div class="col-lg-6">
-                            <a href="{{ route('entags.index') }}" class="btn btn-danger btn-sm float-right">
-                                Volver
-                            </a>
-                        </div>
-                        <div class="col-lg-12">
-                            @if ($errors->any())
-                                <div class="alert alert-danger">
-                                    <ul>
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="col-lg-12">
-                            @if ($message = Session::get('success'))
-                                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                    <p>{{ $message }}</p>
-                                    <strong>{{ $message }}</strong>
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="card-body">
-                                <form action="{{ route('entags.update',  $tag->id) }}"
-                                    method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    @include('admin.enblogs.tags.form')
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="container-fluid">
+        <div class="row align-items-center ae-admin-page-header">
+            <div class="col text-start">
+                <h2 class="ae-admin-page-title">
+                    <i class="fas fa-fw fa-edit text-primary me-2"></i>
+                    Editar tag
+                </h2>
+                <small class="ae-admin-page-desc">{{ $tag->nombre }}</small>
+            </div>
+            <div class="col-auto">
+                <a href="{{ route('entags.index') }}" class="btn btn-sm btn-danger">
+                    <i class="fas fa-arrow-left me-1"></i> Volver
+                </a>
             </div>
         </div>
-</section>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const nombreInput = document.getElementById('nombre');
-        const slugInput = document.getElementById('slug');
 
-        nombreInput.addEventListener('input', function() {
-            const nombre = nombreInput.value.trim();
-            const slug = nombre.replace(/\s+/g, '-');
-            slugInput.value = slug;
-        });
-    });
-</script>
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <div class="card shadow">
+            <div class="card-body">
+                <form action="{{ route('entags.update', $tag->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    @include('admin.enblogs.tags.form')
+                </form>
+            </div>
+        </div>
+    </div>
 @endsection
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const nombreInput = document.getElementById('nombre');
+            const slugInput = document.getElementById('slug');
+            if (!nombreInput || !slugInput) return;
+            nombreInput.addEventListener('input', function() {
+                const nombre = nombreInput.value.trim();
+                slugInput.value = nombre.replace(/\s+/g, '-');
+            });
+        });
+    </script>
+@endpush
