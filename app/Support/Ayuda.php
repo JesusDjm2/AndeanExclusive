@@ -398,4 +398,200 @@ class Ayuda
     {
         return is_file(base_path(self::GUIA));
     }
+
+    /**
+     * Contexto detallado de la pantalla actual para vistas de alta gestión (Programas, Operaciones, Consultas, etc.).
+     * Para vistas simples (como usuarios, agentes o categorías), retorna null para mantener la ayuda simple y directa.
+     */
+    public static function contextoPantalla(Request $request, User $user): ?array
+    {
+        if ($request->routeIs('programas.index', 'programas.por-periodo')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Programas',
+                'badge' => 'Gestión de Viajes',
+                'icono' => 'fa-map-marked-alt',
+                'titulo' => 'Catálogo General de Programas e Itinerarios',
+                'resumen' => 'Centro de mando comercial y operativo de todos los viajes de Andean Exclusive. Supervisa cotizaciones activas, viajes confirmados, históricos y plantillas maestras.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-plus', 'nombre' => '+ Nuevo Programa', 'desc' => 'Inicia una nueva cotización asignando cliente, fechas e idioma.'],
+                    ['icono' => 'fa-search', 'nombre' => 'Búsqueda Global', 'desc' => 'Filtra al instante por nombre del viaje, titular, código AET, correo o nombre de pasajero.'],
+                    ['icono' => 'fa-calendar-alt', 'nombre' => 'Año y Mes', 'desc' => 'Segmenta las salidas por temporada para coordinar reservas y anticipos con proveedores.'],
+                    ['icono' => 'fa-ellipsis-v', 'nombre' => 'Menú de Acciones (⋮)', 'desc' => 'Abre el itinerario web del cliente, copia su enlace privado, genera el PDF de lujo, duplica el viaje o envíalo por correo.'],
+                    ['icono' => 'fa-clone', 'nombre' => 'Plantillas y Duplicación', 'desc' => 'Reutiliza rutas exitosas para cotizar viajes recurrentes en menos de 1 minuto.'],
+                ],
+                'flujo_recomendado' => [
+                    'Revisa las pestañas de estado: «Cotizaciones» para seguimiento de ventas y «Confirmados» para logística y reservas activas.',
+                    'Usa el botón «Detalle» en cualquier fila para inspeccionar pasajeros, hoteles reservados y presupuesto sin salir de la lista.',
+                    'Desde el menú ⋮ comparte el «Enlace privado» con el cliente: el viajero disfruta de una web interactiva sin ver costos internos ni márgenes.',
+                ],
+                'tips_pro' => [
+                    'Al duplicar un viaje, las fechas de los servicios y hoteles se recalculan automáticamente; los pasajeros y pagos inician limpios para el nuevo cliente.',
+                    'Los programas en estado «Cancelado» no se eliminan: conservan su bitácora histórica y liberan la fecha en la hoja de operaciones.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('programas.edit', 'programas.create')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Ficha del Programa',
+                'badge' => 'Diseño y Ficha Maestra',
+                'icono' => 'fa-route',
+                'titulo' => 'Ficha de Edición y Logística del Viaje',
+                'resumen' => 'Espacio integral para diseñar, cotizar y coordinar cada aspecto del viaje. Cada pestaña está especializada para garantizar que ninguna reserva o detalle quede suelto.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-save', 'nombre' => 'Guardar Cambios', 'desc' => 'Guarda las modificaciones de la pestaña actual. Los puntos rojos en las pestañas señalan datos requeridos por completar.'],
+                    ['icono' => 'fa-link', 'nombre' => 'Copiar Enlace', 'desc' => 'Obtén el enlace web privado del cliente para enviárselo por WhatsApp o correo.'],
+                    ['icono' => 'fa-file-pdf', 'nombre' => 'Exportar PDF', 'desc' => 'Descarga la propuesta imprimible de lujo con portada y narrativa día por día.'],
+                    ['icono' => 'fa-envelope', 'nombre' => 'Enviar por Correo', 'desc' => 'Envía la cotización o recordatorios de pago oficiales al correo del cliente.'],
+                    ['icono' => 'fa-check-double', 'nombre' => 'Aceptación Digital', 'desc' => 'Monitorea si el cliente ya aceptó los términos y el presupuesto desde su enlace web.'],
+                ],
+                'pestañas_guia' => [
+                    'datos' => [
+                        'nombre' => 'Datos Generales',
+                        'icono' => 'fa-info-circle',
+                        'desc' => 'Nombre comercial del tour, código, idioma, counter asignado y portada. Las fechas de inicio y fin son obligatorias para poder pasar el viaje a «Confirmado».',
+                    ],
+                    'pasajeros' => [
+                        'nombre' => 'Pasajeros y Salud',
+                        'icono' => 'fa-users',
+                        'desc' => 'Nombres como en el pasaporte, fechas de nacimiento (calculan tarifa adulto/niño automáticamente), pasaportes cifrados, dietas y alergias críticas (ej. celiaquía o maní con Epipen).',
+                    ],
+                    'alojamiento' => [
+                        'nombre' => 'Hoteles y Estadías',
+                        'icono' => 'fa-hotel',
+                        'desc' => 'Hoteles boutique y habitaciones reservadas. Cada estadía con fechas sincroniza automáticamente un servicio de alojamiento en el itinerario con su hotel como proveedor.',
+                    ],
+                    'itinerario' => [
+                        'nombre' => 'Itinerario y Servicios',
+                        'icono' => 'fa-list-ol',
+                        'desc' => 'Narrativa día por día y servicios contratados: traslados VIP, trenes Hiram Bingham/Vistadome, entradas DDC Machu Picchu, guías oficiales y almuerzos de autor.',
+                    ],
+                    'precios' => [
+                        'nombre' => 'Precios y Rentabilidad',
+                        'icono' => 'fa-dollar-sign',
+                        'desc' => 'Costos base por persona, porcentaje de ganancia comercial de la agencia, tipo de cambio y suplemento individual. El cliente solo verá el precio de venta final.',
+                    ],
+                    'pagos' => [
+                        'nombre' => 'Cobros y Comunicaciones',
+                        'icono' => 'fa-credit-card',
+                        'desc' => 'Registro de transferencias y pagos con tarjeta. Control del depósito del 50% (7 días) y del saldo (60 días antes del viaje). Incluye los botones de correos sugeridos para hoy.',
+                    ],
+                    'tareas' => [
+                        'nombre' => 'Tareas y Plazos',
+                        'icono' => 'fa-tasks',
+                        'desc' => 'Pendientes operativos con fechas límite automatizadas: compra de boletos de tren a 30 días, entradas a Machu Picchu a 30 días, confirmación de Sprinter a 7 días.',
+                    ],
+                    'historial' => [
+                        'nombre' => 'Historial y Auditoría',
+                        'icono' => 'fa-history',
+                        'desc' => 'Registro cronológico inmutable de cambios: quién modificó precios, servicios, notas de pasajeros o estados del programa.',
+                    ],
+                ],
+                'tips_pro' => [
+                    'Regla de oro: Los boletos de ingreso a la Llaqta Machu Picchu y trenes panorámicos de alta demanda deben asegurarse con al menos 30 días de anticipación.',
+                    'Si el pasaporte de algún pasajero vence en menos de 6 meses respecto a la fecha del viaje, el sistema mostrará una alerta amarilla para prevenir incidentes migratorios.',
+                    'Al cambiar precios o itinerario de un programa aceptado, el sistema avisa para que el cliente pueda volver a reconfirmar la nueva versión desde su enlace privado.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('operaciones.diaria', 'operaciones.index')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Operaciones',
+                'badge' => 'Logística de Campo',
+                'icono' => 'fa-calendar-day',
+                'titulo' => 'Hoja de Operaciones Diarias',
+                'resumen' => 'Supervisión en tiempo real de los servicios, traslados y hoteles de cada día. Conecta a los coordinadores de campo con los choferes, guías y requerimientos de los viajeros.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-calendar', 'nombre' => 'Selector de Fecha', 'desc' => 'Navega día a día o salta a cualquier fecha futura para anticipar la operación.'],
+                    ['icono' => 'fa-print', 'nombre' => 'Imprimir Hoja de Ruta', 'desc' => 'Exporta la planilla diaria limpia con horarios, puntos de encuentro y teléfonos de contacto para el equipo en calle.'],
+                    ['icono' => 'fa-clock', 'nombre' => 'Por Confirmar (14 días)', 'desc' => 'Semáforo preventivo de servicios próximos que aún no cuentan con proveedor o número de confirmación.'],
+                    ['icono' => 'fa-bed', 'nombre' => 'Rooming List', 'desc' => 'Genera el reporte de huéspedes agrupado por hotel para coordinar check-ins sin demoras.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Empieza la mañana revisando los servicios de hoy y reconfirmando con los choferes y guías asignados.',
+                    '2. Presta atención especial a los badges de dieta y alergia de los pasajeros de hoy para alertar a restaurantes y personal de servicio.',
+                    '3. Revisa la columna lateral de servicios por confirmar en los próximos 14 días para evitar imprevistos de última hora.',
+                ],
+                'tips_pro' => [
+                    'Solo los programas en estado «Confirmado» aparecen en la hoja de operaciones.',
+                    'Los números de teléfono de proveedores y conductores en la hoja son interactivos: púlsalos desde el móvil para llamar o escribir directamente.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('consultas.*')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'CRM & Ventas',
+                'badge' => 'Embudo de Clientes',
+                'icono' => 'fa-inbox',
+                'titulo' => 'Bandeja de Consultas Web y Cotizaciones',
+                'resumen' => 'Gestión comercial de prospectos y leads internacionales. Transforma el interés inicial de un viajero en una propuesta formal de viaje en Andean Exclusive.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-bolt', 'nombre' => 'Cotizar con 1 Clic', 'desc' => 'Convierte la consulta en un programa nuevo pre-cargado con el nombre del cliente, fechas solicitadas y tour de interés.'],
+                    ['icono' => 'fa-whatsapp', 'nombre' => 'Contacto Directo', 'desc' => 'Inicia comunicación inmediata por WhatsApp o correo electrónico con el interesado.'],
+                    ['icono' => 'fa-exchange-alt', 'nombre' => 'Bandejas del Embudo', 'desc' => 'Nuevas (sin atender) -> En gestión -> Cotizadas -> Ganadas o Perdidas.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Atiende de inmediato las consultas en «Nuevas»: la rapidez de respuesta es el factor decisivo en turismo de lujo.',
+                    '2. Tras el primer contacto, asigna un responsable, pasa el estado a «En gestión» y anota los gustos del cliente.',
+                    '3. Al enviar la cotización, usa «Cotizar»: el sistema creará al cliente y el programa enlazados automáticamente.',
+                ],
+                'tips_pro' => [
+                    'Si el cliente desiste, márcalo como «Perdida» e indica el motivo: esta información permite optimizar precios y rutas en los reportes comerciales.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('tarifas.*')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Tarifario',
+                'badge' => 'Costos Oficiales',
+                'icono' => 'fa-tags',
+                'titulo' => 'Tarifario Oficial por Temporadas',
+                'resumen' => 'Catálogo centralizado de tarifas negociadas con hoteles y proveedores (trenes, guías, entradas y alta gastronomía). Alimenta las sugerencias automáticas al cotizar.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-calendar-check', 'nombre' => 'Filtro de Vigencia', 'desc' => 'Consulta tarifas vigentes hoy, vencidas o el histórico general.'],
+                    ['icono' => 'fa-search', 'nombre' => 'Búsqueda por Concepto', 'desc' => 'Localiza tarifas por hotel, tipo de habitación, tren o proveedor oficial.'],
+                    ['icono' => 'fa-plus', 'nombre' => 'Nueva Tarifa', 'desc' => 'Registra precios por noche, por grupo o por persona en dólares (USD) o soles (PEN).'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Carga las tarifas de la nueva temporada con anticipación indicando fecha desde y hasta.',
+                    '2. Al armar un itinerario o una estadía de hotel, el sistema tomará estas tarifas como costo sugerido.',
+                ],
+                'tips_pro' => [
+                    'Las tarifas de habitaciones de hotel vinculan directamente con su ficha de hotel para cálculo automático en la pestaña Alojamiento.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('cuentas.*')) {
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Finanzas',
+                'badge' => 'Cobros y Pagos',
+                'icono' => 'fa-file-invoice-dollar',
+                'titulo' => 'Control de Cobranzas y Cuentas por Pagar',
+                'resumen' => 'Supervisión del flujo de caja de la agencia: cobranzas a clientes (depósitos y saldos) y obligaciones de pago con proveedores y hoteles.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-hand-holding-usd', 'nombre' => 'Cuentas por Cobrar', 'desc' => 'Monitorea los depósitos del 50% y los saldos pendientes con fecha de vencimiento a 60 días antes del viaje.'],
+                    ['icono' => 'fa-money-bill-wave', 'nombre' => 'Cuentas por Pagar', 'desc' => 'Gestiona las solicitudes de pago de servicios y proveedores aprobados por Reservas.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Revisa semanalmente los cobros con saldo por vencer en los próximos 30 días para enviar recordatorios a tiempo.',
+                    '2. En Cuentas por pagar, atiende primero los servicios con estado «Pago solicitado» aprobados por el área de Reservas.',
+                ],
+                'tips_pro' => [
+                    'Los pagos nunca se eliminan directamente: se anulan con motivo justificado para preservar la integridad contable.',
+                ],
+            ];
+        }
+
+        return null;
+    }
 }

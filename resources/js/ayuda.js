@@ -5,9 +5,17 @@ function initPanel() {
     const panel = document.querySelector('[data-ayuda-panel]');
     if (!panel) return;
 
-    panel.addEventListener('show.bs.offcanvas', () => {
-        const pestana = document.querySelector('.pf-tab.active')?.dataset.tab;
+    function syncPestana(pestana) {
         if (!pestana) return;
+
+        // Actualizar tarjeta destacada de pestaña activa
+        const cardNombre = panel.querySelector('[data-ayuda-pestana-nombre]');
+        const cardDesc = panel.querySelector('[data-ayuda-pestana-desc]');
+        const info = panel.querySelector(`[data-tab-info="${pestana}"]`);
+        if (info && cardNombre && cardDesc) {
+            cardNombre.textContent = info.dataset.tabName || pestana;
+            cardDesc.textContent = info.dataset.tabDesc || '';
+        }
 
         const temas = [...panel.querySelectorAll('details')];
         const deLaPestana = temas.filter((tema) => tema.dataset.ayudaTab === pestana);
@@ -20,9 +28,26 @@ function initPanel() {
         temas.forEach((tema) => {
             tema.open = tema === abrir;
         });
-        // Lo abierto primero, luego lo de esta pestaña y el resto de la ficha después.
-        [...deLaPestana].reverse().forEach((tema) => tema.parentElement.prepend(tema));
-        abrir.parentElement.prepend(abrir);
+
+        // Contenedor donde se ordenan los temas
+        const contenedor = panel.querySelector('.ayuda-temas-contenedor') || panel.querySelector('.offcanvas-body');
+        if (contenedor) {
+            [...deLaPestana].reverse().forEach((tema) => contenedor.prepend(tema));
+            if (abrir) contenedor.prepend(abrir);
+        }
+    }
+
+    panel.addEventListener('show.bs.offcanvas', () => {
+        const pestana = document.querySelector('.pf-tab.active')?.dataset.tab;
+        syncPestana(pestana);
+    });
+
+    // Sincronizar en tiempo real si el usuario cambia de pestaña con el panel de ayuda abierto
+    document.addEventListener('click', (e) => {
+        const tabBtn = e.target.closest('.pf-tab');
+        if (tabBtn && tabBtn.dataset.tab && panel.classList.contains('show')) {
+            syncPestana(tabBtn.dataset.tab);
+        }
     });
 }
 
