@@ -1,0 +1,66 @@
+// Panel de administración (layouts/app.blade.php). Entrada Vite independiente del sitio público:
+// mismo sistema de marca (tokens) sobre Bootstrap 5 completo, que es lo que usan las vistas CRUD.
+// Tema claro/oscuro: admin/_theme.scss (tokens var(--ae-*)) + data-bs-theme de Bootstrap 5.3.
+
+@import 'tokens';
+
+// En el panel el color primario es el verde-azulado oscuro: el turquesa claro de la marca
+// con texto blanco no alcanza contraste AA en botones y enlaces.
+$primary: $color-accent;
+$link-color: $color-accent;
+$link-hover-color: $color-accent-dark;
+$body-bg: #f4f7f8;
+$font-size-base: 0.95rem;
+// Bordes y superficies vía tokens: cambian con el tema sin recompilar.
+$card-border-color: var(--ae-border);
+$card-cap-bg: var(--ae-surface);
+$card-bg: var(--ae-surface);
+$table-cell-padding-y: 0.7rem;
+$table-cell-padding-x: 0.85rem;
+$input-border-color: var(--ae-input-border);
+$input-focus-border-color: $color-primary;
+$btn-font-weight: 600;
+$enable-shadows: false;
+
+// Texto blanco sobre el verde de la marca (#078f84, #2f8f5b): con el umbral por defecto (4.5) Bootstrap elegía
+// texto negro en badges y botones .text-bg-*. 3:1 es el mínimo AA para texto en negrita/UI y conserva el negro
+// donde el fondo es claro (amarillo, celeste).
+$min-contrast-ratio: 3;
+
+// Tema oscuro de Bootstrap (componentes nativos: tablas, formularios, dropdowns, modales).
+$body-bg-dark: #0e1517;
+$body-color-dark: #e3ecec;
+$body-secondary-color-dark: #9db1b1;
+$body-secondary-bg-dark: #1a2729;
+$body-tertiary-bg-dark: #152022;
+$border-color-dark: #283a3d;
+$link-color-dark: #4fd6ca;
+$link-hover-color-dark: #8ce9e0;
+$headings-color-dark: #f2f7f7;
+$primary-text-emphasis-dark: #4fd6ca;
+
+@import 'bootstrap/scss/bootstrap';
+
+// Tokens de tema; desde aquí los parciales usan los colores de texto y fondo del tema activo.
+@import 'admin/theme';
+$color-ink: var(--ae-ink);
+$color-ink-soft: var(--ae-ink-soft);
+$body-bg: var(--ae-bg);
+
+// Capa del panel
+@import 'admin/shell';
+@import 'admin/components';
+@import 'admin/dashboard';
+@import 'admin/auth';
+@import 'admin/programas-form';
+@import 'admin/programas-list';
+@import 'admin/operaciones';
+@import 'admin/reservas';
+@import 'admin/movimientos';
+@import 'admin/avisos';
+@import 'admin/ayuda';
+
+// Estilos propios de vistas concretas, acotados con la clase del <body> (@section('body-class')).
+@import 'admin/views/imagenes';
+@import 'admin/views/hoteles';
+@import 'admin/views/proveedores';

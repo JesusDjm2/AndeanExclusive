@@ -1,0 +1,107 @@
+// Design tokens — Andean Exclusive
+// Brand palette as given by the client: #333333 (ink/text) + #09ccbd (primary
+// teal/turquoise). Everything else here is a tint/shade derived from those
+// two colors plus neutral greys — no invented third brand hue.
+
+// ---- Color ----------------------------------------------------------
+$color-primary: #09ccbd;
+$color-primary-dark: #078f84;
+$color-primary-light: #4fe0d4;
+$color-accent: #078f84;
+$color-accent-dark: #056a61;
+$color-accent-light: #4fe0d4;
+$color-ink: #333333;
+$color-ink-soft: #666666;
+$color-sand: #f2fbfa;
+$color-sand-deep: #e2f5f3;
+$color-white: #ffffff;
+$color-border: #dbe8e7;
+$color-success: #2f8f5b;
+$color-danger: #c2422f;
+
+// ---- Typography -------------------------------------------------------
+$font-body: 'Source Sans Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
+$font-display: 'Dancing Script', cursive;
+$font-heading: 'Source Sans Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+// ---- Bootstrap variable overrides (must be set before @import bootstrap) --
+$primary: $color-primary;
+$secondary: $color-accent;
+$success: $color-success;
+$danger: $color-danger;
+$dark: $color-ink;
+$light: $color-sand;
+$body-bg: $color-white;
+$body-color: $color-ink;
+$font-family-base: $font-body;
+$font-family-sans-serif: $font-body;
+$font-size-base: 1rem;
+$line-height-base: 1.65;
+$border-radius: 0.5rem;
+$border-radius-sm: 0.35rem;
+$border-radius-lg: 0.85rem;
+$border-color: $color-border;
+$link-color: $color-primary;
+$link-hover-color: $color-primary-dark;
+$spacer: 1rem;
+$enable-negative-margins: true;
+$container-max-widths: (
+    sm: 540px,
+    md: 720px,
+    lg: 960px,
+    xl: 1140px,
+    xxl: 1280px
+);
+
+// ---- CSS custom properties (consumed by our own components + JS) --------
+:root {
+    --color-primary: #{$color-primary};
+    --color-primary-dark: #{$color-primary-dark};
+    --color-primary-light: #{$color-primary-light};
+    --color-accent: #{$color-accent};
+    --color-accent-dark: #{$color-accent-dark};
+    --color-accent-light: #{$color-accent-light};
+    --color-ink: #{$color-ink};
+    --color-ink-soft: #{$color-ink-soft};
+    --color-sand: #{$color-sand};
+    --color-sand-deep: #{$color-sand-deep};
+    --color-white: #{$color-white};
+    --color-border: #{$color-border};
+
+    --font-body: #{$font-body};
+    --font-display: #{$font-display};
+
+    --space-3xs: 0.25rem;
+    --space-2xs: 0.5rem;
+    --space-xs: 0.75rem;
+    --space-sm: 1rem;
+    --space-md: 1.5rem;
+    --space-lg: 2.5rem;
+    --space-xl: 4rem;
+    --space-2xl: 6rem;
+    --space-3xl: 9rem;
+
+    --radius-sm: 0.35rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.85rem;
+    --radius-pill: 999px;
+
+    --shadow-sm: 0 1px 2px rgba(51, 51, 51, 0.06), 0 1px 1px rgba(51, 51, 51, 0.04);
+    --shadow-md: 0 8px 24px rgba(51, 51, 51, 0.10), 0 2px 8px rgba(51, 51, 51, 0.06);
+    --shadow-lg: 0 24px 56px rgba(51, 51, 51, 0.16), 0 8px 20px rgba(51, 51, 51, 0.08);
+    --shadow-accent: 0 10px 30px rgba(7, 143, 132, 0.25);
+
+    --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 0.2s;
+    --duration-base: 0.4s;
+    --duration-slow: 0.7s;
+
+    --container-max: 1280px;
+
+    // Fixed header height (48px logo + 2×1rem padding) — hero/banners use it
+    // as top clearance so their centered text never slides under the logo.
+    --header-h: 5rem;
+    // Header height once scrolled (.site-header.is-scrolled: 48px logo + 2×0.6rem).
+    // Sticky bars (tour section nav) sit right under it.
+    --header-h-scrolled: 4.2rem;
+}

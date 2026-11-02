@@ -6,6 +6,7 @@ use App\Models\Enblog;
 use App\Models\Esblog;
 use App\Models\Estag;
 use App\Models\Estour;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
 
 class EsblogController extends Controller
@@ -27,28 +28,26 @@ class EsblogController extends Controller
         $request->validate([
             'nombre' => 'required|string',
             'relacionado_id' => 'required|exists:enblogs,id',
-            'imgThumb' => 'required|image|max:2048',
-            'imgFull' => 'required|image|max:2048',
+            'imgThumb' => 'required|' . SubidaImagenes::regla(),
+            'imgFull' => 'required|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required|string',
             'descripcion' => 'required|string',
             'tags' => 'nullable|array',
             'keywords' => 'nullable|string',
             'slug' => 'required|string|unique:esblogs,slug',
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
         $imageNameThumb = '';
         $imageNameFull = '';
 
         if ($request->hasFile('imgThumb')) {
             $imageThumb = $request->file('imgThumb');
-            $imageNameThumb = $imageThumb->getClientOriginalName();
-            $imageThumb->move(public_path('img/thumb'), $imageNameThumb);
+            $imageNameThumb = SubidaImagenes::guardar($imageThumb, 'img/thumb');
         }
 
         if ($request->hasFile('imgFull')) {
             $imageFull = $request->file('imgFull');
-            $imageNameFull = $imageFull->getClientOriginalName();
-            $imageFull->move(public_path('img/full'), $imageNameFull);
+            $imageNameFull = SubidaImagenes::guardar($imageFull, 'img/full');
         }
 
         $blog = new Esblog;
@@ -84,14 +83,14 @@ class EsblogController extends Controller
         $request->validate([
             'nombre' => 'required|string',
             'relacionado_id' => 'nullable|exists:enblogs,id',
-            'imgThumb' => 'image|max:2048',
-            'imgFull' => 'image|max:2048',
+            'imgThumb' => 'nullable|' . SubidaImagenes::regla(),
+            'imgFull' => 'nullable|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required|string',
             'descripcion' => 'required|string',
             'tags' => 'nullable|array',
             'keywords' => 'nullable|string',
             'slug' => 'required|string|unique:esblogs,slug,' . $id,
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
         $blog = Esblog::findOrFail($id);
 
@@ -100,15 +99,13 @@ class EsblogController extends Controller
 
         if ($request->hasFile('imgThumb')) {
             $imageThumb = $request->file('imgThumb');
-            $imageNameThumb = $imageThumb->getClientOriginalName();
-            $imageThumb->move(public_path('img/thumb'), $imageNameThumb);
+            $imageNameThumb = SubidaImagenes::guardar($imageThumb, 'img/thumb');
             $blog->imgThumb = 'img/thumb/' . $imageNameThumb;
         }
 
         if ($request->hasFile('imgFull')) {
             $imageFull = $request->file('imgFull');
-            $imageNameFull = $imageFull->getClientOriginalName();
-            $imageFull->move(public_path('img/full'), $imageNameFull);
+            $imageNameFull = SubidaImagenes::guardar($imageFull, 'img/full');
             $blog->imgFull = 'img/full/' . $imageNameFull;
         }
 
@@ -135,7 +132,7 @@ class EsblogController extends Controller
     {
         $blog = Esblog::where('slug', $slug)->with('tags')->firstOrFail();
         $blogs = Esblog::where('slug', '!=', $slug)->latest('updated_at')->take(4)->get();
-        $tours = Estour::latest('updated_at')->take(3)->get();        
+        $tours = Estour::inRandomOrder()->take(4)->get();
         $enblog = $blog->blog;
         return view('admin.esblogs.show', compact('blog', 'blogs', 'tours', 'enblog'));
     }

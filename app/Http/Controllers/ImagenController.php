@@ -3,10 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\Models\Imagen;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 
 class ImagenController extends Controller
 {
+    private const CARPETA = 'img/galeria';
+
+    private const MAX_MB = 10;
+
+    private function yaExiste(string $nombre): bool
+    {
+        return Imagen::where('img', $nombre)->exists() || is_file(public_path(self::CARPETA . '/' . $nombre));
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -36,21 +47,22 @@ class ImagenController extends Controller
      */
     public function store(Request $request)
     {
-        $imgFiles = $request->file('img');
+        $request->validate(
+            ['img' => 'required|array', 'img.*' => SubidaImagenes::regla(self::MAX_MB)],
+            SubidaImagenes::mensajes(['img.*'], self::MAX_MB) + ['img.required' => 'Elige al menos una imagen.']
+        );
 
-        foreach ($imgFiles as $img) {
-            $imgTour = $img->getClientOriginalName();
-            $imagenExistente = Imagen::where('img', $imgTour)->first();
-            if ($imagenExistente) {
-                return redirect()->route('imagenes.create')->withErrors('La imagen ya existe en la base de datos. Por favor, elige una nueva imagen.');
+        // Primero se revisan todas: así no queda una subida a medias si alguna ya existe.
+        $archivos = collect($request->file('img'))->map(fn (UploadedFile $img) => [$img, SubidaImagenes::nombreSeguro($img)]);
+        foreach ($archivos as [, $nombre]) {
+            if ($this->yaExiste($nombre)) {
+                return redirect()->route('imagenes.create')->withErrors("La imagen «{$nombre}» ya existe. Por favor, elige otra o cámbiale el nombre.");
             }
-            $rutaImg = public_path("img/galeria/");
-            $img->move($rutaImg, $imgTour);
+        }
 
-            $imagen = new Imagen();
-            $imagen->img = $imgTour;
-            
-            $imagen->save();
+        foreach ($archivos as [$img, $nombre]) {
+            $img->move(public_path(self::CARPETA), $nombre);
+            Imagen::create(['img' => $nombre]);
         }
 
         session()->flash('status', 'Imagen/Imágenes creadas exitosamente!');
@@ -90,24 +102,23 @@ class ImagenController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $imagen = Imagen::find($id);
+        $imagen = Imagen::findOrFail($id);
+        $request->validate(['img' => 'nullable|' . SubidaImagenes::regla(self::MAX_MB)], SubidaImagenes::mensajes(['img'], self::MAX_MB));
+
         if ($img = $request->file('img')) {
-            $imgTour = $img->getClientOriginalName();
-            $imagenExistente = Imagen::where('img', $imgTour)->first();
-            if ($imagenExistente) {
-                return redirect()->route('imagenes.edit', ['imagene' => $id])->withErrors('La imagen ya existe en la base de datos. Por favor, elige una nueva imagen.');
+            $nombre = SubidaImagenes::nombreSeguro($img);
+            if ($this->yaExiste($nombre)) {
+                return redirect()->route('imagenes.edit', ['imagene' => $id])->withErrors("La imagen «{$nombre}» ya existe. Por favor, elige otra o cámbiale el nombre.");
             }
 
-            $rutaImg = public_path("img/galeria/");
-            $img->move($rutaImg, $imgTour);
-            $imagen['img'] = $imgTour;
-        } else {
-            unset($imagen['img']);
+            $img->move(public_path(self::CARPETA), $nombre);
+            $imagen->img = $nombre;
+            $imagen->save();
         }
 
-        $imagen->save();
         session()->flash('status', 'Imagen actualizada exitosamente!');
-        return view('admin.imagenes.index');
+
+        return redirect()->route('imagenes.index');
     }
 
     /**

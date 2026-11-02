@@ -1,0 +1,3 @@
+# Pasaportes: nunca se sirven directamente. Se descargan solo con sesión iniciada
+# desde el panel (ruta paxs.pasaporte → PaxController@pasaporte).
+Require all denied

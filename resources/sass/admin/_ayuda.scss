@@ -1,0 +1,309 @@
+// Ayuda del panel: botón y panel lateral de cada pantalla, centro de ayuda y bienvenida en Inicio
+
+.ayuda-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 1px solid var(--ae-border);
+    border-radius: 50%;
+    background: var(--ae-surface);
+    color: var(--ae-ink-soft);
+
+    &:hover,
+    &[aria-expanded='true'] {
+        background: var(--ae-hover);
+        color: var(--ae-ink);
+    }
+}
+
+.ayuda-panel {
+    --bs-offcanvas-width: min(27rem, 100vw);
+    background: var(--ae-surface);
+    color: var(--ae-ink);
+
+    .offcanvas-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .offcanvas-header {
+        border-bottom: 1px solid var(--ae-border);
+    }
+
+    .offcanvas-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+.ayuda-panel__vacio {
+    margin: 0;
+    color: var(--ae-ink-soft);
+}
+
+.ayuda-panel__pie {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--ae-border);
+}
+
+// Tema desplegable
+.ayuda-tema {
+    border: 1px solid var(--ae-border);
+    border-radius: 0.5rem;
+    background: var(--ae-surface);
+
+    &[hidden] {
+        display: none;
+    }
+
+    > summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.65rem 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+
+        &::-webkit-details-marker {
+            display: none;
+        }
+
+        &::after {
+            content: '\f078';
+            flex: none;
+            margin-left: auto;
+            color: var(--ae-ink-soft);
+            font-family: 'Font Awesome 5 Free';
+            font-size: 0.7rem;
+            font-weight: 900;
+            transition: transform 0.15s ease;
+        }
+
+        &:hover {
+            background: var(--ae-hover);
+            border-radius: 0.5rem;
+        }
+    }
+
+    &[open] > summary::after {
+        transform: rotate(180deg);
+    }
+}
+
+.ayuda-tema__consulta {
+    flex: none;
+    padding: 0.05rem 0.5rem;
+    border-radius: $border-radius-pill;
+    background: var(--ae-hover);
+    color: var(--ae-ink-soft);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.ayuda-tema__cuerpo {
+    padding: 0 0.85rem 0.75rem;
+    font-size: 0.92rem;
+
+    > p:first-child {
+        margin-bottom: 0.6rem;
+        color: var(--ae-ink-soft);
+    }
+
+    > :last-child {
+        margin-bottom: 0;
+    }
+}
+
+.ayuda-pasos {
+    margin: 0 0 0.6rem;
+    padding-left: 1.2rem;
+
+    li {
+        margin-bottom: 0.3rem;
+        padding-left: 0.15rem;
+    }
+
+    li::marker {
+        color: var(--ae-accent-text);
+        font-weight: 700;
+    }
+}
+
+.ayuda-nota {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0 0.4rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.375rem;
+    background: var(--ae-hover);
+    font-size: 0.86rem;
+
+    > i {
+        flex: none;
+        margin-top: 0.2rem;
+        color: var(--ae-accent-text);
+    }
+}
+
+// Centro de ayuda
+.ayuda-buscador {
+    position: relative;
+    margin-bottom: 1.25rem;
+
+    > i {
+        position: absolute;
+        top: 50%;
+        left: 0.95rem;
+        color: var(--ae-ink-soft);
+        transform: translateY(-50%);
+    }
+
+    .form-control {
+        padding: 0.7rem 1rem 0.7rem 2.5rem;
+    }
+}
+
+.ayuda-sin-resultados {
+    padding: 1rem;
+    border: 1px dashed var(--ae-border-strong);
+    border-radius: 0.5rem;
+    color: var(--ae-ink-soft);
+    text-align: center;
+}
+
+.ayuda-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 1.25rem;
+    align-items: start;
+
+    @media (min-width: 992px) {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    }
+}
+
+.ayuda-subtitulo {
+    margin-bottom: 0.35rem;
+    font-weight: 700;
+}
+
+.ayuda-viaje {
+    display: grid;
+    gap: 0.55rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: viaje;
+
+    li {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        padding-left: 2.1rem;
+        counter-increment: viaje;
+        font-size: 0.92rem;
+
+        &::before {
+            content: counter(viaje);
+            position: absolute;
+            top: 0.05rem;
+            left: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: var(--ae-accent-text);
+            color: var(--ae-surface);
+            font-size: 0.78rem;
+            font-weight: 700;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+    }
+
+    strong {
+        font-size: 0.82rem;
+    }
+}
+
+.ayuda-grupo {
+    margin-bottom: 1.5rem;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
+.ayuda-grupo__titulo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.ayuda-grupo__tuya {
+    padding: 0.05rem 0.55rem;
+    border-radius: $border-radius-pill;
+    background: var(--ae-accent-text);
+    color: var(--ae-surface);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.ayuda-grupo__lista {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+    align-items: start;
+
+    @media (min-width: 992px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+// Bienvenida en Inicio
+.ayuda-bienvenida {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--ae-border);
+    border-left: 4px solid var(--ae-accent-text);
+    border-radius: 0.5rem;
+    background: var(--ae-surface);
+
+    &[hidden] {
+        display: none;
+    }
+
+    > p {
+        flex: 1 1 16rem;
+        margin: 0;
+    }
+}
+
+.ayuda-bienvenida__acciones {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+@media print {
+    .ayuda-btn,
+    .ayuda-panel,
+    .ayuda-bienvenida {
+        display: none !important;
+    }
+}

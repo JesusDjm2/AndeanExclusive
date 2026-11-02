@@ -1,0 +1,827 @@
+// Formularios de programas (programas/create, programas/edit).
+
+/* =============================================
+   PROGRAMAS FORM - Diseño unificado create / edit
+   ============================================= */
+
+/* ---- Page header ---- */
+
+/* ---- Section card ---- */
+.prog-section {
+  background: var(--ae-surface);
+  border-radius: 12px;
+  border: 1px solid #{$card-border-color};
+  box-shadow: var(--ae-shadow);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+.prog-section__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.95rem 1.4rem;
+  background: var(--ae-surface-2);
+  border-bottom: 1px solid #{$card-border-color};
+}
+.prog-section__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.prog-section__icon--blue   { background: rgba(7, 143, 132, 0.12); color: var(--ae-accent-text); }
+.prog-section__icon--green  { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
+.prog-section__icon--orange { background: rgba(246, 194, 62, 0.18); color: #e0a915; }
+.prog-section__icon--teal   { background: rgba(12, 129, 120, 0.14); color: var(--ae-accent-text); }
+.prog-section__icon--purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.prog-section__icon--red    { background: rgba(231, 74, 59, 0.12); color: var(--ae-danger); }
+.prog-section__icon--cyan   { background: rgba(54, 185, 204, 0.15); color: #36b9cc; }
+
+.prog-section__title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ae-ink);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex: 1;
+}
+.prog-section__subtitle {
+  font-size: 0.75rem;
+  color: #{$color-ink-soft};
+  margin-left: auto;
+}
+.prog-section__body {
+  padding: 1.4rem;
+}
+
+/* ---- Form label ---- */
+.prog-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #{$color-ink};
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+  display: block;
+}
+.prog-label .required {
+  color: var(--ae-danger);
+  margin-left: 2px;
+}
+
+/* ---- Input group hint ---- */
+.prog-input-hint {
+  font-size: 0.72rem;
+  color: #{$color-ink-soft};
+  margin-top: 0.25rem;
+}
+
+/* ---- Calendar sub-section ---- */
+
+/* ---- Checkbox grid (agentes / proveedores) ---- */
+.prog-check-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid #{$card-border-color};
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #{$color-ink};
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  margin-bottom: 0.4rem;
+}
+.prog-check-label:hover {
+  border-color: #{$color-accent};
+  background: var(--ae-hover);
+}
+.prog-check-label input[type=checkbox]:checked + span {
+  font-weight: 600;
+  color: var(--ae-accent-text);
+}
+
+/* ---- Proveedor category group ---- */
+.prog-prv-category {
+  margin-bottom: 1.25rem;
+}
+.prog-prv-category:last-child { margin-bottom: 0; }
+.prog-prv-category__name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ae-accent-text);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid var(--ae-border);
+}
+
+/* ---- Hotel accordion custom ---- */
+.prog-hotel-card {
+  border: 1px solid #{$card-border-color};
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.prog-hotel-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  background: var(--ae-surface-2);
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ae-ink);
+  text-align: left;
+  transition: background .15s;
+}
+.prog-hotel-btn:hover { background: var(--ae-hover); }
+.prog-hotel-btn .prog-hotel-btn__icon {
+  width: 28px;
+  height: 28px;
+  background: rgba(7, 143, 132, 0.12);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ae-accent-text);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.prog-hotel-btn .chevron {
+  margin-left: auto;
+  transition: transform .2s;
+  color: #{$color-ink-soft};
+  font-size: 0.75rem;
+}
+.prog-hotel-btn[aria-expanded="true"] .chevron {
+  transform: rotate(180deg);
+}
+.prog-hotel-body {
+  padding: 0.9rem 1rem;
+  border-top: 1px solid #{$card-border-color};
+  background: var(--ae-surface);
+}
+.prog-room-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 7px;
+  font-size: 0.82rem;
+  color: #{$color-ink};
+  cursor: pointer;
+  margin-bottom: 0.25rem;
+  transition: background .12s;
+}
+.prog-room-check:hover { background: var(--ae-hover); }
+.prog-fecha-block {
+  background: var(--ae-surface-2);
+  border-radius: 8px;
+  border: 1px solid #{$card-border-color};
+  padding: 0.75rem;
+  margin: 0.3rem 0 0.6rem 1.5rem;
+}
+.prog-fecha-block .prog-label { margin-bottom: 0.2rem; }
+
+/* ---- Pax cards ---- */
+
+.prog-pax-card {
+  position: relative;
+  background: var(--ae-surface);
+  border: 1px solid #{$card-border-color};
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 0.9rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,.04);
+  transition: border-color .15s, box-shadow .15s;
+}
+.prog-pax-card:hover { border-color: #{$color-accent}; box-shadow: 0 3px 12px rgba(7,143,132,.12); }
+.prog-pax-card__top {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--ae-border-soft);
+}
+.prog-pax-num {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #{$color-accent}, #{$color-accent-dark});
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.prog-pax-card__title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--ae-ink);
+  flex: 1;
+  margin: 0;
+}
+.prog-pax-remove {
+  background: rgba(231, 74, 59, 0.12);
+  color: var(--ae-danger);
+  border: none;
+  border-radius: 7px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.prog-pax-remove:hover { background: rgba(231, 74, 59, 0.22); color: var(--ae-danger); }
+
+/* ---- Floating action buttons ---- */
+
+/* Responsive: hide FAB text on very small screens */
+
+/* =========================================================================
+   Formulario por pestañas (resources/views/programas/form.blade.php)
+   ========================================================================= */
+
+.pf { padding-bottom: 5rem; } // espacio para la barra fija de acciones
+
+.pf-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.pf-header__back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
+    color: $color-ink-soft;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover { color: var(--ae-accent-text); }
+}
+
+.pf-header__title {
+    margin: 0 0 0.35rem;
+    color: $color-ink;
+    font-size: clamp(1.35rem, 1.15rem + 0.8vw, 1.85rem);
+    font-weight: 700;
+}
+
+.pf-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 1rem;
+    margin: 0;
+    color: $color-ink-soft;
+    font-size: 0.85rem;
+
+    i { margin-right: 0.3rem; color: rgba($color-accent, 0.7); }
+}
+
+.pf-header__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.pf-status {
+    padding: 0.2rem 0.6rem;
+    border-radius: $border-radius-pill;
+    font-size: 0.75rem;
+    font-weight: 700;
+
+    &--cotizacion { background: rgba(#b25e09, 0.1); color: var(--ae-warn); }
+    &--confirmado { background: rgba($color-success, 0.14); color: var(--ae-success); }
+    &--cancelado { background: var(--ae-chip); color: $color-ink-soft; text-decoration: line-through; }
+}
+
+// ---- Pestañas ----
+.pf-tabs {
+    position: sticky;
+    top: 4rem; // bajo el topbar
+    z-index: 20;
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    padding: 0.35rem;
+    border: 1px solid $card-border-color;
+    border-radius: $border-radius-lg;
+    background: rgba(var(--ae-surface-rgb), 0.96);
+    overflow-x: auto;
+    scrollbar-width: none;
+    backdrop-filter: blur(6px);
+
+    &::-webkit-scrollbar { display: none; }
+}
+
+.pf-tab {
+    position: relative;
+    display: inline-flex;
+    flex: 1 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    border-radius: $border-radius;
+    background: none;
+    color: $color-ink-soft;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+
+    &:hover { background: var(--ae-hover); color: $color-ink; }
+
+    &.active {
+        background: $color-accent;
+        color: $white;
+
+        .pf-tab__count { background: rgba(var(--ae-surface-rgb), 0.25); color: $white; }
+    }
+
+    &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+}
+
+.pf-tab__count {
+    min-width: 1.4rem;
+    padding: 0 0.4rem;
+    border-radius: $border-radius-pill;
+    background: var(--ae-chip);
+    font-size: 0.72rem;
+}
+
+.pf-tab__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: $color-danger;
+    box-shadow: 0 0 0 2px $white;
+
+    &--inline { display: inline-block; vertical-align: middle; }
+}
+
+// ---- Chips (agentes, proveedores) ----
+.pf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.pf-chip {
+    position: relative;
+    cursor: pointer;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.45rem 0.85rem;
+        border: 1px solid $card-border-color;
+        border-radius: $border-radius-pill;
+        background: var(--ae-surface);
+        color: $color-ink;
+        font-size: 0.86rem;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    &:hover span { border-color: $color-accent; }
+
+    input:checked + span {
+        border-color: $color-accent;
+        background: rgba($color-accent, 0.1);
+        color: var(--ae-accent-text);
+        font-weight: 600;
+
+        &::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 0.7rem;
+        }
+    }
+
+    input:focus-visible + span { outline: 2px solid $color-primary; outline-offset: 2px; }
+}
+
+.pf-empty {
+    margin: 0 0 1rem;
+    padding: 1.5rem;
+    border: 1px dashed $card-border-color;
+    border-radius: $border-radius;
+    color: $color-ink-soft;
+    text-align: center;
+
+    i { margin-right: 0.4rem; color: var(--ae-accent-text); }
+}
+
+.prog-hotel-card.has-selection { border-color: $color-accent; }
+
+// ---- Precios + presupuesto en vivo ----
+.pf-pricing {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 1fr) 320px;
+    }
+
+    .prog-section { margin-bottom: 0; }
+}
+
+.pf-budget {
+    padding: 1.25rem;
+    border-radius: $border-radius-lg;
+    background: var(--ae-inverse);
+    border: 1px solid var(--ae-inverse-border);
+    color: rgba($white, 0.85);
+
+    @include media-breakpoint-up(lg) {
+        position: sticky;
+        top: 8.5rem;
+    }
+}
+
+.pf-budget__title {
+    margin-bottom: 0.85rem;
+    color: $white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.pf-budget__rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.4rem 1rem;
+    margin: 0 0 0.75rem;
+    font-size: 0.88rem;
+
+    dt { font-weight: 400; }
+    dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+}
+
+.pf-budget__total {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 0;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba($white, 0.15);
+
+    strong { color: $white; font-size: 1.6rem; font-variant-numeric: tabular-nums; }
+}
+
+.pf-budget__internal,
+.pf-budget__deposit {
+    margin: 0.5rem 0 0;
+    color: rgba($white, 0.6);
+    font-size: 0.8rem;
+
+    strong { color: $color-primary-light; }
+}
+
+// ---- Cobranza (pestaña Pagos) ----
+.pf-cobro {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+
+    @include media-breakpoint-down(sm) { grid-template-columns: 1fr; }
+}
+
+.pf-cobro__kpi {
+    padding: 0.9rem 1rem;
+    border: 1px solid $card-border-color;
+    border-radius: $border-radius-lg;
+    background: var(--ae-surface);
+
+    span {
+        display: block;
+        color: $color-ink-soft;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    strong { font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+    small { display: block; color: $color-ink-soft; font-size: 0.78rem; }
+
+    &.is-overdue {
+        border-color: rgba($color-danger, 0.4);
+        background: rgba($color-danger, 0.04);
+
+        strong, small { color: var(--ae-danger); }
+    }
+}
+
+.pf-cobro__progress {
+    position: relative;
+    grid-column: 1 / -1;
+
+    &::before {
+        content: '';
+        display: block;
+        height: 0.5rem;
+        border-radius: $border-radius-pill;
+        background: var(--ae-chip);
+    }
+
+    small { display: block; margin-top: 0.35rem; color: $color-ink-soft; font-size: 0.8rem; }
+}
+
+.pf-cobro__bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 0.5rem;
+    border-radius: $border-radius-pill;
+    background: $color-success;
+}
+
+@for $i from 0 through 20 {
+    .pf-cobro__bar[data-fill="#{$i * 5}"] { width: #{$i * 5%}; }
+}
+
+// ---- Barra fija de acciones ----
+.pf-actionbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1020;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.5rem calc(0.75rem + env(safe-area-inset-bottom));
+    border-top: 1px solid $card-border-color;
+    background: rgba(var(--ae-surface-rgb), 0.96);
+    box-shadow: 0 -6px 20px rgba(23, 36, 42, 0.06);
+    backdrop-filter: blur(6px);
+
+    @include media-breakpoint-up(lg) { left: 268px; } // ancho del sidebar
+
+    @include media-breakpoint-down(sm) {
+        padding-inline: 0.75rem;
+
+        .pf-actionbar__buttons { flex: 1; }
+        .pf-actionbar__buttons .btn { flex: 1; }
+    }
+}
+
+.pf-actionbar__status {
+    color: var(--ae-warn);
+    font-size: 0.85rem;
+    font-weight: 600;
+
+    i { margin-right: 0.3rem; font-size: 0.5rem; vertical-align: middle; }
+}
+
+.pf-actionbar__buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+// El footer del panel no debe quedar detrás de la barra fija de acciones.
+.admin:has(.pf-actionbar) .admin-footer {
+    padding-bottom: 5.5rem;
+}
+
+// ---- Selector segmentado (cliente existente / nuevo) ----
+.pf-segmented {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 0.25rem;
+    border: 1px solid $card-border-color;
+    border-radius: $border-radius;
+    background: var(--ae-hover);
+
+    label { position: relative; margin: 0; cursor: pointer; }
+
+    input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    span {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.9rem;
+        border-radius: calc(#{$border-radius} - 2px);
+        color: $color-ink-soft;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    input:checked + span {
+        background: var(--ae-surface);
+        color: var(--ae-accent-text);
+        box-shadow: 0 1px 3px rgba(23, 36, 42, 0.12);
+    }
+
+    input:focus-visible + span { outline: 2px solid $color-primary; outline-offset: 1px; }
+    input:disabled + span { opacity: 0.45; cursor: not-allowed; }
+}
+
+// ---- Bloque desplegable (salud y emergencia del pasajero) ----
+.pf-more {
+    border-top: 1px dashed $card-border-color;
+    padding-top: 0.6rem;
+
+    summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: var(--ae-accent-text);
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+
+        &::-webkit-details-marker { display: none; }
+
+        &::before {
+            content: '\f067';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            font-size: 0.7rem;
+        }
+    }
+
+    &[open] summary::before { content: '\f068'; }
+}
+
+// ---- Selector de imagen de portada ----
+.pf-covers {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    gap: 0.75rem;
+    max-height: 24rem;
+    padding: 0.25rem;
+    overflow-y: auto;
+}
+
+.pf-cover {
+    position: relative;
+    margin: 0;
+    min-width: 0;
+    cursor: pointer;
+
+    input { position: absolute; opacity: 0; pointer-events: none; }
+
+    &__media {
+        position: relative;
+        display: block;
+        aspect-ratio: 3 / 2;
+        overflow: hidden;
+        border: 2px solid transparent;
+        border-radius: 10px;
+        background: var(--ae-chip);
+        transition: border-color 0.15s ease;
+
+        img { width: 100%; height: 100%; object-fit: cover; }
+    }
+
+    &:hover &__media { border-color: var(--ae-border-strong); }
+    input:focus-visible + &__media { outline: 2px solid $color-primary; outline-offset: 2px; }
+
+    input:checked + &__media {
+        border-color: $color-accent;
+        box-shadow: 0 0 0 2px rgba($color-accent, 0.25);
+
+        &::after {
+            content: '\f00c';
+            position: absolute;
+            top: 0.4rem;
+            right: 0.4rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background: $color-accent;
+            color: $white;
+            font-family: 'Font Awesome 5 Free';
+            font-size: 0.7rem;
+            font-weight: 900;
+            line-height: 1.5rem;
+            text-align: center;
+        }
+    }
+
+    &__tag {
+        position: absolute;
+        bottom: 0.35rem;
+        left: 0.35rem;
+        padding: 0.05rem 0.45rem;
+        border-radius: 999px;
+        background: rgba(0, 0, 0, 0.65);
+        color: $white;
+        font-size: 0.68rem;
+        font-weight: 600;
+
+        &--media { background: rgba(178, 94, 9, 0.9); }
+    }
+
+    &__name {
+        display: block;
+        margin-top: 0.25rem;
+        overflow: hidden;
+        color: var(--ae-ink-soft);
+        font-size: 0.78rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+// Alojamiento: una fila por tipo de habitación y estadía
+.estadia-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.estadia-row {
+    display: grid;
+    grid-template-columns: minmax(220px, 3fr) 90px repeat(2, minmax(135px, 1fr)) 72px auto;
+    gap: 0.6rem;
+    align-items: end;
+    padding: 0.75rem;
+    border: 1px solid var(--ae-border);
+    border-radius: 0.6rem;
+    background: var(--ae-surface);
+
+    &__noches {
+        padding-bottom: 0.4rem;
+        color: var(--ae-ink-soft);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    @media (max-width: 991.98px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        &__habitacion {
+            grid-column: 1 / -1;
+        }
+
+        &__cantidad {
+            grid-column: 1 / -1;
+            max-width: 8rem;
+        }
+    }
+}
+
+.estadia-empty {
+    margin: 0 0 0.75rem;
+    color: var(--ae-ink-soft);
+    font-size: 0.875rem;
+}
+
+.estadia-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.estadia-resumen {
+    margin: 0;
+    color: var(--ae-ink-soft);
+    font-size: 0.85rem;
+
+    &.is-warn {
+        color: var(--ae-warn);
+        font-weight: 600;
+    }
+}

@@ -1,0 +1,183 @@
+.booking-form {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.booking-form__title {
+    text-align: center;
+    font-size: 0.95rem;
+    letter-spacing: 0.01em;
+    margin-bottom: var(--space-sm);
+}
+
+// Compact grid for the homepage "How to Find Us" contact form:
+// email + phone share a row, everything else spans full width — keeps the
+// whole section within one viewport height.
+.booking-form__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+
+    @media (min-width: 576px) {
+        grid-template-columns: repeat(2, 1fr);
+        column-gap: var(--space-sm);
+    }
+}
+
+.booking-form__field--full {
+    grid-column: 1 / -1;
+}
+
+.booking-form__grid .booking-form__submit {
+    width: auto;
+    min-width: 12rem;
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--color-ink);
+    margin-bottom: 0.2rem;
+}
+
+.booking-form .form-control {
+    background: var(--color-sand);
+    border-radius: var(--radius-sm);
+    border-color: var(--color-border);
+    padding: 0.4rem 0.7rem;
+    font-size: 0.9rem;
+
+    &::placeholder { color: var(--color-ink-soft); }
+
+    &:focus {
+        background: var(--color-white);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 0.2rem rgba(9, 204, 189, 0.2);
+    }
+}
+
+.booking-form textarea.form-control {
+    padding: 0.6rem 0.7rem;
+}
+
+.booking-form__submit {
+    @extend .btn-brand;
+    @extend .btn-brand--primary;
+    width: 100%;
+    justify-content: center;
+    border: none;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+}
+
+// One-shot pulse when the captcha enables the button, so the user notices
+// the form is ready to send.
+@keyframes submit-ready {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.045); }
+    100% { transform: scale(1); }
+}
+
+.booking-form__submit.just-enabled {
+    animation: submit-ready 0.7s var(--ease-premium) 1;
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
+}
+
+// Captcha widget — collapses its own space (not just fades) once solved,
+// so it doesn't leave a gap between the message field and the submit button.
+// Sand-deep fill + ink text keeps the prompt readable on the white card.
+.captcha {
+    background: var(--color-sand-deep);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--space-sm) var(--space-md);
+    margin-bottom: var(--space-sm);
+    text-align: center;
+    color: var(--color-ink);
+    opacity: 1;
+    max-height: 10rem;
+    overflow: hidden;
+    transition: opacity var(--duration-base) var(--ease-premium),
+                max-height var(--duration-base) var(--ease-premium) var(--duration-fast),
+                padding var(--duration-base) var(--ease-premium) var(--duration-fast),
+                margin var(--duration-base) var(--ease-premium) var(--duration-fast),
+                border-width var(--duration-base) var(--ease-premium) var(--duration-fast);
+
+    &.is-solved {
+        opacity: 0;
+        max-height: 0;
+        padding-block: 0;
+        margin-bottom: 0;
+        border-width: 0;
+        pointer-events: none;
+    }
+}
+
+.captcha__label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 0.4rem;
+}
+
+.captcha [data-captcha-num1],
+.captcha [data-captcha-num2] {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.captcha__input {
+    width: 60px;
+    text-align: center;
+    display: inline-block;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-ink-soft);
+    background: var(--color-white);
+    font-weight: 700;
+    padding: 0.3rem;
+    margin-inline: 0.4rem;
+}
+
+.captcha__verify {
+    @extend .btn-brand;
+    @extend .btn-brand--ghost;
+    @extend .btn-brand--sm;
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary-dark);
+
+    &:hover {
+        background: var(--color-white);
+        color: var(--color-accent-dark);
+    }
+}
+
+.captcha__checkmark {
+    color: var(--color-success);
+    text-align: center;
+    font-weight: 700;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity var(--duration-base) var(--ease-premium);
+
+    &.is-visible {
+        opacity: 1;
+        max-height: 2rem;
+        margin-bottom: var(--space-xs);
+    }
+}

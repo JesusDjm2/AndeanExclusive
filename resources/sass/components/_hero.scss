@@ -1,0 +1,308 @@
+.hero {
+    position: relative;
+    min-height: 82vh;
+    // Top clearance for the fixed header: without it, on tablets/phones the
+    // hero-search form makes the content taller than 82vh and the centered
+    // title slides up under the transparent header, overlapping the logo.
+    padding-top: calc(var(--header-h) + var(--space-sm));
+    display: flex;
+    align-items: center;
+    color: var(--color-white);
+    overflow: hidden;
+    background-color: var(--color-ink);
+}
+
+.hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    img, video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    // Oversized so the parallax translateY never exposes the container's
+    // fallback background, regardless of scroll progress.
+    img[data-parallax] {
+        height: 130%;
+        top: -15%;
+        position: relative;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        // Barely-there tint: the photo is the protagonist and legibility is
+        // carried by the %hero-text-shadow halos, so this stays light.
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0.2) 0%, rgba(24, 34, 41, 0.05) 45%, rgba(24, 34, 41, 0.38) 100%);
+    }
+}
+
+.hero__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+    text-align: center;
+}
+
+// Legibility over photos of any brightness: a strong halo shadow behind the
+// text itself (not just a page-wide gradient), so title/eyebrow stay
+// readable no matter what's behind them — no background panel needed.
+%hero-text-shadow {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 6px 24px rgba(0, 0, 0, 0.65), 0 0 48px rgba(0, 0, 0, 0.45);
+}
+
+.hero__title {
+    @extend %hero-text-shadow;
+    color: var(--color-white);
+    font-size: clamp(2.25rem, 1.6rem + 3vw, 4.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 20ch;
+    margin-inline: auto;
+    margin-bottom: 0;
+}
+
+// Tablet/phone: the title + search form otherwise push the hero past one
+// viewport and the photo disappears into the cover crop — scale the type and
+// tighten the form so the image stays the protagonist.
+@media (max-width: 991.98px) {
+    .hero__title {
+        font-size: clamp(1.75rem, 1.3rem + 2.4vw, 2.6rem);
+        // Wider than the desktop 20ch cap + balanced wrapping so both the EN
+        // and the longer ES title break into two even lines — no orphan word.
+        max-width: 30ch;
+        text-wrap: balance;
+    }
+
+    .hero__divider {
+        margin-block: var(--space-2xs);
+    }
+
+    .hero__subtitle {
+        font-size: 1rem;
+        margin-bottom: var(--space-sm);
+    }
+
+    .hero-search {
+        padding: 0.85rem;
+        gap: 0.5rem;
+
+        .form-label {
+            font-size: 0.72rem;
+            margin-bottom: 0.15rem;
+        }
+
+        // Slimmer fields than Bootstrap's default so the stacked form doesn't
+        // swallow the photo on tablet/phone heights.
+        .form-control {
+            padding: 0.3rem 0.55rem;
+            font-size: 0.9rem;
+        }
+    }
+
+    .hero-search__submit {
+        padding: 0.6rem 1.25rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero {
+        padding-top: calc(var(--header-h) + var(--space-2xs));
+    }
+
+    .hero__title {
+        font-size: clamp(1.6rem, 1.25rem + 2vw, 2rem);
+    }
+
+    .hero-search {
+        gap: 0.4rem;
+        padding: 0.7rem;
+        margin-top: var(--space-sm);
+        border-radius: var(--radius-md);
+    }
+}
+
+.hero__divider {
+    width: 4.5rem;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-pill);
+    margin: var(--space-sm) auto;
+    box-shadow: 0 0 16px rgba(9, 204, 189, 0.7);
+}
+
+.hero__eyebrow {
+    @extend %hero-text-shadow;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-white);
+    display: block;
+    margin-bottom: var(--space-sm);
+}
+
+.hero__subtitle {
+    @extend %hero-text-shadow;
+    font-size: 1.15rem;
+    max-width: 46ch;
+    margin-inline: auto;
+    color: rgba(255, 255, 255, 0.92);
+    margin-bottom: var(--space-md);
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.hero-search {
+    text-align: left;
+    background: var(--color-ink);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    box-shadow: var(--shadow-lg);
+    display: grid;
+    gap: var(--space-xs);
+    grid-template-columns: 1fr;
+    color: var(--color-white);
+
+    // Tablet range: pair the date/traveler fields to halve the form's height,
+    // and sit the submit beside the email field so the whole form is three
+    // rows — the photo keeps most of the hero. nth-of-type skips the CSRF
+    // hidden input that @csrf renders as the form's first child.
+    // Kept up to 1199px: a single row only fits once the container is wide
+    // enough for the email field and the submit label not to be clipped.
+    @media (min-width: 480px) and (max-width: 1199.98px) {
+        grid-template-columns: repeat(2, 1fr);
+
+        .hero-search__submit {
+            grid-column: 2;
+            align-self: end;
+        }
+    }
+
+    // Desktop: one row; dates and email get room, the counters stay narrow.
+    @media (min-width: 1200px) {
+        grid-template-columns: 1.15fr 1.15fr 0.7fr 0.7fr 1.6fr auto;
+        align-items: end;
+    }
+}
+
+.hero-search .form-label {
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.hero-search .form-control {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-sm);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: var(--color-white);
+
+    &::placeholder { color: rgba(255, 255, 255, 0.45); }
+
+    &:focus {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--color-white);
+    }
+
+    // Date inputs render a small dark calendar glyph by default — invert
+    // it to white so it doesn't disappear against this dark field.
+    &::-webkit-calendar-picker-indicator { filter: invert(1); }
+}
+
+.hero-search__submit {
+    @extend .btn-brand;
+    @extend .btn-brand--primary;
+    border: none;
+    justify-content: center;
+    width: 100%;
+
+    @media (min-width: 1200px) {
+        width: auto;
+    }
+}
+
+// Small full-bleed strip used for secondary/interior pages
+.page-banner {
+    position: relative;
+    min-height: 50vh;
+    padding-top: var(--header-h);
+    display: flex;
+    align-items: center;
+    color: var(--color-white);
+    background-color: var(--color-ink);
+    overflow: hidden;
+
+    img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    // Oversized so the parallax translateY never exposes the container's
+    // fallback background, same strategy as the hero.
+    img[data-parallax] {
+        height: 130%;
+        top: -15%;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0.25) 0%, rgba(24, 34, 41, 0.8) 100%);
+    }
+
+    .page-banner__content {
+        position: relative;
+        z-index: 1;
+        max-width: var(--container-max);
+        margin-inline: auto;
+        padding: var(--space-xl) var(--space-md);
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.page-banner--tall {
+    min-height: 62vh;
+}
+
+.page-banner__title {
+    @extend %hero-text-shadow;
+    color: var(--color-white);
+    font-size: clamp(2.25rem, 1.7rem + 2.2vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 0;
+}
+
+.page-banner__divider {
+    width: 4.5rem;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-pill);
+    margin: var(--space-sm) auto;
+    box-shadow: 0 0 16px rgba(9, 204, 189, 0.7);
+}
+
+.page-banner__eyebrow {
+    @extend %hero-text-shadow;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-white);
+    display: block;
+}
+

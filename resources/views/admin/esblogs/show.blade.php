@@ -1,4 +1,9 @@
-@extends('layouts.general-es')
+@php
+    $locale = 'es';
+    $altUrl = $enblog ? route('enblog.show', $enblog->slug) : null;
+@endphp
+@extends('layouts.public')
+
 @section('metas')
     @include('layouts.seo-head', [
         'locale' => 'es',
@@ -6,11 +11,17 @@
         'title' => $blog->nombre . ' | ' . config('seo.brand'),
         'description' => Str::limit(strip_tags($blog->descripcionCorta ?: $blog->descripcion), 165),
         'canonical' => route('esblog.show', $blog->slug, true),
-        'og_image' => asset($blog->imgThumb),
+        'og_image' => $blog->thumbUrl(),
         'og_type' => 'article',
         'keywords' => $blog->keywords,
     ])
+    @if ($enblog)
+        <link rel="alternate" hreflang="en" href="{{ route('enblog.show', $enblog->slug, true) }}">
+        <link rel="alternate" hreflang="es" href="{{ route('esblog.show', $blog->slug, true) }}">
+        <link rel="alternate" hreflang="x-default" href="{{ route('enblog.show', $enblog->slug, true) }}">
+    @endif
 @endsection
+
 @push('seo-structured-data')
 <script type="application/ld+json">{!! json_encode([
     '@context' => 'https://schema.org',
@@ -18,7 +29,7 @@
     'headline' => $blog->nombre,
     'description' => Str::limit(strip_tags($blog->descripcionCorta ?: $blog->descripcion), 300),
     'url' => route('esblog.show', $blog->slug, true),
-    'image' => [asset($blog->imgThumb)],
+    'image' => [$blog->thumbUrl()],
     'datePublished' => $blog->created_at?->toIso8601String(),
     'dateModified' => $blog->updated_at?->toIso8601String(),
     'author' => ['@type' => 'Organization', 'name' => config('seo.brand')],
@@ -26,195 +37,92 @@
     'inLanguage' => 'es-PE',
 ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
 @endpush
+
 @section('contenido')
-    <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="{{ route('index') }}" rel="home" class="logo-text-link">
-                                    <img src="{{ asset('img/andean-exclusive-logo.png') }}" id="logo"
-                                        alt="Logo Andean Exclusive Tours">
-                                </a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu-castellano')
-                                    <li id="display">
-                                        @if ($enblog)
-                                            <a href="{{ route('enblog.show', $enblog->slug) }}">
-                                                <button type="button" class="botondjm">
-                                                    <i class="fa fa-language"></i> English
-                                                </button>
-                                            </a>
-                                        @else
-                                            <a href="{{ route('index') }}">
-                                                <button type="button" class="botondjm">
-                                                    <i class="fa fa-language"></i> English
-                                                </button>
-                                            </a>
-                                        @endif
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2">
-                                        @if ($enblog)
-                                            <a href="{{ route('enblog.show', $enblog->slug) }}">
-                                                <button type="button" class="botondjm">English</button>
-                                            </a>
-                                        @else
-                                            <a href="{{ route('index') }}">
-                                                <button type="button" class="botondjm">English</button>
-                                            </a>
-                                        @endif
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-                        </div>
-                    </div>
+    <section class="page-banner page-banner--tall">
+        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high">
+        <div class="page-banner__content">
+            <h1 class="page-banner__title">{{ $blog->nombre }}</h1>
+            <div class="page-banner__divider"></div>
+            @if ($blog->created_at)
+                <span class="page-banner__eyebrow">{{ $blog->created_at->format('d/m/Y') }}</span>
+            @endif
+            @if ($blog->tags->count())
+                <div class="article-tags">
+                    @foreach ($blog->tags as $tag)
+                        <a href="{{ route('estag.show', $tag->slug) }}" class="tag-pill">{{ $tag->nombre }}</a>
+                    @endforeach
                 </div>
-            </div>
-        </header>
-        <div class="blogContenedor">
-            <img src="{{ asset($blog->imgFull) }}" alt="{{ $blog->nombre }}" class="fullscreen-img zoom-infinite">
-            <div class="content-overlay">
-                <h1>{{ $blog->nombre }}</h1>
-                <p>{{ $blog->descripcionCorta }}</p>
-                @foreach ($blog->tags as $tag)
-                    <a href="{{ route('estag.show', $tag->slug) }}" class="tags">{{ $tag->nombre }}</a>
-                @endforeach
-            </div>
+            @endif
         </div>
-    </div>
-    <div id="separador"></div>
-    <div class="container">
-        <div class="location">
-            <div class="row text-center">
-                <div class="col-lg-3 col-sm-2" id="display2">
-                    <div style="width: 90%; height:1px; background:grey; margin-top:0.6em">
+    </section>
+
+    <section class="section--tight">
+        <div class="site-container">
+            @include('layouts.partials.breadcrumb', [
+                'ariaLabel' => 'Ruta de navegación',
+                'crumbs' => [
+                    ['label' => 'Inicio', 'url' => route('inicio')],
+                    ['label' => 'Blog', 'url' => route('blog-es')],
+                    ['label' => $blog->nombre],
+                ],
+            ])
+
+            <div class="article-layout">
+                <article>
+                    <div class="article-figure" data-reveal>
+                        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" loading="lazy">
                     </div>
-                </div>
-                <div class="col-lg-6 col-sm-12 text-center">
-                    <a href="{{ route('index') }}">Home</a> <span>⮞</span>
-                    <a href="{{ route('blog-en') }}">Blog</a> <span>⮞</span>
-                    <a>{{ $blog->nombre }}</a>
-                </div>
-                <div class="col-lg-3 col-sm-2" id="display2">
-                    <div style="width: 90%; height:1px; background:grey; margin-top:0.6em">
+                    <div class="legal-prose legal-prose--fluid">
+                        {!! $blog->descripcion !!}
                     </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-9">
-                <div class="contenidoBLogs">
-                    <h2 class="tituloBlog text-center">{{ $blog->nombre }}</h2>
-                    <img src="{{ asset($blog->imgFull) }}" alt="{{ $blog->nombre }}" loading="lazy" width="100%">
-                    <div class="rich-html-content">{!! $blog->descripcion !!}</div>
-                </div>
-                <div class="socialesShare">
-                    <h3>Compartir</h3>
-                    <div id="separadordjm2"></div>
-                    <div class="redes-sociales">
-                        <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(url('/' . $blog->slug)) }}"
-                            target="_blank" title="Compartir en Facebook">
-                            <i class="fa fa-facebook"></i>
-                        </a>
-                        <a href="mailto:?subject=Recomendación de tour&body={{ urlencode('Te recomiendo este increíble tour: ' . url('/' . $blog->slug)) }}"
-                            title="Compartir por correo electrónico">
-                            <i class="fa fa-envelope"></i>
-                        </a>
-                        <a href="https://www.pinterest.com/pin/create/button/?url={{ urlencode(url('/' . $blog->slug)) }}"
-                            target="_blank" title="Compartir en Pinterest">
-                            <i class="fa fa-pinterest"></i>
-                        </a>
-                        <a href="whatsapp://send?text={{ urlencode(url('/' . $blog->slug)) }}"
-                            data-action="share/whatsapp/share" target="_blank" title="Compartir en WhatsApp">
-                            <i class="fa fa-whatsapp"></i>
-                        </a>
-                        <a href="https://twitter.com/intent/tweet?url={{ urlencode(url('/' . $blog->slug)) }}"
-                            target="_blank" title="Compartir en Twitter">
-                            <i class="fa fa-twitter"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-3 blog-sidebar-related">
-                <h4 class="text-center" style="font-family: 'Dancing Script', cursive;color:#000; font-size:25px">Blogs
-                    similares
-                </h4>
-                <div id="separadordjm2"></div>
-                @foreach ($blogs as $item)
-                    <div class="blogsRelacionados">
-                        <div class="div">
-                            <a href="{{ route('esblog.show', $item->slug) }}">
-                                <img src="{{ asset($item->imgThumb) }}" alt="{{ $item->nombre }}" loading="lazy">
-                            </a>
-                            <a href="{{ route('esblog.show', $item->slug) }}">
-                                <h3>{{ $item->nombre }}</h3>
-                            </a>
-                            <p><i class="fa fa-calendar"></i> {{ $item->created_at->format('d M, Y') }}</p>
-                        </div>
-                    </div>
-                @endforeach
-                <div class="tags">
-                    <h3>Tags</h3>
-                    <div class="div">
-                        @foreach ($blog->tags as $tag)
-                            <a href="{{ route('estag.show', $tag->slug) }}" class="enlaceTags">{{ $tag->nombre }}</a>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="container">
-        <div class="row relacionados">
-            <div class="col-12 mb-3">
-                <h2>Tours exclusivos en Perú</h2>
-            </div>
-            @foreach ($tours as $relatedTour)
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <a href="{{ route('estour.show', $relatedTour->slug) }}">
-                            <img class="card-img-top" src="{{ asset($relatedTour->imgThumb) }}" alt="{{ $relatedTour->nombre }}"
-                                loading="lazy" decoding="async">
-                        </a>
-                        <div class="card-body d-flex flex-column">
-                            <h5>{{ $relatedTour->nombre }}</h5>
-                            <div class="linea"></div>
-                            <div class="recorrido">
-                                <i class="fa fa-map-marker"></i>&nbsp;
-                                <span>{{ $relatedTour->recorrido }}</span>
-                            </div>
-                            <p class="card-text flex-grow-1">{{ $relatedTour->descripcionCorta }}</p>
-                            <div class="cuerpo row no-gutters">
-                                <div class="col-sm-6">
-                                    <p><i class="fa fa-usd"></i> {{ $relatedTour->precio }}.00</p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $relatedTour->dias }} días</p>
-                                </div>
-                            </div>
-                            <div class="categorias">
-                                @foreach ($relatedTour->categorias as $categoria)
-                                    <a href="{{ route('categoria.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
-                                    @if (!$loop->last)
-                                        -&nbsp;
+                    @include('layouts.partials.share-links', [
+                        'url' => route('esblog.show', $blog->slug, true),
+                        'i18n' => [
+                            'share' => 'Compartir:',
+                            'on' => 'Compartir en',
+                            'email' => 'Compartir por correo',
+                            'subject' => 'Andean Exclusive',
+                            'body' => 'Te recomiendo este artículo: ',
+                        ],
+                    ])
+                </article>
+
+                <aside data-reveal>
+                    @if ($blogs->count())
+                        <h3 class="article-sidebar__title">Blogs Similares</h3>
+                        @foreach ($blogs as $item)
+                            <a href="{{ route('esblog.show', $item->slug) }}" class="article-side-card">
+                                <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy">
+                                <div>
+                                    <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
+                                    @if ($item->created_at)
+                                        <span class="article-side-card__date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ $item->created_at->format('d/m/Y') }}</span>
                                     @endif
-                                @endforeach
-                            </div>
-                            <a href="{{ route('estour.show', $relatedTour->slug) }}" class="boton2023 mt-2">
-                                Ver más
+                                </div>
                             </a>
+                        @endforeach
+                    @endif
+                    @if ($blog->tags->count())
+                        <h3 class="article-sidebar__title mt-lg">Tags</h3>
+                        <div class="article-tags">
+                            @foreach ($blog->tags as $tag)
+                                <a href="{{ route('estag.show', $tag->slug) }}" class="tag-pill tag-pill--muted">{{ $tag->nombre }}</a>
+                            @endforeach
                         </div>
-                    </div>
-                </div>
-            @endforeach
+                    @endif
+                </aside>
+            </div>
         </div>
-    </div>
+    </section>
+
+    @include('layouts.partials.related-tours', [
+        'tours' => $tours,
+        'locale' => 'es',
+        'eyebrow' => 'También te puede interesar',
+        'title' => 'Tours Exclusivos en Perú',
+        'tourRoute' => 'estour.show',
+        'categoryRoute' => 'categoria.show',
+        'moreLabel' => 'Ver más',
+    ])
 @endsection

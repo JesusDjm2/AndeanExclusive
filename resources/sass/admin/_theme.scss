@@ -1,0 +1,164 @@
+// Tema claro / oscuro del panel.
+// Las vistas y parciales usan estos tokens (var(--ae-*)) en lugar de colores fijos; Bootstrap 5.3 cambia sus propios
+// componentes con data-bs-theme en <html> (resources/js/theme.js). La barra lateral es oscura en ambos temas.
+//
+//  --ae-bg            fondo de la página
+//  --ae-surface       tarjetas, tablas, barras
+//  --ae-surface-2     cabeceras de tarjeta y rellenos suaves
+//  --ae-hover         fondo al pasar el mouse
+//  --ae-chip          contadores y etiquetas neutras
+//  --ae-border        bordes de tarjetas e inputs
+//  --ae-border-soft   separadores entre filas
+//  --ae-ink / -soft   texto principal y secundario
+//  --ae-accent-text   enlaces y textos de acento (más claro en oscuro para mantener contraste AA)
+//  --ae-success|warn|danger|info  textos de estado
+
+@mixin ae-theme-light {
+    --ae-bg: #f4f7f8;
+    --ae-surface: #ffffff;
+    --ae-surface-rgb: 255, 255, 255;
+    --ae-surface-2: #f8fafa;
+    --ae-hover: #f1f6f6;
+    --ae-chip: #eef3f3;
+    --ae-border: #e3ecec;
+    --ae-border-strong: #c9d8d8;
+    --ae-border-soft: #eef3f3;
+    --ae-input-border: #d5e1e1;
+    --ae-ink: #{$color-ink};
+    --ae-ink-soft: #{$color-ink-soft};
+    --ae-accent-text: #{$color-accent};
+    --ae-success: #{$color-success};
+    --ae-warn: #b25e09;
+    --ae-danger: #{$color-danger};
+    --ae-info: #2563a8;
+    --ae-violet: #6d28d9;
+    --ae-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --ae-shadow-lg: 0 10px 30px rgba(15, 40, 40, 0.08);
+    --ae-inverse: #{$color-ink};          // paneles oscuros destacados (presupuesto)
+    --ae-inverse-border: transparent;
+}
+
+@mixin ae-theme-dark {
+    --ae-bg: #0e1517;
+    --ae-surface: #152022;
+    --ae-surface-rgb: 21, 32, 34;
+    --ae-surface-2: #1a2729;
+    --ae-hover: #1f2e31;
+    --ae-chip: #243538;
+    --ae-border: #283a3d;
+    --ae-border-strong: #3a5155;
+    --ae-border-soft: #213134;
+    --ae-input-border: #33484b;
+    --ae-ink: #e3ecec;
+    --ae-ink-soft: #9db1b1;
+    --ae-accent-text: #4fd6ca;
+    --ae-success: #5cc98f;
+    --ae-warn: #f0a85e;
+    --ae-danger: #f2846f;
+    --ae-info: #82b4f0;
+    --ae-violet: #b79cf5;
+    --ae-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --ae-shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.5);
+    --ae-inverse: #0a1112;
+    --ae-inverse-border: #2f4649;
+}
+
+:root,
+[data-bs-theme="light"] {
+    @include ae-theme-light;
+}
+
+[data-bs-theme="dark"] {
+    @include ae-theme-dark;
+
+    // Bootstrap: superficies y controles sobre el fondo del panel.
+    --bs-body-bg: var(--ae-bg);
+    --bs-body-color: var(--ae-ink);
+    --bs-secondary-color: var(--ae-ink-soft);
+    --bs-tertiary-bg: var(--ae-surface-2);
+    --bs-border-color: var(--ae-border);
+    --bs-emphasis-color: #ffffff;
+
+    .card { --bs-card-bg: var(--ae-surface); }
+    .dropdown-menu { --bs-dropdown-bg: var(--ae-surface-2); --bs-dropdown-link-hover-bg: var(--ae-hover); --bs-dropdown-border-color: var(--ae-border); }
+    .modal { --bs-modal-bg: var(--ae-surface); }
+    .form-control,
+    .form-select { background-color: var(--ae-surface-2); }
+    .form-control:disabled,
+    .form-select:disabled { background-color: var(--ae-hover); }
+    .text-muted { color: var(--ae-ink-soft) !important; }
+    .text-bg-light { background-color: var(--ae-chip) !important; color: var(--ae-ink) !important; }
+    .btn-light { --bs-btn-bg: var(--ae-chip); --bs-btn-border-color: var(--ae-border); --bs-btn-color: var(--ae-ink); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); }
+    .btn-outline-secondary { --bs-btn-color: var(--ae-ink-soft); --bs-btn-border-color: var(--ae-border-strong); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); --bs-btn-hover-border-color: var(--ae-border-strong); }
+    .btn-outline-primary { --bs-btn-color: var(--ae-accent-text); --bs-btn-border-color: var(--ae-accent-text); }
+    .btn-link { --bs-btn-color: var(--ae-accent-text); }
+    .text-success { color: var(--ae-success) !important; }
+    .text-danger { color: var(--ae-danger) !important; }
+    .text-warning { color: var(--ae-warn) !important; }
+    .alert-success { --bs-alert-bg: rgba(92, 201, 143, 0.12); --bs-alert-color: var(--ae-success); --bs-alert-border-color: transparent; }
+    .alert-danger { --bs-alert-bg: rgba(242, 132, 111, 0.12); --bs-alert-color: var(--ae-danger); --bs-alert-border-color: transparent; }
+    .alert-warning { --bs-alert-bg: rgba(240, 168, 94, 0.12); --bs-alert-color: var(--ae-warn); --bs-alert-border-color: transparent; }
+    .alert-info { --bs-alert-bg: rgba(130, 180, 240, 0.12); --bs-alert-color: var(--ae-info); --bs-alert-border-color: transparent; }
+
+    // Editor CKEditor 4 y SweetAlert2 no tienen tema oscuro: se enmarcan para que no "brillen" sobre el fondo.
+    .cke { border-color: var(--ae-border) !important; border-radius: $border-radius; overflow: hidden; }
+    .swal2-popup { background: var(--ae-surface); color: var(--ae-ink); }
+    .swal2-title,
+    .swal2-html-container { color: var(--ae-ink); }
+
+    img.ae-invert-dark { filter: invert(1) hue-rotate(180deg); }
+
+    // Utilidades claras de Bootstrap usadas en vistas antiguas (hoteles, proveedores, tours…).
+    .admin {
+        .bg-white { background-color: var(--ae-surface) !important; }
+        .bg-light { background-color: var(--ae-surface-2) !important; }
+        .text-dark { color: var(--ae-ink) !important; }
+        .border,
+        .border-bottom,
+        .border-top { border-color: var(--ae-border) !important; }
+        .table { --bs-table-bg: transparent; --bs-table-color: var(--ae-ink); --bs-table-border-color: var(--ae-border-soft); }
+        .table-light { --bs-table-bg: var(--ae-surface-2); --bs-table-color: var(--ae-ink); }
+        .list-group { --bs-list-group-bg: var(--ae-surface); --bs-list-group-border-color: var(--ae-border); --bs-list-group-color: var(--ae-ink); }
+        .breadcrumb-item.active { color: var(--ae-ink); }
+        .input-group-text { background-color: var(--ae-surface-2); border-color: var(--ae-input-border); color: var(--ae-ink-soft); }
+    }
+}
+
+// Al imprimir (hoja de operaciones) siempre se usa el tema claro.
+@media print {
+    [data-bs-theme="dark"] {
+        @include ae-theme-light;
+        --bs-body-bg: #ffffff;
+        --bs-body-color: #{$color-ink};
+        color-scheme: light;
+    }
+}
+
+// Transición suave al cambiar de tema (no al cargar: theme.js añade la clase solo durante el cambio).
+.ae-theme-switching,
+.ae-theme-switching * {
+    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease !important;
+}
+
+// Selector de tema (barra superior).
+.theme-toggle {
+    .dropdown-item.active,
+    .dropdown-item:active { background: var(--ae-hover); color: var(--ae-accent-text); font-weight: 600; }
+    .dropdown-item i { width: 1.1rem; }
+}
+
+.theme-toggle__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.35rem;
+    height: 2.35rem;
+    border: 1px solid var(--ae-border);
+    border-radius: $border-radius-pill;
+    background: var(--ae-surface);
+    color: var(--ae-ink-soft);
+
+    &:hover,
+    &[aria-expanded="true"] { color: var(--ae-accent-text); border-color: var(--ae-border-strong); }
+    &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
+}

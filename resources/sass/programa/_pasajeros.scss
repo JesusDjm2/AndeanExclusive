@@ -1,0 +1,95 @@
+// Formulario de datos de los viajeros que completa el cliente (programas/pasajeros-cliente).
+
+/* ------ FORMULARIO DE DATOS DEL CLIENTE ------ */
+.pax-form-page { background: #f6f9f9; }
+.pax-form { max-width: 920px; padding-top: 2.5rem; padding-bottom: 3rem; }
+.pax-form__header { text-align: center; margin-bottom: 2rem; }
+.pax-form__eyebrow {
+  margin: 1rem 0 0.25rem;
+  color: #0c8178;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.pax-form__title { margin: 0 0 0.6rem; font-size: clamp(1.6rem, 4vw, 2.1rem); font-weight: 700; color: #1a202c; }
+.pax-form__intro { max-width: 640px; margin: 0 auto 0.9rem; color: #4a5568; }
+.pax-form__back { color: #0c8178; font-weight: 600; text-decoration: none; }
+.pax-form__alert { margin-bottom: 1.25rem; padding: 0.85rem 1.1rem; border-radius: 10px; font-weight: 600; }
+.pax-form__alert--ok { background: #e7f4ec; color: #2f8f5b; }
+.pax-form__alert--error { background: #fdecea; color: #c2422f; }
+.pax-form__card {
+  margin: 0 0 1.25rem;
+  padding: 1.25rem 1.4rem 1.4rem;
+  border: 1px solid #e3ecec;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+.pax-form__legend {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eef3f3;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a202c;
+}
+.pax-form__num {
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #0c8178;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+.pax-form__remove {
+  margin-left: auto;
+  padding: 0.3rem 0.7rem;
+  border: 0;
+  border-radius: 8px;
+  background: #fdecea;
+  color: #c2422f;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.pax-form__label { display: block; margin-bottom: 0.3rem; font-size: 0.82rem; font-weight: 600; color: #2d3748; }
+.pax-form__hint { display: block; margin-top: 0.25rem; color: #718096; font-size: 0.76rem; }
+.pax-form__hint--ok { color: #2f8f5b; font-weight: 600; }
+.pax-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+.pax-form__add,
+.pax-form__submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.3rem;
+  border-radius: 999px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.pax-form__add { border: 1px solid #0c8178; background: #fff; color: #0c8178; }
+.pax-form__submit { border: 0; background: #0c8178; color: #fff; }
+.pax-form__submit:hover { background: #096a62; }
+.pax-form .form-control,
+.pax-form .form-select { border-color: #d5e1e1; }
+.pax-form .form-control:focus,
+.pax-form .form-select:focus { border-color: #0c8178; box-shadow: 0 0 0 0.2rem rgba(12, 129, 120, 0.15); }
+
+@media (max-width: 575.98px) {
+  .pax-form__card { padding: 1rem; }
+  .pax-form__actions > * { width: 100%; justify-content: center; }
+  .pax-cta__button { width: 100%; justify-content: center; }
+}

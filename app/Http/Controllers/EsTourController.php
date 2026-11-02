@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EsCategoria;
 use App\Models\Estour;
 use App\Models\Tour;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -33,8 +34,8 @@ class EsTourController extends Controller
             'recorrido' => 'required',
             'dias' => 'required|integer',
             'precio' => 'required',
-            'imgThumb' => 'required|max:2048',
-            'imgFull' => 'required|max:2048',
+            'imgThumb' => 'required|' . SubidaImagenes::regla(),
+            'imgFull' => 'required|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required',
             'presentacion' => 'required',
             'itinerario' => 'required',
@@ -44,7 +45,7 @@ class EsTourController extends Controller
             'slug' => 'required|unique:estours',
             'keywords' => 'required',
             'relacionado_id' => 'required|exists:tours,id',
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
         $tour = new Estour;
         $tour->nombre = $request->input('nombre');
@@ -53,19 +54,11 @@ class EsTourController extends Controller
         $tour->precio = $request->input('precio');
 
         if ($request->hasFile('imgThumb')) {
-            $img = $request->file('imgThumb');
-            $rutaImg = 'img/Thumbs/';
-            $imgThumb = $rutaImg.$img->getClientOriginalName();
-            $img->move($rutaImg, $imgThumb);
-            $tour->imgThumb = $imgThumb;
+            $tour->imgThumb = 'img/Thumbs/' . SubidaImagenes::guardar($request->file('imgThumb'), 'img/Thumbs');
         }
 
         if ($request->hasFile('imgFull')) {
-            $img = $request->file('imgFull');
-            $rutaImg = 'img/Fondos/';
-            $imgFull = $rutaImg.$img->getClientOriginalName();
-            $img->move($rutaImg, $imgFull);
-            $tour->imgFull = $imgFull;
+            $tour->imgFull = 'img/Fondos/' . SubidaImagenes::guardar($request->file('imgFull'), 'img/Fondos');
         }
         $tour->mapa = $request->get('mapa');
         /* if ($request->hasFile('mapa')) {
@@ -110,8 +103,8 @@ class EsTourController extends Controller
             'recorrido' => 'required',
             'dias' => 'required|integer',
             'precio' => 'required',
-            'imgThumb' => 'sometimes|required|max:2048',
-            'imgFull' => 'sometimes|required|max:2048',
+            'imgThumb' => 'sometimes|required|' . SubidaImagenes::regla(),
+            'imgFull' => 'sometimes|required|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required',
             'presentacion' => 'required',
             'itinerario' => 'required',
@@ -121,7 +114,7 @@ class EsTourController extends Controller
             'slug' => 'required|unique:tours,slug,'.$id,
             'keywords' => 'required',
             'relacionado_id' => 'required|exists:tours,id',
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
         $tour = Estour::findOrFail($id);
         $tour->nombre = $request->input('nombre');
@@ -130,19 +123,11 @@ class EsTourController extends Controller
         $tour->precio = $request->input('precio');
 
         if ($request->hasFile('imgThumb')) {
-            $img = $request->file('imgThumb');
-            $rutaImg = 'img/Thumbs/';
-            $imgThumb = $rutaImg.$img->getClientOriginalName();
-            $img->move($rutaImg, $imgThumb);
-            $tour->imgThumb = $imgThumb;
+            $tour->imgThumb = 'img/Thumbs/' . SubidaImagenes::guardar($request->file('imgThumb'), 'img/Thumbs');
         }
 
         if ($request->hasFile('imgFull')) {
-            $img = $request->file('imgFull');
-            $rutaImg = 'img/Fondos/';
-            $imgFull = $rutaImg.$img->getClientOriginalName();
-            $img->move($rutaImg, $imgFull);
-            $tour->imgFull = $imgFull;
+            $tour->imgFull = 'img/Fondos/' . SubidaImagenes::guardar($request->file('imgFull'), 'img/Fondos');
         }
         $tour->mapa = $request->get('mapa');
         /* if ($request->hasFile('mapa')) {
@@ -181,16 +166,21 @@ class EsTourController extends Controller
         }
         abort_if(! $tour, 404);
 
+        $tour->load('categorias');
         $tours = Estour::query()
             ->where('id', '!=', $tour->id)
             ->with('categorias')
-            ->orderByDesc('updated_at')
-            ->take(3)
+            ->inRandomOrder()
+            ->take(4)
             ->get();
-        $entour = $tour->relacionado_id ? Tour::find($tour->relacionado_id) : null;
-        $categorias = EsCategoria::all();
 
-        return view('admin.estours.show', compact('tour', 'tours', 'entour', 'categorias'));
+        return view('tours.show', [
+            'locale' => 'es',
+            'tour' => $tour,
+            'tours' => $tours,
+            'altTour' => $tour->relacionado_id ? Tour::find($tour->relacionado_id) : null,
+            'categorias' => EsCategoria::all(),
+        ]);
     }
 
     public function destroy($id)

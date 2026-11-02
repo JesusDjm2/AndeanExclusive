@@ -19,10 +19,12 @@
                 <small class="ae-admin-page-desc">Proveedores, contacto y categorías</small>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
+                @can('proveedores.gestionar')
+<a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus-circle me-1"></i>
                     Nuevo proveedor
                 </a>
+@endcan
             </div>
         </div>
 
@@ -141,11 +143,14 @@
                                             class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('proveedors.edit', $proveedor->id) }}"
+                                        @can('proveedores.gestionar')
+<a href="{{ route('proveedors.edit', $proveedor->id) }}"
                                             class="btn btn-sm btn-outline-success">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('proveedors.destroy', $proveedor->id) }}" method="POST"
+@endcan
+                                        @can('proveedores.gestionar')
+<form action="{{ route('proveedors.destroy', $proveedor->id) }}" method="POST"
                                             class="d-inline">
                                             @csrf
                                             @method('DELETE')
@@ -154,6 +159,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+@endcan
                                     </div>
                                 </div>
                             </div>
@@ -228,11 +234,14 @@
                                                             class="btn btn-sm btn-outline-primary" title="Ver detalles">
                                                             <i class="fa fa-fw fa-eye"></i>
                                                         </a>
-                                                        <a href="{{ route('proveedors.edit', $proveedor->id) }}"
+                                                        @can('proveedores.gestionar')
+<a href="{{ route('proveedors.edit', $proveedor->id) }}"
                                                             class="btn btn-sm btn-outline-success" title="Editar">
                                                             <i class="fa fa-fw fa-edit"></i>
                                                         </a>
-                                                        <form action="{{ route('proveedors.destroy', $proveedor->id) }}"
+@endcan
+                                                        @can('proveedores.gestionar')
+<form action="{{ route('proveedors.destroy', $proveedor->id) }}"
                                                             method="POST" class="d-inline">
                                                             @csrf
                                                             @method('DELETE')
@@ -241,6 +250,7 @@
                                                                 <i class="fa fa-fw fa-trash" title="Borrar"></i>
                                                             </button>
                                                         </form>
+@endcan
                                                     </div>
                                                 </td>
                                             </tr>

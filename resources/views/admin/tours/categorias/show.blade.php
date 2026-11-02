@@ -1,101 +1,47 @@
-@extends('layouts.general-es')
+@php
+    $locale = 'en';
+@endphp
+@extends('layouts.public')
+
 @section('metas')
-    <title>{{ $categoria->nombre }}</title>
-    <meta name="keywords" content="Listado de tour con la categoria: {{ $categoria->nombre }}" />
-    <meta name="description" content="Listado de tour con la categoria: {{ $categoria->nombre }}" />
-    <meta property="og:url" content="https://www.andeanexclusive.com">
-    <meta property="og:title" content="{{ $categoria->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com" />
+    @include('layouts.seo-head', [
+        'locale' => 'en',
+        'title' => $categoria->nombre . ' Tours | ' . config('seo.brand'),
+        'description' => 'Browse ' . $categoria->nombre . ' tours in Peru with Andean Exclusive Tours.',
+        'canonical' => route('category.show', $categoria->slug, true),
+        'og_image' => $tours->first()->imgThumb ?? null,
+    ])
 @endsection
+
 @section('contenido')
-    <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="{{ route('index') }}" rel="home" class="logo-text-link">
-                                    <img src="{{ asset('img/andean-exclusive-logo.png') }}" id="logo"
-                                        alt="Logo Andean Exclusive Tours">
-                                </a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu')
-                                    <li id="display">
-                                        <a href="{{ route('inicio') }}">
-                                            <button type="button" class="botondjm">
-                                                <i class="fa fa-language"></i> Español
-                                            </button>
-                                        </a>
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2">
-                                        <a href="{{ route('inicio') }}">
-                                            <button type="button" class="botondjm">Español</button>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <div class="blogContenedor">
-            <img src="{{ asset('img/full/Huayna-Picchu-Machu-Picchu.webp') }}" class="fullscreen-img">
-            <div class="content-overlay">
-                <h1>Category: {{ $categoria->nombre }}</h1>
-            </div>
+    <section class="page-banner">
+        <img src="{{ asset($tours->first()->imgFull ?? 'img/full/Huayna-Picchu-Machu-Picchu.webp') }}" alt="{{ $categoria->nombre }}" data-parallax="10" loading="eager" fetchpriority="high">
+        <div class="page-banner__content">
+            <h1 class="page-banner__title">{{ $categoria->nombre }}</h1>
+            <div class="page-banner__divider"></div>
+            <span class="page-banner__eyebrow">Tour category</span>
         </div>
-    </div>
-    <div class="container relacionados" style="margin-top:2em; margin-bottom:2em">
-        <div class="row">
-            @foreach ($tours as $tour)
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100">
-                        <a href="{{ route('tour.show', $tour->slug) }}">
-                            <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
-                                loading="lazy" decoding="async">
-                        </a>
-                        <div class="card-body">
-                            <h5>{{ $tour->nombre }}</h5>
-                            <div class="linea"></div>
-                            <div class="recorrido">
-                                <i class="fa fa-map-marker"></i>&nbsp;
-                                <span>{{ $tour->recorrido }}</span>
-                            </div>
-                            <p class="card-text flex-grow-1">{{ $tour->descripcionCorta }}</p>
-                            <div class="cuerpo row no-gutters mx-0 w-100">
-                                <div class="col-6">
-                                    <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
-                                </div>
-                                <div class="col-6 text-right">
-                                    <p><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
-                                </div>
-                            </div>
-                            <div class="categorias">
-                                @foreach ($tour->categorias as $cat)
-                                    <a href="{{ route('category.show', $cat->slug) }}">{{ $cat->nombre }}</a>
-                                    @if (!$loop->last)
-                                        -&nbsp;
-                                    @endif
-                                @endforeach
-                            </div>
-                            <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023 mt-auto">
-                                Read more
-                            </a>
-                        </div>
-                    </div>
+    </section>
+
+    <section class="section">
+        <div class="site-container">
+            @if ($tours->count())
+                <div class="grid-auto" data-reveal-stagger>
+                    @foreach ($tours as $tour)
+                        @include('layouts.partials.public-tour-card', [
+                            'tour' => $tour,
+                            'tourRoute' => 'tour.show',
+                            'categoryRoute' => 'category.show',
+                            'daysLabel' => 'days',
+                            'moreLabel' => 'Read more',
+                        ])
+                    @endforeach
                 </div>
-            @endforeach
+            @else
+                <p class="section-lead text-center" data-reveal>
+                    No tours in this category yet — <a href="{{ route('experiences') }}">explore all experiences</a>.
+                </p>
+            @endif
         </div>
-    </div>
+    </section>
 @endsection

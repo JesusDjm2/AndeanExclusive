@@ -1,0 +1,58 @@
+<?php
+
+// Textos de interfaz de las páginas del footer (resources/views/pages). El contenido largo vive en resources/data.
+return [
+    'home' => 'Inicio',
+    'cta' => [
+        'eyebrow' => 'Tu viaje empieza aquí',
+        'title' => '¿Listo para diseñar tu viaje al Perú?',
+        'text' => 'Cuéntanos cómo te gusta viajar y un diseñador de viajes en Cusco creará un itinerario privado a tu medida.',
+        'contact' => 'Contactar a un diseñador de viajes',
+        'whatsapp' => 'Escríbenos por WhatsApp',
+        'whatsapp_text' => '¡Hola! Quisiera planificar un viaje al Perú.',
+    ],
+    'about' => [
+        'title' => 'Nosotros',
+        'eyebrow' => 'Conócenos',
+        'lead' => 'Un equipo con base en Cusco que diseña viajes privados y a medida por todo el Perú.',
+        'intro_eyebrow' => 'Quiénes somos',
+        'intro_title' => 'Sobre Andean Exclusive',
+        'city_eyebrow' => 'De dónde venimos',
+        'city_title' => 'Nuestra ciudad',
+        'work_eyebrow' => 'Nuestro sello',
+        'work_title' => '¿Cómo trabajamos?',
+        'mission' => 'Misión',
+        'vision' => 'Visión',
+        'values' => 'Nuestros valores',
+        'team_eyebrow' => 'Las personas detrás',
+        'team_title' => 'Nuestro equipo',
+        'highlights' => ['Con base en Cusco', 'Viajes privados y a medida', 'Contigo antes, durante y después del viaje'],
+        'img_city' => 'Cusco de noche, Plaza de Armas',
+        'img_work' => 'Almuerzo campestre privado en el Valle Sagrado',
+    ],
+    'testimonials' => [
+        'title' => 'Lo que dicen nuestros viajeros',
+        'eyebrow' => 'Testimonios',
+        'lead' => 'Palabras originales, sin editar, de los viajeros y socios que confiaron en nosotros su viaje por el Perú.',
+        'featured' => 'Testimonio destacado',
+        'more' => 'Más testimonios',
+        'tripadvisor' => 'Ver más opiniones en TripAdvisor',
+    ],
+    'faqs' => [
+        'title' => 'Preguntas Frecuentes',
+        'eyebrow' => 'Te ayudamos a planificar',
+        'lead' => 'Visas, seguridad, salud, dinero y más: todo lo que necesitas saber antes de viajar al Perú.',
+        'help_title' => '¿Tienes más preguntas?',
+        'help_text' => 'Nuestro equipo en Cusco responde en menos de 24 horas, en español o en inglés.',
+        'help_contact' => 'Envíanos un mensaje',
+        'help_whatsapp' => 'WhatsApp',
+        'count' => ':count preguntas',
+    ],
+    'terms' => [
+        'title' => 'Términos y Condiciones',
+        'eyebrow' => 'Lee con atención',
+        'lead' => 'Las condiciones que rigen cada viaje reservado con Andean Exclusive Tours.',
+        'toc' => 'Contenido',
+        'back_to_top' => 'Volver arriba',
+    ],
+];

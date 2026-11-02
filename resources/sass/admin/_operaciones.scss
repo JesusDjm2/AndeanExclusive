@@ -1,0 +1,555 @@
+// Operación: itinerario por días y tareas (programas/form) y hoja de operaciones diaria (operaciones/index).
+
+$svc-warn: #b25e09;
+$svc-info: #2563a8;
+
+// ---- Estado de reserva de un servicio (select del formulario y badges) ----
+.svc-estado {
+    font-weight: 600;
+
+    &--sin_asignar { border-color: rgba(#6d28d9, 0.35); background-color: rgba(#6d28d9, 0.06); color: var(--ae-violet); }
+    &--pendiente  { border-color: rgba($svc-warn, 0.45); background-color: rgba($svc-warn, 0.07); color: var(--ae-warn); }
+    &--solicitado { border-color: rgba($svc-info, 0.4); background-color: rgba($svc-info, 0.07); color: var(--ae-info); }
+    &--confirmado { border-color: rgba($color-success, 0.45); background-color: rgba($color-success, 0.08); color: var(--ae-success); }
+    &--cancelado  { color: $color-ink-soft; text-decoration: line-through; }
+}
+
+.svc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.15rem 0.55rem;
+    border-radius: $border-radius-pill;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &--sin_asignar { background: rgba(#7c3aed, 0.12); color: var(--ae-violet); }
+    &--pendiente  { background: rgba($svc-warn, 0.12); color: var(--ae-warn); }
+    &--solicitado { background: rgba($svc-info, 0.12); color: var(--ae-info); }
+    &--confirmado { background: rgba($color-success, 0.14); color: var(--ae-success); }
+    &--cancelado  { background: var(--ae-chip); color: $color-ink-soft; }
+}
+
+.pf-tab__count--warn { background: rgba($svc-warn, 0.14); color: var(--ae-warn); }
+.pf-tab__count--danger { background: rgba($color-danger, 0.14); color: var(--ae-danger); }
+
+// ---- Itinerario por días ----
+.itin-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1rem;
+
+    &__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    &__ok { color: var(--ae-success); }
+    &__warn { color: var(--ae-warn); font-weight: 600; }
+
+    .prog-input-hint { max-width: 38rem; }
+}
+
+.itin-day {
+    margin-bottom: 1rem;
+    border: 1px solid $card-border-color;
+    border-radius: 12px;
+    background: var(--ae-surface);
+    box-shadow: var(--ae-shadow);
+
+    &__header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.35rem 0.85rem;
+        padding: 0.75rem 1.25rem;
+        border-bottom: 1px solid $card-border-color;
+        border-radius: 12px 12px 0 0;
+        background: var(--ae-surface-2);
+    }
+
+    &__num {
+        padding: 0.15rem 0.6rem;
+        border-radius: $border-radius-pill;
+        background: $color-accent;
+        color: $white;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+
+    &__date { font-weight: 600; color: $color-ink; }
+
+    &__hotel {
+        margin-left: auto;
+        color: $color-ink-soft;
+        font-size: 0.85rem;
+
+        i { color: var(--ae-accent-text); margin-right: 0.25rem; }
+    }
+
+    &__body { padding: 1rem 1.25rem 1.1rem; }
+
+    &__services:not(:empty) { margin-bottom: 0.75rem; }
+
+    &--outside {
+        border-color: rgba($svc-warn, 0.4);
+
+        .itin-day__header { background: rgba($svc-warn, 0.06); }
+        .itin-day__num { background: $svc-warn; }
+    }
+}
+
+.svc-row {
+    padding: 0.75rem 0.85rem 0.6rem;
+    border: 1px solid var(--ae-border-soft);
+    border-radius: 10px;
+    background: var(--ae-surface-2);
+
+    & + & { margin-top: 0.6rem; }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: 6.5rem 9rem minmax(10rem, 1fr) 11rem;
+        grid-template-areas:
+            "hora tipo titulo titulo"
+            "proveedor proveedor estado conf"
+            "acciones acciones acciones acciones";
+        gap: 0.5rem 0.6rem;
+        align-items: end;
+    }
+
+    &__hora { grid-area: hora; }
+    &__tipo { grid-area: tipo; }
+    &__titulo { grid-area: titulo; }
+    &__proveedor { grid-area: proveedor; }
+    &__estado { grid-area: estado; }
+    &__conf { grid-area: conf; }
+
+    &__actions {
+        grid-area: acciones;
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.35rem;
+    }
+
+    &__more { margin-top: 0.6rem; }
+    &__summary { color: $color-ink-soft; font-weight: 400; }
+
+    .prog-label { margin-bottom: 0.2rem; }
+
+    @include media-breakpoint-up(xl) {
+        &__grid {
+            grid-template-columns: 6.5rem 9rem minmax(12rem, 1.4fr) minmax(10rem, 1fr) 9rem 9rem auto;
+            grid-template-areas: "hora tipo titulo proveedor estado conf acciones";
+        }
+    }
+
+    @include media-breakpoint-down(md) {
+        &__grid {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+                "hora tipo"
+                "titulo titulo"
+                "proveedor proveedor"
+                "estado conf"
+                "acciones acciones";
+        }
+    }
+}
+
+// ---- Tareas ----
+.task-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.task {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1.25rem;
+    border-bottom: 1px solid var(--ae-border-soft);
+
+    &:last-child { border-bottom: 0; }
+
+    form { margin: 0; }
+
+    &__check {
+        padding: 0;
+        border: 0;
+        background: none;
+        color: var(--ae-accent-text);
+        font-size: 1.2rem;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    &__body {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    &__title { font-weight: 600; color: $color-ink; }
+    &__meta { color: $color-ink-soft; font-size: 0.82rem; }
+
+    &--hecha {
+        .task__title { color: $color-ink-soft; text-decoration: line-through; font-weight: 400; }
+        .task__check { color: var(--ae-success); }
+    }
+
+    &--vencida {
+        background: rgba($color-danger, 0.04);
+        .task__meta { color: var(--ae-danger); font-weight: 600; }
+    }
+
+    &--proxima .task__meta { color: var(--ae-warn); font-weight: 600; }
+}
+
+.task-templates {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 0.4rem;
+
+    &__item {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        column-gap: 0.55rem;
+        padding: 0.5rem 0.65rem;
+        border: 1px solid $card-border-color;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.88rem;
+
+        input { grid-row: span 2; margin-top: 0.2rem; }
+        small { color: $color-ink-soft; font-size: 0.76rem; }
+
+        &:hover { border-color: $color-accent; }
+        &.is-added { opacity: 0.55; cursor: default; }
+    }
+}
+
+// ---- Hoja de operaciones ----
+.ops-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+
+    form { display: flex; gap: 0.4rem; margin: 0; }
+    .form-control { width: auto; }
+    &__print { margin-left: auto; }
+}
+
+.ops-date {
+    margin: 0 0 0.25rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: $color-ink;
+}
+
+.ops-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.25rem;
+    margin-bottom: 1.25rem;
+    color: $color-ink-soft;
+
+    strong { color: $color-ink; }
+    .is-warn strong, .is-warn { color: var(--ae-warn); }
+}
+
+.ops-layout {
+    display: grid;
+    gap: 1.5rem;
+    align-items: start;
+
+    @include media-breakpoint-up(xl) { grid-template-columns: minmax(0, 1fr) 22rem; }
+}
+
+.ops-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ops-item {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--ae-border-soft);
+
+    &:last-child { border-bottom: 0; }
+
+    &__time {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: $color-ink;
+        line-height: 1.2;
+
+        small { display: block; font-size: 0.72rem; font-weight: 600; color: $color-ink-soft; text-transform: uppercase; }
+    }
+
+    &__title {
+        margin: 0 0 0.2rem;
+        font-size: 1rem;
+        font-weight: 700;
+
+        i { color: var(--ae-accent-text); margin-right: 0.35rem; }
+    }
+
+    &__meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.2rem 1rem;
+        margin: 0 0 0.35rem;
+        color: $color-ink-soft;
+        font-size: 0.86rem;
+
+        i { margin-right: 0.25rem; color: var(--ae-accent-text); }
+        a { color: inherit; font-weight: 600; }
+    }
+
+    @include media-breakpoint-down(sm) {
+        grid-template-columns: 1fr;
+        gap: 0.35rem;
+
+        &__time small { display: inline; margin-left: 0.35rem; }
+    }
+
+    &__flags { color: var(--ae-warn); font-size: 0.84rem; font-weight: 600; }
+
+    &__footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    &__quick {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin: 0;
+
+        .form-select, .form-control { width: auto; max-width: 11rem; }
+    }
+}
+
+.ops-side-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.88rem;
+
+    li {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        align-items: center;
+        padding: 0.6rem 1.1rem;
+        border-bottom: 1px solid var(--ae-border-soft);
+
+        &:last-child { border-bottom: 0; }
+    }
+
+    small { display: block; color: $color-ink-soft; }
+}
+
+// La hoja se imprime limpia: sin menú, barra superior ni controles.
+@media print {
+    .admin-sidebar,
+    .admin-topbar,
+    .ops-toolbar,
+    .ops-item__quick,
+    .ops-no-print { display: none !important; }
+
+    .admin-main { margin: 0 !important; padding: 0 !important; }
+    .ops-layout { display: block; }
+    .ops-item { break-inside: avoid; }
+    .card { border: 0; box-shadow: none; }
+}
+
+// ---- Tarjeta "Operación" del dashboard ----
+.dash-ops {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--ae-border-soft);
+
+    &__stat {
+        display: flex;
+        flex-direction: column;
+        padding: 0.85rem 1rem;
+        color: $color-ink-soft;
+        font-size: 0.78rem;
+        line-height: 1.3;
+        text-decoration: none;
+
+        & + & { border-left: 1px solid var(--ae-border-soft); }
+
+        strong { color: $color-ink; font-size: 1.4rem; }
+
+        &:hover { background: var(--ae-surface-2); }
+        &.is-warn strong { color: var(--ae-warn); }
+    }
+}
+
+a.task__title { text-decoration: none; }
+a.task__title:hover { color: var(--ae-accent-text); }
+
+// ---- Costo real y margen (pestaña Precios) ----
+.pf-costeo__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.75rem;
+    margin: 0 0 0.75rem;
+
+    > div { padding: 0.75rem 0.9rem; border: 1px solid $card-border-color; border-radius: 10px; }
+    dt { color: $color-ink-soft; font-size: 0.78rem; font-weight: 600; }
+    dd { margin: 0; font-size: 1.15rem; font-weight: 700; color: $color-ink; }
+    small { font-size: 0.78rem; color: $color-ink-soft; font-weight: 600; }
+    .is-positive dd { color: var(--ae-success); }
+    .is-negative dd { color: var(--ae-danger); }
+}
+
+// ---- Correos al cliente (pestaña Pagos) ----
+.pf-notifs {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.88rem;
+
+    li { display: flex; flex-wrap: wrap; gap: 0.2rem 0.75rem; padding: 0.45rem 0; border-bottom: 1px solid var(--ae-border-soft); }
+    li:last-child { border-bottom: 0; }
+    span { color: $color-ink-soft; }
+}
+
+.pf-client-link {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    background: rgba($color-accent, 0.07);
+    font-size: 0.88rem;
+
+    i { color: var(--ae-accent-text); }
+    &__actions { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+}
+
+// ---- Cuentas por pagar ----
+.cxp-total { margin-left: auto; font-size: 0.95rem; }
+.cxp-group__total { font-size: 1.05rem; white-space: nowrap; }
+.cxp-check { width: 2.5rem; }
+
+.cxp-pay {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--ae-border-soft);
+    background: var(--ae-surface-2);
+
+    &__label { font-size: 0.85rem; color: $color-ink-soft; font-weight: 600; }
+    .form-control { width: auto; }
+}
+
+.dash-ops__alert {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--ae-border-soft);
+    background: rgba($svc-warn, 0.07);
+    color: var(--ae-warn);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover { background: rgba($svc-warn, 0.12); color: var(--ae-warn); }
+}
+
+.pf-pricing__main { min-width: 0; }
+.pf-pricing__main > .prog-section:last-child { margin-bottom: 0; }
+
+// En móvil la tabla se desplaza dentro de la tarjeta en lugar de comprimirse.
+.cxp-group .table { min-width: 680px; }
+
+// Pestañas por tipo de proveedor (cuentas por pagar): desplazables en móvil.
+.cxp-cats {
+    display: flex;
+    gap: 0.5rem;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+
+    &__tab {
+        display: flex;
+        flex: 0 0 auto;
+        flex-direction: column;
+        gap: 0.1rem;
+        min-width: 9.5rem;
+        padding: 0.6rem 0.9rem;
+        border: 1px solid $card-border-color;
+        border-radius: 10px;
+        background: var(--ae-surface);
+        color: $color-ink;
+        text-decoration: none;
+
+        &:hover { border-color: $color-accent; color: $color-ink; }
+
+        &.active {
+            border-color: $color-accent;
+            background: $color-accent;
+            color: $white;
+
+            .cxp-cats__count { background: rgba(var(--ae-surface-rgb), 0.2); color: $white; }
+            .cxp-cats__total { color: rgba($white, 0.9); }
+        }
+    }
+
+    &__name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; }
+
+    &__count {
+        margin-left: 0.25rem;
+        padding: 0 0.4rem;
+        border-radius: $border-radius-pill;
+        background: var(--ae-chip);
+        font-size: 0.72rem;
+    }
+
+    &__total { color: $color-ink-soft; font-size: 0.78rem; white-space: nowrap; }
+}
+
+// ---- Costo cotizado frente a actual (pestaña Precios) ----
+.pf-costeo__grid .is-warning dd { color: var(--ae-warn); }
+.pf-costeo__was { display: block; color: var(--ae-ink-soft); font-size: 0.75rem; }
+
+.pf-costeo__alert {
+    margin: 0 0 0.75rem;
+    padding: 0.65rem 0.9rem;
+    border-left: 3px solid var(--ae-warn);
+    border-radius: 0 8px 8px 0;
+    background: rgba(#b25e09, 0.07);
+    font-size: 0.88rem;
+
+    strong { color: var(--ae-warn); }
+    ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
+}

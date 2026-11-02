@@ -16,10 +16,6 @@ class Habitacion extends Model
     {
         return $this->belongsTo(Hotel::class);
     }
-    public function programas()
-    {
-        return $this->belongsToMany(Programa::class, 'habitacion_programa');
-    }
     public function habitacionFechas()
     {
         return $this->hasMany(HabitacionFecha::class);

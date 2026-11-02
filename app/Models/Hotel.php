@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Hotel extends Model
 {
+    use \App\Models\Concerns\RegistraMovimientos;
+
     protected $fillable = [
         'nombre',
         'ruc',

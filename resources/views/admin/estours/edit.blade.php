@@ -1,4 +1,7 @@
 @extends('layouts.app')
+@push('head')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2/ckeditor.js"></script>
+@endpush
 @section('titulo', 'Editar Tour en español')
 @section('contenido')
     <div class="row">
@@ -13,11 +16,11 @@
         </div>
         <div class="col-12 mt-2">
             <div class="row" style="padding: 1em; border-radius: 10px;">
-                <div class="col-lg-6 float-left">
+                <div class="col-lg-6 float-start">
                     <h3>Editar Tour en español</h3>
                 </div>
                 <div class="col-lg-6">
-                    <a href="{{ route('estours.index') }}" class="btn btn-primary float-right">Volver</a>
+                    <a href="{{ route('estours.index') }}" class="btn btn-primary float-end">Volver</a>
                 </div>
             </div>
             <form action="{{ route('estours.update', $tour->id) }}" method="post" enctype="multipart/form-data"
@@ -86,7 +89,7 @@
                     <div class="col-lg-3 mt-3">
                         <label for="imgThumb" class="form-label">Imagen Thumb: <small
                                 class="text-success">(420x280)</small></label>
-                        <input type="file" id="imgThumb" name="imgThumb" class="form-control" accept="image/*">
+                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgThumb" name="imgThumb" class="form-control">
                         @error('imgThumb')
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
@@ -96,7 +99,7 @@
                     <div class="col-lg-3 mt-3">
                         <label for="imgFull" class="form-label">Imagen Full: <small
                                 class="text-success">(1920x1080)</small></label>
-                        <input type="file" id="imgFull" name="imgFull" class="form-control" accept="image/*">
+                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgFull" name="imgFull" class="form-control">
                         @error('imgFull')
                             <div class="alert alert-danger mt-2">{{ $message }}</div>
                         @enderror
@@ -191,7 +194,7 @@
 
                 </div>
                 <button class="btn btn-primary mt-4" type="submit">Guardar cambios</button>
-                <a href="{{ route('estours.index') }}" class="btn btn-secondary mt-4 float-right">Cancelar</a>
+                <a href="{{ route('estours.index') }}" class="btn btn-secondary mt-4 float-end">Cancelar</a>
             </form>
         </div>
     </div>

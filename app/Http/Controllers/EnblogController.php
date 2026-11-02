@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Enblog;
 use App\Models\Entag;
 use App\Models\Tour;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
 
 class EnblogController extends Controller
@@ -23,20 +24,17 @@ class EnblogController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|unique:enblogs',
-            'imgThumb' => 'required|image|max:2048',
-            'imgFull' => 'required|image|max:2048',
+            'imgThumb' => 'required|' . SubidaImagenes::regla(),
+            'imgFull' => 'required|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required|string',
             'descripcion' => 'required|string',
             'slug' => 'required|string|unique:enblogs',
             'keywords' => 'nullable|string',
             'tags' => 'required|array',
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
-        $imageNameThumb = $request->file('imgThumb')->getClientOriginalName();
-        $imageNameFull = $request->file('imgFull')->getClientOriginalName();
-
-        $request->file('imgThumb')->move(public_path('img/thumb'), $imageNameThumb);
-        $request->file('imgFull')->move(public_path('img/full'), $imageNameFull);
+        $imageNameThumb = SubidaImagenes::guardar($request->file('imgThumb'), 'img/thumb');
+        $imageNameFull = SubidaImagenes::guardar($request->file('imgFull'), 'img/full');
 
         $enblog = Enblog::create([
             'nombre' => $request->input('nombre'),
@@ -62,26 +60,24 @@ class EnblogController extends Controller
     {
         $request->validate([
             'nombre' => 'required|unique:enblogs,nombre,' . $id,
-            'imgThumb' => 'nullable|image|max:2048',
-            'imgFull' => 'nullable|image|max:2048',
+            'imgThumb' => 'nullable|' . SubidaImagenes::regla(),
+            'imgFull' => 'nullable|' . SubidaImagenes::regla(),
             'descripcionCorta' => 'required|string',
             'descripcion' => 'required|string',
             'slug' => 'required|string|unique:enblogs,slug,' . $id,
             'keywords' => 'nullable|string',
             'tags' => 'required|array',
-        ]);
+        ], SubidaImagenes::mensajes(['imgThumb', 'imgFull']));
 
         $enblog = Enblog::findOrFail($id);
 
         if ($request->hasFile('imgThumb')) {
-            $imageNameThumb = $request->file('imgThumb')->getClientOriginalName();
-            $request->file('imgThumb')->move(public_path('img/thumb'), $imageNameThumb);
+            $imageNameThumb = SubidaImagenes::guardar($request->file('imgThumb'), 'img/thumb');
             $enblog->imgThumb = $imageNameThumb;
         }
 
         if ($request->hasFile('imgFull')) {
-            $imageNameFull = $request->file('imgFull')->getClientOriginalName();
-            $request->file('imgFull')->move(public_path('img/full'), $imageNameFull);
+            $imageNameFull = SubidaImagenes::guardar($request->file('imgFull'), 'img/full');
             $enblog->imgFull = $imageNameFull;
         }
 
@@ -100,7 +96,7 @@ class EnblogController extends Controller
     {
         $blog = Enblog::where('slug', $slug)->with('tags')->firstOrFail();
         $blogs = Enblog::where('slug', '!=', $slug)->latest('updated_at')->take(4)->get();
-        $tours = Tour::latest('updated_at')->take(3)->get();
+        $tours = Tour::inRandomOrder()->take(4)->get();
         $esblog = $blog->esblog;
         return view('admin.enblogs.show', compact('blog', 'blogs', 'tours', 'esblog'));
     }

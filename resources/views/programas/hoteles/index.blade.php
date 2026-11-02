@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('body-class', 'view-hoteles')
 @section('title', 'Hoteles')
 @section('contenido')
     <div class="container-fluid py-4">
@@ -25,10 +26,12 @@
                 </div>
             </div>
             <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                <a href="{{ route('hotel.create') }}" class="btn btn-primary">
+                @can('proveedores.gestionar')
+<a href="{{ route('hotel.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus-circle me-2"></i>
                     Nuevo Hotel
                 </a>
+@endcan
             </div>
         </div>
 
@@ -103,6 +106,12 @@
             </div>
         </div>
 
+        @if (session('error'))
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                {{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        @endif
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
                 <i class="fas fa-check-circle me-2"></i>
@@ -202,16 +211,20 @@
                             <a href="{{ route('hotel.show', $hotel) }}" class="btn btn-sm btn-outline-info">
                                 <i class="fas fa-eye"></i>
                             </a>
-                            <a href="{{ route('hotel.edit', $hotel) }}" class="btn btn-sm btn-outline-warning">
+                            @can('proveedores.gestionar')
+<a href="{{ route('hotel.edit', $hotel) }}" class="btn btn-sm btn-outline-warning">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <form action="{{ route('hotel.destroy', $hotel) }}" method="POST" class="d-inline">
+@endcan
+                            @can('proveedores.gestionar')
+<form action="{{ route('hotel.destroy', $hotel) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-sm btn-outline-danger btn-eliminar-hotel" type="button">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
+@endcan
                         </div>
                     </div>
                 </div>
@@ -316,11 +329,14 @@
                                                 class="btn btn-sm btn-outline-info" title="Ver detalles">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('hotel.edit', $hotel) }}"
+                                            @can('proveedores.gestionar')
+<a href="{{ route('hotel.edit', $hotel) }}"
                                                 class="btn btn-sm btn-outline-warning" title="Editar">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <form action="{{ route('hotel.destroy', $hotel) }}" method="POST"
+@endcan
+                                            @can('proveedores.gestionar')
+<form action="{{ route('hotel.destroy', $hotel) }}" method="POST"
                                                 class="d-inline">
                                                 @csrf
                                                 @method('DELETE')
@@ -329,6 +345,7 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+@endcan
                                         </div>
                                     </td>
                                 </tr>
@@ -432,99 +449,4 @@
     @endif
 </script>
 
-    <style>
-        /* Estilos existentes mejorados */
-        .hotel-underline {
-            display: inline-block;
-            position: relative;
-        }
-
-        .hotel-underline::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 50%;
-            height: 2px;
-            background-color: #4e73df;
-            transition: width 0.3s ease;
-        }
-
-        .hotel-underline:hover::after {
-            width: 100%;
-        }
-
-        /* Nuevos estilos */
-        .bg-opacity-10 {
-            --bs-bg-opacity: 0.1;
-        }
-
-        .opacity-50 {
-            opacity: 0.5;
-        }
-
-        .card {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            border: none;
-            border-radius: 0.75rem;
-        }
-
-        .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-        }
-
-        .table td {
-            vertical-align: middle;
-        }
-
-        .btn-group .btn {
-            margin: 0 2px;
-            border-radius: 0.375rem !important;
-        }
-
-        .btn-outline-info,
-        .btn-outline-warning,
-        .btn-outline-danger {
-            border-width: 1px;
-            padding: 0.25rem 0.5rem;
-        }
-
-        .btn-outline-info:hover,
-        .btn-outline-warning:hover,
-        .btn-outline-danger:hover {
-            transform: scale(1.05);
-        }
-
-        .img-thumbnail {
-            transition: transform 0.2s ease;
-        }
-
-        .img-thumbnail:hover {
-            transform: scale(1.1);
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                width: 100%;
-                display: flex;
-            }
-
-            .btn-group .btn {
-                flex: 1;
-            }
-        }
-
-        /* Animación para el filtro activo */
-        .btn-outline-primary.active {
-            background-color: #4e73df;
-            color: white;
-            border-color: #4e73df;
-        }
-
-        /* Estilo para las badges de habitaciones */
-        .badge.bg-info.bg-opacity-10 {
-            background-color: rgba(78, 115, 223, 0.1) !important;
-        }
-    </style>
 @endsection

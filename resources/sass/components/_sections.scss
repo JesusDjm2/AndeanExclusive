@@ -1,0 +1,113 @@
+.section {
+    padding-block: var(--space-2xl);
+
+    // 6rem of vertical rhythm is heavy on small screens — tighten it.
+    @media (max-width: 767.98px) {
+        padding-block: var(--space-xl);
+    }
+}
+
+.section--tight {
+    padding-block: var(--space-xl);
+}
+
+.section--sand {
+    background: var(--color-sand);
+}
+
+.section-header {
+    max-width: 720px;
+    margin-inline: auto;
+    text-align: center;
+    margin-bottom: var(--space-lg);
+
+    @media (max-width: 767.98px) {
+        margin-bottom: var(--space-md);
+    }
+}
+
+.section-eyebrow {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-accent);
+    margin-bottom: 0.25rem;
+}
+
+.section-title {
+    font-size: clamp(1.75rem, 1.4rem + 1.5vw, 2.75rem);
+    margin-bottom: var(--space-sm);
+}
+
+.section-title--sm {
+    font-size: 1.5rem;
+}
+
+.section-lead {
+    color: var(--color-ink-soft);
+    font-size: 1.1rem;
+}
+
+.grid-auto {
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.section--dark {
+    background: var(--color-ink);
+    color: var(--color-white);
+
+    .section-title,
+    .section-lead {
+        color: var(--color-white);
+    }
+}
+
+// Partner logos: full color, spread edge-to-edge on a grid. Hover lifts each
+// mark with a springy overshoot and a teal glow — playful but composed.
+.partner-logos {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: var(--space-lg);
+
+    @media (max-width: 991.98px) {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-lg) var(--space-md);
+    }
+
+    @media (max-width: 575.98px) {
+        grid-template-columns: repeat(2, 1fr);
+
+        // Odd count on phones: center the last logo instead of leaving a hole.
+        img:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+        }
+    }
+
+    img {
+        max-height: 54px;
+        width: auto;
+        filter: drop-shadow(0 4px 10px rgba(24, 34, 41, 0.25));
+        transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1),
+            filter 0.45s var(--ease-premium);
+        will-change: transform;
+
+        &:hover {
+            transform: translateY(-6px) scale(1.08) rotate(-1.5deg);
+            filter: drop-shadow(0 14px 22px rgba(9, 204, 189, 0.4));
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .partner-logos img {
+        transition: none;
+
+        &:hover {
+            transform: none;
+        }
+    }
+}

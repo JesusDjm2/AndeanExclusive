@@ -15,9 +15,11 @@
             </div>
             <!-- Centro: Botón principal -->
             <div class="col text-center">
-                <a href="{{ route('agentes.create') }}" class="btn btn-primary btn-sm px-4">
+                @can('agentes.gestionar')
+<a href="{{ route('agentes.create') }}" class="btn btn-primary btn-sm px-4">
                     <i class="fas fa-plus-circle"></i> Nuevo Agente
                 </a>
+@endcan
             </div>
 
             <!-- Derecha: Volver atrás -->
@@ -37,7 +39,8 @@
             </div>
         @endif
 
-        <table class="table table-bordered">
+        <div class="table-responsive">
+        <table class="table table-bordered ae-admin-data-table">
             <thead class="bg-secondary text-white">
                 <tr>
                     <th>Nombre</th>
@@ -64,19 +67,24 @@
                             @endif
                         </td>
                         <td>
-                            <a href="{{ route('agentes.edit', $agente) }}" class="btn btn-warning btn-sm">Editar</a>
-                            <form action="{{ route('agentes.destroy', $agente) }}" method="POST" style="display:inline;">
+                            @can('agentes.gestionar')
+<a href="{{ route('agentes.edit', $agente) }}" class="btn btn-warning btn-sm">Editar</a>
+@endcan
+                            @can('agentes.gestionar')
+<form action="{{ route('agentes.destroy', $agente) }}" method="POST" style="display:inline;">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm"
                                     onclick="return confirm('¿Seguro de eliminar este agente?')">
                                     Eliminar
                                 </button>
                             </form>
+@endcan
                         </td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        </div>
 
         {{ $agentes->links() }}
     </div>

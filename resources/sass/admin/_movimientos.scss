@@ -1,0 +1,154 @@
+// Movimientos de la agencia (pantalla, inicio y pestaña Historial del programa) y modo consulta
+
+.mov-filters {
+    display: grid;
+    grid-template-columns: minmax(200px, 2fr) repeat(4, minmax(130px, 1fr)) auto;
+    gap: 0.75rem;
+    align-items: end;
+    margin-bottom: 1rem;
+
+    &__actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 991.98px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        > :first-child,
+        &__actions {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+.mov-empty {
+    margin: 0;
+    color: var(--ae-ink-soft);
+    font-size: 0.875rem;
+}
+
+.mov-day {
+    margin: 1.25rem 0 0.5rem;
+    color: var(--ae-ink-soft);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+
+    &:first-child {
+        margin-top: 0;
+    }
+}
+
+.mov-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mov {
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.55rem 0;
+    border-top: 1px solid var(--ae-border-soft);
+
+    &:first-child {
+        border-top: 0;
+    }
+
+    &__time {
+        padding-top: 0.1rem;
+        color: var(--ae-ink-soft);
+        font-size: 0.8rem;
+        font-variant-numeric: tabular-nums;
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 0.875rem;
+        overflow-wrap: anywhere;
+    }
+
+    &__title {
+        font-weight: 600;
+    }
+
+    &__area {
+        display: inline-block;
+        margin: 0 0.15rem;
+        padding: 0.05rem 0.45rem;
+        border-radius: $border-radius-pill;
+        background: var(--ae-chip);
+        color: var(--ae-ink-soft);
+        font-size: 0.7rem;
+        font-weight: 700;
+
+        &--operaciones { background: rgba(#2563a8, 0.13); color: var(--ae-info); }
+        &--reservas { background: rgba(#7c3aed, 0.12); color: var(--ae-violet); }
+        &--contabilidad { background: rgba(#b25e09, 0.13); color: var(--ae-warn); }
+    }
+
+    &__changes {
+        margin: 0.3rem 0 0;
+        padding: 0;
+        color: var(--ae-ink-soft);
+        font-size: 0.8rem;
+        list-style: none;
+
+        span {
+            font-weight: 600;
+        }
+
+        del {
+            opacity: 0.75;
+        }
+
+        i {
+            margin: 0 0.15rem;
+            font-size: 0.65rem;
+        }
+    }
+}
+
+.dash-mov {
+    padding: 0 1rem 1rem;
+
+    .mov-day {
+        margin-top: 0.85rem;
+    }
+
+    &__all {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+}
+
+// Ficha en modo consulta: se ve todo, sin apariencia de campo editable a medias
+.pf-readonly {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--ae-border-strong);
+    border-radius: 0.5rem;
+    background: var(--ae-chip);
+    font-size: 0.875rem;
+}
+
+.pf-fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+// Pago pedido por Reservas a Contabilidad
+.svc-badge--pago-solicitado {
+    background: rgba(#2563a8, 0.12);
+    color: var(--ae-info);
+}

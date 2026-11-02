@@ -1,445 +1,390 @@
+{{--
+    Listado de programas (ProgramaController@index).
+    Fila compacta + detalle desplegable + menú de acciones (⋮). Estilos: resources/sass/admin/_programas-list.scss
+--}}
 @extends('layouts.app')
 @section('titulo', 'Programas')
-@section('title', 'Programas')
+
+@php
+    $canEdit = auth()->user()?->can('programas.gestionar');
+    $verCotizacion = auth()->user()?->can('cotizacion.ver');
+    $idiomas = ['es' => 'Español', 'en' => 'Inglés', 'pt' => 'Portugués', 'fr' => 'Francés'];
+    $filtrosActivos = collect(request()->only(['q', 'anio_id', 'mes_id', 'comercial']))->filter()->isNotEmpty();
+    $money = fn ($n) => '$' . number_format($n, 2);
+@endphp
+
 @section('contenido')
-    <div class="container-fluid">
-        <div class="row align-items-center ae-admin-page-header">
-            <div class="col text-start">
-                <h2 class="ae-admin-page-title">
-                    <i class="fas fa-fw fa-layer-group text-primary me-2"></i>
-                    Programas
-                </h2>
-                <small class="ae-admin-page-desc">
-                    Gestión y visualización de programas
-                </small>
-            </div>
-
-            <div class="col text-center">
-                <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-2">
-                    <a href="{{ route('programas.por-periodo') }}" class="btn btn-sm btn-outline-primary">
-                        <i class="fas fa-calendar-alt"></i> Por año y mes
-                    </a>
-                    <a href="{{ route('programas.create') }}" class="btn btn-sm btn-primary">
-                        <i class="fas fa-plus-circle"></i> Nuevo Programa
-                    </a>
-                </div>
-            </div>
-            <div class="col text-end">
-                <a href="{{ url()->previous() }}" class="btn btn-danger btn-sm">
-                    <i class="fas fa-arrow-left"></i> Volver atrás
+    <div class="ae-admin-page-header d-flex flex-wrap align-items-end justify-content-between gap-3">
+        <div>
+            <h1 class="ae-admin-page-title"><i class="fas fa-fw fa-suitcase-rolling"></i> Programas</h1>
+            <small class="ae-admin-page-desc">Itinerarios de clientes: fechas, pasajeros, hoteles, servicios y presupuesto.</small>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('programas.por-periodo') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-calendar-alt" aria-hidden="true"></i> Por año y mes
+            </a>
+            @if ($canEdit)
+                <a href="{{ route('programas.create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus" aria-hidden="true"></i> Nuevo programa
                 </a>
-            </div>
-        </div>
-
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
-        <div class="card shadow mb-3 ae-admin-filter-card">
-            <div class="card-body">
-                <form method="GET" action="{{ route('programas.index') }}"
-                    class="row g-2 align-items-end">
-                    <div class="col-md-3 col-lg-2">
-                        <label class="form-label small text-muted mb-0">Año</label>
-                        <select name="anio_id" class="form-select form-select-sm">
-                            <option value="">Todos</option>
-                            @foreach ($anios as $anio)
-                                <option value="{{ $anio->id }}"
-                                    {{ (string) request('anio_id') === (string) $anio->id ? 'selected' : '' }}>
-                                    {{ $anio->anio }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3 col-lg-2">
-                        <label class="form-label small text-muted mb-0">Mes</label>
-                        <select name="mes_id" class="form-select form-select-sm">
-                            <option value="">Todos</option>
-                            @foreach ($meses as $mes)
-                                <option value="{{ $mes->id }}"
-                                    {{ (string) request('mes_id') === (string) $mes->id ? 'selected' : '' }}>
-                                    {{ $mes->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-auto d-flex gap-2 flex-wrap">
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fas fa-filter me-1"></i> Filtrar
-                        </button>
-                        <a href="{{ route('programas.index') }}" class="btn btn-outline-secondary btn-sm">Limpiar</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card shadow">
-            <div class="card-body">
-                <div class="table-responsive" style="max-height: 70vh;">
-                    <table class="table table-hover align-middle mb-0 ae-admin-data-table ae-admin-table-sticky">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>#</th>
-                                <th><i class="fas fa-signature fa-sm"></i> Nombre</th>
-                                <th><i class="fas fa-coins fa-sm"></i> Precios</th>
-                                <th><i class="fas fa-hotel fa-sm"></i> Hoteles / <i class="fas fa-handshake fa-sm"></i> Prov.</th>
-                                <th><i class="fas fa-users fa-sm"></i> Lista de Paxs</th>
-                                <th class="text-center">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($programas as $programa)
-                                <tr>
-                                    <td>{{ $programa->id }}</td>
-                                    <td>
-                                        <div class="fw-bold d-flex align-items-center gap-2 flex-wrap">
-                                            {{ $programa->nombre }}
-                                            @if ($programa->anio || $programa->mes)
-                                                <span class="badge bg-secondary fw-normal">
-                                                    @if ($programa->anio)
-                                                        {{ $programa->anio->anio }}
-                                                    @endif
-                                                    @if ($programa->mes)
-                                                        @if ($programa->anio)
-                                                            ·
-                                                        @endif
-                                                        {{ $programa->mes->nombre }}
-                                                    @endif
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <span class="small d-flex align-items-center">
-                                            <i class="fas fa-fw fa-users me-1"></i>
-                                            {{ $programa->paxs->count() }}
-                                            {{ $programa->paxs->count() === 1 ? 'Pax' : 'Paxs' }}
-                                        </span>
-                                        <div class="small">
-                                            <i class="fas fa-fw fa-code me-1"></i>Código: {{ $programa->codigo }}
-                                        </div>
-                                        @if ($programa->email)
-                                            <div class="small text-muted">
-                                                <i class="fas fa-fw fa-envelope me-1"></i>{{ $programa->email }}
-                                            </div>
-                                        @endif
-
-                                        <div class="mt-2">
-                                            <span class="subtitulos"><i class="far fa-calendar-alt me-1"></i> Fechas:</span>
-                                            <br>
-                                            @if ($programa->inicio && $programa->fin)
-                                                <p>
-                                                    Inicio:{{ \Carbon\Carbon::parse($programa->inicio)->translatedFormat('d \d\e F \d\e Y') }}
-                                                    <br>
-                                                    Fin:{{ \Carbon\Carbon::parse($programa->fin)->translatedFormat('d \d\e F \d\e Y') }}
-                                                    @php
-                                                        $dias =
-                                                            \Carbon\Carbon::parse($programa->inicio)->diffInDays(
-                                                                \Carbon\Carbon::parse($programa->fin),
-                                                            ) + 1;
-                                                    @endphp
-                                                    <br>Duración: {{ $dias }} {{ $dias > 1 ? 'días' : 'día' }}
-                                                </p>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-2">
-                                            <span class="subtitulos mb-2"><i class="fas fa-language me-1"></i>
-                                                Idioma:</span><br>
-                                            @if ($programa->lang)
-                                                @php
-                                                    $idiomas = [
-                                                        'es' => 'Español',
-                                                        'en' => 'Inglés',
-                                                        'pt' => 'Portugués',
-                                                        'fr' => 'Francés',
-                                                    ];
-                                                @endphp
-                                                <span class="badge bg-info text-dark">
-                                                    {{ $idiomas[$programa->lang] ?? $programa->lang }}
-                                                </span>
-                                            @else
-                                                <span class="text-muted small">Sin idioma especificado</span>
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-2">
-                                            <span class="subtitulos mb-2"><i class="fas fa-user-tie"></i>
-                                                Agente(s):</span><br>
-                                            @forelse ($programa->agentes as $agente)
-                                                <span class="badge bg-primary">{{ $agente->nombre }}</span>
-                                            @empty
-                                                <span class="text-muted small">Sin agentes</span>
-                                            @endforelse
-                                        </div>
-                                    </td>
-
-                                    <td>
-                                        {{-- Precios --}}
-                                        @if ($programa->precioAdulto > 0 || $programa->precioChild > 0)
-                                            <div class="mt-2 rounded">
-                                                @php
-                                                    // Clasificación por edades
-                                                    $totalAdultos = $programa->paxs->where('edad', '>=', 12)->count();
-                                                    $totalNinos = $programa->paxs
-                                                        ->whereBetween('edad', [5, 11])
-                                                        ->count();
-                                                    $totalInfantes = $programa->paxs->where('edad', '<', 5)->count();
-
-                                                    $precioAdulto = floatval($programa->precioAdulto);
-                                                    $precioChild = floatval($programa->precioChild);
-
-                                                    $subtotalAdultos = $totalAdultos * $precioAdulto;
-                                                    $subtotalNinos = $totalNinos * $precioChild;
-                                                    $totalGeneral = $subtotalAdultos + $subtotalNinos;
-
-                                                    // Estadísticas de pasajeros
-                                                    $totalPasajeros = $programa->paxs->count();
-                                                    $porcentajeAdultos =
-                                                        $totalPasajeros > 0
-                                                            ? round(($totalAdultos / $totalPasajeros) * 100)
-                                                            : 0;
-                                                    $porcentajeNinos =
-                                                        $totalPasajeros > 0
-                                                            ? round(($totalNinos / $totalPasajeros) * 100)
-                                                            : 0;
-                                                @endphp
-
-                                                {{-- Resumen rápido de pasajeros --}}
-                                                <div class="small mb-2">
-                                                    {{ $totalAdultos }} adultos · {{ $totalNinos }} niños ·
-                                                    {{ $totalInfantes }} infantes
-                                                </div>
-
-                                                <div class="small">
-                                                    @if ($precioAdulto > 0 && $totalAdultos > 0)
-                                                        <div class="d-flex justify-content-between">
-                                                            <span>
-                                                                Adultos ({{ $totalAdultos }} x
-                                                                ${{ number_format($precioAdulto, 2) }}):
-                                                            </span>
-                                                            <span class="fw-bold">${{ number_format($subtotalAdultos, 2) }}
-                                                            </span>
-                                                        </div>
-                                                    @endif
-
-                                                    @if ($precioChild > 0 && $totalNinos > 0)
-                                                        <div class="d-flex justify-content-between">
-                                                            <span>
-                                                                Niños 5-11 ({{ $totalNinos }} x
-                                                                ${{ number_format($precioChild, 2) }}):
-                                                            </span>
-                                                            <span class="fw-bold">${{ number_format($subtotalNinos, 2) }}
-                                                            </span>
-                                                        </div>
-                                                    @endif
-
-                                                    @if ($totalInfantes > 0)
-                                                        <div class="d-flex justify-content-between">
-                                                            <span>
-                                                                Infantes ({{ $totalInfantes }}):
-                                                            </span>
-                                                            <span>Gratis</span>
-                                                        </div>
-                                                    @endif
-
-                                                    @if ($totalGeneral > 0)
-                                                        <hr class="my-1">
-                                                        <div class="d-flex justify-content-between fw-bold text-primary">
-                                                            <span>Total:</span>
-                                                            <span>${{ number_format($totalGeneral, 2) }}</span>
-                                                        </div>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        @endif
-                                    </td>
-
-                                    <td>
-                                        @php
-                                            $fechasPorHabitacion = $programa->habitacionesFechas->keyBy('habitacion_id');
-                                            $hoteles = $programa->habitaciones->groupBy(
-                                                fn($h) => optional($h->hotel)->id,
-                                            );
-                                        @endphp
-                                        <h6 class="text-secondary">Hoteles</h6>
-                                        @if ($hoteles->isEmpty())
-                                            <span class="text-muted">Sin hoteles</span>
-                                        @else
-                                            @foreach ($hoteles as $hotelId => $habitaciones)
-                                                @php $hotel = $habitaciones->first()->hotel; @endphp
-
-                                                @if ($hotel)
-                                                    <div class="mb-2">
-                                                        <span class="mb-1">
-                                                            <i class="fas fa-hotel text-primary me-1"></i><span
-                                                                class="subtitulos">{{ $hotel->nombre }}</span>
-                                                            @if ($hotel->telefono)
-                                                                <small class="text-muted"> · {{ $hotel->telefono }}</small>
-                                                            @endif
-                                                        </span>
-
-                                                        <ul class="mb-0 small list-unstyled ms-1 mt-1">
-                                                            @foreach ($habitaciones as $habitacion)
-                                                                @php $hf = $fechasPorHabitacion->get($habitacion->id); @endphp
-                                                                <li class="mb-2 ps-2 border-start border-2 border-primary border-opacity-25">
-                                                                    <span class="fw-semibold">{{ $habitacion->tipo }}</span>
-                                                                    @if ($hf)
-                                                                        <div class="text-muted small mt-1">
-                                                                            <i class="fas fa-sign-in-alt me-1"></i>Ingreso:
-                                                                            {{ \Carbon\Carbon::parse($hf->fecha_ingreso)->format('d/m/Y') }}
-                                                                            <span class="mx-1">·</span>
-                                                                            <i class="fas fa-sign-out-alt me-1"></i>Salida:
-                                                                            {{ \Carbon\Carbon::parse($hf->fecha_salida)->format('d/m/Y') }}
-                                                                        </div>
-                                                                    @else
-                                                                        <div class="text-warning small mt-1">
-                                                                            <i class="fas fa-calendar-times me-1"></i>Sin fechas
-                                                                            asignadas
-                                                                        </div>
-                                                                    @endif
-                                                                </li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                @endif
-                                            @endforeach
-                                        @endif
-                                        <h6 class="text-secondary mt-3">Proveedores</h6>
-                                        @php
-                                            $proveedoresPorCategoria = $programa->proveedores->groupBy(
-                                                fn($p) => optional($p->categoria)->nombre ?? 'Sin categoría',
-                                            );
-                                        @endphp
-
-                                        @if ($proveedoresPorCategoria->isEmpty())
-                                            <span class="text-muted">Sin proveedores</span>
-                                        @else
-                                            @foreach ($proveedoresPorCategoria as $categoria => $proveedores)
-                                                <div class="mb-2">
-                                                    <span class="fw-semibold">
-                                                        <span
-                                                            class="subtitulos">{{ Str::plural($categoria, $proveedores->count()) }}</span>
-                                                    </span>
-
-                                                    <ul class="mb-0 small">
-                                                        @foreach ($proveedores as $proveedor)
-                                                            <li>{{ $proveedor->nombre }} → {{ $proveedor->telefono }}</li>
-                                                        @endforeach
-                                                    </ul>
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                    </td>
-
-                                    <td>
-                                        @if ($programa->paxs->isEmpty())
-                                            <span class="badge bg-secondary">
-                                                <i class="fas fa-fw fa-users"></i> 0 Paxs
-                                            </span>
-                                        @else
-                                            <ul class="list-unstyled mb-0">
-                                                @foreach ($programa->paxs as $pax)
-                                                    <li class="mb-2">
-                                                        <div class="subtitulos">
-                                                            {{ $loop->iteration }}. {{ $pax->nombre }}
-                                                        </div>
-
-                                                        <div class="small text-muted ms-3">
-                                                            <i class="fas fa-fw fa-birthday-cake"></i>
-                                                            Edad: {{ $pax->edad }} años<br>
-
-                                                            <i class="fas fa-fw fa-flag fa-sm"></i>
-                                                            Nacionalidad: {{ $pax->nacionalidad }}<br>
-
-                                                            @if ($pax->alimentacion)
-                                                                <i class="fas fa-fw fa-utensils fa-sm"></i>
-                                                                Alimentación: {{ $pax->alimentacion }}
-                                                            @endif
-                                                        </div>
-                                                    </li>
-                                                @endforeach
-                                            </ul>
-                                        @endif
-                                    </td>
-
-                                    <td class="text-center">
-                                        @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
-                                            <form action="{{ route('programas.enviar-correo', $programa) }}" method="POST"
-                                                class="d-inline-block"
-                                                onsubmit="return confirm('¿Enviar correo con el programa en PDF a {{ e($programa->email) }}?');">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm"
-                                                    style="margin-top: -0.3em" title="Enviar correo con PDF">
-                                                    <i class="fas fa-paper-plane"></i>
-                                                </button>
-                                            </form>
-                                        @else
-                                            <span class="btn btn-outline-secondary btn-sm disabled"
-                                                style="margin-top: -0.3em;pointer-events:none;opacity:0.65;"
-                                                title="Agregue un correo válido en el programa">
-                                                <i class="fas fa-paper-plane"></i>
-                                            </span>
-                                        @endif
-                                        <a href="{{ route('programas.pdf', $programa) }}" class="btn btn-danger btn-sm"
-                                            style="margin-top: -0.3em" title="Exportar PDF">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </a>
-                                        <a href="{{ route('programas.show', $programa) }}" class="btn btn-info btn-sm"
-                                            style="margin-top: -0.3em" target="_blank" title="Ver programa">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('programas.edit', $programa) }}" class="btn btn-warning btn-sm"
-                                            style="margin-top: -0.3em">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('programas.destroy', $programa) }}" method="POST"
-                                            class="form-eliminar-programa d-inline-block">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="button" class="btn-eliminar-programa">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="6" class="text-center text-muted">No hay programas registrados.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            @endif
         </div>
     </div>
-    <script>
-        document.body.addEventListener('click', function(e) {
-            const btn = e.target.closest('.btn-eliminar-programa');
-            if (!btn) return;
-            const form = btn.closest('form');
-            if (!form || typeof Swal === 'undefined') return;
-            e.preventDefault();
-            Swal.fire({
-                title: '¿Eliminar programa?',
-                text: 'Esta acción no se puede deshacer.',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar',
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-            }).then(function(result) {
-                if (result.isConfirmed) form.submit();
-            });
-        });
-    </script>
+
+    @foreach (['success' => 'success', 'error' => 'danger'] as $key => $type)
+        @if (session($key))
+            <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
+                {{ session($key) }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        @endif
+    @endforeach
+
+    {{-- Pestañas por estado + búsqueda y filtros --}}
+    <div class="card prog-toolbar">
+        <nav class="prog-tabs" aria-label="Filtrar por estado">
+            @foreach ($estados as $key => $label)
+                <a href="{{ route('programas.index', array_merge(request()->only(['q', 'anio_id', 'mes_id', 'comercial']), ['estado' => $key])) }}"
+                    class="prog-tabs__tab {{ $estado === $key ? 'is-active' : '' }}" @if ($estado === $key) aria-current="page" @endif>
+                    {{ $label }} <span class="prog-tabs__count">{{ $counts[$key] }}</span>
+                </a>
+            @endforeach
+        </nav>
+        <form method="GET" action="{{ route('programas.index') }}" class="prog-filters">
+            <input type="hidden" name="estado" value="{{ $estado }}">
+            <div class="prog-filters__search">
+                <label for="prog-q" class="visually-hidden">Buscar</label>
+                <i class="fas fa-search" aria-hidden="true"></i>
+                <input id="prog-q" type="search" name="q" value="{{ request('q') }}" class="form-control"
+                    placeholder="Buscar por programa, código, correo o pasajero">
+            </div>
+            <div>
+                <label for="prog-anio" class="visually-hidden">Año</label>
+                <select id="prog-anio" name="anio_id" class="form-select">
+                    <option value="">Todos los años</option>
+                    @foreach ($anios as $anio)
+                        <option value="{{ $anio->id }}" @selected((string) request('anio_id') === (string) $anio->id)>{{ $anio->anio }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="prog-mes" class="visually-hidden">Mes</label>
+                <select id="prog-mes" name="mes_id" class="form-select">
+                    <option value="">Todos los meses</option>
+                    @foreach ($meses as $mes)
+                        <option value="{{ $mes->id }}" @selected((string) request('mes_id') === (string) $mes->id)>{{ $mes->nombre }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="prog-comercial" class="visually-hidden">Estado comercial</label>
+                <select id="prog-comercial" name="comercial" class="form-select">
+                    <option value="">Cualquier estado</option>
+                    @foreach ($comerciales as $value => $label)
+                        <option value="{{ $value }}" @selected(request('comercial') === $value)>{{ $label }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="prog-filters__actions">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+                @if ($filtrosActivos)
+                    <a href="{{ route('programas.index', ['estado' => $estado]) }}" class="btn btn-link">Limpiar</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
+    @if ($programas->isEmpty())
+        <div class="card">
+            <div class="admin-empty">
+                <i class="fas fa-suitcase" aria-hidden="true"></i>
+                @if ($filtrosActivos)
+                    No hay programas que coincidan con la búsqueda.
+                    <div class="mt-2"><a href="{{ route('programas.index', ['estado' => $estado]) }}">Limpiar filtros</a></div>
+                @else
+                    No hay programas en «{{ $estados[$estado] }}».
+                @endif
+            </div>
+        </div>
+    @else
+        <p class="prog-results">
+            Mostrando {{ $programas->firstItem() }}–{{ $programas->lastItem() }} de {{ $programas->total() }} programas
+        </p>
+
+        <ul class="prog-list">
+            @foreach ($programas as $programa)
+                @php
+                    $estadoViaje = $programa->faseViaje();
+                    $dias = $programa->diasParaInicio();
+                    $duracion = $programa->duracionDias();
+                    $p = $programa->presupuesto();
+                    $cobro = $programa->cobranza();
+                    $inicio = $programa->inicio ? \Carbon\Carbon::parse($programa->inicio) : null;
+                    $fin = $programa->fin ? \Carbon\Carbon::parse($programa->fin) : null;
+                    $badge = match ($estadoViaje) {
+                        'en_curso' => ['live', 'En curso'],
+                        'finalizado' => ['done', 'Finalizado'],
+                        'sin_fechas' => ['none', 'Sin fechas'],
+                        default => [$dias <= 7 ? 'soon' : 'next', $dias === 0 ? 'Hoy' : ($dias === 1 ? 'Mañana' : 'En ' . $dias . ' días')],
+                    };
+                    $clientUrl = route('itinerario', $programa);
+                    $emailValido = $programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL);
+                    $hoteles = $programa->alojamiento();
+                @endphp
+                <li class="prog-item">
+                    <div class="prog-row">
+                        <div class="prog-row__date prog-row__date--{{ $badge[0] }}" aria-hidden="true">
+                            @if ($inicio)
+                                <span class="prog-row__day">{{ $inicio->format('d') }}</span>
+                                <span class="prog-row__month">{{ $inicio->locale('es')->isoFormat('MMM YY') }}</span>
+                            @else
+                                <i class="far fa-calendar-times"></i>
+                            @endif
+                        </div>
+
+                        <div class="prog-row__main">
+                            <h2 class="prog-row__name">
+                                                                    <a href="{{ route('programas.edit', $programa) }}">{{ $programa->nombre }}</a>
+                            </h2>
+                            <p class="prog-row__meta">
+                                <span title="Código"><i class="fas fa-hashtag" aria-hidden="true"></i>{{ $programa->codigo }}</span>
+                                @if ($programa->lang)
+                                    <span class="badge text-bg-light">{{ strtoupper($programa->lang) }}</span>
+                                @endif
+                                @if ($programa->agentes->isNotEmpty())
+                                    <span title="Agente"><i class="fas fa-user-tie" aria-hidden="true"></i>{{ $programa->agentes->pluck('nombre')->implode(', ') }}</span>
+                                @endif
+                            </p>
+                        </div>
+
+                        <div class="prog-row__cells">
+                            <div class="prog-row__cell prog-row__dates">
+                                <span class="prog-row__label">Fechas</span>
+                                @if ($inicio && $fin)
+                                    <span class="prog-row__value">{{ $inicio->locale('es')->isoFormat('D MMM') }} – {{ $fin->locale('es')->isoFormat('D MMM YYYY') }}</span>
+                                    <span class="prog-row__sub">{{ $duracion }} {{ $duracion === 1 ? 'día' : 'días' }}</span>
+                                @else
+                                    <span class="prog-row__value text-muted">Por definir</span>
+                                @endif
+                            </div>
+
+                            <div class="prog-row__cell">
+                                <span class="prog-row__label">Estado</span>
+                                <span class="prog-badge prog-badge--{{ $badge[0] }}">{{ $badge[1] }}</span>
+                                <span class="prog-row__sub pf-status-text pf-status-text--{{ $programa->estado }}">{{ $comerciales[$programa->estado] ?? $programa->estado }}</span>
+                            </div>
+
+                            <div class="prog-row__cell">
+                                <span class="prog-row__label">Pasajeros</span>
+                                <span class="prog-row__value">{{ $programa->paxs->count() }} pax</span>
+                                @if ($programa->paxs->isNotEmpty())
+                                    <span class="prog-row__sub">{{ $p['adultos'] }} ad.{{ $p['ninos'] ? ' · ' . $p['ninos'] . ' niñ.' : '' }}{{ $p['infantes'] ? ' · ' . $p['infantes'] . ' inf.' : '' }}</span>
+                                @endif
+                            </div>
+
+                            <div class="prog-row__cell prog-row__total">
+                                <span class="prog-row__label">Total</span>
+                                @if ($p['total'] > 0)
+                                    <span class="prog-row__value">{{ $money($p['total']) }}</span>
+                                    @if ($cobro['estado'] === 'pagado')
+                                        <span class="prog-row__sub text-success"><i class="fas fa-check-circle" aria-hidden="true"></i> Pagado</span>
+                                    @elseif ($cobro['saldoVencido'])
+                                        <span class="prog-row__sub text-danger"><i class="fas fa-exclamation-circle" aria-hidden="true"></i> Saldo vencido</span>
+                                    @else
+                                        <span class="prog-row__sub">Pagado {{ $cobro['porcentaje'] }}%</span>
+                                    @endif
+                                @else
+                                    <span class="prog-row__value text-muted">Sin tarifa</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="prog-row__actions">
+                            <button class="btn btn-sm btn-outline-secondary prog-row__toggle collapsed" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#prog-detail-{{ $programa->id }}"
+                                aria-expanded="false" aria-controls="prog-detail-{{ $programa->id }}">
+                                <span class="d-none d-xl-inline">Detalle</span>
+                                <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                <span class="visually-hidden">Ver detalle de {{ $programa->nombre }}</span>
+                            </button>
+
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light prog-row__kebab" type="button" data-bs-toggle="dropdown"
+                                    aria-expanded="false" aria-label="Acciones de {{ $programa->nombre }}">
+                                    <i class="fas fa-ellipsis-v" aria-hidden="true"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                    <li><h3 class="dropdown-header">Cliente</h3></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ $clientUrl }}" target="_blank" rel="noopener">
+                                            <i class="fas fa-fw fa-eye" aria-hidden="true"></i> Ver itinerario
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item" data-copy="{{ $clientUrl }}">
+                                            <i class="fas fa-fw fa-link" aria-hidden="true"></i> Copiar enlace
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('programas.pdf', $programa) }}" data-pdf-preview="{{ route('programas.pdf', [$programa, 'ver' => 1]) }}" data-pdf-title="{{ $programa->nombre }}">
+                                            <i class="fas fa-fw fa-file-pdf" aria-hidden="true"></i> Ver PDF
+                                        </a>
+                                    </li>
+                                    @if ($canEdit)
+                                        <li>
+                                            @if ($emailValido)
+                                                <form action="{{ route('programas.enviar-correo', $programa) }}" method="POST"
+                                                    data-confirm="Se enviará el programa en PDF a {{ $programa->email }}."
+                                                    data-confirm-title="¿Enviar por correo?" data-confirm-button="Sí, enviar">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item">
+                                                        <i class="fas fa-fw fa-paper-plane" aria-hidden="true"></i> Enviar por correo
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <span class="dropdown-item disabled" aria-disabled="true">
+                                                    <i class="fas fa-fw fa-paper-plane" aria-hidden="true"></i> Enviar por correo
+                                                    <small class="d-block text-muted">Falta un correo válido</small>
+                                                </span>
+                                            @endif
+                                        </li>
+                                    @endif
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><h3 class="dropdown-header">Gestión</h3></li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('programas.edit', $programa) }}">
+                                                <i class="fas fa-fw {{ $canEdit ? 'fa-pen' : 'fa-eye' }}" aria-hidden="true"></i> {{ $canEdit ? 'Editar' : 'Ver ficha' }}
+                                            </a>
+                                        </li>
+                                        @can('cobros.gestionar')
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('programas.edit', [$programa, 'tab' => 'pagos']) }}">
+                                                <i class="fas fa-fw fa-wallet" aria-hidden="true"></i> Registrar pago
+                                            </a>
+                                        </li>
+                                        @endcan
+                                        @can('programas.eliminar')
+                                        <li>
+                                            <form action="{{ route('programas.destroy', $programa) }}" method="POST"
+                                                data-confirm="Se eliminará «{{ $programa->nombre }}» con sus pasajeros. Esta acción no se puede deshacer."
+                                                data-confirm-title="¿Eliminar programa?" data-confirm-button="Sí, eliminar" data-confirm-danger>
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item text-danger">
+                                                    <i class="fas fa-fw fa-trash-alt" aria-hidden="true"></i> Eliminar
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endcan
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Detalle desplegable --}}
+                    <div class="collapse" id="prog-detail-{{ $programa->id }}">
+                        <div class="prog-detail">
+                            <section class="prog-detail__col">
+                                <h3 class="prog-detail__title"><i class="fas fa-users" aria-hidden="true"></i> Pasajeros</h3>
+                                @forelse ($programa->paxs as $pax)
+                                    <div class="prog-detail__line">
+                                        <strong>{{ $pax->nombre }}</strong>
+                                        <span>{{ $pax->edad }} años · {{ $pax->nacionalidad }}@if ($pax->alimentacion) · <i class="fas fa-utensils" aria-hidden="true"></i> {{ $pax->alimentacion }}@endif</span>
+                                    </div>
+                                @empty
+                                    <p class="prog-detail__empty">Sin pasajeros registrados.</p>
+                                @endforelse
+                            </section>
+
+                            <section class="prog-detail__col">
+                                <h3 class="prog-detail__title"><i class="fas fa-hotel" aria-hidden="true"></i> Hoteles</h3>
+                                @forelse ($hoteles as ['hotel' => $hotel, 'estadias' => $estadias])
+                                    <div class="prog-detail__line">
+                                        <strong>{{ $hotel->nombre }}</strong>
+                                        @foreach ($estadias as $hf)
+                                            <span>
+                                                {{ $hf->etiqueta }} ·
+                                                @if ($hf->fecha_ingreso)
+                                                    {{ \Carbon\Carbon::parse($hf->fecha_ingreso)->format('d/m') }} → {{ \Carbon\Carbon::parse($hf->fecha_salida)->format('d/m/Y') }}
+                                                @else
+                                                    <span class="text-warning">sin fechas</span>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @empty
+                                    <p class="prog-detail__empty">Sin hoteles asignados.</p>
+                                @endforelse
+
+                                @php $op = $programa->operacion(); @endphp
+                                <h3 class="prog-detail__title mt-3"><i class="fas fa-route" aria-hidden="true"></i> Operación</h3>
+                                @if ($op['servicios'] || $op['tareasPendientes'])
+                                    <div class="prog-detail__line">
+                                        <strong>Servicios</strong>
+                                        <span>{{ $op['confirmados'] }} de {{ $op['servicios'] }} confirmados
+                                            @if ($op['abiertos'])<span class="svc-badge svc-badge--pendiente ms-1">{{ $op['abiertos'] }} por confirmar</span>@endif
+                                        </span>
+                                        <span>{{ $programa->servicios->pluck('proveedor.nombre')->filter()->unique()->implode(' · ') ?: 'Sin proveedores asignados' }}</span>
+                                    </div>
+                                    <div class="prog-detail__line">
+                                        <strong>Tareas</strong>
+                                        <span>{{ $op['tareasPendientes'] }} pendientes
+                                            @if ($op['tareasVencidas'])<span class="svc-badge svc-badge--pendiente ms-1">{{ $op['tareasVencidas'] }} vencidas</span>@endif
+                                        </span>
+                                    </div>
+                                @else
+                                    <p class="prog-detail__empty">Sin servicios ni tareas cargados.</p>
+                                @endif
+                            </section>
+
+                            <section class="prog-detail__col">
+                                <h3 class="prog-detail__title"><i class="fas fa-coins" aria-hidden="true"></i> Presupuesto</h3>
+                                @if ($p['subtotal'] > 0)
+                                    <dl class="prog-budget">
+                                        @if ($p['adultos'])
+                                            <dt>Adultos ({{ $p['adultos'] }} × {{ $money($verCotizacion ? $programa->precioAdulto : $p['ventaAdulto']) }})</dt>
+                                            <dd>{{ $money($verCotizacion ? $p['subtotalAdultos'] : $p['ventaAdulto'] * $p['adultos']) }}</dd>
+                                        @endif
+                                        @if ($p['ninos'])
+                                            <dt>Niños 5-11 ({{ $p['ninos'] }} × {{ $money($verCotizacion ? $programa->precioChild : $p['ventaNino']) }})</dt>
+                                            <dd>{{ $money($verCotizacion ? $p['subtotalNinos'] : $p['ventaNino'] * $p['ninos']) }}</dd>
+                                        @endif
+                                        @if ($p['infantes'])
+                                            <dt>Infantes ({{ $p['infantes'] }})</dt>
+                                            <dd>Gratis</dd>
+                                        @endif
+                                        @if ($verCotizacion && $p['pctGanancia'] > 0)
+                                            <dt class="prog-budget__sep">Subtotal</dt>
+                                            <dd class="prog-budget__sep">{{ $money($p['subtotal']) }}</dd>
+                                            <dt>Ganancia ({{ rtrim(rtrim(number_format($p['pctGanancia'], 2), '0'), '.') }}%)</dt>
+                                            <dd class="text-success">+{{ $money($p['ganancia']) }}</dd>
+                                        @endif
+                                        <dt class="prog-budget__total">Total</dt>
+                                        <dd class="prog-budget__total">{{ $money($p['total']) }}</dd>
+                                    </dl>
+                                @else
+                                    <p class="prog-detail__empty">Sin tarifas cargadas.</p>
+                                @endif
+                                @if ($cobro['total'] > 0)
+                                    <dl class="prog-budget mt-3">
+                                        <dt>Pagado ({{ $cobro['porcentaje'] }}%)</dt>
+                                        <dd class="text-success">{{ $money($cobro['pagado']) }}</dd>
+                                        <dt>Saldo{{ $cobro['vencimientoSaldo'] && $cobro['saldo'] > 0 ? ' · vence ' . $cobro['vencimientoSaldo']->locale('es')->isoFormat('D MMM') : '' }}</dt>
+                                        <dd class="{{ $cobro['saldoVencido'] ? 'text-danger' : '' }}">{{ $money($cobro['saldo']) }}</dd>
+                                    </dl>
+                                @endif
+                                @if ($programa->email)
+                                    <p class="prog-detail__contact"><i class="fas fa-envelope" aria-hidden="true"></i> {{ $programa->email }}</p>
+                                @endif
+                            </section>
+                        </div>
+                    </div>
+                </li>
+            @endforeach
+        </ul>
+
+        <div class="prog-pagination">
+            {{ $programas->links('pagination::bootstrap-5') }}
+        </div>
+    @endif
 @endsection

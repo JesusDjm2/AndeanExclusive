@@ -1,0 +1,404 @@
+.card-tour {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--duration-base) var(--ease-premium), transform var(--duration-base) var(--ease-premium);
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+
+    &:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+        color: inherit;
+    }
+}
+
+.card-tour__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--duration-slow) var(--ease-premium);
+    }
+}
+
+.card-tour:hover .card-tour__media img {
+    transform: scale(1.06);
+}
+
+.card-tour__body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+.card-tour__title {
+    font-size: 1.15rem;
+    margin-bottom: 0.4rem;
+}
+
+// Stretched-link pattern: used when a card needs secondary clickable elements
+// (e.g. category pills) alongside the main link — makes the whole card
+// clickable via the title link without nesting <a> inside <a>.
+.card-tour__title-link {
+    color: inherit;
+    text-decoration: none;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    &:hover {
+        color: inherit;
+    }
+}
+
+.card-tour__excerpt {
+    font-size: 0.9rem;
+    color: var(--color-ink-soft);
+}
+
+.card-tour__location {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--color-primary);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.card-tour__footer {
+    margin-top: auto;
+    padding-top: var(--space-xs);
+}
+
+.card-tour__meta {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-ink-soft);
+    font-size: 0.85rem;
+
+    i { color: var(--color-primary); }
+}
+
+// Homepage reviews — editorial ghost cards on a white band. Cards rest
+// quietly (transparent, hairline-separated bylines) and come alive on
+// hover/focus; touch devices get the filled card statically. A giant
+// script quote-mark watermark drifts behind the grid.
+.section--reviews {
+    position: relative;
+    overflow: hidden;
+
+    // Ambient teal glows frame the band diagonally (top-right + bottom-left).
+    &::before {
+        content: '';
+        position: absolute;
+        bottom: -18rem;
+        left: -18rem;
+        width: 42rem;
+        height: 42rem;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(9, 204, 189, 0.14) 0%, rgba(9, 204, 189, 0.05) 45%, transparent 70%);
+        pointer-events: none;
+    }
+}
+
+.reviews-mark {
+    position: absolute;
+    top: -13rem;
+    right: -13rem;
+    width: 36rem;
+    height: 36rem;
+    font-size: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(9, 204, 189, 0.18) 0%, rgba(9, 204, 189, 0.06) 45%, transparent 70%);
+    pointer-events: none;
+}
+
+.reviews-grid {
+    position: relative;
+    display: grid;
+    gap: var(--space-md);
+    grid-template-columns: 1fr;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1200px) {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.card-review {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: var(--space-md);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius-lg);
+    transition: transform var(--duration-base) var(--ease-premium),
+        background-color var(--duration-base) var(--ease-premium),
+        border-color var(--duration-base) var(--ease-premium),
+        box-shadow var(--duration-base) var(--ease-premium);
+
+    &:hover,
+    &:focus-within {
+        background: var(--color-sand);
+        border-color: var(--color-border);
+        box-shadow: inset 0 3px 0 var(--color-primary), var(--shadow-md);
+        transform: translateY(-6px);
+    }
+}
+
+// Touch has no hover: show the filled card statically, minus the lift.
+@media (hover: none) {
+    .card-review {
+        background: var(--color-sand);
+        border-color: var(--color-border);
+        box-shadow: inset 0 3px 0 var(--color-primary), var(--shadow-sm);
+    }
+}
+
+.card-review__mark {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 3.2rem;
+    line-height: 0.7;
+    color: var(--color-primary);
+    margin-bottom: var(--space-2xs);
+    user-select: none;
+    transition: transform var(--duration-base) var(--ease-premium);
+
+    .card-review:hover &,
+    .card-review:focus-within & {
+        transform: translateY(-4px) scale(1.08);
+    }
+}
+
+.card-review__stars {
+    margin-bottom: var(--space-2xs);
+    color: var(--color-accent);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+}
+
+.card-review__quote {
+    flex-grow: 1;
+    margin: 0 0 var(--space-sm);
+
+    p {
+        margin: 0;
+        font-style: italic;
+        line-height: 1.7;
+        color: var(--color-ink-soft);
+    }
+}
+
+.card-review__byline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+    padding-top: var(--space-2xs);
+    border-top: 1px solid var(--color-border);
+}
+
+.card-review__avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: var(--color-white);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+}
+
+.card-review__who {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.35;
+
+    strong {
+        color: var(--color-ink);
+        font-size: 0.95rem;
+    }
+
+    small {
+        color: var(--color-ink-soft);
+        font-size: 0.8rem;
+    }
+}
+
+// Closing invitation under the grid — quiet editorial finale.
+.reviews__cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2xs);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--color-border);
+    text-align: center;
+}
+
+.reviews__cta-title {
+    margin: 0;
+    font-size: clamp(1.4rem, 1.15rem + 1.1vw, 1.9rem);
+    font-weight: 700;
+    color: var(--color-ink);
+}
+
+.reviews__cta-note {
+    margin: 0;
+    max-width: 34rem;
+    color: var(--color-ink-soft);
+}
+
+.reviews__cta .btn-brand {
+    margin-top: var(--space-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .card-review {
+        transition: none;
+
+        &:hover,
+        &:focus-within {
+            transform: none;
+        }
+    }
+
+    .card-review__mark {
+        transition: none;
+
+        .card-review:hover &,
+        .card-review:focus-within & {
+            transform: none;
+        }
+    }
+}
+
+.card-blog {
+    display: block;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow var(--duration-base) var(--ease-premium), transform var(--duration-base) var(--ease-premium);
+
+    &:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+        color: inherit;
+    }
+
+    img {
+        aspect-ratio: 16 / 10;
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+.card-blog__body {
+    padding: var(--space-sm) var(--space-md) var(--space-md);
+}
+
+.card-blog__date {
+    color: var(--color-accent-dark);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.card-blog__title {
+    font-size: 1.1rem;
+    margin-block: 0.4rem;
+}
+
+.card-blog__excerpt {
+    color: var(--color-ink-soft);
+    font-size: 0.92rem;
+}
+
+.team-grid {
+    display: grid;
+    gap: var(--space-lg) var(--space-md);
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.team-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    background: var(--color-white);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg) var(--space-md) var(--space-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--duration-base) var(--ease-premium), transform var(--duration-base) var(--ease-premium);
+
+    &:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+}
+
+.team-card__photo {
+    flex: none;
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: var(--shadow-md);
+    border: 3px solid var(--color-sand);
+    margin-bottom: var(--space-sm);
+}
+
+.team-card__role {
+    color: var(--color-accent-dark);
+    font-weight: 700;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.6rem;
+}
+
+.team-card__bio {
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: var(--space-sm);
+    flex-grow: 1;
+}
+
+.team-card__email {
+    color: var(--color-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    word-break: break-word;
+}

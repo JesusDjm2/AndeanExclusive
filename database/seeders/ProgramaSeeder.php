@@ -4,6 +4,8 @@ namespace Database\Seeders;
 
 use App\Models\Agente;
 use App\Models\Anio;
+use Carbon\Carbon;
+use App\Models\Cliente;
 use App\Models\Categoria;
 use App\Models\Habitacion;
 use App\Models\HabitacionFecha;
@@ -11,6 +13,7 @@ use App\Models\Hotel;
 use App\Models\Mes;
 use App\Models\Pax;
 use App\Models\Programa;
+use App\Models\Tarea;
 use App\Models\Proveedor;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
@@ -42,7 +45,7 @@ class ProgramaSeeder extends Seeder
         if ($idsPrograma->isNotEmpty()) {
             Pax::query()->whereNotIn('programa_id', $idsPrograma)->delete();
             HabitacionFecha::query()->whereNotIn('programa_id', $idsPrograma)->delete();
-            foreach (['programa_proveedor', 'hotel_programa', 'habitacion_programa', 'agente_programa'] as $tabla) {
+            foreach (['servicios', 'programa_dias', 'tareas', 'hotel_programa', 'habitacion_programa', 'agente_programa'] as $tabla) {
                 DB::table($tabla)->whereNotIn('programa_id', $idsPrograma)->delete();
             }
         }
@@ -79,8 +82,12 @@ class ProgramaSeeder extends Seeder
             'Último minuto Semana Santa',
         ];
 
-        $alimentaciones = ['Regular', 'Vegetariano', 'Vegano', 'Sin gluten'];
-        $nacionalidades = ['Peruana', 'Estadounidense', 'Española', 'Alemana', 'Francesa', 'Mexicana', 'Argentina', 'Chilena'];
+        $dietas = ['ninguna', 'vegetariana', 'vegana', 'sin_gluten'];
+        $paises = ['US', 'CA', 'GB', 'DE', 'FR', 'ES', 'MX', 'AU'];
+        $agencias = ['Andes Luxury Travel (USA)', 'Inca Journeys UK', 'Viajes Cóndor España'];
+        // Clientes de prueba de corridas anteriores (y los que la migración creó desde los correos demo).
+        Cliente::query()->where('email', 'like', '%@demo.andeanexclusive.com')
+            ->orWhere('email', 'like', 'demo.programa%@andeanexclusive.com')->delete();
 
         $total = count($nombresBase);
         for ($i = 0; $i < $total; $i++) {
@@ -91,19 +98,39 @@ class ProgramaSeeder extends Seeder
 
             $inicio = sprintf('2026-%02d-%02d', $mesNum, min(26, 1 + ($i % 5)));
             $fin = sprintf('2026-%02d-%02d', $mesNum, min(28, 8 + ($i % 5)));
+            // Los dos últimos, alrededor de hoy: así la hoja de operaciones y el dashboard tienen movimiento.
+            if ($i >= $total - 2) {
+                $desde = $i === $total - 1 ? -2 : 1;
+                $inicio = now()->addDays($desde)->toDateString();
+                $fin = now()->addDays($desde + 5)->toDateString();
+            }
 
             $programa = Programa::query()->create([
                 'nombre' => $nombresBase[$i],
-                'codigo' => 'DEMO-' . str_pad((string) $n, 4, '0', STR_PAD_LEFT),
-                'email' => 'demo.programa' . $n . '@andeanexclusive.com',
+                'codigo' => 'DEMO-'.str_pad((string) $n, 4, '0', STR_PAD_LEFT),
+                // Titular: cada 3er programa viene de una agencia; el resto son clientes directos.
+                'cliente_id' => Cliente::query()->create($i % 3 === 2 ? [
+                    'tipo' => 'agencia', 'nombre' => 'Agente demo '.$n, 'empresa' => $agencias[intdiv($i, 3) % count($agencias)],
+                    'email' => 'agencia'.$n.'@demo.andeanexclusive.com', 'telefono' => '+1 555 010 '.str_pad((string) $n, 4, '0', STR_PAD_LEFT),
+                    'pais' => $paises[$i % count($paises)], 'idioma' => 'en', 'origen' => 'agencia',
+                ] : [
+                    'tipo' => 'directo', 'nombre' => 'Cliente demo '.$n,
+                    'email' => 'cliente'.$n.'@demo.andeanexclusive.com', 'telefono' => '+1 555 020 '.str_pad((string) $n, 4, '0', STR_PAD_LEFT),
+                    'pais' => $paises[$i % count($paises)], 'idioma' => $i % 3 === 0 ? 'en' : 'es',
+                    'origen' => ['web', 'whatsapp', 'recomendacion'][$i % 3],
+                ])->id,
                 'inicio' => $inicio,
                 'fin' => $fin,
                 'lang' => $i % 3 === 0 ? 'en' : 'es',
                 'precioAdulto' => (string) (2400 + $n * 25),
                 'precioChild' => (string) (1500 + $n * 15),
-                'presentacion' => '<p>Programa de demostración <strong>#' . $n . '</strong>. Datos generados por <code>ProgramaSeeder</code>.</p>',
-                'anio_id' => $anio?->id,
-                'mes_id' => $mes?->id,
+                'porcentaje_ganancia' => '15.00',
+                'tipo_cambio' => '3.750',
+                'suplemento_individual' => $i % 5 === 0 ? '420.00' : '0',
+                'habitaciones_individuales' => $i % 5 === 0 ? 1 : 0,
+                'presentacion' => '<p>Programa de demostración <strong>#'.$n.'</strong>. Datos generados por <code>ProgramaSeeder</code>.</p>',
+                // Año y mes los asigna el modelo desde la fecha de inicio.
+                'estado' => $i >= $total - 2 ? 'confirmado' : ['cotizacion', 'confirmado', 'confirmado', 'cancelado'][$i % 4],
             ]);
 
             if ($agenteId) {
@@ -119,38 +146,158 @@ class ProgramaSeeder extends Seeder
                 continue;
             }
 
-            $programa->habitaciones()->syncWithoutDetaching($elegidas->pluck('id')->all());
-
             $habPrincipal = $elegidas->first();
             HabitacionFecha::query()->create([
                 'programa_id' => $programa->id,
                 'habitacion_id' => $habPrincipal->id,
+                'cantidad' => 1 + ($i % 3),
                 'fecha_ingreso' => $inicio,
                 'fecha_salida' => $fin,
             ]);
 
-            $provCount = $proveedores->count();
-            if ($provCount > 0) {
-                $ids = [
-                    $proveedores[$i % $provCount]->id,
-                    $proveedores[($i + 1) % $provCount]->id,
-                ];
-                $programa->proveedores()->syncWithoutDetaching(array_unique($ids));
-            }
-
             $numPax = 2 + ($i % 3);
             for ($p = 0; $p < $numPax; $p++) {
                 $pax = Pax::query()->create([
-                    'nombre' => 'Pasajero demo ' . $n . '-' . ($p + 1),
-                    'edad' => 18 + (($i + $p) * 7 % 52),
-                    'pasaporte' => 'DEMO' . str_pad((string) ($n * 10 + $p), 6, '0', STR_PAD_LEFT),
-                    'nacionalidad' => $nacionalidades[($i + $p) % count($nacionalidades)],
-                    'alimentacion' => $alimentaciones[($i + $p) % count($alimentaciones)],
+                    'nombre' => 'Pasajero demo '.$n.'-'.($p + 1),
+                    'fecha_nacimiento' => \Carbon\Carbon::parse($inicio)->subYears(18 + (($i + $p) * 7 % 52))->subMonths(1 + $p)->toDateString(),
+                    'sexo' => ['F', 'M'][($i + $p) % 2],
+                    'pais' => $paises[($i + $p) % count($paises)],
+                    'pasaporte' => 'DEMO'.str_pad((string) ($n * 10 + $p), 6, '0', STR_PAD_LEFT),
+                    // Uno de cada 7 vence antes de los 6 meses del viaje, para ver la alerta.
+                    'pasaporte_vencimiento' => \Carbon\Carbon::parse($inicio)->addMonths(($n + $p) % 7 === 0 ? 3 : 30)->toDateString(),
+                    'dieta' => $dietas[($i + $p) % count($dietas)],
+                    'alergias' => ($i + $p) % 5 === 0 ? 'Maní' : null,
+                    'emergencia_nombre' => 'Contacto demo '.$n.'-'.($p + 1),
+                    'emergencia_telefono' => '+1 555 030 '.str_pad((string) ($n * 10 + $p), 4, '0', STR_PAD_LEFT),
                     'programa_id' => $programa->id,
                 ]);
                 if ($agenteId) {
                     $pax->agentes()->syncWithoutDetaching([$agenteId]);
                 }
+            }
+
+            // Itinerario después de los pasajeros: los costos por persona dependen de cuántos pagan.
+            $this->itinerarioDemo($programa, $proveedores, $i);
+
+            // Pagos de ejemplo: los confirmados tienen el depósito (50 %); la mitad, además, el saldo.
+            if ($programa->estado === 'confirmado') {
+                $totalPrograma = $programa->load('paxs')->presupuesto()['total'];
+                $programa->pagos()->create([
+                    'fecha' => \Carbon\Carbon::parse($inicio)->subDays(120),
+                    'monto' => round($totalPrograma / 2, 2),
+                    'tipo' => 'deposito',
+                    'metodo' => 'transferencia',
+                    'referencia' => 'DEMO-DEP-'.$n,
+                ]);
+                if ($i % 2 === 0) {
+                    $programa->pagos()->create([
+                        'fecha' => \Carbon\Carbon::parse($inicio)->subDays(65),
+                        'monto' => $totalPrograma - round($totalPrograma / 2, 2),
+                        'tipo' => 'saldo',
+                        'metodo' => 'tarjeta',
+                        'referencia' => 'DEMO-SAL-'.$n,
+                    ]);
+                }
+            }
+        }
+    }
+
+    /**
+     * Itinerario de ejemplo: llegada, días de excursión (con tren y entrada si el programa incluye Machu Picchu),
+     * almuerzos y salida; más la lista de tareas estándar en los confirmados.
+     * Estados: cotización = por reservar; confirmado = la mayoría confirmados y algunos solicitados.
+     */
+    private function itinerarioDemo(Programa $programa, Collection $proveedores, int $i): void
+    {
+        $prov = fn (int $k) => $proveedores->get($k % max(1, $proveedores->count()))?->id;
+        $confirmado = $programa->estado === 'confirmado';
+        $inicio = Carbon::parse($programa->inicio);
+        $dias = $inicio->diffInDays(Carbon::parse($programa->fin));
+        $machuPicchu = str_contains($programa->nombre, 'Machu Picchu') || str_contains($programa->nombre, 'Cusco') || $i % 4 === 1;
+        $n = 0;
+        $estado = function () use ($confirmado, &$n) {
+            $n++;
+
+            return $confirmado ? ($n % 5 === 0 ? 'solicitado' : 'confirmado') : 'pendiente';
+        };
+        // Costos de ejemplo: tipo => [monto, moneda, por grupo o por persona].
+        $costos = [
+            'traslado' => [45, 'USD', 'grupo'], 'tour' => [120, 'USD', 'grupo'], 'guia' => [80, 'USD', 'grupo'],
+            'tren' => [90, 'USD', 'persona'], 'entrada' => [152, 'PEN', 'persona'], 'comida' => [95, 'PEN', 'persona'],
+        ];
+        $servicio = function (int $dia, ?string $hora, string $tipo, string $titulo, ?int $proveedorId, array $extra = []) use ($programa, $inicio, $estado, $i, $costos) {
+            $e = $estado();
+            $fecha = $inicio->copy()->addDays($dia);
+            [$costo, $moneda, $por] = $costos[$tipo] ?? [null, 'USD', 'grupo'];
+            // Pagados: los servicios ya prestados de programas confirmados (salvo algunos, para ver vencidos).
+            $pagado = $e === 'confirmado' && $fecha->lt(now()->startOfDay()) && ($dia + $i) % 6 !== 0;
+            // Cotizaciones: se vende con costo estimado y sin proveedor (lo asigna Reservas cuando el cliente acepta).
+            // Confirmados: proveedor y costo real; algunos tours salieron más caros que lo cotizado (alerta de margen).
+            $esCotizacion = $programa->estado === 'cotizacion';
+            $real = $costo !== null && in_array($tipo, ['tour', 'guia'], true) && ($dia + $i) % 5 === 0 ? round($costo * 1.15, 2) : $costo;
+            $extra += ['costo_estimado' => $costo, 'costo' => $esCotizacion ? null : $real, 'moneda' => $moneda, 'costo_por' => $por];
+            // En algunos confirmados el restaurante todavía no está decidido: queda "sin asignar" con su costo estimado.
+            if ($esCotizacion || ($tipo === 'comida' && $i % 2 === 0)) {
+                $proveedorId = null;
+                $extra['costo'] = null;
+                $e = 'pendiente';
+                $pagado = false;
+            }
+            $nuevo = $programa->servicios()->create($extra + [
+                'fecha' => $inicio->copy()->addDays($dia)->toDateString(),
+                'hora' => $hora,
+                'tipo' => $tipo,
+                'titulo' => $titulo,
+                'proveedor_id' => $proveedorId,
+                'estado' => $e,
+                'confirmacion' => $e === 'confirmado' ? 'CF-' . strtoupper(substr(md5($programa->id . $titulo . $dia), 0, 6)) : null,
+                'visible_cliente' => true,
+            ]);
+            if ($pagado) {
+                $nuevo->load('programa.paxs');
+                $nuevo->pagos()->create([
+                    'fecha' => $fecha->toDateString(), 'monto' => $nuevo->importe, 'moneda' => $nuevo->moneda, 'metodo' => 'transferencia',
+                    'referencia' => 'OP-' . str_pad((string) ($programa->id * 10 + $dia), 6, '0', STR_PAD_LEFT),
+                ]);
+            }
+        };
+
+        $programa->dias()->create(['fecha' => $inicio->toDateString(), 'titulo' => 'Llegada y bienvenida',
+            'descripcion' => 'Recepción en el aeropuerto y traslado al hotel. Tarde libre para aclimatarse a la altura.']);
+        $servicio(0, '10:30', 'traslado', 'Traslado aeropuerto → hotel', $prov(0), ['punto_encuentro' => 'Sala de llegadas, cartel con el nombre del titular',
+            'notas' => 'Vehículo privado. Llevar agua y hojas de coca.']);
+
+        for ($d = 1; $d < $dias; $d++) {
+            if ($machuPicchu && $d === 2) {
+                $programa->dias()->create(['fecha' => $inicio->copy()->addDays($d)->toDateString(), 'titulo' => 'Machu Picchu',
+                    'descripcion' => 'Tren panorámico a Aguas Calientes y visita guiada a la ciudadela inca.']);
+                $servicio($d, '06:10', 'tren', 'Tren Ollantaytambo → Aguas Calientes', $prov(3), ['punto_encuentro' => 'Estación de Ollantaytambo']);
+                $servicio($d, '10:00', 'entrada', 'Entrada a Machu Picchu (circuito 2)', $prov(4), ['visible_cliente' => true]);
+                $servicio($d, '10:00', 'guia', 'Guía privado en Machu Picchu', $prov(1), ['notas' => 'Guía bilingüe ' . ($programa->lang === 'en' ? 'inglés' : 'español') . '.']);
+
+                continue;
+            }
+            $programa->dias()->create(['fecha' => $inicio->copy()->addDays($d)->toDateString(), 'titulo' => 'Excursión del día ' . ($d + 1)]);
+            $servicio($d, '08:30', 'tour', 'Excursión privada día ' . ($d + 1), $prov(1), ['punto_encuentro' => 'Lobby del hotel']);
+            if ($d % 2 === 1) {
+                $servicio($d, '13:00', 'comida', 'Almuerzo en restaurante local', $prov(2), ['notas' => 'Revisar dietas y alergias del grupo.']);
+            }
+        }
+
+        $programa->dias()->create(['fecha' => $inicio->copy()->addDays($dias)->toDateString(), 'titulo' => 'Despedida']);
+        $servicio($dias, '09:00', 'traslado', 'Traslado hotel → aeropuerto', $prov(0), ['punto_encuentro' => 'Lobby del hotel']);
+
+        if ($confirmado) {
+            foreach (['machu_picchu', 'datos_pax', 'tren', 'hoteles', 'itinerario_final', 'briefing'] as $k => $clave) {
+                [$titulo, $diasAntes] = Tarea::PLANTILLAS[$clave];
+                $limite = $inicio->copy()->subDays($diasAntes);
+                // Las ya vencidas quedan hechas, salvo una de vez en cuando (para ver la alerta).
+                $hecha = $limite->lt(now()) && ($i + $k) % 4 !== 0;
+                $programa->tareas()->create([
+                    'titulo' => $titulo,
+                    'fecha_limite' => $limite->toDateString(),
+                    'completada_at' => $hecha ? $limite->copy()->setTime(10, 0) : null,
+                ]);
             }
         }
     }
@@ -158,20 +305,22 @@ class ProgramaSeeder extends Seeder
     private function ensureProveedoresDemo(int $categoriaId): Collection
     {
         $filas = [
-            ['nombre' => 'DEMO Transportes Andinos', 'ruc' => '20123456781', 'telefono' => '+51 1 6000001', 'correo' => 'transportes.demo@example.com'],
-            ['nombre' => 'DEMO Guías Cusco', 'ruc' => '20123456782', 'telefono' => '+51 84 6000002', 'correo' => 'guias.demo@example.com'],
-            ['nombre' => 'DEMO Restaurantes Altura', 'ruc' => '20123456783', 'telefono' => '+51 1 6000003', 'correo' => 'rest.demo@example.com'],
-            ['nombre' => 'DEMO Buses Turísticos', 'ruc' => '20123456784', 'telefono' => '+51 1 6000004', 'correo' => 'buses.demo@example.com'],
-            ['nombre' => 'DEMO Entradas Culturales', 'ruc' => '20123456785', 'telefono' => '+51 1 6000005', 'correo' => 'entradas.demo@example.com'],
-            ['nombre' => 'DEMO Seguros Viaje', 'ruc' => '20123456786', 'telefono' => '+51 1 6000006', 'correo' => 'seguros.demo@example.com'],
-            ['nombre' => 'DEMO Equipamiento Trek', 'ruc' => '20123456787', 'telefono' => '+51 1 6000007', 'correo' => 'trek.demo@example.com'],
-            ['nombre' => 'DEMO Cruceros Amazonas', 'ruc' => '20123456788', 'telefono' => '+51 65 6000008', 'correo' => 'amazon.demo@example.com'],
+            ['categoria' => 'Transporte', 'nombre' => 'DEMO Transportes Andinos', 'ruc' => '20123456781', 'telefono' => '+51 1 6000001', 'correo' => 'transportes.demo@example.com'],
+            ['categoria' => 'Guía', 'nombre' => 'DEMO Guías Cusco', 'ruc' => '20123456782', 'telefono' => '+51 84 6000002', 'correo' => 'guias.demo@example.com'],
+            ['categoria' => 'Restaurante', 'nombre' => 'DEMO Restaurantes Altura', 'ruc' => '20123456783', 'telefono' => '+51 1 6000003', 'correo' => 'rest.demo@example.com'],
+            ['categoria' => 'Tren y buses', 'nombre' => 'DEMO Buses Turísticos', 'ruc' => '20123456784', 'telefono' => '+51 1 6000004', 'correo' => 'buses.demo@example.com'],
+            ['categoria' => 'Entradas', 'nombre' => 'DEMO Entradas Culturales', 'ruc' => '20123456785', 'telefono' => '+51 1 6000005', 'correo' => 'entradas.demo@example.com'],
+            ['categoria' => 'Seguros', 'nombre' => 'DEMO Seguros Viaje', 'ruc' => '20123456786', 'telefono' => '+51 1 6000006', 'correo' => 'seguros.demo@example.com'],
+            ['categoria' => 'Equipamiento', 'nombre' => 'DEMO Equipamiento Trek', 'ruc' => '20123456787', 'telefono' => '+51 1 6000007', 'correo' => 'trek.demo@example.com'],
+            ['categoria' => 'Cruceros', 'nombre' => 'DEMO Cruceros Amazonas', 'ruc' => '20123456788', 'telefono' => '+51 65 6000008', 'correo' => 'amazon.demo@example.com'],
         ];
 
         foreach ($filas as $row) {
+            $categoria = Categoria::query()->firstOrCreate(['nombre' => $row['categoria']])->id ?: $categoriaId;
+            unset($row['categoria']);
             Proveedor::query()->updateOrCreate(
                 ['nombre' => $row['nombre']],
-                array_merge($row, ['categoria_id' => $categoriaId, 'direccion' => 'Lima, Perú', 'detalles' => 'Proveedor de demostración'])
+                array_merge($row, ['categoria_id' => $categoria, 'direccion' => 'Lima, Perú', 'detalles' => 'Proveedor de demostración'])
             );
         }
 
@@ -199,7 +348,7 @@ class ProgramaSeeder extends Seeder
             $hotel = Hotel::query()->updateOrCreate(
                 ['nombre' => $hd['nombre']],
                 array_merge($hd, [
-                    'ruc' => '20' . str_pad((string) crc32($hd['nombre']), 7, '0', STR_PAD_LEFT),
+                    'ruc' => '20'.str_pad((string) crc32($hd['nombre']), 7, '0', STR_PAD_LEFT),
                     'direccion' => 'Perú',
                     'detalles' => 'Hotel de demostración',
                 ])

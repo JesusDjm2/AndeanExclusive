@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Hotel;
 use App\Http\Controllers\Controller;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
 
 class HotelController extends Controller
@@ -29,22 +30,16 @@ class HotelController extends Controller
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:50',
             'correo' => 'nullable|email|max:255',
-            'img' => 'nullable|image|max:2048',
+            'img' => 'nullable|' . SubidaImagenes::regla(),
             'detalles' => 'nullable|string',
 
             'habitaciones' => 'array',
             'habitaciones.*.tipo' => 'required|string|max:100',
             'habitaciones.*.capacidad' => 'required|integer|min:1',
-        ]);
+        ], SubidaImagenes::mensajes(['img']));
 
         if ($request->hasFile('img')) {
-            $file = $request->file('img');
-            $nombre = uniqid() . '_' . $file->getClientOriginalName();
-
-            $file->move(
-                public_path('img/programas/hoteles'),
-                $nombre
-            );
+            $nombre = SubidaImagenes::guardar($request->file('img'), 'img/programas/hoteles', uniqid() . '_');
 
             $data['img'] = 'img/programas/hoteles/' . $nombre;
         }
@@ -83,9 +78,9 @@ class HotelController extends Controller
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:50',
             'correo' => 'nullable|email|max:255',
-            'img' => 'nullable|image|max:2048',
+            'img' => 'nullable|' . SubidaImagenes::regla(),
             'detalles' => 'nullable|string',
-        ]);
+        ], SubidaImagenes::mensajes(['img']));
 
         if ($request->hasFile('img')) {
 
@@ -94,13 +89,7 @@ class HotelController extends Controller
                 unlink(public_path($hotel->img));
             }
 
-            $file = $request->file('img');
-            $nombre = uniqid() . '_' . $file->getClientOriginalName();
-
-            $file->move(
-                public_path('img/programas/hoteles'),
-                $nombre
-            );
+            $nombre = SubidaImagenes::guardar($request->file('img'), 'img/programas/hoteles', uniqid() . '_');
 
             $data['img'] = 'img/programas/hoteles/' . $nombre;
         }
@@ -120,14 +109,14 @@ class HotelController extends Controller
             'direccion' => 'nullable|string|max:255',
             'telefono' => 'nullable|string|max:50',
             'correo' => 'nullable|email|max:255',
-            'img' => 'nullable|image|max:2048',
+            'img' => 'nullable|' . SubidaImagenes::regla(),
             'detalles' => 'nullable|string',
 
             'habitacions' => 'array',
             'habitacions.*.id' => 'nullable|exists:habitaciones,id',
             'habitacions.*.tipo' => 'required|string|max:100',
             'habitacions.*.capacidad' => 'required|integer|min:1',
-        ]);
+        ], SubidaImagenes::mensajes(['img']));
 
         /* ==========================
        IMAGEN
@@ -138,13 +127,7 @@ class HotelController extends Controller
                 unlink(public_path($hotel->img));
             }
 
-            $file = $request->file('img');
-            $nombre = uniqid() . '_' . $file->getClientOriginalName();
-
-            $file->move(
-                public_path('img/programas/hoteles'),
-                $nombre
-            );
+            $nombre = SubidaImagenes::guardar($request->file('img'), 'img/programas/hoteles', uniqid() . '_');
 
             $data['img'] = 'img/programas/hoteles/' . $nombre;
         }
@@ -188,13 +171,14 @@ class HotelController extends Controller
         // ELIMINAR HABITACIONES BORRADAS EN EL FORM
         $idsAEliminar = array_diff($idsExistentes, $idsEnviados);
 
-        if (count($idsAEliminar)) {
-            $hotel->habitaciones()->whereIn('id', $idsAEliminar)->delete();
-        }
+        // Borrar una habitación borraría en cascada el alojamiento de los programas que la usan.
+        $enUso = $hotel->habitaciones()->whereIn('id', $idsAEliminar)->whereHas('habitacionFechas')->pluck('tipo');
+        $hotel->habitaciones()->whereIn('id', $idsAEliminar)->whereDoesntHave('habitacionFechas')->get()->each->delete();
 
         return redirect()
             ->route('hotel.index')
-            ->with('success', 'Hotel actualizado correctamente.');
+            ->with('success', 'Hotel actualizado correctamente.')
+            ->with('error', $enUso->isNotEmpty() ? 'No se eliminaron porque hay programas que las usan: ' . $enUso->implode(', ') . '.' : null);
     }
 
 
@@ -202,6 +186,10 @@ class HotelController extends Controller
 
     public function destroy(Hotel $hotel)
     {
+        if ($hotel->habitaciones()->whereHas('habitacionFechas')->exists()) {
+            return redirect()->route('hotel.index')->with('error', "No se puede eliminar «{$hotel->nombre}»: hay programas alojados en este hotel.");
+        }
+
         if ($hotel->img && file_exists(public_path($hotel->img))) {
             unlink(public_path($hotel->img));
         }

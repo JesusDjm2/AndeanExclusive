@@ -1,0 +1,107 @@
+.btn-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    padding: 0.85rem 1.75rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: transform var(--duration-fast) var(--ease-premium),
+                box-shadow var(--duration-fast) var(--ease-premium),
+                background-color var(--duration-fast) var(--ease-premium),
+                color var(--duration-fast) var(--ease-premium);
+    text-decoration: none;
+
+    &:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
+}
+
+.btn-brand--primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+        background: var(--color-primary-dark);
+        box-shadow: var(--shadow-md);
+        color: var(--color-white);
+    }
+}
+
+.btn-brand--accent {
+    background: var(--color-accent);
+    color: var(--color-white);
+    box-shadow: var(--shadow-accent);
+
+    &:hover {
+        background: var(--color-accent-dark);
+        color: var(--color-white);
+    }
+}
+
+.btn-brand--outline {
+    background: transparent;
+    border-color: currentColor;
+    color: var(--color-white);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--color-white);
+    }
+}
+
+.btn-brand--ghost {
+    background: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-border);
+
+    &:hover {
+        background: var(--color-sand);
+        color: var(--color-primary-dark);
+    }
+}
+
+.btn-brand--sm {
+    padding: 0.55rem 1.25rem;
+    font-size: 0.85rem;
+}
+
+.btn-brand--block {
+    width: 100%;
+    justify-content: center;
+}
+
+// Translucent button over photography (tour hero secondary CTA).
+.btn-brand--glass {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.45);
+    color: var(--color-white);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.24);
+        color: var(--color-white);
+    }
+}
+
+// WhatsApp CTA on light surfaces (booking card).
+.btn-brand--whatsapp {
+    background: transparent;
+    border-color: #25d366;
+    color: #128c4b;
+
+    &:hover {
+        background: #25d366;
+        color: var(--color-white);
+    }
+}

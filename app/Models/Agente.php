@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Agente extends Model
 {
+    use \App\Models\Concerns\RegistraMovimientos;
+
     protected $table = 'agentes';
 
     protected $fillable = [

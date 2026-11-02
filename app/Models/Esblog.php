@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\HasBlogImages;
 use Illuminate\Database\Eloquent\Model;
 
 class Esblog extends Model
 {
+    use HasBlogImages;
+
     protected $table = 'esblogs';
 
     protected $fillable = [

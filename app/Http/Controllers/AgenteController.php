@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Agente;
 use App\Http\Controllers\Controller;
+use App\Support\SubidaImagenes;
 use Illuminate\Http\Request;
 
 class AgenteController extends Controller
@@ -25,22 +26,13 @@ class AgenteController extends Controller
             'nombre' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
             'email' => 'required|email|unique:agentes,email',
-            'foto' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+            'foto' => 'nullable|' . SubidaImagenes::regla(),
+        ], SubidaImagenes::mensajes(['foto']));
 
         $data = $request->only(['nombre', 'telefono', 'email']);
 
         if ($request->hasFile('foto')) {
-            $file = $request->file('foto');
-            $nombreArchivo = time() . '_' . $file->getClientOriginalName();
-            $rutaDestino = public_path('img/programas/agentes');
-
-            if (!file_exists($rutaDestino)) {
-                mkdir($rutaDestino, 0755, true);
-            }
-
-            $file->move($rutaDestino, $nombreArchivo);
-            $data['foto'] = 'img/programas/agentes/' . $nombreArchivo;
+            $data['foto'] = 'img/programas/agentes/' . SubidaImagenes::guardar($request->file('foto'), 'img/programas/agentes', time() . '_');
         }
         Agente::create($data);
 
@@ -63,8 +55,8 @@ class AgenteController extends Controller
             'nombre' => 'required|string|max:255',
             'telefono' => 'required|string|max:20',
             'email' => 'required|email|unique:agentes,email,' . $agente->id,
-            'foto' => 'nullable|mimes:jpg,jpeg,png,webp|max:2048',
-        ]);
+            'foto' => 'nullable|' . SubidaImagenes::regla(),
+        ], SubidaImagenes::mensajes(['foto']));
 
         $data = $request->only(['nombre', 'telefono', 'email']);
 
@@ -74,16 +66,7 @@ class AgenteController extends Controller
                 unlink(public_path($agente->foto));
             }
 
-            $file = $request->file('foto');
-            $nombreArchivo = time() . '_' . $file->getClientOriginalName();
-            $rutaDestino = public_path('img/programas/agentes');
-
-            if (!file_exists($rutaDestino)) {
-                mkdir($rutaDestino, 0755, true);
-            }
-
-            $file->move($rutaDestino, $nombreArchivo);
-            $data['foto'] = 'img/programas/agentes/' . $nombreArchivo;
+            $data['foto'] = 'img/programas/agentes/' . SubidaImagenes::guardar($request->file('foto'), 'img/programas/agentes', time() . '_');
         }
 
 

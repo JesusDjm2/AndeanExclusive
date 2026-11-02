@@ -174,26 +174,14 @@
                                                 <i class="fas fa-user-tie me-1"></i>{{ $programa->agentes->pluck('nombre')->join(', ') }}
                                             @endif
                                         </p>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            {{-- @if ($programa->email && filter_var(trim($programa->email), FILTER_VALIDATE_EMAIL))
-                                                <form action="{{ route('programas.enviar-correo', $programa) }}"
-                                                    method="POST" class="d-inline"
-                                                    onsubmit="return confirm('¿Enviar correo con PDF a {{ e($programa->email) }}?');">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-sm btn-success" title="Enviar correo"><i
-                                                            class="fas fa-paper-plane"></i></button>
-                                                </form>
-                                            @else
-                                                <button type="button" class="btn btn-sm btn-outline-secondary disabled"
-                                                    title="Sin correo válido"><i class="fas fa-paper-plane"></i></button>
-                                            @endif --}}
-                                            <a href="{{ route('programas.show', $programa) }}" target="_blank"
+                                        <div class="d-flex flex-wrap gap-1">                                         
+                                            <a href="{{ route('itinerario', $programa) }}" target="_blank"
                                                 class="btn btn-sm btn-info" title="Ver"><i class="fas fa-eye"></i></a>
-                                            <a href="{{ route('programas.edit', $programa) }}"
-                                                class="btn btn-sm btn-warning" title="Editar"><i
-                                                    class="fas fa-edit"></i></a>
+                                                                                            <a href="{{ route('programas.edit', $programa) }}"
+                                                    class="btn btn-sm btn-warning" title="Editar"><i
+                                                        class="fas fa-edit"></i></a>
                                             <a href="{{ route('programas.pdf', $programa) }}"
-                                                class="btn btn-sm btn-danger" title="PDF"><i
+                                                class="btn btn-sm btn-danger" title="Ver PDF" data-pdf-preview="{{ route('programas.pdf', [$programa, 'ver' => 1]) }}" data-pdf-title="{{ $programa->nombre }}"><i
                                                     class="fas fa-file-pdf"></i></a>
                                         </div>
                                     </div>

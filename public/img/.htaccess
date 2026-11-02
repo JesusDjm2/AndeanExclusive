@@ -1,0 +1,12 @@
+# Carpeta de imágenes subidas: aquí nunca se ejecuta ni se sirve código.
+# Cubre también dobles extensiones (foto.php.jpg). Dos capas por si el servidor limita alguna directiva.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule \.(php[0-9]?|phtml|phar|phps|pl|py|cgi|asp|aspx|jsp|sh|shtml)(\.|$) - [F,NC,L]
+</IfModule>
+
+<FilesMatch "(?i)\.(php[0-9]?|phtml|phar|phps|pl|py|cgi|asp|aspx|jsp|sh|shtml)(\.|$)">
+    Require all denied
+</FilesMatch>
+
+Options -Indexes -ExecCGI

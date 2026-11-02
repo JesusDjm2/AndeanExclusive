@@ -1,0 +1,170 @@
+// Long-form rich content: legal text (terms & conditions) and CMS-authored
+// HTML (tour presentacion/itinerario/incluye/importante, blog article body).
+// The HTML itself comes raw from the database ({!! !!}) with bare h1/h2/h3/
+// p/ul/blockquote tags and no classes, so every rule here targets plain
+// tag selectors within .legal-prose rather than BEM classes.
+
+.legal-prose {
+    max-width: 76ch;
+    margin-inline: auto;
+    color: var(--color-ink-soft);
+    line-height: 1.75;
+
+    &.legal-prose--fluid {
+        max-width: none;
+        margin-inline: 0;
+    }
+
+    h1 {
+        color: var(--color-ink);
+        font-size: clamp(1.6rem, 1.4rem + 1vw, 2.1rem);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 2.5em;
+        margin-bottom: 0;
+
+        &:first-child { margin-top: 0; }
+
+        &::after {
+            content: '';
+            display: block;
+            width: 15px;
+            height: 4px;
+            background: var(--color-primary);
+            border-radius: var(--radius-pill);
+            margin-top: 0.6em;
+            margin-bottom: 0.9em;
+        }
+    }
+
+    h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.6em;
+        color: var(--color-ink);
+        font-size: clamp(1.35rem, 1.2rem + 0.6vw, 1.65rem);
+        font-weight: 700;
+        line-height: 1.25;
+        margin-top: 2.25em;
+        margin-bottom: 0.75em;
+
+        &:first-child { margin-top: 0; }
+
+        &::before {
+            content: '';
+            flex: none;
+            width: 0.55em;
+            height: 0.55em;
+            background: var(--color-accent);
+            border-radius: 0.15em;
+            transform: rotate(45deg);
+        }
+    }
+
+    h3 {
+        color: var(--color-ink);
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin-top: 2em;
+        margin-bottom: 0.6em;
+        padding-bottom: 0.4em;
+        border-bottom: 2px solid var(--color-sand);
+
+        &:first-child { margin-top: 0; }
+    }
+
+    h4 {
+        color: var(--color-primary);
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-top: 1.75em;
+        margin-bottom: 0.6em;
+    }
+
+    p { margin-bottom: 1.1em; }
+
+    ul, ol { padding-left: 1.4em; margin-bottom: 1.1em; }
+    li { margin-bottom: 0.5em; }
+
+    ul > li { list-style: none; position: relative; padding-left: 0.2em; }
+    ul > li::before {
+        content: '';
+        position: absolute;
+        left: -1.1em;
+        top: 0.55em;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--color-primary);
+    }
+
+    ol > li::marker {
+        color: var(--color-primary);
+        font-weight: 700;
+    }
+
+    strong { color: var(--color-ink); font-weight: 700; }
+    em { color: var(--color-ink); }
+
+    a:not(.btn-brand) {
+        color: var(--color-primary);
+        text-decoration: underline;
+        text-underline-offset: 0.15em;
+        text-decoration-color: rgba(9, 204, 189, 0.45);
+        transition: text-decoration-color var(--duration-fast) var(--ease-premium);
+
+        &:hover { text-decoration-color: currentColor; }
+    }
+
+    blockquote {
+        position: relative;
+        margin: 1.75em 0;
+        padding: 1em 1.5em;
+        background: var(--color-sand);
+        border-left: 4px solid var(--color-primary);
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        line-height: 1.4;
+        color: var(--color-ink);
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid var(--color-border);
+        margin: 2.5em 0;
+    }
+
+    img {
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        margin-block: 1em;
+    }
+
+    .legal-prose__clause {
+        display: inline-block;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-right: 0.35em;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-block: 1.1em;
+        font-size: 0.9rem;
+    }
+
+    td, th {
+        border: 1px solid var(--color-border);
+        padding: 0.6em 0.8em;
+        vertical-align: top;
+    }
+
+    thead {
+        background: var(--color-ink);
+        color: var(--color-white);
+    }
+}

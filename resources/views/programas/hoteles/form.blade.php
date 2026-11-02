@@ -37,7 +37,10 @@
 
             <div class="col-md-12">
                 <label>Imagen:</label>
-                <input type="file" name="img" class="form-control form-control-sm">
+                <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" name="img" class="form-control form-control-sm">
+                @error('img')
+                    <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
 
                 @isset($hotel)
                     <div class="mt-2">

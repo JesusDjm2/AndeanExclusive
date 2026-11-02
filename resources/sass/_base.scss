@@ -1,0 +1,70 @@
+// Base element styles (typography rhythm, links, images, reveal states).
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: var(--font-body);
+    color: var(--color-ink);
+    background-color: var(--color-white);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+// Fluid type scale for bare headings (outside .legal-prose/.hero, which
+// define their own sizes) — without this, an unstyled <h2>/<h3> falls back
+// to the UA stylesheet and breaks the rhythm the rest of the system tunes
+// carefully with clamp().
+h1, h2, h3, h4, h5, h6 {
+    font-family: $font-heading;
+    color: var(--color-ink);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: var(--space-sm);
+}
+
+h1 { font-size: clamp(2rem, 1.6rem + 1.8vw, 3rem); }
+h2 { font-size: clamp(1.6rem, 1.35rem + 1.1vw, 2.25rem); }
+h3 { font-size: clamp(1.3rem, 1.15rem + 0.7vw, 1.65rem); }
+h4 { font-size: 1.15rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+p {
+    margin-bottom: var(--space-sm);
+
+    &:last-child { margin-bottom: 0; }
+}
+
+.font-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+}
+
+a {
+    transition: color var(--duration-fast) var(--ease-premium);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+::selection {
+    background: var(--color-accent);
+    color: var(--color-white);
+}
+
+// Elements animated by resources/js/animations.js start hidden to avoid a
+// flash of unanimated content; the GSAP module reveals them on load/scroll.
+[data-reveal],
+[data-reveal-stagger] > * {
+    opacity: 0;
+}
+
+// If JS fails to load, don't leave content invisible.
+.no-js [data-reveal],
+.no-js [data-reveal-stagger] > * {
+    opacity: 1;
+}

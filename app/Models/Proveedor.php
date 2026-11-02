@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Proveedor extends Model
 {
+    use \App\Models\Concerns\RegistraMovimientos;
+
     public static $rules = [
         'nombre' => 'required',
         'categoria_id' => 'required',
         'telefono' => 'required',
-        'correo' => 'required',        
+        'correo' => 'required',
     ];
 
     protected $fillable = ['nombre', 'categoria_id', 'direccion', 'ruc',  'telefono', 'correo', 'detalles'];
@@ -22,6 +24,11 @@ class Proveedor extends Model
 
     public function programas()
     {
-        return $this->belongsToMany(Programa::class, 'programa_proveedor');
+        return $this->belongsToMany(Programa::class, 'servicios')->distinct();
+    }
+
+    public function servicios()
+    {
+        return $this->hasMany(Servicio::class);
     }
 }

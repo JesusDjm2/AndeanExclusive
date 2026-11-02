@@ -11,6 +11,9 @@ return [
 
     'brand' => 'Andean Exclusive Tours',
 
+    // Página para dejar una reseña (Google, TripAdvisor...). Vacío = página de testimonios del sitio.
+    'review_url' => env('REVIEW_URL'),
+
     'default_og_image' => '/img/machupicchu.png',
 
     'phone' => '+51-979-721-194',
@@ -93,6 +96,7 @@ return [
                 'title' => 'Terms & Conditions | Andean Exclusive Tours',
                 'description' => 'Terms and conditions for booking luxury tours and services with Andean Exclusive Tours, Peru.',
                 'route' => 'terms',
+                'hreflang_es_route' => 'terminos',
             ],
             'faqs' => [
                 'title' => 'FAQs | Booking & Traveling in Peru | Andean Exclusive Tours',
@@ -154,6 +158,12 @@ return [
                 'description' => 'Respuestas sobre pagos, mejor época, altura en Cusco, documentos y cómo personalizar tu viaje de lujo por el Perú.',
                 'route' => 'preguntas-frecuentes',
                 'hreflang_en_route' => 'faqs',
+            ],
+            'terminos' => [
+                'title' => 'Términos y Condiciones | Andean Exclusive Tours',
+                'description' => 'Términos y condiciones para reservar tours y servicios de viaje de lujo con Andean Exclusive Tours en el Perú: pagos, cancelaciones y reembolsos.',
+                'route' => 'terminos',
+                'hreflang_en_route' => 'terms',
             ],
         ],
     ],
