@@ -141,6 +141,12 @@ class Ayuda
             'resumen' => 'Los datos básicos del viaje. Basta con el nombre y el cliente; el resto puedes completarlo después.',
             'pasos' => ['Escribe el nombre del programa. El código déjalo vacío: el sistema pone el siguiente.', 'Deja el estado en Cotización y elige el idioma del itinerario.', 'Indica inicio y fin si ya los conoces. Si pones una fecha, debes poner la otra.', 'Elige un cliente existente o marca «Nuevo cliente».', 'Marca los agentes a cargo: el cliente los verá como su contacto.', 'Elige la imagen de portada y escribe la descripción del viaje.', 'Pulsa «Crear programa». Las pestañas Itinerario, Pagos, Tareas e Historial aparecen después.'],
         ],
+        'prog-plantillas' => [
+            'grupo' => 'programas', 'rutas' => ['programas.index', 'programas.plantillas', 'programas.duplicar'], 'permiso' => 'programas.gestionar', 'titulo' => 'Duplicar viajes y usar plantillas',
+            'resumen' => 'Para no armar desde cero lo que se vende seguido. Se copian días, hoteles, servicios y precios, con las fechas corridas. No se copian pasajeros, pagos ni confirmaciones.',
+            'pasos' => ['En el menú ⋮ de un programa, elige «Duplicar» o «Guardar como plantilla».', 'En «Plantillas», pulsa «Usar» sobre la que necesites.', 'Escribe el nombre, el cliente y la fecha de inicio, y pulsa «Crear cotización».', 'Revisa precios y proveedores: la nueva cotización ya se puede editar.'],
+            'notas' => ['Una plantilla no aparece en listados, reservas ni cuentas.'],
+        ],
         'prog-pasajeros' => [
             'grupo' => 'programas', 'rutas' => ['programas.create', 'programas.edit'], 'tab' => 'pasajeros', 'permiso' => 'programas.gestionar', 'titulo' => 'Cargar a los pasajeros',
             'resumen' => 'Las personas que viajan. Su edad al iniciar el viaje define la tarifa: adulto desde 12 años, niño de 5 a 11 y sin costo los menores de 5.',

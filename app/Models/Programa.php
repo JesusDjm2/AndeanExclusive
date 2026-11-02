@@ -32,12 +32,14 @@ class Programa extends Model
 
     protected $casts = [
         'confirmado_at' => 'datetime',
+        'plantilla' => 'boolean',
     ];
 
     protected $fillable = [
         'nombre',
         'codigo',
         'estado',
+        'plantilla',
         'cliente_id',
         'inicio',
         'fin',
@@ -56,6 +58,9 @@ class Programa extends Model
 
     protected static function booted(): void
     {
+        // Una plantilla no es un viaje: no cuenta en listados, estadísticas, reservas ni cuentas.
+        static::addGlobalScope('sin_plantillas', fn ($query) => $query->where($query->getModel()->qualifyColumn('plantilla'), false));
+
         // Enlace secreto del itinerario del cliente (la URL pública no usa el ID secuencial).
         static::creating(function (Programa $programa) {
             $programa->token ??= Str::random(32);
@@ -70,6 +75,13 @@ class Programa extends Model
             // Fecha de confirmación: desde ahí corre el plazo del depósito.
             if ($programa->isDirty('estado')) {
                 $programa->confirmado_at = $programa->estado === 'confirmado' ? ($programa->confirmado_at ?? now()) : null;
+            }
+
+            if ($programa->plantilla) {
+                $programa->estado = 'cotizacion';
+                $programa->anio_id = $programa->mes_id = null;
+
+                return;
             }
 
             if (! $programa->inicio) {
@@ -198,6 +210,17 @@ public function paxs()
     public function servicios()
     {
         return $this->hasMany(Servicio::class)->orderBy('fecha')->orderByRaw('hora IS NULL, hora')->orderBy('id');
+    }
+
+    /** Las pantallas sí abren plantillas por su enlace. */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        return $this->withoutGlobalScope('sin_plantillas')->where($field ?? $this->getRouteKeyName(), $value)->first();
+    }
+
+    public function scopePlantillas($query)
+    {
+        return $query->withoutGlobalScope('sin_plantillas')->where('plantilla', true);
     }
 
     public function dias()

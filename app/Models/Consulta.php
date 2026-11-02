@@ -52,7 +52,7 @@ class Consulta extends Model
 
     public function programa()
     {
-        return $this->belongsTo(Programa::class);
+        return $this->belongsTo(Programa::class)->withoutGlobalScope('sin_plantillas');
     }
 
     public function getResumenViajeAttribute(): string

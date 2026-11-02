@@ -103,7 +103,7 @@ class Servicio extends Model
 
     public function programa()
     {
-        return $this->belongsTo(Programa::class);
+        return $this->belongsTo(Programa::class)->withoutGlobalScope('sin_plantillas');
     }
 
     /** Estadía que lo generó: su fecha y su costo se gestionan desde la pestaña Alojamiento. */

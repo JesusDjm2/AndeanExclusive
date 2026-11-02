@@ -44,6 +44,7 @@ class Permisos
     private const RUTAS = [
         'programas.gestionar' => [
             'programas.create', 'programas.store', 'programas.update', 'programas.enviar-correo', 'programas.notificaciones.store',
+            'programas.duplicar', 'programas.duplicar.store', 'programas.plantilla.store', 'programas.plantilla.destroy',
             'clientes.create', 'clientes.store', 'clientes.update', 'clientes.destroy',
             'paxs.create', 'paxs.store', 'paxs.edit', 'paxs.update', 'paxs.destroy',
         ],
@@ -76,7 +77,7 @@ class Permisos
         }
 
         $esConsulta = in_array($metodo, ['GET', 'HEAD'], true)
-            && (! Str::endsWith($ruta, ['.create', '.edit']) || in_array($ruta, self::FICHAS_DE_CONSULTA, true));
+            && (! Str::endsWith($ruta, ['.create', '.edit', '.duplicar']) || in_array($ruta, self::FICHAS_DE_CONSULTA, true));
         if ($esConsulta) {
             return true;
         }

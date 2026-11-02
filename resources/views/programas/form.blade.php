@@ -135,6 +135,13 @@
         </div>
     @endif
 
+    @if ($programa->plantilla)
+        <div class="pf-readonly" role="status">
+            <i class="fas fa-copy" aria-hidden="true"></i>
+            <span>Esto es una plantilla: no es un viaje real. Sus fechas son de referencia y no aparece en listados ni reservas. <a href="{{ route('programas.duplicar', $programa) }}">Usarla para una cotización</a>.</span>
+        </div>
+    @endif
+
     @if ($isEdit && ! $canEdit)
         <div class="pf-readonly" role="status">
             <i class="fas fa-eye" aria-hidden="true"></i>
@@ -234,7 +241,7 @@
                     </div>
                 </div>
 
-                <div class="prog-section" data-cliente-picker>
+                <div class="prog-section" data-cliente-picker @if ($programa->plantilla) hidden @endif>
                     <div class="prog-section__header">
                         <span class="prog-section__title">Cliente</span>
                         <span class="prog-section__subtitle">Titular del programa: recibe el itinerario y el PDF por correo</span>

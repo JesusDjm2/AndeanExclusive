@@ -361,7 +361,7 @@ class ProgramaController extends Controller
             'codigo' => ($programa ? 'required' : 'nullable') . '|string|max:50|unique:programas,codigo' . ($programa ? ',' . $programa->id : ''),
             'estado' => 'required|in:' . implode(',', array_keys(Programa::ESTADOS)),
             'cliente_modo' => 'required|in:existente,nuevo',
-            'cliente_id' => 'nullable|required_if:cliente_modo,existente|exists:clientes,id',
+            'cliente_id' => ['nullable', Rule::requiredIf(request('cliente_modo') === 'existente' && ! $programa?->plantilla), 'exists:clientes,id'],
             // Un programa confirmado se opera: sin fechas no aparecería en la hoja del día ni tendría itinerario.
             'inicio' => 'nullable|required_if:estado,confirmado|required_with:fin|date',
             'fin' => 'nullable|required_if:estado,confirmado|required_with:inicio|date|after_or_equal:inicio',

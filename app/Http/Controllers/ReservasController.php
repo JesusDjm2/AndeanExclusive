@@ -39,7 +39,7 @@ class ReservasController extends Controller
 
         // Filtros comunes (periodo, proveedor, búsqueda) para contar cada bandeja con los mismos criterios.
         $base = Servicio::query()
-            ->whereHas('programa', fn ($q) => $q->where('estado', '!=', 'cancelado'))
+            ->whereHas('programa', fn ($q) => $q->where('estado', '!=', 'cancelado')->where('plantilla', false))
             ->when($periodo === 'pasados',
                 fn ($q) => $q->whereDate('fecha', '<', $hoy),
                 fn ($q) => $q->whereDate('fecha', '>=', $hoy)

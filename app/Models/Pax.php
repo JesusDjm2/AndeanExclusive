@@ -74,7 +74,7 @@ class Pax extends Model
 
     public function programa()
     {
-        return $this->belongsTo(Programa::class);
+        return $this->belongsTo(Programa::class)->withoutGlobalScope('sin_plantillas');
     }
 
     /** Fecha de referencia para la edad y la vigencia: inicio del viaje o, si no hay, hoy. */

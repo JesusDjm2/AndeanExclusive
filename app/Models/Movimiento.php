@@ -16,7 +16,7 @@ class Movimiento extends Model
 
     public function programa()
     {
-        return $this->belongsTo(Programa::class);
+        return $this->belongsTo(Programa::class)->withoutGlobalScope('sin_plantillas');
     }
 
     /** Cambios que el usuario actual puede ver: el costo base y el % de ganancia solo los ve quien puede ver la cotización. */

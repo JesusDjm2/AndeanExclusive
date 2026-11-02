@@ -20,6 +20,9 @@
             <small class="ae-admin-page-desc">Itinerarios de clientes: fechas, pasajeros, hoteles, servicios y presupuesto.</small>
         </div>
         <div class="d-flex flex-wrap gap-2">
+            <a href="{{ route('programas.plantillas') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-copy" aria-hidden="true"></i> Plantillas
+            </a>
             <a href="{{ route('programas.por-periodo') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-calendar-alt" aria-hidden="true"></i> Por año y mes
             </a>
@@ -256,6 +259,19 @@
                                                 <i class="fas fa-fw {{ $canEdit ? 'fa-pen' : 'fa-eye' }}" aria-hidden="true"></i> {{ $canEdit ? 'Editar' : 'Ver ficha' }}
                                             </a>
                                         </li>
+                                        @if ($canEdit)
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('programas.duplicar', $programa) }}">
+                                                <i class="fas fa-fw fa-copy" aria-hidden="true"></i> Duplicar
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('programas.plantilla.store', $programa) }}" method="POST">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item"><i class="fas fa-fw fa-bookmark" aria-hidden="true"></i> Guardar como plantilla</button>
+                                            </form>
+                                        </li>
+                                        @endif
                                         @can('cobros.gestionar')
                                         <li>
                                             <a class="dropdown-item" href="{{ route('programas.edit', [$programa, 'tab' => 'pagos']) }}">

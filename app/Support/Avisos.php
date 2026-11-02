@@ -9,6 +9,19 @@ use Illuminate\Support\Facades\Auth;
 /** Envío y cierre de avisos entre áreas. Un fallo aquí nunca debe impedir la operación que lo originó. */
 class Avisos
 {
+    private static bool $tareaProgramada = false;
+
+    /** Lo que se avisa dentro de $tarea sí cuenta, aunque corra en consola y sin usuario. */
+    public static function desdeTareaProgramada(callable $tarea): void
+    {
+        self::$tareaProgramada = true;
+        try {
+            $tarea();
+        } finally {
+            self::$tareaProgramada = false;
+        }
+    }
+
     /**
      * @param  string  $area  Rol destinatario.
      * @param  string  $accion  Texto del botón: qué se le pide hacer.
@@ -28,7 +41,7 @@ class Avisos
         bool $requiereAccion = true,
     ): void {
         // Seeders y tareas de consola sin usuario no son actividad de la agencia.
-        if (app()->runningInConsole() && ! Auth::check()) {
+        if (app()->runningInConsole() && ! Auth::check() && ! self::$tareaProgramada) {
             return;
         }
 
