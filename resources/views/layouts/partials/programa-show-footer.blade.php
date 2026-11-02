@@ -1,23 +1,34 @@
-{{-- Pie del itinerario del cliente y del formulario de datos de viajeros (ES/EN). $locale: 'es' | 'en' --}}
+{{-- Pie compacto del itinerario del cliente y del formulario de datos de viajeros (ES/EN) --}}
 @php
     $isEn = ($locale ?? 'es') === 'en';
     $homeUrl = $isEn ? route('index') : route('inicio');
 @endphp
 <footer class="itin-footer" role="contentinfo">
-    <div class="container itin-footer__grid">
-        <div>
-            <a href="{{ $homeUrl }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ asset('img/Logo-blanco-andean.png') }}" class="itin-footer__logo" alt="Andean Exclusive Tours" width="150" height="55" loading="lazy" decoding="async">
+    <div class="container itin-footer__inner">
+        <div class="itin-footer__brand">
+            <a href="{{ $homeUrl }}" target="_blank" rel="noopener noreferrer" class="itin-footer__logo-link" title="Andean Exclusive Tours">
+                <img src="{{ asset('img/Logo-blanco-andean.png') }}" class="itin-footer__logo" alt="Andean Exclusive Tours" width="120" height="32" loading="lazy" decoding="async">
             </a>
-            <p class="itin-footer__tagline">{{ $isEn ? 'Luxury travel in Peru · Cusco-based DMC' : 'Viajes de lujo en el Perú · Operador en Cusco' }}</p>
+            <span class="itin-footer__divider" aria-hidden="true">|</span>
+            <span class="itin-footer__tagline">{{ $isEn ? 'Luxury travel in Peru' : 'Viajes de lujo en Perú' }}</span>
         </div>
+
         <div class="itin-footer__contact">
-            <a href="mailto:operaciones@andeanexclusive.com"><i class="fa fa-envelope-o" aria-hidden="true"></i> operaciones@andeanexclusive.com</a>
-            <a href="https://wa.me/51979721194" target="_blank" rel="noopener noreferrer"><i class="fa fa-whatsapp" aria-hidden="true"></i> +51 979 721 194</a>
+            <a href="mailto:operaciones@andeanexclusive.com" class="itin-footer__link" title="{{ $isEn ? 'Send us an email' : 'Envíanos un correo' }}">
+                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                <span>operaciones@andeanexclusive.com</span>
+            </a>
+            <span class="itin-footer__dot" aria-hidden="true">·</span>
+            <a href="https://wa.me/51979721194" target="_blank" rel="noopener noreferrer" class="itin-footer__link itin-footer__link--wa" title="WhatsApp">
+                <i class="fa fa-whatsapp" aria-hidden="true"></i>
+                <span>+51 979 721 194</span>
+            </a>
         </div>
-        <p class="itin-footer__copy">
-            © {{ date('Y') }} Andean Exclusive Tours · {{ $isEn ? 'Design' : 'Diseño' }}
-            <a href="https://www.facebook.com/DjmWebMaster/" target="_blank" rel="noopener noreferrer">DJM2</a>
-        </p>
+
+        <div class="itin-footer__legal">
+            <span class="itin-footer__copy">© {{ date('Y') }} Andean Exclusive Tours</span>
+            <span class="itin-footer__dot" aria-hidden="true">·</span>
+            <a href="https://www.facebook.com/DjmWebMaster/" target="_blank" rel="noopener noreferrer" class="itin-footer__credit" title="DJM2">DJM2</a>
+        </div>
     </div>
 </footer>
