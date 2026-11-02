@@ -612,6 +612,11 @@ class ProgramaController extends Controller
 
     public function show(Programa $programa)
     {
+        // Saber que el cliente abrió su enlace ayuda a hacer seguimiento. Las visitas del equipo no cuentan.
+        if (! auth()->check()) {
+            Programa::query()->withoutGlobalScopes()->whereKey($programa->id)->toBase()->update(['itinerario_visto_at' => now()]);
+        }
+
         $programa->load([
             'agentes',
             'paxs',

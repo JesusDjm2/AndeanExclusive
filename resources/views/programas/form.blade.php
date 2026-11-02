@@ -101,6 +101,9 @@
                     @if ($cobro['total'] > 0)
                         <span><i class="fas fa-wallet" aria-hidden="true"></i>Pagado {{ $cobro['porcentaje'] }}%</span>
                     @endif
+                    @if ($programa->itinerario_visto_at)
+                        <span title="Última vez que el cliente abrió su enlace"><i class="fas fa-eye" aria-hidden="true"></i>Visto {{ $programa->itinerario_visto_at->locale('es')->diffForHumans() }}</span>
+                    @endif
                 </p>
             @else
                 <p class="pf-header__meta">Completa los datos básicos; el resto puedes cargarlo después.</p>
@@ -132,6 +135,15 @@
     @if ($errors->any())
         <div class="alert alert-danger" role="alert">
             <strong>Revisa los campos marcados</strong> en las pestañas con <span class="pf-tab__dot pf-tab__dot--inline"></span>.
+        </div>
+    @endif
+
+    @if ($isEdit && ($aceptacion = $programa->aceptaciones()->first()))
+        @php $vigente = $aceptacion->huella === \App\Models\Programa::huellaDe($programa->fotoDePropuesta()); @endphp
+        <div class="alert alert-{{ $vigente ? 'success' : 'warning' }}" role="status">
+            <i class="fas {{ $vigente ? 'fa-check-circle' : 'fa-exclamation-triangle' }}" aria-hidden="true"></i>
+            <strong>{{ $aceptacion->nombre }}</strong> aceptó la propuesta el {{ $aceptacion->created_at->locale('es')->isoFormat('D MMM YYYY, HH:mm') }} por {{ $money($aceptacion->total) }}.
+            @if (! $vigente) La propuesta cambió después: pídele que vuelva a aceptarla desde su enlace. @elseif ($programa->estado === 'cotizacion') Ya puedes confirmar el programa. @endif
         </div>
     @endif
 
@@ -397,7 +409,7 @@
             {{-- ── ALOJAMIENTO ── --}}
             <section class="tab-pane fade {{ $initialTab === 'alojamiento' ? 'show active' : '' }}" id="pf-alojamiento" role="tabpanel" aria-labelledby="pf-tab-alojamiento">
                 <input type="hidden" name="_estadias" value="1">
-                <div class="prog-section" data-estadias data-next-index="{{ count($estadiaRows) ? max(array_keys($estadiaRows)) + 1 : 0 }}">
+                <div class="prog-section" data-estadias data-tarifa-url="{{ route('tarifas.sugerir') }}" data-next-index="{{ count($estadiaRows) ? max(array_keys($estadiaRows)) + 1 : 0 }}">
                     <div class="prog-section__header">
                         <span class="prog-section__title">Habitaciones del grupo</span>
                         <span class="prog-section__subtitle">Una fila por tipo de habitación y estadía. Con fechas, cada fila crea su servicio para reservarlo y pagarlo.</span>

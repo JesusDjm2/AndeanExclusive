@@ -8,6 +8,7 @@ import { initPdfPreview } from './pdf-preview';
 import { initServicioAcciones } from './servicio-acciones';
 import { initAvisos } from './avisos';
 import { initAyuda } from './ayuda';
+import { initTarifas } from './tarifas';
 
 window.bootstrap = bootstrap;
 
@@ -151,6 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initServicioAcciones(bootstrap);
     initAvisos();
     initAyuda();
+    initTarifas();
     initLogout();
     initSidebar();
     initAutoDismissAlerts();

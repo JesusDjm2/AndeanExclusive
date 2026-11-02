@@ -55,7 +55,7 @@
     $proveedoresModal = \App\Models\Proveedor::with('categoria:id,nombre')->orderBy('nombre')->get(['id', 'nombre', 'categoria_id', 'telefono'])
         ->groupBy(fn ($p) => $p->categoria?->nombre ?? 'Sin categoría')->sortKeys();
 @endphp
-<div class="modal fade svc-modal" id="svcAsignarModal" tabindex="-1" aria-labelledby="svcAsignarTitle" aria-hidden="true">
+<div class="modal fade svc-modal" id="svcAsignarModal" tabindex="-1" aria-labelledby="svcAsignarTitle" aria-hidden="true" data-tarifa-url="{{ route('tarifas.sugerir') }}">
     <div class="modal-dialog modal-dialog-centered">
         <form method="POST" class="modal-content" data-svc-form="asignar">
             @csrf
@@ -88,6 +88,7 @@
                     <div><dt>Cotizado al cliente</dt><dd data-svc-estimado>—</dd></div>
                     <div data-svc-desvio-box><dt>Diferencia</dt><dd data-svc-desvio>—</dd></div>
                 </dl>
+                <div class="svc-tarifas" data-svc-tarifas hidden></div>
                 <label for="svc-costo-real" class="prog-label">Costo real del proveedor <span class="text-muted fw-normal" data-svc-por></span></label>
                 <input id="svc-costo-real" type="number" name="costo" step="0.01" min="0" class="form-control" data-svc-costo-real>
                 <small class="prog-input-hint">Lo que cobra este proveedor. Con este monto se paga y se calcula el margen real.</small>

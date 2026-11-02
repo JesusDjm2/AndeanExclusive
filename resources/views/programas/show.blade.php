@@ -170,6 +170,38 @@
             </aside>
         @endif
 
+        @if ($programa->aceptable())
+            @php
+                $vigenteCliente = $programa->aceptacionVigente();
+                $textosAcepta = $isEn
+                    ? ['title' => 'Your proposal', 'text' => 'If everything looks right, confirm it here and our team will contact you with the next steps.', 'name' => 'Your full name', 'terms' => 'I have read and accept the', 'terms_link' => 'terms and conditions', 'button' => 'Accept proposal', 'done' => 'Accepted by :name on :date.', 'url' => route('terms')]
+                    : ['title' => 'Su propuesta', 'text' => 'Si todo está conforme, acéptela aquí y nuestro equipo le escribirá con los siguientes pasos.', 'name' => 'Su nombre completo', 'terms' => 'He leído y acepto los', 'terms_link' => 'términos y condiciones', 'button' => 'Aceptar propuesta', 'done' => 'Aceptada por :name el :date.', 'url' => route('terminos')];
+            @endphp
+            <aside id="propuesta" class="itin-accept">
+                <p class="itin-cta__title">{{ $textosAcepta['title'] }}</p>
+                @if (session('aceptada'))
+                    <p class="itin-accept__ok" role="status"><i class="fa fa-check" aria-hidden="true"></i> {{ session('aceptada') }}</p>
+                @endif
+                @if ($vigenteCliente)
+                    <p class="itin-accept__ok"><i class="fa fa-check" aria-hidden="true"></i> {{ str_replace([':name', ':date'], [$vigenteCliente->nombre, $vigenteCliente->created_at->locale($locale)->isoFormat('LL')], $textosAcepta['done']) }}</p>
+                @else
+                    <p class="itin-cta__text">{{ $textosAcepta['text'] }}</p>
+                    <form action="{{ route('itinerario.aceptar', $programa) }}" method="POST" class="itin-accept__form">
+                        @csrf
+                        <label for="acepta-nombre">{{ $textosAcepta['name'] }}</label>
+                        <input id="acepta-nombre" type="text" name="nombre" value="{{ old('nombre') }}" maxlength="255" required autocomplete="name">
+                        @error('nombre')<p class="itin-accept__error">{{ $message }}</p>@enderror
+                        <label class="itin-accept__terms">
+                            <input type="checkbox" name="terminos" value="1" required>
+                            <span>{{ $textosAcepta['terms'] }} <a href="{{ $textosAcepta['url'] }}" target="_blank" rel="noopener">{{ $textosAcepta['terms_link'] }}</a></span>
+                        </label>
+                        @error('terminos')<p class="itin-accept__error">{{ $message }}</p>@enderror
+                        <button type="submit" class="itin-btn">{{ $textosAcepta['button'] }} <i class="fa fa-arrow-right" aria-hidden="true"></i></button>
+                    </form>
+                @endif
+            </aside>
+        @endif
+
         {{-- Resumen --}}
         <section id="resumen" class="itin-section" aria-labelledby="resumen-title" data-itin-section>
             <div class="itin-overview">

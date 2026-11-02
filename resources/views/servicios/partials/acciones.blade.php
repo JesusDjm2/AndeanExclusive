@@ -18,7 +18,7 @@
     @can('servicios.gestionar')
     @if ($servicio->estado !== 'cancelado')
         <button type="button" class="btn btn-sm {{ $sinProveedor ? 'btn-primary' : 'btn-light' }}"
-            data-svc-accion="asignar" data-url="{{ route('servicios.asignar', $servicio) }}" data-nombre="{{ $nombre }}"
+            data-svc-accion="asignar" data-url="{{ route('servicios.asignar', $servicio) }}" data-nombre="{{ $nombre }}" data-fecha="{{ $servicio->fecha->toDateString() }}"
             data-proveedor="{{ $servicio->proveedor_id }}" data-estado="{{ $servicio->estado }}" data-simbolo="{{ $simbolo }}" data-por="{{ $porPersona }}"
             data-costo="{{ $servicio->costo !== null ? number_format((float) $servicio->costo, 2, '.', '') : '' }}"
             data-estimado="{{ $servicio->costo_estimado !== null ? number_format((float) $servicio->costo_estimado, 2, '.', '') : '' }}"

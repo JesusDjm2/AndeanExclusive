@@ -2,7 +2,9 @@
 
 namespace App\Support;
 
+use App\Models\Aceptacion;
 use App\Models\Agente;
+use App\Models\Tarifa;
 use App\Models\Cliente;
 use App\Models\Consulta;
 use App\Models\HabitacionFecha;
@@ -90,6 +92,15 @@ class Bitacora
         Cliente::class => [
             'modulo' => 'Cliente',
             'campos' => ['nombre' => 'Nombre', 'empresa' => 'Empresa', 'email' => 'Correo', 'telefono' => 'Teléfono', 'pais' => 'País'],
+        ],
+        Aceptacion::class => [
+            'modulo' => 'Aceptación',
+            'campos' => ['nombre' => 'Nombre'],
+            'verbos' => ['creado' => 'registró'],
+        ],
+        Tarifa::class => [
+            'modulo' => 'Tarifa',
+            'campos' => ['concepto' => 'Concepto', 'desde' => 'Desde', 'hasta' => 'Hasta', 'precio' => 'Precio', 'moneda' => 'Moneda'],
         ],
         Consulta::class => [
             'modulo' => 'Consulta',
@@ -225,6 +236,8 @@ class Bitacora
     {
         return match ($m::class) {
             ProgramaDia::class => 'Día ' . $m->fecha?->format('d/m/Y'),
+            Aceptacion::class => 'Aceptación de ' . $m->nombre,
+            Tarifa::class => trim($m->de_quien . ' · ' . $m->que),
             HabitacionFecha::class => $m->etiqueta . ($m->habitacion?->hotel ? ' · ' . $m->habitacion->hotel->nombre : ''),
             Pago::class => '$' . number_format((float) $m->monto, 2),
             ProveedorPago::class => Servicio::formatoMonto((float) $m->monto, $m->moneda) . ' · ' . ($m->servicio?->titulo ?? 'servicio'),
@@ -239,7 +252,7 @@ class Bitacora
     {
         return match ($m::class) {
             Programa::class => $m,
-            Servicio::class, ProgramaDia::class, HabitacionFecha::class, Pax::class, Pago::class, Tarea::class, Notificacion::class => $m->programa,
+            Servicio::class, ProgramaDia::class, HabitacionFecha::class, Pax::class, Pago::class, Tarea::class, Notificacion::class, Aceptacion::class => $m->programa,
             ProveedorPago::class => $m->servicio?->programa,
             default => null,
         };

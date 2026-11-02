@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AceptacionController;
 use App\Http\Controllers\AgenteController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
@@ -35,6 +36,7 @@ use App\Http\Controllers\ProveedorController;
 use App\Http\Controllers\RespaldoController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\TarifaController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +82,8 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::post('notificaciones/marcar-todas', [AvisoController::class, 'marcarTodas'])->name('avisos.marcar-todas');
         Route::get('notificaciones/{aviso}/abrir', [AvisoController::class, 'abrir'])->whereNumber('aviso')->name('avisos.abrir');
         Route::post('notificaciones/{aviso}/marcar', [AvisoController::class, 'marcar'])->whereNumber('aviso')->name('avisos.marcar');
+        Route::get('tarifario/sugerir', [TarifaController::class, 'sugerir'])->name('tarifas.sugerir');
+        Route::resource('tarifario', TarifaController::class)->except('show')->parameters(['tarifario' => 'tarifa'])->names('tarifas');
         Route::resource('proveedors', ProveedorController::class)->names('proveedors');
         Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
         Route::resource('agentes', AgenteController::class)->names('agentes');
@@ -126,6 +130,7 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
 // Itinerario del cliente: enlace secreto por token (no por ID secuencial, que permitía recorrer todos los programas).
 Route::get('itinerario/{programa:token}', [ProgramaController::class, 'show'])->name('itinerario');
 // El cliente completa los datos de sus viajeros desde su enlace privado.
+Route::post('itinerario/{programa:token}/aceptar', [AceptacionController::class, 'store'])->middleware('throttle:10,1')->name('itinerario.aceptar');
 Route::get('itinerario/{programa:token}/pasajeros', [DatosPasajerosController::class, 'edit'])->name('itinerario.pasajeros');
 Route::put('itinerario/{programa:token}/pasajeros', [DatosPasajerosController::class, 'update'])->middleware('throttle:10,1')->name('itinerario.pasajeros.update');
 

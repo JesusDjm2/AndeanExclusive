@@ -67,6 +67,7 @@ function initAsignar(bootstrap, el) {
         el.querySelector('[data-svc-cambio]').hidden = !(btn.dataset.proveedor && ['solicitado', 'confirmado'].includes(btn.dataset.estado));
         el.querySelector('#svcAsignarTitle').textContent = btn.dataset.proveedor ? 'Cambiar proveedor' : 'Asignar proveedor';
         proveedor.value = btn.dataset.proveedor || '';
+        el.dataset.fecha = btn.dataset.fecha || '';
         // Costo real sugerido: el que ya tenía o, si no, el estimado de la cotización.
         costo.value = btn.dataset.costo || btn.dataset.estimado || '';
         sync();

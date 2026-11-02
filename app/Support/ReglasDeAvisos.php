@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Aceptacion;
 use App\Models\Consulta;
 use App\Models\HabitacionFecha;
 use App\Models\Pago;
@@ -22,7 +23,7 @@ class ReglasDeAvisos
     public static function registrar(): void
     {
         // Instanciar antes: así estas reglas corren después de los eventos propios del modelo (p. ej. recalcular el pago).
-        foreach ([Servicio::class, Programa::class, Pago::class, ProveedorPago::class, Pax::class, Consulta::class] as $modelo) {
+        foreach ([Servicio::class, Programa::class, Pago::class, ProveedorPago::class, Pax::class, Consulta::class, Aceptacion::class] as $modelo) {
             new $modelo;
         }
 
@@ -42,6 +43,7 @@ class ReglasDeAvisos
         Pax::created($regla(self::datosDelCliente(...)));
         Pax::updated($regla(self::datosDelCliente(...)));
         Consulta::created($regla(self::consultaNueva(...)));
+        Aceptacion::created($regla(self::propuestaAceptada(...)));
     }
 
     // ---- Destinos: llevan a donde se hace lo que se pide ----
@@ -225,6 +227,8 @@ class ReglasDeAvisos
 
     private static function programaConfirmado(Programa $p): void
     {
+        Avisos::resolver("aceptacion:{$p->id}");
+
         if ($p->servicios()->abiertos()->exists()) {
             $d = self::aReservas($p);
             Avisos::enviar('reservas', 'programa_confirmado', "Programa confirmado: {$p->codigo}", "{$p->nombre} · hay servicios por reservar", 'Reservar servicios', $d['ruta'], [...$d['params'], 'bandeja' => null], null, "por_reservar:{$p->id}", $p);
@@ -314,6 +318,13 @@ class ReglasDeAvisos
         $p = $s->programa;
         $d = self::aReservas($p, $s);
         Avisos::enviar('reservas', 'pago_anulado', "Pago a proveedor anulado: {$s->titulo}", Servicio::formatoMonto((float) $pago->monto, $pago->moneda) . ' · Motivo: ' . ($pago->motivo_anulacion ?: 'sin indicar') . " · {$p->codigo}", 'Revisar con el proveedor', $d['ruta'], $d['params'], $d['ancla'], null, $p);
+    }
+
+    private static function propuestaAceptada(Aceptacion $aceptacion): void
+    {
+        $p = $aceptacion->programa;
+        $d = self::aFicha($p, 'datos');
+        Avisos::enviar('operaciones', 'aceptacion', "El cliente aceptó la propuesta: {$p->codigo}", "{$aceptacion->nombre} · $" . number_format((float) $aceptacion->total, 2), 'Confirmar programa', $d['ruta'], $d['params'], null, "aceptacion:{$p->id}", $p);
     }
 
     // ---- Consultas ----

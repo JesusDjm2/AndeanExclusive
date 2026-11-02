@@ -177,6 +177,12 @@ class Ayuda
             'pasos' => ['Pulsa «Ver itinerario» y revisa lo que verá el cliente.', 'Usa «Copiar enlace» para enviarlo por WhatsApp o correo.', '«PDF» abre una vista previa con opción de descargar.', 'En la lista de Programas, «Enviar por correo» manda el PDF al cliente, previa confirmación.'],
             'notas' => ['Quien tenga el enlace puede ver el itinerario: envíalo solo al cliente.'],
         ],
+        'prog-aceptacion' => [
+            'grupo' => 'programas', 'rutas' => ['programas.edit'], 'tab' => 'datos', 'permiso' => 'programas.gestionar', 'titulo' => 'La aceptación del cliente',
+            'resumen' => 'Desde su enlace, el cliente acepta la propuesta con su nombre y los términos y condiciones. Queda constancia de lo aceptado.',
+            'pasos' => ['Cuando acepte, recibirás un aviso y lo verás arriba en la ficha.', 'Revisa que todo esté bien y confirma el programa: la confirmación sigue siendo tuya.', 'Si cambias el precio, las fechas o los servicios, la ficha te avisa y el cliente puede volver a aceptar.'],
+            'notas' => ['En la ficha, «Visto» indica la última vez que el cliente abrió su enlace.'],
+        ],
         'prog-confirmar' => [
             'grupo' => 'programas', 'rutas' => ['programas.edit'], 'tab' => 'datos', 'permiso' => 'programas.gestionar', 'titulo' => 'Confirmar o cancelar un viaje',
             'resumen' => 'Al confirmar, Reservas y Contabilidad reciben el aviso, y el viaje entra en la hoja de operaciones.',
@@ -248,6 +254,12 @@ class Ayuda
             'resumen' => 'Las empresas y personas que prestan los servicios, agrupadas por categoría.',
             'pasos' => ['Pulsa «Nuevo proveedor» y escribe nombre, categoría, teléfono y correo. El RUC es opcional.', 'Las categorías, como Transporte o Guías, se manejan desde el menú Categorías.'],
             'notas' => ['El teléfono es el que aparece en la hoja del día y abre WhatsApp.'],
+        ],
+        'tarifario' => [
+            'grupo' => 'reservas', 'rutas' => ['tarifas.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Tarifario',
+            'resumen' => 'Lo que cobra cada hotel y proveedor por temporada. El sistema lo propone al cotizar un hotel y al asignar un proveedor.',
+            'pasos' => ['Pulsa «Nueva tarifa» y elige si es una habitación de hotel o un servicio de un proveedor.', 'Indica la temporada con sus fechas y el precio.', 'Crea una tarifa por cada temporada.'],
+            'notas' => ['Al cotizar, el costo por noche se llena solo si hay tarifa vigente. Al asignar un proveedor, sus tarifas aparecen como botones.', 'Siempre puedes escribir otro precio: la tarifa es solo una sugerencia.'],
         ],
         'hoteles' => [
             'grupo' => 'reservas', 'rutas' => ['hotel.*', 'habitacion.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Hoteles y habitaciones',

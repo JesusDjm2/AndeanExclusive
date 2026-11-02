@@ -1,5 +1,12 @@
 // Consultas de posibles clientes: listado y ficha
 
+.svc-tarifas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+}
+
 .consulta-lista {
     margin: 0;
     padding: 0;

@@ -39,6 +39,7 @@ class AdminNavigation
             'label' => 'Proveedores',
             'items' => [
                 ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
+                ['label' => 'Tarifario', 'icon' => 'fa-tags', 'route' => 'tarifas.index', 'active' => ['tarifas.*']],
                 ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
                 ['label' => 'Categorías', 'icon' => 'fa-tags', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
                 ['label' => 'Hoteles', 'icon' => 'fa-hotel', 'route' => 'hotel.index', 'active' => ['hotel.*', 'habitacion.*']],

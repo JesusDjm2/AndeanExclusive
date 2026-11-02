@@ -32,6 +32,7 @@ class Programa extends Model
 
     protected $casts = [
         'confirmado_at' => 'datetime',
+        'itinerario_visto_at' => 'datetime',
         'plantilla' => 'boolean',
     ];
 
@@ -221,6 +222,47 @@ public function paxs()
     public function scopePlantillas($query)
     {
         return $query->withoutGlobalScope('sin_plantillas')->where('plantilla', true);
+    }
+
+    public function aceptaciones()
+    {
+        return $this->hasMany(Aceptacion::class)->latest('id');
+    }
+
+    /** Lo que el cliente ve y acepta. Si algo de esto cambia, su aceptación deja de valer para la propuesta nueva. */
+    public function fotoDePropuesta(): array
+    {
+        $this->loadMissing(['paxs']);
+        $p = $this->presupuesto();
+
+        return [
+            'nombre' => $this->nombre,
+            'inicio' => $this->inicio ? (string) $this->inicio : null,
+            'fin' => $this->fin ? (string) $this->fin : null,
+            'adultos' => $p['adultos'], 'ninos' => $p['ninos'], 'infantes' => $p['infantes'],
+            'total' => round((float) $p['total'], 2),
+            'servicios' => $this->servicios()->where('visible_cliente', true)->where('estado', '!=', 'cancelado')->orderBy('fecha')->orderBy('hora')->pluck('titulo')->all(),
+            'alojamiento' => $this->habitacionesFechas()->with('habitacion.hotel')->orderBy('fecha_ingreso')->orderBy('id')->get()
+                ->map(fn (HabitacionFecha $e) => trim(($e->habitacion?->hotel?->nombre ?? '') . ' · ' . $e->etiqueta . ' · ' . $e->fecha_ingreso))->all(),
+        ];
+    }
+
+    public static function huellaDe(array $propuesta): string
+    {
+        return sha1(json_encode($propuesta));
+    }
+
+    /** Última aceptación, solo si la propuesta sigue igual. */
+    public function aceptacionVigente(): ?Aceptacion
+    {
+        $ultima = $this->aceptaciones()->first();
+
+        return $ultima && $ultima->huella === self::huellaDe($this->fotoDePropuesta()) ? $ultima : null;
+    }
+
+    public function aceptable(): bool
+    {
+        return $this->estado === 'cotizacion' && ! $this->plantilla && (float) $this->presupuesto()['total'] > 0;
     }
 
     public function dias()
