@@ -12,7 +12,7 @@
     $otherHomeRoute = $locale === 'es' ? 'index' : 'inicio';
     $otherLangUrl = $altUrl ?? ($altRoute ? route($altRoute) : route($otherHomeRoute));
     $otherLangCode = $locale === 'es' ? 'EN' : 'ES';
-    $contactPhone = '+51 921 136 755';
+    $contactPhone = '+51 979 721 194';
 @endphp
 <header class="site-header" data-header>
     <div class="site-header__inner">
@@ -53,13 +53,12 @@
     </nav>
 
     <div class="mobile-nav__foot">
-        <a href="{{ $otherLangUrl }}" class="mobile-nav__lang">{{ $otherLangCode }}</a>
-        <a href="https://bit.ly/3kYXpXr" target="_blank" rel="noopener" class="btn-brand btn-brand--primary mobile-nav__whatsapp">
-            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp
-        </a>
-        <a href="tel:{{ str_replace(' ', '', $contactPhone) }}" class="mobile-nav__phone">
-            <i class="fa fa-phone" aria-hidden="true"></i> {{ $contactPhone }}
-        </a>
+        <div class="mobile-nav__foot-top">
+            <a href="{{ $otherLangUrl }}" class="mobile-nav__lang">{{ $otherLangCode }}</a>
+            <a href="https://wa.me/51979721194" target="_blank" rel="noopener" class="mobile-nav__phone">
+                <i class="fa fa-whatsapp" aria-hidden="true"></i> {{ $contactPhone }}
+            </a>
+        </div>
         <div class="mobile-nav__social">
             <a href="https://www.facebook.com/AndeanExclusiveTours" target="_blank" rel="nofollow noopener" aria-label="Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a>
             <a href="https://twitter.com/AndeanExclusive" target="_blank" rel="nofollow noopener" aria-label="Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>

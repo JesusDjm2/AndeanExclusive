@@ -56,7 +56,7 @@
             <h5 class="site-footer__title">{{ $t['contact'] }}</h5>
             <div class="site-footer__contact">
                 <a href="mailto:operaciones@andeanexclusive.com"><i class="fa fa-envelope" aria-hidden="true"></i>operaciones@andeanexclusive.com</a>
-                <a href="https://bit.ly/3kYXpXr" target="_blank" rel="noopener"><i class="fa fa-mobile" aria-hidden="true"></i>+51 979 721 194</a>
+                <a href="https://wa.me/51979721194" target="_blank" rel="noopener"><i class="fa fa-whatsapp" aria-hidden="true"></i>+51 979 721 194</a>
                 <span><i class="fa fa-phone" aria-hidden="true"></i>+51 084 242791</span>
                 <span><i class="fa fa-map-marker" aria-hidden="true"></i>Balconcillo Alto c-6 Cusco - Perú</span>
             </div>
