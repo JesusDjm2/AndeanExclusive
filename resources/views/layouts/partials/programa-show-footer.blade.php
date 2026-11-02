@@ -29,6 +29,16 @@
             <span class="itin-footer__copy">© {{ date('Y') }} Andean Exclusive Tours</span>
             <span class="itin-footer__dot" aria-hidden="true">·</span>
             <a href="https://www.facebook.com/DjmWebMaster/" target="_blank" rel="noopener noreferrer" class="itin-footer__credit" title="DJM2">DJM2</a>
+            <span class="itin-footer__dot" aria-hidden="true">·</span>
+            @auth
+                <a href="{{ route('home') }}" class="itin-footer__login-link" rel="nofollow" title="{{ $isEn ? 'Management panel' : 'Panel de gestión' }}">
+                    <i class="fa fa-tachometer" aria-hidden="true"></i>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="itin-footer__login-link" rel="nofollow" aria-label="{{ $isEn ? 'Staff login' : 'Acceso al panel' }}" title="{{ $isEn ? 'Staff login' : 'Acceso al panel' }}">
+                    <i class="fa fa-lock" aria-hidden="true"></i>
+                </a>
+            @endauth
         </div>
     </div>
 </footer>

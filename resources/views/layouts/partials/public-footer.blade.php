@@ -70,9 +70,22 @@
         </div>
     </div>
     <div class="site-footer__bottom">
-        <p class="mb-0">
-            Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | {{ $t['rights'] }} | Diseño:
-            <a href="https://www.facebook.com/DjmWebMaster" target="_blank" rel="nofollow noopener">DJM2</a>
-        </p>
+        <div class="site-footer__bottom-inner">
+            <p class="mb-0">
+                Copyright &copy; {{ date('Y') }} Andean Exclusive Tours | {{ $t['rights'] }} | Diseño:
+                <a href="https://www.facebook.com/DjmWebMaster" target="_blank" rel="nofollow noopener">DJM2</a>
+            </p>
+            @auth
+                <a href="{{ route('home') }}" class="site-footer__login-link" rel="nofollow" title="{{ $locale === 'es' ? 'Ir al panel de gestión' : 'Go to management panel' }}">
+                    <i class="fa fa-tachometer" aria-hidden="true"></i>
+                    <span>Panel</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="site-footer__login-link" rel="nofollow" aria-label="{{ $locale === 'es' ? 'Acceso al panel' : 'Staff login' }}" title="{{ $locale === 'es' ? 'Acceso al panel' : 'Staff login' }}">
+                    <i class="fa fa-lock" aria-hidden="true"></i>
+                    <span>{{ $locale === 'es' ? 'Acceso' : 'Staff' }}</span>
+                </a>
+            @endauth
+        </div>
     </div>
 </footer>

@@ -997,6 +997,26 @@ html { scroll-behavior: smooth; }
             text-decoration: underline;
         }
     }
+
+    &__login-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba($white, 0.35);
+        text-decoration: none;
+        padding: 0.15rem 0.35rem;
+        border-radius: 4px;
+        transition: color 0.15s ease, background-color 0.15s ease;
+
+        &:hover {
+            color: rgba($white, 0.85);
+            background-color: rgba($white, 0.08);
+        }
+
+        i {
+            font-size: 0.75rem;
+        }
+    }
 }
 
 // ---------- Impresión: el cliente puede imprimir su itinerario ----------
