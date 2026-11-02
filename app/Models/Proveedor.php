@@ -10,9 +10,10 @@ class Proveedor extends Model
 
     public static $rules = [
         'nombre' => 'required',
-        'categoria_id' => 'required',
+        'categoria_id' => 'required|exists:categorias,id',
         'telefono' => 'required',
-        'correo' => 'required',
+        'correo' => 'required|email',
+        'ruc' => ['nullable', 'regex:/^\d{1,11}$/'],
     ];
 
     protected $fillable = ['nombre', 'categoria_id', 'direccion', 'ruc',  'telefono', 'correo', 'detalles'];

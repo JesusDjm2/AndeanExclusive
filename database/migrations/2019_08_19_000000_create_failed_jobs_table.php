@@ -13,6 +13,11 @@ class CreateFailedJobsTable extends Migration
      */
     public function up()
     {
+        // La migración base de colas (0001_01_01_000002) ya la crea en instalaciones nuevas.
+        if (Schema::hasTable('failed_jobs')) {
+            return;
+        }
+
         Schema::create('failed_jobs', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();

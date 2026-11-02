@@ -11,7 +11,7 @@
     $canTareas = auth()->user()?->can('tareas.gestionar');
     $verCotizacion = auth()->user()?->can('cotizacion.ver');
     $verMargen = auth()->user()?->can('margen.ver');
-    $idiomas = ['es' => 'Español', 'en' => 'Inglés', 'pt' => 'Portugués', 'fr' => 'Francés'];
+    $idiomas = ['es' => 'Español', 'en' => 'Inglés'];
 
     // Pasajeros: lo reenviado tras un error de validación o lo guardado.
     $paxRows = old('paxs') ?? $programa->paxs->map(fn ($p) => [
@@ -121,7 +121,7 @@
         @endif
     </div>
 
-    @foreach (['success' => 'success', 'error' => 'danger'] as $key => $type)
+    @foreach (['success' => 'success', 'warning' => 'warning', 'error' => 'danger'] as $key => $type)
         @if (session($key))
             <div class="alert alert-{{ $type }} alert-dismissible fade show" role="alert">
                 {{ session($key) }}

@@ -71,8 +71,6 @@ class Ayuda
         ['«…no se quitaron: primero Contabilidad debe anular esos pagos»', 'El servicio tiene pagos. Pide a Contabilidad que los anule o cancélalo con Reservas.'],
         ['«No se puede eliminar…» un cliente, hotel o habitación', 'Está en uso en algún programa. Primero cambia o quita ese uso.'],
         ['Los botones de correo aparecen apagados', 'El cliente no tiene correo. Agrégalo en su ficha.'],
-        ['Pantalla de error al crear un proveedor', 'Probablemente falta el RUC. Vuelve atrás y escríbelo.'],
-        ['Un mensaje de error en inglés', 'Algunos mensajes aún están en inglés. Revisa el campo marcado en rojo.'],
         ['No puedo entrar', 'Usa «¿La olvidaste?» o espera un minuto si fallaste varias veces. Si sigue igual, pide a Administración que revise tu usuario.'],
     ];
 
@@ -136,7 +134,6 @@ class Ayuda
             'grupo' => 'programas', 'rutas' => ['programas.create', 'programas.edit'], 'tab' => 'datos', 'permiso' => 'programas.gestionar', 'titulo' => 'Crear un programa',
             'resumen' => 'Los datos básicos del viaje. Basta con el nombre y el cliente; el resto puedes completarlo después.',
             'pasos' => ['Escribe el nombre del programa. El código déjalo vacío: el sistema pone el siguiente.', 'Deja el estado en Cotización y elige el idioma del itinerario.', 'Indica inicio y fin si ya los conoces. Si pones una fecha, debes poner la otra.', 'Elige un cliente existente o marca «Nuevo cliente».', 'Marca los agentes a cargo: el cliente los verá como su contacto.', 'Elige la imagen de portada y escribe la descripción del viaje.', 'Pulsa «Crear programa». Las pestañas Itinerario, Pagos, Tareas e Historial aparecen después.'],
-            'notas' => ['Usa español o inglés: el itinerario en portugués o francés se muestra en español.'],
         ],
         'prog-pasajeros' => [
             'grupo' => 'programas', 'rutas' => ['programas.create', 'programas.edit'], 'tab' => 'pasajeros', 'permiso' => 'programas.gestionar', 'titulo' => 'Cargar a los pasajeros',
@@ -148,7 +145,7 @@ class Ayuda
             'grupo' => 'programas', 'rutas' => ['programas.create', 'programas.edit'], 'tab' => 'alojamiento', 'permiso' => 'programas.gestionar', 'titulo' => 'Asignar los hoteles',
             'resumen' => 'Dónde duerme el grupo cada noche. Por ejemplo, 3 habitaciones dobles de un hotel son una fila con cantidad 3.',
             'pasos' => ['Pulsa «Agregar habitación».', 'Elige el hotel y la habitación, y escribe la cantidad y las fechas.', 'Agrega una fila por cada tipo de habitación y por cada estadía. El mismo hotel puede repetirse.', 'Guarda los cambios.'],
-            'notas' => ['El sistema avisa si una noche no hay plazas para todos, pero te deja guardar.', 'La línea de abajo suma todas las filas: tres estadías de 3 habitaciones muestran «9 en total».', 'Esta pestaña no suma costos: agrega en Itinerario un servicio «Alojamiento (costo)» por hotel. Si lo olvidas, el margen saldrá más alto de lo real.'],
+            'notas' => ['El sistema avisa si una noche no hay plazas para todos, pero te deja guardar.', 'Esta pestaña no suma costos: agrega en Itinerario un servicio «Alojamiento (costo)» por hotel. Si lo olvidas, el margen saldrá más alto de lo real.'],
         ],
         'prog-itinerario' => [
             'grupo' => 'programas', 'rutas' => ['programas.edit'], 'tab' => 'itinerario', 'permiso' => 'programas.gestionar', 'titulo' => 'Armar el itinerario',
@@ -237,8 +234,8 @@ class Ayuda
         'proveedores' => [
             'grupo' => 'reservas', 'rutas' => ['proveedors.*', 'categoriasproveedor.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Proveedores y categorías',
             'resumen' => 'Las empresas y personas que prestan los servicios, agrupadas por categoría.',
-            'pasos' => ['Pulsa «Nuevo proveedor» y escribe nombre, categoría, RUC, teléfono y correo.', 'Las categorías, como Transporte o Guías, se manejan desde el menú Categorías.'],
-            'notas' => ['Escribe siempre el RUC: si queda vacío, sale una pantalla de error y no se guarda.', 'El teléfono es el que aparece en la hoja del día y abre WhatsApp.'],
+            'pasos' => ['Pulsa «Nuevo proveedor» y escribe nombre, categoría, teléfono y correo. El RUC es opcional.', 'Las categorías, como Transporte o Guías, se manejan desde el menú Categorías.'],
+            'notas' => ['El teléfono es el que aparece en la hoja del día y abre WhatsApp.'],
         ],
         'hoteles' => [
             'grupo' => 'reservas', 'rutas' => ['hotel.*', 'habitacion.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Hoteles y habitaciones',
@@ -275,7 +272,7 @@ class Ayuda
         'usuarios' => [
             'grupo' => 'administracion', 'rutas' => ['users.*'], 'permiso' => 'usuarios.gestionar', 'solo' => true, 'titulo' => 'Crear y administrar usuarios',
             'resumen' => 'Cada persona entra con su propio usuario, y su área define lo que puede modificar.',
-            'pasos' => ['Pulsa «Nuevo Usuario».', 'Completa Name (nombre), Email Address (correo) y Password (al menos 8 caracteres), y repítela en Confirm Password.', 'En «Rol en el panel», elige su área.', 'Pulsa «Crear usuario» y entrégale sus datos de forma privada.'],
+            'pasos' => ['Pulsa «Nuevo Usuario».', 'Completa el nombre, el correo y la contraseña (al menos 8 caracteres), y repítela para confirmarla.', 'En «Rol en el panel», elige su área.', 'Pulsa «Crear usuario» y entrégale sus datos de forma privada.'],
             'notas' => ['Para cambiar de área, pulsa «Editar». El cambio queda en Movimientos.', 'Al eliminar a alguien, lo que hizo sigue en Movimientos con su nombre.', 'No compartan cuentas: el registro de quién hizo qué perdería su valor.'],
         ],
         'eliminar-programa' => [

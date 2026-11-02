@@ -146,14 +146,15 @@ function initEstadias(root) {
         }
 
         const pasajeros = [...root.querySelectorAll('[data-pax-item]')].filter((el) => !el.closest('template')).length;
-        const habitaciones = elegidas.reduce((total, f) => total + f.cantidad, 0);
         const conFechas = elegidas.filter((f) => f.ingreso && f.salida && f.salida > f.ingreso);
 
         // Plazas por noche: el grupo debe caber cada noche, no solo en total.
         const porNoche = new Map();
+        const cuartosPorNoche = new Map();
         conFechas.forEach((f) => {
             for (let d = aFecha(f.ingreso), fin = aFecha(f.salida); d < fin; d = diaSiguiente(d)) {
                 porNoche.set(d.getTime(), (porNoche.get(d.getTime()) || 0) + f.plazas);
+                cuartosPorNoche.set(d.getTime(), (cuartosPorNoche.get(d.getTime()) || 0) + f.cantidad);
             }
         });
         const faltantes = [...porNoche.entries()].filter(([, plazas]) => plazas < pasajeros).sort(([a], [b]) => a - b);
@@ -170,7 +171,16 @@ function initEstadias(root) {
             avisos.push('Hay estadías fuera de las fechas del viaje.');
         }
 
-        const base = `${habitaciones} ${habitaciones === 1 ? 'habitación' : 'habitaciones'} en total` + (pasajeros ? ` · ${pasajeros} ${pasajeros === 1 ? 'pasajero' : 'pasajeros'}` : '');
+        const cuartos = [...cuartosPorNoche.values()];
+        const [menos, mas] = cuartos.length ? [Math.min(...cuartos), Math.max(...cuartos)] : [0, 0];
+        const totalSinFechas = elegidas.reduce((total, f) => total + f.cantidad, 0);
+        let habitacionesTexto = `${totalSinFechas} ${totalSinFechas === 1 ? 'habitación' : 'habitaciones'}`;
+        if (cuartos.length) {
+            habitacionesTexto = menos === mas
+                ? `${mas} ${mas === 1 ? 'habitación' : 'habitaciones'} por noche`
+                : `Entre ${menos} y ${mas} habitaciones por noche`;
+        }
+        const base = habitacionesTexto + (pasajeros ? ` · ${pasajeros} ${pasajeros === 1 ? 'pasajero' : 'pasajeros'}` : '');
         resumen.textContent = avisos.length ? `${base}. ${avisos.join(' ')}` : `${base}.`;
         resumen.className = `estadia-resumen ${avisos.length ? 'is-warn' : ''}`;
     };

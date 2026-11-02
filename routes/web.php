@@ -40,10 +40,10 @@ use Illuminate\Support\Facades\Route;
 // Sin registro público: los usuarios los crea un administrador (Usuarios → Nuevo, UserController@create).
 Auth::routes(['register' => false]);
 // Máx. 5 intentos de acceso por minuto (protección contra fuerza bruta).
-Route::middleware(['web', 'throttle:5,1'])->post('/login', [UserController::class, 'login'])->name('login.submit');
+Route::middleware(['web', 'panel.es', 'throttle:5,1'])->post('/login', [UserController::class, 'login'])->name('login.submit');
 
 // Solo usuarios con un rol asignado entran al panel (una cuenta sin rol no ve nada).
-Route::middleware(['auth', 'role:administrador|operaciones|contabilidad|reservas'])->group(function () {
+Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabilidad|reservas'])->group(function () {
     Route::middleware('role:administrador')->group(function () {
         Route::resource('users', UserController::class)->names('users');
     });

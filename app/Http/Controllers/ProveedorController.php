@@ -46,7 +46,8 @@ class ProveedorController extends Controller
 
     public function update(Request $request, $id)
     {
-        /* request()->validate(Proveedor::$rules);
+        request()->validate(Proveedor::$rules);
+        /*
 
         $proveedor->update($request->all()); */
         $proveedor = Proveedor::find($id);

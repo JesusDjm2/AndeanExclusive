@@ -291,6 +291,7 @@ class ProgramaController extends Controller
             return redirect()
                 ->route('programas.edit', [$programa, 'tab' => $request->input('_tab')])
                 ->with('success', 'Cambios guardados.')
+                ->with('warning', $this->avisosAlGuardar($programa->fresh()))
                 ->with('error', $conPagos ? "{$conPagos} servicio(s) con pagos a proveedor no se quitaron: primero Contabilidad debe anular esos pagos." : null);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -301,6 +302,32 @@ class ProgramaController extends Controller
                 ->withInput()
                 ->with('error', 'No se pudo actualizar el programa. Revisa los datos e inténtalo de nuevo.');
         }
+    }
+
+    /** Lo que se puede guardar, pero conviene revisar: el cliente deja de ver los servicios fuera de fechas. */
+    private function avisosAlGuardar(Programa $programa): ?string
+    {
+        $avisos = [];
+
+        if ($programa->inicio && $programa->fin) {
+            $fuera = $programa->servicios()->where('estado', '!=', 'cancelado')
+                ->where(fn ($q) => $q->whereDate('fecha', '<', $programa->inicio)->orWhereDate('fecha', '>', $programa->fin))->count();
+            if ($fuera) {
+                $avisos[] = $fuera === 1
+                    ? 'Hay 1 servicio fuera de las fechas del viaje: el cliente no lo verá.'
+                    : "Hay {$fuera} servicios fuera de las fechas del viaje: el cliente no los verá.";
+            }
+        }
+
+        if ($programa->estado === 'confirmado') {
+            if ($programa->paxs()->doesntExist()) {
+                $avisos[] = 'El programa está confirmado y aún no tiene pasajeros.';
+            } elseif ($programa->presupuesto()['total'] <= 0) {
+                $avisos[] = 'El programa está confirmado y aún no tiene precio.';
+            }
+        }
+
+        return $avisos ? implode(' ', $avisos) : null;
     }
 
     /** Reglas de validación del formulario de programas (alta y edición). */
@@ -316,7 +343,7 @@ class ProgramaController extends Controller
             // Un programa confirmado se opera: sin fechas no aparecería en la hoja del día ni tendría itinerario.
             'inicio' => 'nullable|required_if:estado,confirmado|required_with:fin|date',
             'fin' => 'nullable|required_if:estado,confirmado|required_with:inicio|date|after_or_equal:inicio',
-            'lang' => 'nullable|string|max:10',
+            'lang' => 'nullable|in:es,en',
             'presentacion' => 'nullable|string',
             'portada' => ['nullable', Rule::in(Portadas::rutas())],
             'precioAdulto' => 'nullable|numeric|min:0',
