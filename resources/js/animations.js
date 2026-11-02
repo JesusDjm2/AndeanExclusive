@@ -11,7 +11,7 @@ const EASE = 'power3.out';
 // wiring a scroll trigger.
 function isNearPageEnd(el) {
     const top = el.getBoundingClientRect().top + window.scrollY;
-    return document.documentElement.scrollHeight - top <= window.innerHeight * 2;
+    return document.documentElement.scrollHeight - top <= window.innerHeight * 2.5;
 }
 
 function isRevealed(el) {
@@ -22,13 +22,13 @@ function revealImmediately(targets, distance, stagger = 0) {
     gsap.fromTo(
         targets,
         { opacity: 0, y: distance },
-        { opacity: 1, y: 0, duration: 0.7, ease: EASE, stagger, delay: 0.15 }
+        { opacity: 1, y: 0, duration: 0.5, ease: EASE, stagger, delay: 0.1 }
     );
 }
 
 function initReveals() {
     document.querySelectorAll('[data-reveal]').forEach((el) => {
-        const distance = Number(el.dataset.revealDistance ?? 28);
+        const distance = Number(el.dataset.revealDistance ?? 24);
         if (isNearPageEnd(el)) {
             revealImmediately(el, distance);
             return;
@@ -39,11 +39,11 @@ function initReveals() {
             {
                 opacity: 1,
                 y: 0,
-                duration: 0.8,
+                duration: 0.55,
                 ease: EASE,
                 scrollTrigger: {
                     trigger: el,
-                    start: 'top 85%',
+                    start: 'top 92%',
                     once: true,
                 },
             }
@@ -58,21 +58,22 @@ function initRevealStagger() {
         if (!items.length) return;
 
         if (isNearPageEnd(group)) {
-            revealImmediately(items, 24, 0.12);
+            revealImmediately(items, 20, 0.06);
             return;
         }
 
+        const triggerTarget = group.closest('section') ?? group;
         const tween = gsap.fromTo(
             items,
-            { opacity: 0, y: 24 },
+            { opacity: 0, y: 20 },
             {
                 opacity: 1,
                 y: 0,
-                duration: 0.7,
+                duration: 0.45,
                 ease: EASE,
-                stagger: 0.12,
+                stagger: 0.06,
                 scrollTrigger: {
-                    trigger: group,
+                    trigger: triggerTarget,
                     start: 'top 85%',
                     once: true,
                 },
@@ -107,28 +108,29 @@ function reconcileEndOfPage() {
             gsap.to(subject, {
                 opacity: 1,
                 y: 0,
-                duration: 0.6,
+                duration: 0.45,
                 ease: EASE,
-                ...(isGroup ? { stagger: 0.08 } : {}),
+                ...(isGroup ? { stagger: 0.06 } : {}),
             });
             return;
         }
 
         const inView = el.getBoundingClientRect().top < vh;
         if (!nearEnd && revealed && !el._revealTrigger && !inView) {
-            const distance = isGroup ? 24 : Number(el.dataset.revealDistance ?? 28);
+            const distance = isGroup ? 20 : Number(el.dataset.revealDistance ?? 24);
+            const triggerTarget = isGroup ? (el.closest('section') ?? el) : el;
             el._revealTrigger = gsap.fromTo(
                 subject,
                 { opacity: 0, y: distance },
                 {
                     opacity: 1,
                     y: 0,
-                    duration: isGroup ? 0.7 : 0.8,
+                    duration: isGroup ? 0.45 : 0.55,
                     ease: EASE,
-                    ...(isGroup ? { stagger: 0.12 } : {}),
+                    ...(isGroup ? { stagger: 0.06 } : {}),
                     scrollTrigger: {
-                        trigger: el,
-                        start: 'top 85%',
+                        trigger: triggerTarget,
+                        start: isGroup ? 'top 85%' : 'top 92%',
                         once: true,
                     },
                 }

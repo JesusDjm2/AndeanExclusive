@@ -1,5 +1,5 @@
 @if ($tours->count())
-    <section class="section section--sand">
+    <section class="section section--sand tour-related">
         <div class="site-container">
             <div class="section-header">
                 <span class="section-eyebrow font-display">{{ $eyebrow }}</span>

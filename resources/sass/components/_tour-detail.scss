@@ -12,11 +12,17 @@ $tour-anchor-offset: calc(var(--header-h-scrolled) + #{$tour-nav-h} + var(--spac
     position: relative;
     display: flex;
     align-items: flex-end;
-    min-height: clamp(560px, 82vh, 880px);
-    padding: calc(var(--header-h) + var(--space-xl)) 0 var(--space-lg);
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    padding: calc(var(--header-h) + var(--space-md)) 0 var(--space-lg);
     color: var(--color-white);
     background: var(--color-ink);
     overflow: hidden;
+
+    @media (max-width: 991.98px) {
+        padding: calc(var(--header-h) + var(--space-xs)) 0 var(--space-sm);
+    }
 
     // Darken top (header legibility) and bottom (text block) but keep the photo alive mid-frame.
     &::after {
@@ -40,101 +46,162 @@ $tour-anchor-offset: calc(var(--header-h-scrolled) + #{$tour-nav-h} + var(--spac
 .tour-hero__inner {
     position: relative;
     z-index: 1;
+    width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-lg);
+    gap: var(--space-sm);
 
     @media (min-width: 992px) {
         grid-template-columns: minmax(0, 1fr) auto;
         align-items: end;
+        gap: var(--space-lg);
     }
 }
 
 .tour-hero__eyebrow {
     display: inline-block;
-    margin-bottom: var(--space-sm);
-    padding: 0.35rem 0.9rem;
+    margin-bottom: var(--space-2xs);
+    padding: 0.25rem 0.8rem;
     border-radius: var(--radius-pill);
     background: rgba(9, 204, 189, 0.9);
     color: var(--color-white);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
 }
 
 .tour-hero__title {
-    max-width: 18ch;
-    margin-bottom: var(--space-sm);
+    max-width: 22ch;
+    margin-bottom: var(--space-2xs);
     color: var(--color-white);
-    font-size: clamp(2.4rem, 1.5rem + 3.2vw, 4.4rem);
-    line-height: 1.04;
+    font-size: clamp(1.6rem, 1.25rem + 2.2vw, 3.8rem);
+    line-height: 1.08;
     letter-spacing: -0.015em;
     text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+
+    @media (min-width: 992px) {
+        max-width: 18ch;
+        margin-bottom: var(--space-sm);
+        font-size: clamp(2.2rem, 1.4rem + 2.8vw, 4.2rem);
+        line-height: 1.04;
+    }
 }
 
 .tour-hero__lead {
     max-width: 58ch;
-    margin-bottom: var(--space-md);
-    color: rgba(255, 255, 255, 0.86);
-    font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
-    line-height: 1.6;
+    margin-bottom: var(--space-sm);
+    color: rgba(255, 255, 255, 0.88);
+    font-size: clamp(0.88rem, 0.82rem + 0.25vw, 1.05rem);
+    line-height: 1.45;
+
+    @media (max-width: 767.98px) {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-bottom: var(--space-xs);
+    }
+
+    @media (min-width: 992px) {
+        margin-bottom: var(--space-md);
+        font-size: clamp(1rem, 0.95rem + 0.25vw, 1.15rem);
+        line-height: 1.6;
+    }
 }
 
 .tour-hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-xs);
+    align-items: center;
+    gap: var(--space-2xs);
+
+    @media (max-width: 575.98px) {
+        .btn-brand {
+            padding: 0.5rem 0.95rem;
+            font-size: 0.82rem;
+        }
+    }
 }
 
 // Key facts panel (duration, route, travel style).
 .tour-facts {
     display: grid;
-    gap: var(--space-sm);
+    gap: var(--space-2xs);
     margin: 0;
-    padding: var(--space-md);
-    min-width: 260px;
+    padding: var(--space-xs) var(--space-sm);
+    min-width: 240px;
     background: rgba(24, 34, 41, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: var(--radius-lg);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
 
+    @media (max-width: 575.98px) {
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        padding: 0.5rem 0.75rem;
+        gap: 0.35rem 0.6rem;
+    }
+
     @media (min-width: 576px) and (max-width: 991.98px) {
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        padding: var(--space-sm) var(--space-md);
+        gap: var(--space-sm);
+    }
+
+    @media (min-width: 992px) {
+        gap: var(--space-sm);
+        padding: var(--space-md);
+        min-width: 260px;
     }
 }
 
 .tour-facts__item {
     display: flex;
     align-items: flex-start;
-    gap: var(--space-xs);
+    gap: var(--space-2xs);
 
     > i {
         flex: none;
-        width: 2.25rem;
-        height: 2.25rem;
+        width: 1.85rem;
+        height: 1.85rem;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border-radius: 50%;
         background: rgba(9, 204, 189, 0.18);
         color: var(--color-primary-light);
-        font-size: 1rem;
+        font-size: 0.88rem;
+
+        @media (min-width: 992px) {
+            width: 2.25rem;
+            height: 2.25rem;
+            font-size: 1rem;
+        }
     }
 
     dt {
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: rgba(255, 255, 255, 0.65);
+
+        @media (min-width: 992px) {
+            font-size: 0.7rem;
+        }
     }
 
     dd {
         margin: 0;
+        font-size: 0.84rem;
         font-weight: 700;
-        line-height: 1.3;
+        line-height: 1.25;
+
+        @media (min-width: 992px) {
+            font-size: 0.95rem;
+            line-height: 1.3;
+        }
     }
 }
 
@@ -228,7 +295,11 @@ $tour-anchor-offset: calc(var(--header-h-scrolled) + #{$tour-nav-h} + var(--spac
 // ---- Body layout ------------------------------------------------------------
 
 .tour-body {
-    padding-block: var(--space-md) var(--space-xl);
+    padding-block: var(--space-md) var(--space-lg);
+
+    @media (max-width: 767.98px) {
+        padding-block: var(--space-sm) var(--space-md);
+    }
 
     .breadcrumb-trail { justify-content: flex-start; }
 }
@@ -500,7 +571,11 @@ $day-badge: 3.25rem;
 // ---- Sidebar booking card ----------------------------------------------------
 
 .tour-aside {
+    display: none;
+
     @media (min-width: 992px) {
+        display: block;
+
         // The card sticks below the header + section nav while the content scrolls.
         .booking-card {
             position: sticky;
@@ -722,4 +797,20 @@ $day-badge: 3.25rem;
 // Photos inside editor content span the column (the editor used to inline width:100%).
 .tour-main .legal-prose img {
     width: 100%;
+}
+
+// ---- Related tours section spacing ------------------------------------------
+
+.tour-related {
+    padding-top: var(--space-lg);
+    padding-bottom: var(--space-2xl);
+
+    @media (max-width: 767.98px) {
+        padding-top: var(--space-md);
+        padding-bottom: var(--space-xl);
+    }
+
+    .section-header {
+        margin-bottom: var(--space-md);
+    }
 }
