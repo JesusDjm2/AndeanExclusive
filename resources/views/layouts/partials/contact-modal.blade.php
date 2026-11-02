@@ -9,7 +9,7 @@
 @php
     $isEs = ($locale ?? 'es') === 'es';
     $contactAction = $isEs ? 'bookindex2castellano' : 'bookindex2';
-    $hasFeedback = session('contact_flash') || session('error');
+    $hasFeedback = 'contacto' === (session('form_enviado') ?? session('form_activo'));
 @endphp
 <div class="contact-modal"
     data-contact-modal
@@ -26,16 +26,10 @@
         </button>
         <div class="contact-modal__header">
             <span class="section-eyebrow font-display">{{ $isEs ? 'Planifiquemos tu viaje' : "Let's plan your trip" }}</span>
-            <h3 class="contact-modal__title" id="contact-modal-title">{{ $isEs ? 'Solicitar Reserva' : 'Request Booking' }}</h3>
+            <h3 class="contact-modal__title" id="contact-modal-title">{{ $isEs ? 'Cuéntanos sobre tu viaje' : 'Tell us about your trip' }}</h3>
             <p class="contact-modal__note">{{ $isEs ? 'Respondemos en menos de un día hábil.' : 'We reply within one business day.' }}</p>
         </div>
         <div class="contact-modal__body">
-            @if (session('contact_flash'))
-                <div class="alert alert-success" role="status">{{ session('contact_flash') }}</div>
-            @endif
-            @if (session('error'))
-                <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
-            @endif
             @include('layouts.partials.public-contact-form', ['locale' => $isEs ? 'es' : 'en', 'action' => $contactAction])
         </div>
     </div>

@@ -21,7 +21,7 @@ export function initContactModals() {
         modal.setAttribute('aria-hidden', 'false');
         modal.classList.add('is-open');
         document.body.style.overflow = 'hidden';
-        const first = dialog.querySelector('input, button[data-contact-close]');
+        const first = dialog.querySelector('[data-aet-gracias], [data-aet-field].is-invalid input, [data-aet-field].is-invalid textarea, input:not([type=hidden]):not([tabindex="-1"])');
         (first ?? dialog).focus({ preventScroll: true });
     };
 

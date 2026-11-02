@@ -1,46 +1,33 @@
 {{--
-    Formulario general de contacto con captcha (sin tour asociado). Se renderiza
-    dentro del modal de contacto global (contact-modal.blade.php), abierto desde
-    el footer y los CTA. Comparte el mismo JS de captcha que public-booking-form.
-
+    Formulario general de contacto (sin tour asociado). Se muestra dentro de la ventana de contacto (contact-modal.blade.php).
     @param string $locale 'es'|'en'
-    @param string $action Nombre de ruta a la que se envia el formulario.
+    @param string $action Nombre de ruta a la que se envía.
 --}}
 @php
     $isEs = $locale === 'es';
+    $form = 'contacto';
+    $comun = ['form' => $form, 'opcional' => $isEs ? '(opcional)' : '(optional)'];
 @endphp
 <div class="booking-form">
-    <h3 class="booking-form__title font-display">{{ $isEs ? 'Solicitar Reserva' : 'Request Booking' }}</h3>
-    <form action="{{ route($action) }}" method="post" class="booking-form__grid">
-        @csrf
-        <div class="booking-form__field booking-form__field--full">
-            <span class="form-label">{{ $isEs ? 'Nombre:' : 'Name:' }}</span>
-            <input type="text" name="nombre" required class="form-control" value="{{ old('nombre') }}">
-        </div>
-        <div class="booking-form__field">
-            <span class="form-label">E-Mail:</span>
-            <input type="email" class="form-control" required name="email" value="{{ old('email') }}">
-        </div>
-        <div class="booking-form__field">
-            <span class="form-label">{{ $isEs ? 'Teléfono:' : 'Phone:' }}</span>
-            <input type="text" class="form-control" required name="telefono" value="{{ old('telefono') }}">
-        </div>
-        <div class="booking-form__field booking-form__field--full">
-            <span class="form-label">{{ $isEs ? 'Mensaje:' : 'Send us a message:' }}</span>
-            <textarea class="form-control" name="mensaje" rows="3">{{ old('mensaje') }}</textarea>
-        </div>
-        <div class="booking-form__field booking-form__field--full">
-            <p class="captcha__checkmark" data-captcha-checkmark>{{ $isEs ? 'Respuesta correcta!' : 'Correct answer!' }} &#10004;</p>
-            <div class="captcha" data-captcha>
-                <span class="captcha__label">{{ $isEs ? 'Resuelve el captcha antes de enviar:' : 'Solve the Captcha before submitting:' }}</span>
-                <span data-captcha-num1></span> + <span data-captcha-num2></span> =
-                <input type="number" class="captcha__input" data-captcha-answer required>
-                <button type="button" class="captcha__verify" data-captcha-verify>{{ $isEs ? 'Verificar' : 'verify' }}</button>
-                <input type="hidden" data-captcha-correct>
+    @if (session('form_enviado') === $form)
+        @include('layouts.partials.form-gracias', ['locale' => $locale])
+    @else
+        <form class="aet-form" action="{{ route($action) }}" method="post" novalidate data-aet-form
+            data-msg-requerido="{{ $isEs ? 'Completa este dato.' : 'Please fill this in.' }}" data-msg-correo="{{ $isEs ? 'Revisa tu correo: parece incompleto.' : 'Please check your email: it looks incomplete.' }}">
+            @include('layouts.partials.form-proteccion')
+            @if (session('form_fallo') === $form)
+                <p class="aet-alerta" role="alert">{{ $isEs ? 'No pudimos enviar tu consulta. Inténtalo de nuevo o escríbenos por WhatsApp.' : 'We could not send your request. Please try again or message us on WhatsApp.' }}</p>
+            @endif
+            <div class="aet-form__grid">
+                @include('layouts.partials.form-campo', $comun + ['name' => 'nombre', 'label' => $isEs ? 'Tu nombre' : 'Your name', 'required' => true, 'full' => true, 'icon' => 'user-o', 'autocomplete' => 'name', 'attrs' => ['maxlength' => 255]])
+                @include('layouts.partials.form-campo', $comun + ['name' => 'email', 'label' => $isEs ? 'Tu correo' : 'Your email', 'type' => 'email', 'required' => true, 'icon' => 'envelope-o', 'autocomplete' => 'email', 'placeholder' => $isEs ? 'tu@correo.com' : 'you@email.com', 'attrs' => ['maxlength' => 255]])
+                @include('layouts.partials.form-campo', $comun + ['name' => 'telefono', 'label' => $isEs ? 'Teléfono o WhatsApp' : 'Phone or WhatsApp', 'type' => 'tel', 'icon' => 'phone', 'autocomplete' => 'tel', 'attrs' => ['maxlength' => 40]])
+                @include('layouts.partials.form-campo', $comun + ['name' => 'mensaje', 'label' => $isEs ? 'Cuéntanos tu viaje ideal' : 'Tell us about your ideal trip', 'type' => 'textarea', 'full' => true, 'placeholder' => $isEs ? 'Fechas, cuántos viajan y qué les gustaría conocer…' : 'Dates, how many are traveling and what you would like to see…'])
             </div>
-        </div>
-        <div class="booking-form__field--full text-center">
-            <button type="submit" class="booking-form__submit" data-captcha-submit disabled>{{ $isEs ? 'Enviar' : 'Send' }}</button>
-        </div>
-    </form>
+            <div class="aet-form__pie">
+                <button type="submit" class="aet-submit" data-aet-enviar data-aet-enviando="{{ $isEs ? 'Enviando…' : 'Sending…' }}"><span data-aet-enviar-texto>{{ $isEs ? 'Enviar consulta' : 'Send request' }}</span></button>
+                <p class="aet-form__nota"><i class="fa fa-lock" aria-hidden="true"></i> {{ $isEs ? 'Sin compromiso. Usamos tus datos solo para responderte.' : 'No commitment. We only use your details to reply.' }}</p>
+            </div>
+        </form>
+    @endif
 </div>

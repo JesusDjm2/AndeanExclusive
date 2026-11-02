@@ -20,33 +20,7 @@
                 Disfruta de los mejores tours, viajes y paquetes vacacionales en Perú — las experiencias más
                 exclusivas y de lujo, hechas a tu medida.
             </p>
-            @if (session()->has('flash'))
-                <div class="alert alert-success">{{ session()->get('flash') }}</div>
-            @endif
-            <form class="hero-search mt-lg" action="{{ route('book-castellano') }}" method="post">
-                @csrf
-                <div>
-                    <span class="form-label">Llegada</span>
-                    <input class="form-control" type="date" name="da">
-                </div>
-                <div>
-                    <span class="form-label">Salida</span>
-                    <input class="form-control" type="date" name="do">
-                </div>
-                <div>
-                    <span class="form-label">Adultos</span>
-                    <input type="number" min="1" class="form-control" placeholder="2" required name="adultos">
-                </div>
-                <div>
-                    <span class="form-label">Niños</span>
-                    <input type="number" min="0" class="form-control" placeholder="0" name="child">
-                </div>
-                <div>
-                    <span class="form-label">Correo</span>
-                    <input type="email" class="form-control" placeholder="correo@ejemplo.com" required name="email">
-                </div>
-                <button type="submit" class="hero-search__submit">Consultar disponibilidad</button>
-            </form>
+            @include('layouts.partials.form-consulta-rapida', ['locale' => 'es'])
         </div>
     </section>
 

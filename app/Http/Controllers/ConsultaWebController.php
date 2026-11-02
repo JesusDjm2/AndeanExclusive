@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ConsultaRecibidaMailable;
 use App\Models\Consulta;
+use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 use Throwable;
 
 /**
@@ -13,61 +18,127 @@ use Throwable;
  */
 class ConsultaWebController extends Controller
 {
-    private const DESTINO = 'routes@andeanexclusive.com';
-
-    /** Formulario => [plantilla del correo, idioma, clave del mensaje de éxito]. */
+    /** Ruta => [formulario, idioma]. */
     private const FORMULARIOS = [
-        'mensaje01' => ['emails.mensaje1', 'en', 'flash'],
-        'bookindex' => ['emails.bookindex', 'en', 'flash'],
-        'bookindex2' => ['emails.bookindex2', 'en', 'contact_flash'],
-        'mensaje02' => ['emails.mensaje1', 'es', 'flash'],
-        'book-castellano' => ['emails.bookindex', 'es', 'flash'],
-        'bookindex2castellano' => ['emails.bookindex2', 'es', 'contact_flash'],
+        'mensaje01' => ['tour', 'en'],
+        'bookindex' => ['rapida', 'en'],
+        'bookindex2' => ['contacto', 'en'],
+        'mensaje02' => ['tour', 'es'],
+        'book-castellano' => ['rapida', 'es'],
+        'bookindex2castellano' => ['contacto', 'es'],
     ];
 
-    public function recibir(Request $request, string $formulario)
-    {
-        [$plantilla, $idioma, $claveExito] = self::FORMULARIOS[$formulario];
-        app()->setLocale($idioma);
-        $exito = $idioma === 'es' ? '¡Su mensaje fue enviado con éxito! Le responderemos a la brevedad.' : 'Your message was sent successfully!';
+    /** Formulario => sección de la página a la que se vuelve. El de contacto reabre su ventana. */
+    private const ANCLAS = ['tour' => '#book', 'rapida' => '#consulta-rapida', 'contacto' => ''];
 
-        // Campo trampa: solo lo llenan los robots. Se les responde igual para no darles pistas.
-        if ($request->filled('personas')) {
-            return back()->with($claveExito, $exito);
+    /** Un humano no completa y envía un formulario en menos tiempo que este. */
+    private const SEGUNDOS_MINIMOS = 2;
+
+    public function recibir(Request $request, string $formulario): RedirectResponse
+    {
+        [$tipo, $idioma] = self::FORMULARIOS[$formulario];
+        app()->setLocale($idioma);
+
+        // A los robots se les responde como si nada, para no darles pistas.
+        if ($this->pareceRobot($request)) {
+            return $this->volver($tipo)->with('form_enviado', $tipo);
         }
 
-        $datos = $request->validate([
-            'email' => 'required|email|max:255',
-            'name' => 'nullable|string|max:255',
-            'nombre' => 'nullable|string|max:255',
-            'telefono' => 'nullable|string|max:40',
-            'tour' => 'nullable|string|max:255',
-            'adultos' => 'nullable|integer|min:0|max:999',
-            'child' => 'nullable|integer|min:0|max:999',
-            'da' => 'nullable|date',
-            'do' => 'nullable|date',
-            'mensaje' => 'nullable|string|max:5000',
-        ]);
-        $nombre = ($datos['name'] ?? null) ?: ($datos['nombre'] ?? null) ?: $datos['email'];
+        $validador = Validator::make($request->all(), $this->reglas($tipo), $this->mensajes($idioma));
+        if ($validador->fails()) {
+            return $this->volver($tipo)->withErrors($validador)->withInput()->with('form_activo', $tipo);
+        }
 
-        rescue(fn () => Consulta::create([
-            'nombre' => $nombre, 'email' => $datos['email'], 'telefono' => $datos['telefono'] ?? null, 'idioma' => $idioma, 'origen' => 'web',
+        $datos = $validador->validated();
+        $consulta = rescue(fn () => Consulta::create([
+            'nombre' => ($datos['nombre'] ?? null) ?: ($datos['name'] ?? null) ?: $datos['email'],
+            'email' => $datos['email'], 'telefono' => $datos['telefono'] ?? null, 'idioma' => $idioma, 'origen' => 'web',
             'tour' => $datos['tour'] ?? null, 'fecha_inicio' => $datos['da'] ?? null, 'fecha_fin' => $datos['do'] ?? null,
             'adultos' => $datos['adultos'] ?? null, 'ninos' => $datos['child'] ?? null, 'mensaje' => $datos['mensaje'] ?? null,
         ]));
 
-        try {
-            $variables = $datos + array_fill_keys(['name', 'nombre', 'telefono', 'tour', 'adultos', 'child', 'da', 'do', 'mensaje'], null);
-            $variables['name'] = $variables['nombre'] = $nombre;
-
-            // El remitente es la agencia: suplantar el correo del visitante hace que los servidores rechacen el envío.
-            Mail::send($plantilla, $variables, function ($message) use ($datos, $nombre) {
-                $message->to(self::DESTINO, 'Andean Exclusive')->replyTo($datos['email'], $nombre)->subject('Consulta desde la página web');
-            });
-        } catch (Throwable $e) {
-            report($e);
+        $correoEnviado = false;
+        if ($consulta) {
+            try {
+                Mail::to(config('mail.consultas_destino'))->send(new ConsultaRecibidaMailable($consulta));
+                $correoEnviado = true;
+            } catch (Throwable $e) {
+                report($e);
+            }
         }
 
-        return back()->with($claveExito, $exito);
+        // Solo se avisa del fallo si no quedó ningún rastro de la consulta.
+        return $consulta || $correoEnviado
+            ? $this->volver($tipo)->with('form_enviado', $tipo)
+            : $this->volver($tipo)->withInput()->with('form_activo', $tipo)->with('form_fallo', $tipo);
+    }
+
+    private function pareceRobot(Request $request): bool
+    {
+        if ($request->filled('sitio_web')) {
+            return true;
+        }
+
+        try {
+            return now()->timestamp - (int) Crypt::decryptString((string) $request->input('_sello')) < self::SEGUNDOS_MINIMOS;
+        } catch (DecryptException) {
+            return true;
+        }
+    }
+
+    private function volver(string $tipo): RedirectResponse
+    {
+        return redirect()->to(strtok(url()->previous(), '#') . self::ANCLAS[$tipo]);
+    }
+
+    private function reglas(string $tipo): array
+    {
+        $comunes = [
+            'email' => 'required|email|max:255',
+            'telefono' => 'nullable|string|max:40',
+            'mensaje' => 'nullable|string|max:5000',
+        ];
+        $viaje = [
+            'adultos' => ($tipo === 'rapida' ? 'required' : 'nullable') . '|integer|min:1|max:99',
+            'child' => 'nullable|integer|min:0|max:99',
+            'da' => 'nullable|date',
+            'do' => 'nullable|date|after_or_equal:da',
+            'tour' => 'nullable|string|max:255',
+        ];
+
+        return match ($tipo) {
+            'rapida' => $comunes + $viaje,
+            'tour' => $comunes + $viaje + ['nombre' => 'required|string|max:255'],
+            'contacto' => $comunes + ['nombre' => 'required|string|max:255'],
+        };
+    }
+
+    private function mensajes(string $idioma): array
+    {
+        return $idioma === 'es'
+            ? [
+                'nombre.required' => 'Escribe tu nombre.',
+                'email.required' => 'Escribe tu correo para poder responderte.',
+                'email.email' => 'Revisa tu correo: parece incompleto.',
+                'adultos.required' => 'Indica cuántos adultos viajan.',
+                'adultos.min' => 'Debe viajar al menos un adulto.',
+                'adultos.integer' => 'Escribe un número.',
+                'child.integer' => 'Escribe un número.',
+                'da.date' => 'Revisa la fecha de llegada.',
+                'do.date' => 'Revisa la fecha de salida.',
+                'do.after_or_equal' => 'La salida no puede ser antes de la llegada.',
+            ]
+            : [
+                'nombre.required' => 'Please enter your name.',
+                'email.required' => 'Please enter your email so we can reply.',
+                'email.email' => 'Please check your email: it looks incomplete.',
+                'adultos.required' => 'Tell us how many adults are traveling.',
+                'adultos.min' => 'At least one adult must travel.',
+                'adultos.integer' => 'Please enter a number.',
+                'child.integer' => 'Please enter a number.',
+                'da.date' => 'Please check the arrival date.',
+                'do.date' => 'Please check the departure date.',
+                'do.after_or_equal' => 'Departure cannot be before arrival.',
+            ];
     }
 }

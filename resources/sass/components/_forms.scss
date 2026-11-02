@@ -1,183 +1,427 @@
+// Formularios públicos (consulta rápida de la portada, consulta de tour y ventana de contacto).
+// Campos de 48 px y texto de 16 px: se tocan bien en un celular y iOS no acerca la pantalla al escribir.
+
 .booking-form {
     background: var(--color-white);
     border: 1px solid var(--color-border);
-    border-top: 3px solid var(--color-primary);
     border-radius: var(--radius-lg);
-    padding: var(--space-lg);
+    padding: clamp(1.25rem, 3vw, 2rem);
     box-shadow: var(--shadow-md);
 }
 
-.booking-form__title {
-    text-align: center;
-    font-size: 0.95rem;
-    letter-spacing: 0.01em;
-    margin-bottom: var(--space-sm);
+// Al volver tras enviar, la barra fija y las pestañas del tour no deben tapar el resultado.
+#book,
+#consulta-rapida {
+    scroll-margin-top: calc(var(--header-h, 4.5rem) + 4rem);
 }
 
-// Compact grid for the homepage "How to Find Us" contact form:
-// email + phone share a row, everything else spans full width — keeps the
-// whole section within one viewport height.
-.booking-form__grid {
+.booking-form__title {
+    margin-bottom: var(--space-sm);
+    font-size: 1.15rem;
+    letter-spacing: 0.01em;
+}
+
+.aet-form {
+    --aet-borde: #aebdc0;
+    --aet-foco: var(--color-accent);
+    --aet-error: #b3261e;
+    --aet-suave: #5b6b70;
+
+    text-align: left;
+    color: var(--color-ink);
+}
+
+.aet-form__grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.1rem;
 
     @media (min-width: 576px) {
-        grid-template-columns: repeat(2, 1fr);
-        column-gap: var(--space-sm);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-.booking-form__field--full {
+.aet-field {
+    min-width: 0;
+}
+
+.aet-field--full {
     grid-column: 1 / -1;
 }
 
-.booking-form__grid .booking-form__submit {
-    width: auto;
-    min-width: 12rem;
-    padding: 0.6rem 1.5rem;
-    font-size: 0.9rem;
-}
-
-.form-label {
-    display: block;
-    font-weight: 600;
-    font-size: 0.8rem;
-    color: var(--color-ink);
-    margin-bottom: 0.2rem;
-}
-
-.booking-form .form-control {
-    background: var(--color-sand);
-    border-radius: var(--radius-sm);
-    border-color: var(--color-border);
-    padding: 0.4rem 0.7rem;
-    font-size: 0.9rem;
-
-    &::placeholder { color: var(--color-ink-soft); }
-
-    &:focus {
-        background: var(--color-white);
-        border-color: var(--color-primary);
-        box-shadow: 0 0 0 0.2rem rgba(9, 204, 189, 0.2);
-    }
-}
-
-.booking-form textarea.form-control {
-    padding: 0.6rem 0.7rem;
-}
-
-.booking-form__submit {
-    @extend .btn-brand;
-    @extend .btn-brand--primary;
-    width: 100%;
-    justify-content: center;
-    border: none;
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-}
-
-// One-shot pulse when the captcha enables the button, so the user notices
-// the form is ready to send.
-@keyframes submit-ready {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.045); }
-    100% { transform: scale(1); }
-}
-
-.booking-form__submit.just-enabled {
-    animation: submit-ready 0.7s var(--ease-premium) 1;
-
-    @media (prefers-reduced-motion: reduce) {
-        animation: none;
-    }
-}
-
-// Captcha widget — collapses its own space (not just fades) once solved,
-// so it doesn't leave a gap between the message field and the submit button.
-// Sand-deep fill + ink text keeps the prompt readable on the white card.
-.captcha {
-    background: var(--color-sand-deep);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-sm) var(--space-md);
-    margin-bottom: var(--space-sm);
-    text-align: center;
-    color: var(--color-ink);
-    opacity: 1;
-    max-height: 10rem;
-    overflow: hidden;
-    transition: opacity var(--duration-base) var(--ease-premium),
-                max-height var(--duration-base) var(--ease-premium) var(--duration-fast),
-                padding var(--duration-base) var(--ease-premium) var(--duration-fast),
-                margin var(--duration-base) var(--ease-premium) var(--duration-fast),
-                border-width var(--duration-base) var(--ease-premium) var(--duration-fast);
-
-    &.is-solved {
-        opacity: 0;
-        max-height: 0;
-        padding-block: 0;
-        margin-bottom: 0;
-        border-width: 0;
-        pointer-events: none;
-    }
-}
-
-.captcha__label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--color-ink);
+.aet-label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem;
     margin-bottom: 0.4rem;
+    color: var(--color-ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.3;
 }
 
-.captcha [data-captcha-num1],
-.captcha [data-captcha-num2] {
-    font-weight: 700;
-    font-size: 1.05rem;
+.aet-label__opcional {
+    color: var(--aet-suave);
+    font-size: 0.8rem;
+    font-weight: 400;
 }
 
-.captcha__input {
-    width: 60px;
-    text-align: center;
-    display: inline-block;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--color-ink-soft);
+.aet-input-wrap {
+    position: relative;
+}
+
+.aet-input-wrap__icon {
+    position: absolute;
+    top: 50%;
+    left: 0.9rem;
+    color: var(--aet-suave);
+    font-size: 0.95rem;
+    pointer-events: none;
+    transform: translateY(-50%);
+}
+
+.aet-input {
+    display: block;
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid var(--aet-borde);
+    border-radius: var(--radius-md);
     background: var(--color-white);
-    font-weight: 700;
-    padding: 0.3rem;
-    margin-inline: 0.4rem;
-}
+    color: var(--color-ink);
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.4;
+    transition: border-color var(--duration-fast) var(--ease-premium), box-shadow var(--duration-fast) var(--ease-premium);
 
-.captcha__verify {
-    @extend .btn-brand;
-    @extend .btn-brand--ghost;
-    @extend .btn-brand--sm;
-    border: 1px solid var(--color-primary);
-    color: var(--color-primary-dark);
+    &::placeholder {
+        color: #76868b;
+        opacity: 1;
+    }
 
     &:hover {
-        background: var(--color-white);
-        color: var(--color-accent-dark);
+        border-color: #84979b;
+    }
+
+    &:focus {
+        border-color: var(--aet-foco);
+        outline: 0;
+        box-shadow: 0 0 0 3px rgba(7, 143, 132, 0.22);
     }
 }
 
-.captcha__checkmark {
-    color: var(--color-success);
-    text-align: center;
-    font-weight: 700;
-    opacity: 0;
-    max-height: 0;
-    overflow: hidden;
-    transition: opacity var(--duration-base) var(--ease-premium);
+.aet-input--icon {
+    padding-left: 2.5rem;
+}
 
-    &.is-visible {
-        opacity: 1;
-        max-height: 2rem;
-        margin-bottom: var(--space-xs);
+.aet-input--area {
+    min-height: 7rem;
+    resize: vertical;
+}
+
+.aet-field.is-invalid .aet-input {
+    border-color: var(--aet-error);
+
+    &:focus {
+        box-shadow: 0 0 0 3px rgba(179, 38, 30, 0.2);
     }
+}
+
+.aet-hint {
+    margin: 0.35rem 0 0;
+    color: var(--aet-suave);
+    font-size: 0.82rem;
+    line-height: 1.35;
+}
+
+.aet-error {
+    display: flex;
+    gap: 0.35rem;
+    margin: 0.35rem 0 0;
+    color: var(--aet-error);
+    font-size: 0.85rem;
+    font-weight: 600;
+    line-height: 1.35;
+
+    &[hidden] {
+        display: none;
+    }
+
+    .fa {
+        margin-top: 0.15rem;
+    }
+}
+
+// Contador de viajeros: sin JavaScript queda el campo numérico.
+.aet-stepper {
+    display: flex;
+
+    &.is-activo .aet-stepper__input {
+        border-radius: 0;
+        text-align: center;
+        appearance: textfield;
+
+        &::-webkit-outer-spin-button,
+        &::-webkit-inner-spin-button {
+            appearance: none;
+        }
+    }
+}
+
+.aet-stepper__input {
+    flex: 1 1 auto;
+    min-width: 2.75rem;
+    padding-inline: 0.25rem;
+    font-weight: 600;
+
+    &:focus {
+        position: relative;
+        z-index: 1;
+    }
+}
+
+.aet-stepper__btn {
+    flex: 0 0 2.75rem;
+    min-height: 3rem;
+    border: 1px solid var(--aet-borde);
+    background: #f4f7f8;
+    color: var(--color-ink);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-premium);
+
+    &:first-child {
+        border-right: 0;
+        border-radius: var(--radius-md) 0 0 var(--radius-md);
+    }
+
+    &:last-child {
+        border-left: 0;
+        border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+
+    &:hover:not(:disabled) {
+        background: #e4ecee;
+    }
+
+    &:focus-visible {
+        position: relative;
+        z-index: 2;
+        outline: 2px solid var(--aet-foco);
+        outline-offset: 1px;
+    }
+
+    &:disabled {
+        color: #a3b0b4;
+        cursor: not-allowed;
+    }
+}
+
+// Tema de la consulta, en lugar de un campo de solo lectura.
+.aet-tema {
+    display: flex;
+    gap: 0.6rem;
+    margin: 0 0 1.25rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    background: rgba(9, 204, 189, 0.1);
+    font-size: 0.92rem;
+    line-height: 1.4;
+
+    .fa {
+        margin-top: 0.2rem;
+        color: var(--color-accent);
+    }
+}
+
+.aet-alerta {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--aet-error);
+    border-radius: var(--radius-sm);
+    background: #fbece9;
+    color: #7c1a14;
+    font-size: 0.92rem;
+}
+
+// Campo trampa: fuera de la vista de las personas, pero presente para los robots.
+.aet-trampa {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.aet-form__pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 1.4rem;
+}
+
+.aet-form__nota {
+    flex: 1 1 14rem;
+    margin: 0;
+    color: var(--aet-suave);
+    font-size: 0.84rem;
+    line-height: 1.35;
+}
+
+.aet-submit {
+    @extend .btn-brand;
+    @extend .btn-brand--primary;
+    position: relative;
+    justify-content: center;
+    min-height: 3rem;
+    padding-inline: 1.75rem;
+    border: 0;
+    // Más oscuro que el turquesa de marca: texto blanco legible (contraste AA).
+    background: #067a70;
+    color: var(--color-white);
+    font-size: 1rem;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus {
+        background: #05665e;
+        color: var(--color-white);
+    }
+
+    @media (max-width: 575.98px) {
+        width: 100%;
+    }
+
+    &:focus-visible {
+        outline: 3px solid var(--color-ink);
+        outline-offset: 2px;
+    }
+
+    &.is-enviando {
+        cursor: progress;
+        opacity: 0.8;
+
+        &::before {
+            content: '';
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.55rem;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: aet-gira 0.7s linear infinite;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        &.is-enviando::before {
+            animation: none;
+        }
+    }
+}
+
+@keyframes aet-gira {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// Consulta rápida sobre la foto de portada
+.aet-rapida {
+    max-width: 68rem;
+    margin: var(--space-md) auto 0;
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: var(--shadow-lg);
+    color: var(--color-ink);
+
+    .aet-form {
+        padding: 1.1rem 1.25rem 0.9rem;
+    }
+}
+
+.aet-rapida__campos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-items: start;
+
+    .aet-field:nth-of-type(5),
+    .aet-submit--rapida {
+        grid-column: 1 / -1;
+    }
+
+    .aet-label {
+        margin-bottom: 0.25rem;
+        font-size: 0.82rem;
+    }
+
+    @media (min-width: 992px) {
+        grid-template-columns: minmax(8.5rem, 1fr) minmax(8.5rem, 1fr) minmax(8rem, 0.9fr) minmax(8rem, 0.9fr) minmax(12rem, 1.5fr) auto;
+
+        .aet-field:nth-of-type(5),
+        .aet-submit--rapida {
+            grid-column: auto;
+        }
+
+        .aet-submit--rapida {
+            margin-top: 1.33rem;
+        }
+    }
+}
+
+.aet-submit--rapida {
+    width: 100%;
+    padding-inline: 1.25rem;
+}
+
+.aet-rapida__nota {
+    margin: 0.6rem 0 0;
+    color: var(--aet-suave);
+    font-size: 0.82rem;
+    text-align: center;
+}
+
+// Confirmación: reemplaza al formulario
+.aet-gracias {
+    padding: clamp(1.5rem, 4vw, 2.5rem) 1.25rem;
+    color: var(--color-ink);
+    text-align: center;
+
+    &:focus {
+        outline: 0;
+    }
+}
+
+.aet-gracias__icono {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin-bottom: 0.75rem;
+    border-radius: 50%;
+    background: var(--color-accent);
+    color: var(--color-white);
+    font-size: 1.35rem;
+}
+
+.aet-gracias__titulo {
+    margin: 0 0 0.4rem;
+    color: var(--color-ink);
+    font-size: 1.35rem;
+}
+
+.aet-gracias__texto {
+    max-width: 32rem;
+    margin: 0 auto 0.85rem;
+    color: #51626d;
+    font-size: 1rem;
+}
+
+.aet-gracias__enlace {
+    color: var(--color-accent);
+    font-weight: 600;
 }

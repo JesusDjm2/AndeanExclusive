@@ -1,6 +1,6 @@
 import { initNav } from './nav';
 import { initAnimations } from './animations';
-import { initCaptcha } from './captcha';
+import { initPublicForms } from './public-forms';
 import { initHotelGalleries } from './hotel-gallery';
 import { initBackToTop } from './back-to-top';
 import { initContactModals } from './contact-modal';
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.remove('no-js');
     initNav();
     initAnimations();
-    initCaptcha();
+    initPublicForms();
     initHotelGalleries();
     initBackToTop();
     initContactModals();

@@ -91,6 +91,9 @@ return [
     |
     */
 
+    // Quién recibe las consultas de los formularios del sitio.
+    'consultas_destino' => env('CONSULTAS_CORREO', 'routes@andeanexclusive.com'),
+
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'mirandadjmdjm@gmail.com'),
         'name' => env('MAIL_FROM_NAME', 'Pagina web'),

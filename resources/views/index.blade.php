@@ -21,34 +21,7 @@
                 experiences, tailored to you.
             </p>
 
-            @if (session()->has('flash'))
-                <div class="alert alert-success">{{ session()->get('flash') }}</div>
-            @endif
-
-            <form class="hero-search mt-lg" action="{{ route('bookindex') }}" method="post">
-                @csrf
-                <div>
-                    <span class="form-label">Date Arrive</span>
-                    <input class="form-control" type="date" name="da">
-                </div>
-                <div>
-                    <span class="form-label">Date Out</span>
-                    <input class="form-control" type="date" name="do">
-                </div>
-                <div>
-                    <span class="form-label">Adults</span>
-                    <input type="number" min="1" class="form-control" placeholder="2" required name="adultos">
-                </div>
-                <div>
-                    <span class="form-label">Children</span>
-                    <input type="number" min="0" class="form-control" placeholder="0" name="child">
-                </div>
-                <div>
-                    <span class="form-label">Email</span>
-                    <input type="email" class="form-control" placeholder="you@email.com" required name="email">
-                </div>
-                <button type="submit" class="hero-search__submit">Check availability</button>
-            </form>
+            @include('layouts.partials.form-consulta-rapida', ['locale' => 'en'])
         </div>
     </section>
 

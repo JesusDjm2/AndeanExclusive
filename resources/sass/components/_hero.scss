@@ -2,7 +2,7 @@
     position: relative;
     min-height: 82vh;
     // Top clearance for the fixed header: without it, on tablets/phones the
-    // hero-search form makes the content taller than 82vh and the centered
+    // consulta rápida makes the content taller than 82vh and the centered
     // title slides up under the transparent header, overlapping the logo.
     padding-top: calc(var(--header-h) + var(--space-sm));
     display: flex;
@@ -89,28 +89,6 @@
         font-size: 1rem;
         margin-bottom: var(--space-sm);
     }
-
-    .hero-search {
-        padding: 0.85rem;
-        gap: 0.5rem;
-
-        .form-label {
-            font-size: 0.72rem;
-            margin-bottom: 0.15rem;
-        }
-
-        // Slimmer fields than Bootstrap's default so the stacked form doesn't
-        // swallow the photo on tablet/phone heights.
-        .form-control {
-            padding: 0.3rem 0.55rem;
-            font-size: 0.9rem;
-        }
-    }
-
-    .hero-search__submit {
-        padding: 0.6rem 1.25rem;
-        font-size: 0.9rem;
-    }
 }
 
 @media (max-width: 575.98px) {
@@ -120,13 +98,6 @@
 
     .hero__title {
         font-size: clamp(1.6rem, 1.25rem + 2vw, 2rem);
-    }
-
-    .hero-search {
-        gap: 0.4rem;
-        padding: 0.7rem;
-        margin-top: var(--space-sm);
-        border-radius: var(--radius-md);
     }
 }
 
@@ -162,74 +133,6 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
-}
-
-.hero-search {
-    text-align: left;
-    background: var(--color-ink);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
-    padding: var(--space-md);
-    box-shadow: var(--shadow-lg);
-    display: grid;
-    gap: var(--space-xs);
-    grid-template-columns: 1fr;
-    color: var(--color-white);
-
-    // Tablet range: pair the date/traveler fields to halve the form's height,
-    // and sit the submit beside the email field so the whole form is three
-    // rows — the photo keeps most of the hero. nth-of-type skips the CSRF
-    // hidden input that @csrf renders as the form's first child.
-    // Kept up to 1199px: a single row only fits once the container is wide
-    // enough for the email field and the submit label not to be clipped.
-    @media (min-width: 480px) and (max-width: 1199.98px) {
-        grid-template-columns: repeat(2, 1fr);
-
-        .hero-search__submit {
-            grid-column: 2;
-            align-self: end;
-        }
-    }
-
-    // Desktop: one row; dates and email get room, the counters stay narrow.
-    @media (min-width: 1200px) {
-        grid-template-columns: 1.15fr 1.15fr 0.7fr 0.7fr 1.6fr auto;
-        align-items: end;
-    }
-}
-
-.hero-search .form-label {
-    color: rgba(255, 255, 255, 0.65);
-}
-
-.hero-search .form-control {
-    background: rgba(255, 255, 255, 0.08);
-    border-radius: var(--radius-sm);
-    border-color: rgba(255, 255, 255, 0.18);
-    color: var(--color-white);
-
-    &::placeholder { color: rgba(255, 255, 255, 0.45); }
-
-    &:focus {
-        background: rgba(255, 255, 255, 0.12);
-        color: var(--color-white);
-    }
-
-    // Date inputs render a small dark calendar glyph by default — invert
-    // it to white so it doesn't disappear against this dark field.
-    &::-webkit-calendar-picker-indicator { filter: invert(1); }
-}
-
-.hero-search__submit {
-    @extend .btn-brand;
-    @extend .btn-brand--primary;
-    border: none;
-    justify-content: center;
-    width: 100%;
-
-    @media (min-width: 1200px) {
-        width: auto;
-    }
 }
 
 // Small full-bleed strip used for secondary/interior pages
