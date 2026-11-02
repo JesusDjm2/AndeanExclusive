@@ -50,25 +50,24 @@ class ConsultaWebController extends Controller
         }
 
         $datos = $validador->validated();
-        $consulta = rescue(fn () => Consulta::create([
+        $consulta = new Consulta([
             'nombre' => ($datos['nombre'] ?? null) ?: ($datos['name'] ?? null) ?: $datos['email'],
             'email' => $datos['email'], 'telefono' => $datos['telefono'] ?? null, 'idioma' => $idioma, 'origen' => 'web',
             'tour' => $datos['tour'] ?? null, 'fecha_inicio' => $datos['da'] ?? null, 'fecha_fin' => $datos['do'] ?? null,
             'adultos' => $datos['adultos'] ?? null, 'ninos' => $datos['child'] ?? null, 'mensaje' => $datos['mensaje'] ?? null,
-        ]));
+        ]);
+        $guardada = rescue(fn () => $consulta->save(), false);
 
         $correoEnviado = false;
-        if ($consulta) {
-            try {
-                Mail::to(config('mail.consultas_destino'))->send(new ConsultaRecibidaMailable($consulta));
-                $correoEnviado = true;
-            } catch (Throwable $e) {
-                report($e);
-            }
+        try {
+            Mail::to(config('mail.consultas_destino'))->send(new ConsultaRecibidaMailable($consulta));
+            $correoEnviado = true;
+        } catch (Throwable $e) {
+            report($e);
         }
 
         // Solo se avisa del fallo si no quedó ningún rastro de la consulta.
-        return $consulta || $correoEnviado
+        return $guardada || $correoEnviado
             ? $this->volver($tipo)->with('form_enviado', $tipo)
             : $this->volver($tipo)->withInput()->with('form_activo', $tipo)->with('form_fallo', $tipo);
     }
