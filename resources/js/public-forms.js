@@ -115,6 +115,19 @@ function initFormulario(form) {
 export function initPublicForms() {
     document.querySelectorAll('[data-aet-form]').forEach(initFormulario);
 
+    // Al llegar a la portada con el ancla de consulta rápida (#consulta-rapida),
+    // aseguramos que la página quede fija en la parte superior (0) para que
+    // el título del hero y el mensaje queden perfectamente enmarcados sin meterse bajo el header.
+    if (window.location.hash === '#consulta-rapida') {
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        requestAnimationFrame(() => {
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+        });
+    }
+
     const primerError = document.querySelector('[data-aet-field].is-invalid input, [data-aet-field].is-invalid textarea');
     if (primerError && !primerError.closest('[data-contact-modal]')) primerError.focus({ preventScroll: true });
 }

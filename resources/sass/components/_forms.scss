@@ -9,9 +9,17 @@
 // =============================================================================
 
 // ---- Clearance para scroll de anclas ----------------------------------------
-#book,
-#consulta-rapida {
+#book {
     scroll-margin-top: calc(var(--header-h, 4.5rem) + 4rem);
+}
+
+#consulta-rapida {
+    // En la portada el formulario y su confirmación residen en el hero (100vh).
+    // Al navegar a #consulta-rapida, debe permanecer al tope de la página (0)
+    // para que el título del hero y el mensaje queden perfectamente encuadrados
+    // y jamás se desplacen debajo del header fijo.
+    scroll-margin-top: 100vh;
+    scroll-margin-top: 100dvh;
 }
 
 // ---- Tarjeta base (.booking-form) -------------------------------------------

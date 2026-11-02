@@ -12,6 +12,12 @@
 <div id="consulta-rapida" class="aet-rapida">
     @if (session('form_enviado') === $form)
         @include('layouts.partials.form-gracias', ['locale' => $locale])
+        <script>
+            if (window.location.hash === '#consulta-rapida') {
+                if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+                window.scrollTo(0, 0);
+            }
+        </script>
     @else
         <form class="aet-form aet-form--rapida" action="{{ route($isEs ? 'book-castellano' : 'bookindex') }}" method="post" novalidate data-aet-form
             data-msg-requerido="{{ $isEs ? 'Completa este dato.' : 'Please fill this in.' }}" data-msg-correo="{{ $isEs ? 'Revisa tu correo: parece incompleto.' : 'Please check your email: it looks incomplete.' }}" data-msg-fechas="{{ $isEs ? 'La salida no puede ser antes de la llegada.' : 'Departure cannot be before arrival.' }}">
