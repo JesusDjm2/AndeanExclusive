@@ -6,6 +6,7 @@ use App\Mail\ProgramaBienvenidaMailable;
 use App\Models\Agente;
 use App\Models\Anio;
 use App\Models\Cliente;
+use App\Models\Consulta;
 use App\Models\HabitacionFecha;
 use App\Models\Hotel;
 use App\Models\Mes;
@@ -173,6 +174,12 @@ class ProgramaController extends Controller
         $programa = new Programa(['estado' => 'cotizacion', 'lang' => 'es']);
         $programa->cliente_id = request()->integer('cliente_id') ?: null;
 
+        // Viene de «Crear cotización» en una consulta: ya trae lo que el cliente pidió.
+        if ($consulta = Consulta::find(request()->integer('consulta'))) {
+            $programa->fill(array_filter(['nombre' => $consulta->tour, 'lang' => $consulta->idioma, 'inicio' => $consulta->fecha_inicio?->toDateString(), 'fin' => $consulta->fecha_fin?->toDateString()]));
+            $programa->presentacion = $programa->presentacion ?: ($consulta->mensaje ? e($consulta->mensaje) : null);
+        }
+
         return view('programas.create', $this->formData($programa));
     }
 
@@ -206,6 +213,7 @@ class ProgramaController extends Controller
 
             $programa->agentes()->sync($request->input('agentes', []));
             $this->guardarEstadias($programa, $request);
+            Consulta::find($request->integer('consulta_id'))?->seguirA($programa);
             AlojamientoEnServicios::sincronizar($programa);
 
             foreach ((array) $request->input('paxs', []) as $index => $paxData) {

@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Models\Agente;
 use App\Models\Cliente;
+use App\Models\Consulta;
 use App\Models\HabitacionFecha;
 use App\Models\Hotel;
 use App\Models\Movimiento;
@@ -89,6 +90,11 @@ class Bitacora
         Cliente::class => [
             'modulo' => 'Cliente',
             'campos' => ['nombre' => 'Nombre', 'empresa' => 'Empresa', 'email' => 'Correo', 'telefono' => 'Teléfono', 'pais' => 'País'],
+        ],
+        Consulta::class => [
+            'modulo' => 'Consulta',
+            'campos' => ['nombre' => 'Nombre', 'estado' => 'Estado', 'motivo_perdida' => 'Motivo', 'notas' => 'Notas'],
+            'sinValor' => ['notas'],
         ],
         Proveedor::class => [
             'modulo' => 'Proveedor',
@@ -223,7 +229,7 @@ class Bitacora
             Pago::class => '$' . number_format((float) $m->monto, 2),
             ProveedorPago::class => Servicio::formatoMonto((float) $m->monto, $m->moneda) . ' · ' . ($m->servicio?->titulo ?? 'servicio'),
             Notificacion::class => Notificacion::TIPOS[$m->tipo] ?? (string) $m->tipo,
-            Programa::class, Pax::class, Cliente::class, Proveedor::class, Hotel::class, Agente::class => (string) $m->nombre,
+            Programa::class, Pax::class, Cliente::class, Consulta::class, Proveedor::class, Hotel::class, Agente::class => (string) $m->nombre,
             User::class => (string) $m->name,
             default => (string) ($m->titulo ?? ''),
         };

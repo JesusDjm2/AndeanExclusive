@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use App\Models\Consulta;
 use App\Models\HabitacionFecha;
 use App\Models\Pago;
 use App\Models\Pax;
@@ -21,7 +22,7 @@ class ReglasDeAvisos
     public static function registrar(): void
     {
         // Instanciar antes: así estas reglas corren después de los eventos propios del modelo (p. ej. recalcular el pago).
-        foreach ([Servicio::class, Programa::class, Pago::class, ProveedorPago::class, Pax::class] as $modelo) {
+        foreach ([Servicio::class, Programa::class, Pago::class, ProveedorPago::class, Pax::class, Consulta::class] as $modelo) {
             new $modelo;
         }
 
@@ -40,6 +41,7 @@ class ReglasDeAvisos
         HabitacionFecha::deleted($regla(self::alojamientoCambiado(...)));
         Pax::created($regla(self::datosDelCliente(...)));
         Pax::updated($regla(self::datosDelCliente(...)));
+        Consulta::created($regla(self::consultaNueva(...)));
     }
 
     // ---- Destinos: llevan a donde se hace lo que se pide ----
@@ -204,6 +206,7 @@ class ReglasDeAvisos
     private static function programaActualizado(Programa $p): void
     {
         if ($p->wasChanged('estado')) {
+            Consulta::where('programa_id', $p->id)->first()?->seguirA($p);
             match ($p->estado) {
                 'confirmado' => self::programaConfirmado($p),
                 'cancelado' => self::programaCancelado($p),
@@ -311,6 +314,15 @@ class ReglasDeAvisos
         $p = $s->programa;
         $d = self::aReservas($p, $s);
         Avisos::enviar('reservas', 'pago_anulado', "Pago a proveedor anulado: {$s->titulo}", Servicio::formatoMonto((float) $pago->monto, $pago->moneda) . ' · Motivo: ' . ($pago->motivo_anulacion ?: 'sin indicar') . " · {$p->codigo}", 'Revisar con el proveedor', $d['ruta'], $d['params'], $d['ancla'], null, $p);
+    }
+
+    // ---- Consultas ----
+
+    private static function consultaNueva(Consulta $consulta): void
+    {
+        if ($consulta->estado === 'nueva') {
+            Avisos::enviar('operaciones', 'consulta_nueva', "Nueva consulta: {$consulta->nombre}", $consulta->resumen_viaje ?: $consulta->email, 'Atender consulta', 'consultas.show', ['consulta' => $consulta->id], null, "consulta:{$consulta->id}");
+        }
     }
 
     // ---- Cliente ----

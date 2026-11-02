@@ -47,7 +47,7 @@ class Ayuda
 
     /** El recorrido de un viaje: [área, qué pasa]. */
     public const VIAJE = [
-        ['Operaciones', 'Crea la cotización con el cliente, los viajeros, los hoteles, los días y el precio. Se la envía al cliente.'],
+        ['Operaciones', 'Atiende la consulta y crea la cotización con el cliente, los viajeros, los hoteles, los días y el precio. Se la envía al cliente.'],
         ['Operaciones', 'El cliente acepta y el programa pasa a Confirmado. Reservas y Contabilidad reciben el aviso.'],
         ['Contabilidad', 'Registra el depósito del 50 %, que vence a los 7 días de la confirmación.'],
         ['Reservas', 'Asigna proveedores, consigue las confirmaciones y envía las órdenes de servicio.'],
@@ -125,6 +125,12 @@ class Ayuda
         ],
 
         // ---- Programas y clientes ----
+        'consultas' => [
+            'grupo' => 'programas', 'rutas' => ['consultas.*'], 'permiso' => 'consultas.gestionar', 'titulo' => 'Atender consultas',
+            'resumen' => 'Los formularios de la web entran solos aquí y avisan a Operaciones. Cada consulta avanza de Nueva a Cotizada, y termina Ganada o Perdida.',
+            'pasos' => ['Abre la consulta y responde al interesado por correo o WhatsApp.', 'Cambia el estado a En gestión, elige quién la atiende y deja notas.', 'Pulsa «Crear cotización»: se crea el cliente y se abre un programa con sus datos.', 'Si no prospera, márcala como Perdida e indica el motivo.', 'Para lo que llega por otro canal, usa «Nueva consulta».'],
+            'notas' => ['Con programa, el estado cambia solo: se gana al confirmarlo y se pierde al cancelarlo.', 'El mismo correo no crea un cliente repetido.'],
+        ],
         'prog-lista' => [
             'grupo' => 'programas', 'rutas' => ['programas.index', 'programas.por-periodo'], 'titulo' => 'Buscar y abrir programas',
             'resumen' => 'La lista de todos los viajes, separados en próximos, finalizados y sin fechas.',

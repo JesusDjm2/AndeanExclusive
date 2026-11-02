@@ -171,6 +171,9 @@
             @method('PUT')
         @endif
         <input type="hidden" name="_tab" value="{{ $initialTab }}" data-current-tab>
+        @if (! $isEdit && request('consulta'))
+            <input type="hidden" name="consulta_id" value="{{ request()->integer('consulta') }}">
+        @endif
         <fieldset class="pf-fieldset" @disabled(! $canEdit)>
 
         <div class="tab-content">

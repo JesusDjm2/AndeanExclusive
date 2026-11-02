@@ -164,6 +164,13 @@
                         <strong>{{ $operacion['porConfirmar'] }}</strong><span>por confirmar ({{ \App\Http\Controllers\OperacionesController::DIAS_POR_CONFIRMAR }} días)</span>
                     </a>
                 </div>
+                @if ($consultasNuevas)
+                    <a href="{{ route('consultas.index') }}" class="dash-ops__alert">
+                        <i class="fas fa-inbox" aria-hidden="true"></i>
+                        {{ $consultasNuevas }} {{ $consultasNuevas === 1 ? 'consulta nueva por atender' : 'consultas nuevas por atender' }}
+                        <i class="fas fa-arrow-right ms-auto" aria-hidden="true"></i>
+                    </a>
+                @endif
                 @can('pagos.registrar')
                     @if ($operacion['pagosSolicitados'])
                         <a href="{{ route('cuentas.index', ['filtro' => 'solicitadas']) }}" class="dash-ops__alert">

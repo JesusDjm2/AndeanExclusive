@@ -26,6 +26,7 @@ class AdminNavigation
         [
             'label' => 'Operaciones',
             'items' => [
+                ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
                 ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.index', 'programas.create', 'programas.edit', 'programas.pdf']],
                 ['label' => 'Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
                 ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],

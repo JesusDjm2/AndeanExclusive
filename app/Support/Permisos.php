@@ -25,6 +25,7 @@ class Permisos
     public const MATRIZ = [
         'programas.gestionar' => ['operaciones'],
         'programas.eliminar' => [],
+        'consultas.gestionar' => ['operaciones'],
         'cotizacion.ver' => ['operaciones', 'contabilidad'], // % de ganancia y costo base con los que se cotiza
         'margen.ver' => ['contabilidad'],                    // margen real del programa
         'servicios.gestionar' => ['reservas'],
@@ -47,6 +48,7 @@ class Permisos
             'paxs.create', 'paxs.store', 'paxs.edit', 'paxs.update', 'paxs.destroy',
         ],
         'programas.eliminar' => ['programas.destroy'],
+        'consultas.gestionar' => ['consultas.create', 'consultas.store', 'consultas.update', 'consultas.cotizar'],
         'servicios.gestionar' => ['servicios.estado', 'servicios.asignar', 'reservas.lote'],
         'proveedores.gestionar' => [
             'proveedors.create', 'proveedors.store', 'proveedors.edit', 'proveedors.update', 'proveedors.destroy',

@@ -3,6 +3,8 @@
 use App\Http\Controllers\AgenteController;
 use App\Http\Controllers\CategoriaController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\ConsultaController;
+use App\Http\Controllers\ConsultaWebController;
 use App\Http\Controllers\EnblogController;
 use App\Http\Controllers\EnCatController;
 use App\Http\Controllers\EnEnlacesController;
@@ -71,6 +73,8 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::resource('proveedors', ProveedorController::class)->names('proveedors');
         Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
         Route::resource('agentes', AgenteController::class)->names('agentes');
+        Route::post('consultas/{consulta}/cotizar', [ConsultaController::class, 'cotizar'])->name('consultas.cotizar');
+        Route::resource('consultas', ConsultaController::class)->only(['index', 'create', 'store', 'show', 'update'])->names('consultas');
         Route::get('programas/por-periodo', [ProgramaController::class, 'porPeriodo'])->name('programas.por-periodo');
         Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
         Route::post('programas/{programa}/enviar-correo', [ProgramaController::class, 'enviarCorreo'])->name('programas.enviar-correo');
@@ -147,103 +151,12 @@ Route::get('es/tag/{slug}', [EstagController::class, 'show'])->name('estag.show'
 /* Route::get('/', function () {return view('index');})->name('index'); */
 Route::get('/', [EnEnlacesController::class, 'index'])->name('index');
 
-// Formularios en inglés
-Route::post('mensaje01', function () {
-    $datos = request()->all();
-    Mail::send('emails.mensaje1', $datos, function ($message) use ($datos) {
-        $message->from($datos['email'], $datos['name'])
-            ->to('routes@andeanexclusive.com', 'DJM2')
-            ->subject('Envio de formulario desde la página web.');
-    });
-
-    return back()->with('flash', 'Your message was sent successfully!');
-})->name('mensaje01');
-
-Route::post('bookindex', function () {
-    $datos = request()->all();
-    Mail::send('emails.bookindex', $datos, function ($message) use ($datos) {
-        $message->from($datos['email'])
-            ->to('routes@andeanexclusive.com', 'DJM2')
-            ->subject('Envio de formulario desde la página web.');
-    });
-
-    return back()->with('flash', 'Your message was sent successfully!');
-})->name('bookindex');
-
-Route::post('bookindex2', function () {
-    $datos = request()->all();
-    if (! empty($datos['personas'])) {
-        return back()->with('error', 'Error: Invalid form submission');
+// Formularios del sitio: la consulta queda en el panel y además llega por correo
+Route::middleware('throttle:6,1')->group(function () {
+    foreach (['mensaje01', 'bookindex', 'bookindex2', 'mensaje02', 'book-castellano', 'bookindex2castellano'] as $formulario) {
+        Route::post($formulario, [ConsultaWebController::class, 'recibir'])->defaults('formulario', $formulario)->name($formulario);
     }
-
-    try {
-        Mail::send('emails.bookindex2', $datos, function ($message) use ($datos) {
-            $message->from($datos['email'])
-                ->to('routes@andeanexclusive.com', 'DJM2')
-                ->subject('Envio de contacto desde página web.');
-        });
-    } catch (Throwable $e) {
-        report($e);
-
-        return back()->with('error', 'We could not send your message right now. Please try again or email us directly.');
-    }
-
-    return back()->with('contact_flash', 'Your message was sent successfully!');
-})->name('bookindex2');
-
-Route::post('mensaje02', function () {
-    $datos = request()->all();
-
-    try {
-        Mail::send('emails.mensaje1', $datos, function ($message) use ($datos) {
-            $message->from($datos['email'], $datos['name'])
-                ->to('routes@andeanexclusive.com', 'DJM2')
-                ->subject('Envio de contacto desde página web.');
-        });
-    } catch (Throwable $e) {
-        report($e);
-
-        return back()->with('error', 'No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo o escríbenos directamente.');
-    }
-
-    return back()->with('flash', '¡Su mensaje fué enviado con éxito! Le responderemos en la mayor brevedad posible.');
-})->name('mensaje02');
-
-Route::post('book-castellano', function () {
-    $datos = request()->all();
-
-    try {
-        Mail::send('emails.bookindex', $datos, function ($message) use ($datos) {
-            $message->from($datos['email'])
-                ->to('routes@andeanexclusive.com', 'DJM2')
-                ->subject('Envio de contacto desde página web.');
-        });
-    } catch (Throwable $e) {
-        report($e);
-
-        return back()->with('error', 'No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo o escríbenos directamente.');
-    }
-
-    return back()->with('flash', '¡Su mensaje fué enviado con éxito! Le responderemos en la mayor brevedad posible.');
-})->name('book-castellano');
-
-Route::post('bookindex2castellano', function () {
-    $datos = request()->all();
-
-    try {
-        Mail::send('emails.bookindex2', $datos, function ($message) use ($datos) {
-            $message->from($datos['email'])
-                ->to('routes@andeanexclusive.com', 'DJM2')
-                ->subject('Envio de contacto desde página web.');
-        });
-    } catch (Throwable $e) {
-        report($e);
-
-        return back()->with('error', 'No pudimos enviar tu mensaje en este momento. Inténtalo de nuevo o escríbenos directamente.');
-    }
-
-    return back()->with('contact_flash', '¡Su mensaje fué enviado con éxito!');
-})->name('bookindex2castellano');
+});
 
 // Aventuras Español
 Route::get('adventures/tour-choquequirao', function () {

@@ -59,6 +59,7 @@ $body-bg: var(--ae-bg);
 @import 'admin/movimientos';
 @import 'admin/avisos';
 @import 'admin/ayuda';
+@import 'admin/consultas';
 
 // Estilos propios de vistas concretas, acotados con la clase del <body> (@section('body-class')).
 @import 'admin/views/imagenes';

@@ -86,6 +86,7 @@ class HomeController extends Controller
 
         // Correos que conviene enviar al cliente (los envía una persona del equipo desde la pestaña Pagos).
         $avisosCliente = Recordatorios::porEnviar();
+        $consultasNuevas = \App\Models\Consulta::where('estado', 'nueva')->count();
 
         // Programas por mes del año en curso (gráfico de barras en CSS, sin librerías).
         $perMonth = Programa::query()
@@ -115,6 +116,6 @@ class HomeController extends Controller
 
         $ultimosMovimientos = \App\Models\Movimiento::query()->with('programa:id,codigo')->latest()->orderByDesc('id')->limit(8)->get();
 
-        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente'));
+        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas'));
     }
 }
