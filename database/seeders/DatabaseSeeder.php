@@ -3,28 +3,26 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed the application's database with authentic Peruvian luxury travel agency data.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         $this->call([
             RolePermissionSeeder::class,
             MesSeeder::class,
             AnioSeeder::class,
+            PeruProveedoresHotelesSeeder::class,
+            TarifaSeeder::class,
+            AgenteSeeder::class,
             ProgramaSeeder::class,
+            ConsultaSeeder::class,
+            AvisosSeeder::class,
+            MovimientoSeeder::class,
         ]);
     }
 }

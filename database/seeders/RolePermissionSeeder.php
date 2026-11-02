@@ -27,6 +27,22 @@ class RolePermissionSeeder extends Seeder
             Role::findOrCreate($name, $guard);
         }
 
+        // Asignación de roles por email oficial del equipo
+        $rolesPorEmail = [
+            'mirandadjmdjm@gmail.com' => 'administrador',
+            'operaciones@andeanexclusive.com' => 'operaciones',
+            'reservas@andeanexclusive.com' => 'reservas',
+            'contabilidad@andean.com' => 'contabilidad',
+        ];
+
+        foreach ($rolesPorEmail as $email => $rol) {
+            $user = User::where('email', $email)->first();
+            if ($user && ! $user->hasRole($rol)) {
+                $user->assignRole($rol);
+            }
+        }
+
+        // Cualquier otro usuario existente sin rol asignado recibe administrador
         User::query()->each(function (User $user): void {
             if ($user->roles()->count() === 0) {
                 $user->assignRole('administrador');
