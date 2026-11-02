@@ -24,14 +24,14 @@
     $describe = collect([$hint ? "{$id}-ayuda" : null, $error ? "{$id}-error" : null])->filter()->implode(' ');
     $atributos = collect($attrs ?? [])->map(fn ($v, $k) => $k . '="' . e($v) . '"')->implode(' ');
 @endphp
-<div class="aet-field {{ ($full ?? false) ? 'aet-field--full' : '' }} {{ $error ? 'is-invalid' : '' }}" data-aet-field>
+<div class="aet-field aet-field--{{ $type }} {{ ($full ?? false) ? 'aet-field--full' : '' }} {{ $error ? 'is-invalid' : '' }}" data-aet-field>
     <label class="aet-label" for="{{ $id }}">
         {{ $label }}
         @unless ($required)<span class="aet-label__opcional">{{ $opcional }}</span>@endunless
     </label>
 
     @if ($type === 'textarea')
-        <textarea id="{{ $id }}" name="{{ $name }}" class="aet-input aet-input--area" rows="4" maxlength="5000" placeholder="{{ $placeholder ?? '' }}"
+        <textarea id="{{ $id }}" name="{{ $name }}" class="aet-input aet-input--area" rows="{{ $rows ?? 2 }}" maxlength="5000" placeholder="{{ $placeholder ?? '' }}"
             @if ($required) required @endif @if ($describe) aria-describedby="{{ $describe }}" @endif @if ($error) aria-invalid="true" @endif>{{ $valor }}</textarea>
     @elseif ($type === 'stepper')
         <div class="aet-stepper" data-aet-stepper>

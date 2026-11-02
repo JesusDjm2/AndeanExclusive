@@ -21,7 +21,7 @@
     border: 1px solid var(--color-border);
     border-top: 4px solid var(--color-primary);
     border-radius: var(--radius-lg);
-    padding: clamp(1.25rem, 2.5vw, 2.25rem);
+    padding: clamp(0.85rem, 2vw, 1.35rem);
     box-shadow: var(--shadow-md);
     transition: box-shadow var(--duration-base) var(--ease-premium);
 
@@ -31,14 +31,14 @@
 }
 
 .booking-form__title {
-    margin-bottom: var(--space-md);
-    font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.6rem);
+    margin-bottom: 0.65rem;
+    font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.45rem);
     color: var(--color-ink);
     letter-spacing: -0.01em;
     font-weight: 700;
 
     &.font-display {
-        font-size: clamp(1.6rem, 1.4rem + 0.8vw, 2.1rem);
+        font-size: clamp(1.4rem, 1.25rem + 0.6vw, 1.8rem);
         color: var(--color-accent);
     }
 }
@@ -59,20 +59,20 @@
 .aet-tema {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    margin: 0 0 1.25rem;
-    padding: 0.75rem 1.1rem;
+    gap: 0.65rem;
+    margin: 0 0 0.65rem;
+    padding: 0.45rem 0.85rem;
     border-radius: var(--radius-md);
     background: var(--color-sand);
     border: 1px solid var(--color-border);
     border-left: 4px solid var(--color-primary);
-    font-size: 0.92rem;
-    line-height: 1.4;
+    font-size: 0.86rem;
+    line-height: 1.35;
 
     .fa {
         flex: none;
         color: var(--color-primary);
-        font-size: 1.15rem;
+        font-size: 1.05rem;
     }
 
     strong {
@@ -83,13 +83,13 @@
 
 // Alerta de fallo en sesión
 .aet-alerta {
-    margin: 0 0 1.25rem;
-    padding: 0.85rem 1.15rem;
+    margin: 0 0 0.75rem;
+    padding: 0.65rem 0.95rem;
     border-left: 4px solid var(--aet-error);
     border-radius: var(--radius-sm);
     background: #fdf2f0;
     color: #8c2517;
-    font-size: 0.92rem;
+    font-size: 0.88rem;
     font-weight: 600;
 }
 
@@ -106,11 +106,23 @@
 .aet-form__grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.6rem 0.85rem;
+
+    @media (max-width: 575.98px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+
+        .aet-field {
+            grid-column: 1 / -1;
+        }
+
+        .aet-field--stepper {
+            grid-column: span 1;
+        }
+    }
 
     @media (min-width: 576px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1.15rem 1.25rem;
+        gap: 0.75rem 1rem;
     }
 }
 
@@ -127,18 +139,18 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.35rem;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
     color: var(--color-ink);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
 }
 
 .aet-label__opcional {
     color: var(--aet-muted);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 400;
     text-transform: none;
     letter-spacing: normal;
@@ -153,9 +165,9 @@
 
 .aet-input-wrap__icon {
     position: absolute;
-    left: 0.9rem;
+    left: 0.75rem;
     color: var(--color-primary);
-    font-size: 0.95rem;
+    font-size: 0.88rem;
     pointer-events: none;
     transition: color var(--duration-fast) var(--ease-premium);
 }
@@ -168,15 +180,15 @@
 .aet-input {
     display: block;
     width: 100%;
-    min-height: 2.85rem;
-    padding: 0.55rem 0.85rem;
+    min-height: 2.45rem;
+    padding: 0.38rem 0.75rem;
     border: 1px solid var(--aet-border);
     border-radius: var(--radius-md);
     background: var(--aet-bg);
     color: var(--color-ink);
     font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.45;
+    font-size: 0.9rem;
+    line-height: 1.4;
     transition: background-color var(--duration-fast) var(--ease-premium),
                 border-color var(--duration-fast) var(--ease-premium),
                 box-shadow var(--duration-fast) var(--ease-premium);
@@ -184,7 +196,7 @@
     &::placeholder {
         color: #7b8e93;
         opacity: 1;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
     }
 
     &:hover {
@@ -207,14 +219,14 @@
 }
 
 .aet-input--icon {
-    padding-left: 2.45rem;
+    padding-left: 2.25rem;
 }
 
 .aet-input--area {
-    min-height: 6.5rem;
-    padding: 0.75rem 0.85rem;
+    min-height: 3.6rem;
+    padding: 0.45rem 0.75rem;
     resize: vertical;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 // Estado inválido
@@ -236,28 +248,28 @@
 }
 
 .aet-hint {
-    margin: 0.35rem 0 0;
+    margin: 0.2rem 0 0;
     color: var(--aet-muted);
-    font-size: 0.8rem;
-    line-height: 1.35;
+    font-size: 0.75rem;
+    line-height: 1.3;
 }
 
 .aet-error {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
-    margin: 0.35rem 0 0;
+    gap: 0.3rem;
+    margin: 0.2rem 0 0;
     color: var(--aet-error);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 600;
-    line-height: 1.35;
+    line-height: 1.3;
 
     &[hidden] {
         display: none;
     }
 
     .fa {
-        font-size: 0.9rem;
+        font-size: 0.82rem;
     }
 }
 
@@ -269,7 +281,7 @@
     border: 1px solid var(--aet-border);
     border-radius: var(--radius-md);
     overflow: hidden;
-    min-height: 2.85rem;
+    min-height: 2.45rem;
     transition: background-color var(--duration-fast) var(--ease-premium),
                 border-color var(--duration-fast) var(--ease-premium),
                 box-shadow var(--duration-fast) var(--ease-premium);
@@ -288,14 +300,14 @@
 
 .aet-stepper__input {
     flex: 1 1 auto;
-    min-width: 2.4rem;
-    min-height: 2.85rem;
+    min-width: 2rem;
+    min-height: 2.45rem;
     border: none !important;
     background: transparent !important;
     box-shadow: none !important;
     text-align: center;
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     color: var(--color-ink);
     padding: 0;
     appearance: textfield;
@@ -310,15 +322,15 @@
 }
 
 .aet-stepper__btn {
-    flex: 0 0 2.6rem;
-    height: 2.85rem;
+    flex: 0 0 2.25rem;
+    height: 2.45rem;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: none;
     background: transparent;
     color: var(--color-accent);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: background-color var(--duration-fast) var(--ease-premium),
                 color var(--duration-fast) var(--ease-premium);
@@ -349,18 +361,18 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem 1.5rem;
-    margin-top: 1.5rem;
-    padding-top: 1rem;
+    gap: 0.5rem 1rem;
+    margin-top: 0.65rem;
+    padding-top: 0.5rem;
     border-top: 1px solid var(--color-border);
 }
 
 .aet-form__nota {
-    flex: 1 1 14rem;
+    flex: 1 1 12rem;
     margin: 0;
     color: var(--aet-muted);
-    font-size: 0.82rem;
-    line-height: 1.4;
+    font-size: 0.78rem;
+    line-height: 1.35;
 
     .fa {
         color: var(--color-accent);
@@ -375,13 +387,13 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.9rem;
-    padding: 0.7rem 2rem;
+    min-height: 2.55rem;
+    padding: 0.55rem 1.6rem;
     border: none;
     border-radius: var(--radius-md);
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     color: var(--color-white);
-    font-size: 0.98rem;
+    font-size: 0.92rem;
     font-weight: 700;
     letter-spacing: 0.02em;
     white-space: nowrap;
@@ -418,9 +430,9 @@
 
         &::before {
             content: '';
-            width: 1rem;
-            height: 1rem;
-            margin-right: 0.55rem;
+            width: 0.9rem;
+            height: 0.9rem;
+            margin-right: 0.5rem;
             border: 2px solid currentColor;
             border-right-color: transparent;
             border-radius: 50%;
@@ -447,7 +459,7 @@
 // =============================================================================
 .aet-rapida {
     max-width: 72rem;
-    margin: var(--space-md) auto 0;
+    margin: 0.75rem auto 0;
     border-radius: var(--radius-lg);
     background: rgba(24, 34, 41, 0.82);
     backdrop-filter: blur(14px);
@@ -464,7 +476,7 @@
     }
 
     .aet-form {
-        padding: 1.15rem 1.35rem 0.95rem;
+        padding: 0.75rem 0.95rem 0.65rem;
 
         --aet-border: rgba(255, 255, 255, 0.2);
         --aet-bg: rgba(255, 255, 255, 0.08);
@@ -476,9 +488,9 @@
 
     .aet-label {
         color: rgba(255, 255, 255, 0.85);
-        font-size: 0.75rem;
-        letter-spacing: 0.06em;
-        margin-bottom: 0.25rem;
+        font-size: 0.72rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.15rem;
     }
 
     .aet-label__opcional {
@@ -486,12 +498,16 @@
     }
 
     .aet-input {
+        min-height: 2.35rem;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.22);
         color: var(--color-white);
 
         &::placeholder {
             color: rgba(255, 255, 255, 0.5);
+            font-size: 0.82rem;
         }
 
         &:hover {
@@ -513,11 +529,18 @@
         }
     }
 
+    .aet-input--icon {
+        padding-left: 2.15rem;
+    }
+
     .aet-input-wrap__icon {
         color: var(--color-primary-light);
+        left: 0.7rem;
+        font-size: 0.82rem;
     }
 
     .aet-stepper {
+        min-height: 2.35rem;
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.22);
 
@@ -534,10 +557,15 @@
     }
 
     .aet-stepper__input {
+        min-height: 2.35rem;
+        font-size: 0.92rem;
         color: var(--color-white) !important;
     }
 
     .aet-stepper__btn {
+        flex: 0 0 2.1rem;
+        height: 2.35rem;
+        font-size: 0.75rem;
         color: var(--color-primary-light);
 
         &:hover:not(:disabled) {
@@ -560,29 +588,31 @@
 
     .aet-error {
         color: #ff9e90;
+        font-size: 0.74rem;
     }
 }
 
 .aet-rapida__campos {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem 0.55rem;
     align-items: end;
 
-    // Móvil mediano / Tablet portrait: 2 columnas ordenadas
-    @media (min-width: 480px) and (max-width: 991.98px) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-
-        .aet-field:nth-of-type(5),
-        .aet-submit--rapida {
-            grid-column: 1 / -1;
-        }
+    // Email y Botón ocupan todo el ancho en móviles / tablets portrait
+    .aet-field:nth-of-type(5),
+    .aet-submit--rapida {
+        grid-column: 1 / -1;
     }
 
     // Tablet landscape / Desktop: una sola barra horizontal perfectamente alineada
     @media (min-width: 992px) {
-        grid-template-columns: minmax(8.5rem, 1.15fr) minmax(8.5rem, 1.15fr) minmax(7.5rem, 0.75fr) minmax(7.5rem, 0.75fr) minmax(13rem, 1.5fr) auto;
+        grid-template-columns: minmax(8.5rem, 1.15fr) minmax(8.5rem, 1.15fr) minmax(7rem, 0.75fr) minmax(7rem, 0.75fr) minmax(12rem, 1.5fr) auto;
         gap: 0.65rem;
+
+        .aet-field:nth-of-type(5),
+        .aet-submit--rapida {
+            grid-column: auto;
+        }
 
         .aet-submit--rapida {
             align-self: end;
@@ -592,8 +622,9 @@
 
 .aet-submit--rapida {
     width: 100%;
-    min-height: 2.85rem;
-    padding-inline: 1.5rem;
+    min-height: 2.45rem;
+    padding-inline: 1.25rem;
+    font-size: 0.88rem;
     box-shadow: 0 4px 18px rgba(9, 204, 189, 0.4);
 
     &:hover {
@@ -602,9 +633,9 @@
 }
 
 .aet-rapida__nota {
-    margin: 0.65rem 0 0;
+    margin: 0.4rem 0 0;
     color: rgba(255, 255, 255, 0.7);
-    font-size: 0.78rem;
+    font-size: 0.72rem;
     text-align: center;
 
     .fa {

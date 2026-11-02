@@ -547,24 +547,34 @@ $day-badge: 3.25rem;
 // ---- Booking section (#book) ------------------------------------------------
 
 .tour-book {
-    padding: var(--space-lg);
+    padding: clamp(0.75rem, 2vw, 1.25rem);
     border-top: 0;
     border-radius: var(--radius-lg);
     background: linear-gradient(160deg, var(--color-sand) 0%, var(--color-sand-deep) 100%);
 
     @media (max-width: 575.98px) {
-        padding: var(--space-md);
+        padding: 0.65rem;
     }
 
-    .booking-form { box-shadow: var(--shadow-sm); }
+    .booking-form {
+        padding: clamp(0.75rem, 2vw, 1.25rem);
+        box-shadow: var(--shadow-sm);
+    }
 }
 
 .tour-book__intro {
-    margin-bottom: var(--space-md);
+    margin-bottom: 0.5rem;
+
+    .tour-section__title {
+        font-size: clamp(1.2rem, 1.05rem + 0.4vw, 1.5rem);
+        margin-bottom: 0.2rem;
+    }
 
     p {
         max-width: 60ch;
         color: var(--color-ink-soft);
+        font-size: 0.86rem;
+        margin-bottom: 0.35rem;
     }
 }
 
