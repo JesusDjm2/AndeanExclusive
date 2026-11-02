@@ -66,6 +66,11 @@ class Programa extends Model
         'mes_id',
     ];
 
+    protected function presentacion(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return \Illuminate\Database\Eloquent\Casts\Attribute::make(set: fn (?string $html) => \App\Support\HtmlSeguro::limpiar($html));
+    }
+
     protected static function booted(): void
     {
         // Una plantilla no es un viaje: no cuenta en listados, estadísticas, reservas ni cuentas.

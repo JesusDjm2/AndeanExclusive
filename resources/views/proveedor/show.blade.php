@@ -100,7 +100,7 @@
                                             </th>
                                             <td>
                                                 @if ($proveedor->detalles)
-                                                    {!! $proveedor->detalles !!}
+                                                    {!! nl2br(e($proveedor->detalles)) !!}
                                                 @else
                                                     <i class="fas fa-sticky-note fa-2x mb-3"></i>
                                                     <p>No hay detalles adicionales</p>

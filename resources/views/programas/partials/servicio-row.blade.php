@@ -82,7 +82,7 @@
                     title="Orden de servicio (PDF)" aria-label="Orden de servicio en PDF"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>
             @endif
             @if (! empty($s['de_estadia']))
-                <span class="svc-row__de-estadia" title="Fecha y costo se cambian en la pestaña Alojamiento"><i class="fas fa-bed" aria-hidden="true"></i> Desde Alojamiento</span>
+                <span class="svc-row__de-estadia" title="Lo generó el alojamiento: su fecha y su costo se cambian en la pestaña Alojamiento" aria-label="Generado por el alojamiento" role="img"><i class="fas fa-bed" aria-hidden="true"></i></span>
             @else
             <button type="button" class="btn btn-sm btn-outline-danger" data-svc-remove title="Quitar servicio" aria-label="Quitar servicio">
                 <i class="fas fa-times" aria-hidden="true"></i>

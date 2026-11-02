@@ -6,7 +6,7 @@
 @php
     $isEs = $locale === 'es';
     $siteBase = rtrim(config('seo.site_url'), '/');
-    $canonical = $isEs ? $siteBase . '/' . $tour->slug : $siteBase . '/en/' . $tour->slug;
+    $canonical = $isEs ? route('estour.show', $tour->slug, true) : route('tour.show', $tour->slug, true);
     $altCanonical = $altTour ? ($isEs ? $siteBase . '/en/' . $altTour->slug : $siteBase . '/' . $altTour->slug) : null;
     $altUrl = $altTour ? route($isEs ? 'tour.show' : 'estour.show', $altTour->slug) : null;
 

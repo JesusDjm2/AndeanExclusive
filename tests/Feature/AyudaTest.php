@@ -12,7 +12,7 @@ class AyudaTest extends TestCase
 {
     public function test_cada_pantalla_del_panel_tiene_ayuda(): void
     {
-        $ignoradas = ['avisos.resumen', 'avisos.abrir', 'ayuda.*', 'servicios.*', 'programas.pdf', 'paxs.pasaporte', 'password.*', 'verification.*'];
+        $ignoradas = ['avisos.resumen', 'avisos.abrir', 'ayuda.*', 'servicios.*', 'programas.pdf', 'programas.rooming', 'reportes.exportar', 'respaldos.descargar', 'paxs.pasaporte', 'password.*', 'verification.*'];
         $sinAyuda = collect(Route::getRoutes())
             ->filter(fn ($r) => $r->getName() && in_array('GET', $r->methods(), true) && in_array('auth', $r->gatherMiddleware(), true))
             ->map->getName()

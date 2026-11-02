@@ -24,7 +24,7 @@
 <body>
     <section>
         <div style="margin-top: 50px;"></div>
-        <center><img src="https://andeanexclusive.com/img/andean-exclusive-logo.png" width="200px" </center>
+        <center><img src="{{ asset('img/andean-exclusive-logo.png') }}" width="200" alt="Andean Exclusive Tours"></center>
             <center>
                 <div style="background: #000; width: 70%; height: 3px; margin-top:8px;margin-bottom:2px;"></div>
             </center>

@@ -772,7 +772,7 @@
 
 .estadia-row {
     display: grid;
-    grid-template-columns: minmax(200px, 3fr) 72px repeat(2, minmax(125px, 1fr)) minmax(155px, 1.2fr) 86px auto;
+    grid-template-columns: minmax(180px, 2.4fr) 64px repeat(2, minmax(122px, 1fr)) minmax(180px, 1.4fr) 84px auto;
     gap: 0.6rem;
     align-items: end;
     padding: 0.75rem;
@@ -787,7 +787,8 @@
     }
 
     &__moneda {
-        flex: 0 0 4.2rem;
+        flex: 0 0 3.9rem;
+        padding-left: 0.4rem;
     }
 
     @media (max-width: 991.98px) {

@@ -42,10 +42,6 @@ class CategoriaController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function mostrar()
-    {
-        return 'Hola mundo';
-    }
     public function show($id)
     {
         $categorias = Categoria::find($id)->proveedors;

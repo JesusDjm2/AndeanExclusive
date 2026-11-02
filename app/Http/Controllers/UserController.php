@@ -135,6 +135,9 @@ class UserController extends Controller
     public function destroy($id)
     {
         $user = User::query()->findOrFail($id);
+        if ($user->is(request()->user())) {
+            return back()->with('status', 'No puedes eliminar tu propia cuenta.');
+        }
         $user->delete();
 
         return redirect()

@@ -165,7 +165,6 @@ Route::get('terminos-y-condiciones', [EnEnlacesController::class, 'terminos'])->
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
-Route::get('mostrar', [CategoriaController::class, 'mostrar'])->name('mostrar');
 Route::get('/en/{slug}', [TourController::class, 'show'])->name('tour.show');
 Route::get('/{slug}', [EsTourController::class, 'show'])->name('estour.show');
 Route::get('category/{slug}', [EnCatController::class, 'show'])->name('category.show');
