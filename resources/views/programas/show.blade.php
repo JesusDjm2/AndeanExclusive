@@ -371,7 +371,7 @@
                                 @endif
                                 @auth
                                     @if ($pax->pasaporte)
-                                        <p class="itin-traveler__meta"><span>{{ $t['passport'] }} {{ $pax->pasaporte }}</span></p>
+                                        <p class="itin-traveler__meta"><span>{{ $t['passport'] }} {{ $pax->pasaporte_oculto }}</span></p>
                                     @endif
                                 @endauth
                             </div>

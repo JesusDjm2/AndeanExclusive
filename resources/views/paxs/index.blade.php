@@ -119,9 +119,9 @@
                                 <tbody>
                                     @foreach ($grupo as $pax)
                                         @php
-                                            $pasUrl = $pax->pasaporte_archivo ? route('paxs.pasaporte', $pax) : null;
+                                            $pasUrl = $pax->pasaporte_archivo && auth()->user()->can('pasaportes.ver') ? route('paxs.pasaporte', $pax) : null;
                                             $searchRaw =
-                                                $pax->nombre . ' ' . ($pax->pasaporte ?? '') . ' ' . ($pax->nacionalidad ?? '');
+                                                $pax->nombre . ' ' . ($pax->pasaportePara(auth()->user()) ?? '') . ' ' . ($pax->nacionalidad ?? '');
                                             $searchNorm = mb_strtolower(
                                                 preg_replace('/\s+/u', ' ', trim($searchRaw)),
                                                 'UTF-8',
@@ -136,7 +136,7 @@
                                                 <span class="small">{{ $pax->alimentacion ?: '—' }}</span>
                                             </td>
                                             <td>
-                                                <span class="small">{{ $pax->pasaporte ?: '—' }}</span>
+                                                <span class="small">{{ $pax->pasaportePara(auth()->user()) ?: '—' }}</span>
                                                 @if ($pasUrl)
                                                     <a href="{{ $pasUrl }}" target="_blank" rel="noopener" class="small ms-1" title="Ver pasaporte escaneado">
                                                         <i class="fas fa-file-alt" aria-hidden="true"></i><span class="visually-hidden">Ver pasaporte escaneado</span>

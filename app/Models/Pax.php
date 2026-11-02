@@ -41,6 +41,18 @@ class Pax extends Model
         'X' => 'Otro / prefiere no indicar',
     ];
 
+    /** N.º de pasaporte para quien no debe verlo completo: solo sus últimos caracteres. */
+    public function getPasaporteOcultoAttribute(): ?string
+    {
+        return $this->pasaporte ? '•••' . mb_substr($this->pasaporte, -3) : null;
+    }
+
+    /** Lo que esta persona puede ver del n.º de pasaporte. */
+    public function pasaportePara(?\App\Models\User $user): ?string
+    {
+        return $user?->can('pasaportes.ver') ? $this->pasaporte : $this->pasaporte_oculto;
+    }
+
     /** Vigencia mínima del pasaporte al ingresar a Perú (meses). */
     public const MESES_VIGENCIA_PASAPORTE = 6;
 
@@ -64,6 +76,8 @@ class Pax extends Model
     protected $casts = [
         'fecha_nacimiento' => 'date',
         'pasaporte_vencimiento' => 'date',
+        'pasaporte' => 'encrypted',
+        'condiciones_medicas' => 'encrypted',
         'actualizado_por_cliente_at' => 'datetime',
     ];
 

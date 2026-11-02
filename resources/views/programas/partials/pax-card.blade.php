@@ -70,7 +70,7 @@
 
         <div class="col-6 col-md-3">
             <label class="prog-label" for="pax-{{ $i }}-pasaporte">N.º de pasaporte</label>
-            <input id="pax-{{ $i }}-pasaporte" type="text" name="{{ $fieldName('pasaporte') }}" value="{{ $v('pasaporte') }}"
+            <input id="pax-{{ $i }}-pasaporte" type="text" name="{{ $fieldName('pasaporte') }}" value="{{ auth()->user()?->can('pasaportes.ver') ? $v('pasaporte') : $paxModel?->pasaporte_oculto }}"
                 class="form-control form-control-sm {{ $err('pasaporte') || $alerta === 'falta' ? 'is-invalid' : '' }}" maxlength="50" autocomplete="off">
             @if ($err('pasaporte'))<div class="invalid-feedback">{{ $err('pasaporte') }}</div>@endif
         </div>
@@ -87,7 +87,7 @@
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <input id="pax-{{ $i }}-archivo" type="file" name="{{ $fieldName('pasaporte_archivo') }}" accept=".pdf,.jpg,.jpeg,.png,.webp"
                     class="form-control form-control-sm flex-grow-1 w-auto {{ $err('pasaporte_archivo') ? 'is-invalid' : '' }}">
-                @if ($paxModel?->pasaporte_archivo)
+                @if ($paxModel?->pasaporte_archivo && auth()->user()?->can('pasaportes.ver'))
                     <a href="{{ route('paxs.pasaporte', $paxModel) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary">
                         <i class="fas fa-file-alt" aria-hidden="true"></i> Ver actual
                     </a>

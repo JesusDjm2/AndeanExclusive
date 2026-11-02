@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
+use App\Support\Respaldos;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('avisos:plazos')->dailyAt('07:00')->withoutOverlapping();
+Artisan::command('respaldo:crear', fn () => $this->info(Respaldos::crear()))->purpose('Crea una copia de la base de datos');
+Schedule::command('respaldo:crear')->dailyAt('03:00')->withoutOverlapping();

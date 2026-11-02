@@ -113,6 +113,8 @@ class PaxController extends Controller
      */
     public function pasaporte(Pax $pax)
     {
+        abort_unless(request()->user()?->can('pasaportes.ver'), 403, 'Los pasaportes los consultan Operaciones y Reservas.');
+
         $path = PassportFiles::absolutePath($pax->pasaporte_archivo);
         abort_if(! $path, 404);
         \App\Support\Bitacora::anotar('consultó el pasaporte de', $pax);

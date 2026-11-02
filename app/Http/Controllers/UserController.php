@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Support\DobleVerificacion;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
@@ -24,6 +25,17 @@ class UserController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            $user = Auth::user();
+            if (DobleVerificacion::hacePara($user, $request)) {
+                Auth::logout();
+                $request->session()->regenerate();
+                if (! DobleVerificacion::iniciar($user, $request->boolean('remember'), $request)) {
+                    return back()->withErrors(['email' => 'No pudimos enviar tu código de acceso. Inténtalo de nuevo en unos minutos.'])->onlyInput('email');
+                }
+
+                return redirect()->route('verificacion');
+            }
+
             $request->session()->regenerate();
 
             return redirect()->intended('/home');
@@ -32,6 +44,31 @@ class UserController extends Controller
         return back()->withErrors([
             'email' => 'Las credenciales no coinciden con nuestros registros.',
         ])->onlyInput('email');
+    }
+
+    public function verificacion(Request $request)
+    {
+        return DobleVerificacion::pendiente($request) ? view('auth.verificacion') : redirect()->route('login');
+    }
+
+    public function comprobarVerificacion(Request $request)
+    {
+        $datos = $request->validate(['codigo' => 'required|string|size:6']);
+        $pendiente = DobleVerificacion::pendiente($request);
+        if (! $pendiente) {
+            return redirect()->route('login')->withErrors(['email' => 'El código venció. Vuelve a iniciar sesión.']);
+        }
+        if (! DobleVerificacion::comprobar($request, $datos['codigo'])) {
+            return back()->withErrors(['codigo' => 'El código no es correcto.']);
+        }
+
+        $user = User::findOrFail($pendiente['user_id']);
+        $request->session()->forget('doble_verificacion');
+        Auth::login($user, $pendiente['recordar']);
+        $request->session()->regenerate();
+        DobleVerificacion::confiarEnEsteEquipo($user);
+
+        return redirect()->intended('/home');
     }
 
     public function create()

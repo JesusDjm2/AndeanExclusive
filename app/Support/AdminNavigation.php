@@ -66,6 +66,7 @@ class AdminNavigation
             'roles' => ['administrador'],
             'items' => [
                 ['label' => 'Usuarios', 'icon' => 'fa-user-shield', 'route' => 'users.index', 'active' => ['users.*']],
+                ['label' => 'Copias de seguridad', 'icon' => 'fa-database', 'route' => 'respaldos.index', 'active' => ['respaldos.*']],
             ],
         ],
     ];

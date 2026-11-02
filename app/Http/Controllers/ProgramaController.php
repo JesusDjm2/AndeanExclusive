@@ -49,7 +49,7 @@ class ProgramaController extends Controller
                 $q->where(fn ($w) => $w->where('nombre', 'like', $term)
                     ->orWhere('codigo', 'like', $term)
                     ->orWhereHas('cliente', fn ($c) => $c->where('nombre', 'like', $term)->orWhere('empresa', 'like', $term)->orWhere('email', 'like', $term))
-                    ->orWhereHas('paxs', fn ($p) => $p->where('nombre', 'like', $term)->orWhere('pasaporte', 'like', $term)));
+                    ->orWhereHas('paxs', fn ($p) => $p->where('nombre', 'like', $term)));
             })
             ->when($request->filled('anio_id'), fn ($q) => $q->where('anio_id', $request->integer('anio_id')))
             ->when($request->filled('mes_id'), fn ($q) => $q->where('mes_id', $request->integer('mes_id')))

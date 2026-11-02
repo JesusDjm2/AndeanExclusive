@@ -15,9 +15,9 @@
         </p>
 
         @if ($pax->pasaporte)
-            <p><strong>N.º de pasaporte:</strong> {{ $pax->pasaporte }}</p>
+            <p><strong>N.º de pasaporte:</strong> {{ $pax->pasaportePara(auth()->user()) }}</p>
         @endif
-        @if ($pax->pasaporte_archivo)
+        @if ($pax->pasaporte_archivo && auth()->user()->can('pasaportes.ver'))
             <a href="{{ route('paxs.pasaporte', $pax) }}" target="_blank" rel="noopener">Ver pasaporte escaneado</a>
         @endif
     </div>

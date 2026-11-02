@@ -210,7 +210,7 @@ class Ayuda
             'grupo' => 'programas', 'rutas' => ['paxs.*'], 'permiso' => 'programas.gestionar', 'titulo' => 'Pasajeros',
             'resumen' => 'Todas las personas que viajan, de todos los programas. Normalmente se cargan desde la ficha de cada programa.',
             'pasos' => ['Busca a una persona para ver a qué programa pertenece.', 'Para cargar a un grupo, usa la pestaña Pasajeros del programa.'],
-            'notas' => ['Cuando alguien abre el archivo de un pasaporte, queda anotado en Movimientos.'],
+            'notas' => ['Los pasaportes los ven Operaciones, Reservas y Administración. Cuando alguien abre un archivo, queda anotado en Movimientos.'],
         ],
 
         // ---- Reservas y proveedores ----
@@ -286,6 +286,12 @@ class Ayuda
             'resumen' => 'Cada persona entra con su propio usuario, y su área define lo que puede modificar.',
             'pasos' => ['Pulsa «Nuevo Usuario».', 'Completa el nombre, el correo y la contraseña (al menos 8 caracteres), y repítela para confirmarla.', 'En «Rol en el panel», elige su área.', 'Pulsa «Crear usuario» y entrégale sus datos de forma privada.'],
             'notas' => ['Para cambiar de área, pulsa «Editar». El cambio queda en Movimientos.', 'Al eliminar a alguien, lo que hizo sigue en Movimientos con su nombre.', 'No compartan cuentas: el registro de quién hizo qué perdería su valor.'],
+        ],
+        'respaldos' => [
+            'grupo' => 'administracion', 'rutas' => ['respaldos.*'], 'permiso' => 'usuarios.gestionar', 'solo' => true, 'titulo' => 'Copias de seguridad',
+            'resumen' => 'Cada día se guarda una copia de la base de datos en el servidor, y se conservan las últimas 14.',
+            'pasos' => ['Pulsa «Crear copia ahora» antes de un cambio importante.', 'Pulsa «Descargar» y guarda la copia fuera del servidor de vez en cuando.'],
+            'notas' => ['Las copias tienen todos los datos de la agencia: guárdalas en un lugar seguro.', 'Los archivos de pasaportes y comprobantes no van en esta copia: se respaldan aparte, desde el hosting.', 'Guarda también el archivo .env: sin su clave no se pueden leer los pasaportes cifrados.'],
         ],
         'eliminar-programa' => [
             'grupo' => 'administracion', 'rutas' => ['programas.index'], 'permiso' => 'programas.eliminar', 'solo' => true, 'titulo' => 'Eliminar un programa',

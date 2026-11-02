@@ -26,6 +26,7 @@ class Permisos
         'programas.gestionar' => ['operaciones'],
         'programas.eliminar' => [],
         'consultas.gestionar' => ['operaciones'],
+        'pasaportes.ver' => ['operaciones', 'reservas'],     // n.º y archivo: lo necesita quien reserva trenes, entradas y hoteles
         'cotizacion.ver' => ['operaciones', 'contabilidad'], // % de ganancia y costo base con los que se cotiza
         'margen.ver' => ['contabilidad'],                    // margen real del programa
         'servicios.gestionar' => ['reservas'],

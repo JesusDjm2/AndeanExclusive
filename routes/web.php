@@ -32,6 +32,7 @@ use App\Http\Controllers\TareaController;
 use App\Http\Controllers\PaxController;
 use App\Http\Controllers\ProgramaController;
 use App\Http\Controllers\ProveedorController;
+use App\Http\Controllers\RespaldoController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TourController;
@@ -45,10 +46,18 @@ Auth::routes(['register' => false]);
 // Máx. 5 intentos de acceso por minuto (protección contra fuerza bruta).
 Route::middleware(['web', 'panel.es', 'throttle:5,1'])->post('/login', [UserController::class, 'login'])->name('login.submit');
 
+Route::middleware(['web', 'guest', 'panel.es'])->group(function () {
+    Route::get('/verificacion', [UserController::class, 'verificacion'])->name('verificacion');
+    Route::post('/verificacion', [UserController::class, 'comprobarVerificacion'])->middleware('throttle:10,1')->name('verificacion.comprobar');
+});
+
 // Solo usuarios con un rol asignado entran al panel (una cuenta sin rol no ve nada).
 Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabilidad|reservas'])->group(function () {
     Route::middleware('role:administrador')->group(function () {
         Route::resource('users', UserController::class)->names('users');
+        Route::get('copias-de-seguridad', [RespaldoController::class, 'index'])->name('respaldos.index');
+        Route::post('copias-de-seguridad', [RespaldoController::class, 'store'])->name('respaldos.store');
+        Route::get('copias-de-seguridad/{nombre}', [RespaldoController::class, 'descargar'])->name('respaldos.descargar');
     });
 
     // Todas las áreas consultan; cada una modifica solo lo suyo (App\Support\Permisos).
