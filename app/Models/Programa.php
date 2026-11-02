@@ -33,6 +33,9 @@ class Programa extends Model
     protected $casts = [
         'confirmado_at' => 'datetime',
         'itinerario_visto_at' => 'datetime',
+        'llegada_at' => 'datetime',
+        'salida_at' => 'datetime',
+        'cerrado_at' => 'datetime',
         'plantilla' => 'boolean',
     ];
 
@@ -53,6 +56,12 @@ class Programa extends Model
         'habitaciones_individuales',
         'presentacion',
         'portada',
+        'llegada_vuelo',
+        'llegada_at',
+        'salida_vuelo',
+        'salida_at',
+        'cerrado_at',
+        'cerrado_por',
         'anio_id',
         'mes_id',
     ];
@@ -222,6 +231,30 @@ public function paxs()
     public function scopePlantillas($query)
     {
         return $query->withoutGlobalScope('sin_plantillas')->where('plantilla', true);
+    }
+
+    /** Lo que falta para dar por terminado el viaje. Vacío = se puede cerrar. */
+    public function pendientesParaCerrar(): array
+    {
+        $this->loadMissing(['paxs', 'pagos']);
+        $pendientes = [];
+
+        if ($this->estado !== 'confirmado') {
+            $pendientes[] = 'el programa no está confirmado.';
+        } elseif (! $this->fin || Carbon::parse($this->fin)->startOfDay()->gte(Carbon::today())) {
+            $pendientes[] = 'el viaje aún no termina.';
+        }
+        if ($this->cobranza()['saldo'] > 0.009) {
+            $pendientes[] = 'el cliente tiene saldo por pagar.';
+        }
+        if ($this->servicios()->abiertos()->exists()) {
+            $pendientes[] = 'hay servicios sin confirmar ni cancelar.';
+        }
+        if ($this->servicios()->porPagar()->exists()) {
+            $pendientes[] = 'hay servicios sin pagar al proveedor.';
+        }
+
+        return $pendientes;
     }
 
     public function aceptaciones()

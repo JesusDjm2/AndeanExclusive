@@ -38,7 +38,7 @@ class Bitacora
                 'nombre' => 'Nombre', 'codigo' => 'Código', 'estado' => 'Estado', 'cliente_id' => 'Cliente', 'inicio' => 'Inicio', 'fin' => 'Fin',
                 'lang' => 'Idioma', 'precioAdulto' => 'Costo adulto', 'precioChild' => 'Costo niño', 'porcentaje_ganancia' => 'Ganancia (%)',
                 'tipo_cambio' => 'Tipo de cambio', 'suplemento_individual' => 'Suplemento individual',
-                'habitaciones_individuales' => 'Habitaciones individuales', 'presentacion' => 'Presentación', 'portada' => 'Portada',
+                'habitaciones_individuales' => 'Habitaciones individuales', 'presentacion' => 'Presentación', 'portada' => 'Portada', 'cerrado_at' => 'Cerrado',
             ],
             'sinValor' => ['presentacion'],
             'reservados' => ['precioAdulto', 'precioChild', 'porcentaje_ganancia'],

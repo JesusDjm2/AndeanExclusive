@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HabitacionFecha;
+use App\Models\Programa;
 use App\Models\Servicio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -31,6 +32,14 @@ class OperacionesController extends Controller
             ->with(['habitacion.hotel', 'programa.paxs'])
             ->get();
 
+        $vuelos = Programa::query()->where('estado', 'confirmado')
+            ->where(fn ($q) => $q->whereDate('llegada_at', $fecha)->orWhereDate('salida_at', $fecha))
+            ->with('paxs')->get()
+            ->flatMap(fn (Programa $p) => array_values(array_filter([
+                $p->llegada_at?->isSameDay($fecha) ? ['hora' => $p->llegada_at->format('H:i'), 'tipo' => 'Llegada', 'vuelo' => $p->llegada_vuelo, 'programa' => $p] : null,
+                $p->salida_at?->isSameDay($fecha) ? ['hora' => $p->salida_at->format('H:i'), 'tipo' => 'Salida', 'vuelo' => $p->salida_vuelo, 'programa' => $p] : null,
+            ])))->sortBy('hora')->values();
+
         $porConfirmar = Servicio::query()
             ->operables()
             ->abiertos()
@@ -48,6 +57,6 @@ class OperacionesController extends Controller
             'abiertos' => $servicios->whereIn('estado', Servicio::ABIERTOS)->count(),
         ];
 
-        return view('operaciones.index', compact('fecha', 'servicios', 'estadias', 'porConfirmar', 'resumen'));
+        return view('operaciones.index', compact('fecha', 'servicios', 'estadias', 'vuelos', 'porConfirmar', 'resumen'));
     }
 }

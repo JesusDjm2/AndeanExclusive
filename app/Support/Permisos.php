@@ -25,6 +25,8 @@ class Permisos
     public const MATRIZ = [
         'programas.gestionar' => ['operaciones'],
         'programas.eliminar' => [],
+        'programas.cerrar' => ['contabilidad'],
+        'programas.reabrir' => [],
         'consultas.gestionar' => ['operaciones'],
         'pasaportes.ver' => ['operaciones', 'reservas'],     // n.º y archivo: lo necesita quien reserva trenes, entradas y hoteles
         'cotizacion.ver' => ['operaciones', 'contabilidad'], // % de ganancia y costo base con los que se cotiza
@@ -50,8 +52,10 @@ class Permisos
             'paxs.create', 'paxs.store', 'paxs.edit', 'paxs.update', 'paxs.destroy',
         ],
         'programas.eliminar' => ['programas.destroy'],
+        'programas.cerrar' => ['programas.cerrar'],
+        'programas.reabrir' => ['programas.reabrir'],
         'consultas.gestionar' => ['consultas.create', 'consultas.store', 'consultas.update', 'consultas.cotizar'],
-        'servicios.gestionar' => ['servicios.estado', 'servicios.asignar', 'reservas.lote'],
+        'servicios.gestionar' => ['servicios.estado', 'servicios.asignar', 'reservas.lote', 'servicios.enviar-orden'],
         'proveedores.gestionar' => [
             'proveedors.create', 'proveedors.store', 'proveedors.edit', 'proveedors.update', 'proveedors.destroy',
             'categoriasproveedor.create', 'categoriasproveedor.store', 'categoriasproveedor.edit', 'categoriasproveedor.update', 'categoriasproveedor.destroy',

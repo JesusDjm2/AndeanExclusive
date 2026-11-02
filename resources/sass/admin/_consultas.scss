@@ -7,6 +7,16 @@
     margin-bottom: 0.75rem;
 }
 
+.estadia-listas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+    color: var(--ae-ink-soft);
+    font-size: 0.85rem;
+}
+
 .consulta-lista {
     margin: 0;
     padding: 0;

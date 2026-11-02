@@ -147,6 +147,30 @@
         </div>
     @endif
 
+    @if ($programa->cerrado_at)
+        <div class="pf-readonly" role="status">
+            <i class="fas fa-lock" aria-hidden="true"></i>
+            <span>Programa cerrado el {{ $programa->cerrado_at->locale('es')->isoFormat('D MMM YYYY') }}. Ya no se puede modificar.</span>
+            @can('programas.reabrir')
+                <form action="{{ route('programas.reabrir', $programa) }}" method="POST" class="d-inline ms-2" data-confirm="El programa se podrá volver a modificar." data-confirm-title="¿Reabrir programa?" data-confirm-button="Sí, reabrir">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Reabrir</button>
+                </form>
+            @endcan
+        </div>
+    @elseif ($isEdit && $programa->estado === 'confirmado' && auth()->user()?->can('programas.cerrar') && $programa->fin && \Carbon\Carbon::parse($programa->fin)->lt(today()))
+        @php $faltanParaCerrar = $programa->pendientesParaCerrar(); @endphp
+        <div class="alert {{ $faltanParaCerrar ? 'alert-light' : 'alert-success' }} d-flex flex-wrap align-items-center justify-content-between gap-2" role="status">
+            <span>{{ $faltanParaCerrar ? 'Para cerrar este programa falta: ' . implode(' ', $faltanParaCerrar) : 'El viaje terminó, todo está cobrado y pagado.' }}</span>
+            @unless ($faltanParaCerrar)
+                <form action="{{ route('programas.cerrar', $programa) }}" method="POST" data-confirm="Después solo Administración podrá reabrirlo." data-confirm-title="¿Cerrar programa?" data-confirm-button="Sí, cerrar">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-primary"><i class="fas fa-lock" aria-hidden="true"></i> Cerrar programa</button>
+                </form>
+            @endunless
+        </div>
+    @endif
+
     @if ($programa->plantilla)
         <div class="pf-readonly" role="status">
             <i class="fas fa-copy" aria-hidden="true"></i>
@@ -248,6 +272,33 @@
                                 <p class="prog-input-hint mb-2" data-duracion>
                                     <i class="fas fa-info-circle" aria-hidden="true"></i> El año y mes del programa se asignan solos desde la fecha de inicio.
                                 </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prog-section">
+                    <div class="prog-section__header">
+                        <span class="prog-section__title">Vuelos del grupo</span>
+                        <span class="prog-section__subtitle">Aparecen en la hoja de operaciones, para coordinar los traslados</span>
+                    </div>
+                    <div class="prog-section__body">
+                        <div class="row g-3">
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-llegada-vuelo" class="prog-label">Vuelo de llegada</label>
+                                <input id="pf-llegada-vuelo" type="text" name="llegada_vuelo" value="{{ old('llegada_vuelo', $programa->llegada_vuelo) }}" maxlength="40" placeholder="LA 2021" class="form-control @error('llegada_vuelo') is-invalid @enderror">
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-llegada-at" class="prog-label">Llega</label>
+                                <input id="pf-llegada-at" type="datetime-local" name="llegada_at" value="{{ old('llegada_at', $programa->llegada_at?->format('Y-m-d\TH:i')) }}" class="form-control @error('llegada_at') is-invalid @enderror">
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-salida-vuelo" class="prog-label">Vuelo de salida</label>
+                                <input id="pf-salida-vuelo" type="text" name="salida_vuelo" value="{{ old('salida_vuelo', $programa->salida_vuelo) }}" maxlength="40" class="form-control @error('salida_vuelo') is-invalid @enderror">
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-salida-at" class="prog-label">Sale</label>
+                                <input id="pf-salida-at" type="datetime-local" name="salida_at" value="{{ old('salida_at', $programa->salida_at?->format('Y-m-d\TH:i')) }}" class="form-control @error('salida_at') is-invalid @enderror">
                             </div>
                         </div>
                     </div>
@@ -431,6 +482,15 @@
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-estadias-add><i class="fas fa-plus" aria-hidden="true"></i> Agregar habitación</button>
                                 <p class="estadia-resumen" data-estadias-resumen aria-live="polite"></p>
                             </div>
+                            @php $hotelesEstadia = $isEdit ? $programa->habitacionesFechas->whereNotNull('fecha_ingreso')->map(fn ($e) => $e->habitacion?->hotel)->filter()->unique('id') : collect(); @endphp
+                            @if ($hotelesEstadia->isNotEmpty())
+                                <p class="estadia-listas">
+                                    <span>Lista de huéspedes para el hotel:</span>
+                                    @foreach ($hotelesEstadia as $hotelEstadia)
+                                        <a href="{{ route('programas.rooming', [$programa, 'hotel' => $hotelEstadia->id]) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"><i class="fas fa-file-pdf" aria-hidden="true"></i> {{ $hotelEstadia->nombre }}</a>
+                                    @endforeach
+                                </p>
+                            @endif
                         @endif
                     </div>
                 </div>

@@ -60,6 +60,17 @@
         data-nombre="{{ $nombre }}" title="Historial y pagos" aria-label="Historial y pagos de {{ $servicio->titulo }}">
         <i class="fas fa-history" aria-hidden="true"></i>
     </button>
+    @can('servicios.gestionar')
+        @if (! $sinProveedor && $servicio->estado !== 'cancelado' && filter_var((string) $servicio->proveedor?->correo, FILTER_VALIDATE_EMAIL))
+            <form action="{{ route('servicios.enviar-orden', $servicio) }}" method="POST" class="d-inline"
+                data-confirm="Se enviará la orden en PDF a {{ $servicio->proveedor->correo }}." data-confirm-title="¿Enviar orden de servicio?" data-confirm-button="Sí, enviar">
+                @csrf
+                <button type="submit" class="btn btn-sm btn-light" title="{{ $servicio->orden_enviada_at ? 'Orden enviada el ' . $servicio->orden_enviada_at->format('d/m/Y H:i') . '. Reenviar' : 'Enviar orden por correo' }}" aria-label="Enviar orden de {{ $servicio->titulo }} por correo">
+                    <i class="fas {{ $servicio->orden_enviada_at ? 'fa-check-double' : 'fa-envelope' }}" aria-hidden="true"></i>
+                </button>
+            </form>
+        @endif
+    @endcan
     @unless ($sinProveedor)
         <a href="{{ route('servicios.voucher', $servicio) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light"
             title="Orden de servicio (PDF)" aria-label="Orden de servicio de {{ $servicio->titulo }}">

@@ -55,10 +55,11 @@ class Servicio extends Model
     protected $fillable = [
         'programa_id', 'fecha', 'hora', 'tipo', 'titulo', 'descripcion', 'proveedor_id',
         'punto_encuentro', 'estado', 'confirmacion', 'notas', 'visible_cliente',
-        'costo', 'costo_estimado', 'moneda', 'costo_por', 'pagado_at', 'pago_solicitado_at', 'pago_solicitado_por',
+        'costo', 'costo_estimado', 'moneda', 'costo_por', 'pagado_at', 'pago_solicitado_at', 'pago_solicitado_por', 'orden_enviada_at',
     ];
 
     protected $casts = [
+        'orden_enviada_at' => 'datetime',
         'fecha' => 'date',
         'visible_cliente' => 'boolean',
         'costo' => 'decimal:2',

@@ -220,6 +220,11 @@ class Ayuda
         ],
 
         // ---- Reservas y proveedores ----
+        'res-enviar-orden' => [
+            'grupo' => 'reservas', 'rutas' => ['reservas.*', 'operaciones.*'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Enviar órdenes y listas de huéspedes',
+            'resumen' => 'La orden de servicio se puede enviar por correo al proveedor, y cada hotel tiene su lista de huéspedes en PDF.',
+            'pasos' => ['Pulsa el icono del sobre y confirma: la orden sale al correo de la ficha del proveedor.', 'Cuando ya se envió, el icono cambia a un doble visto.', 'Para un hotel, abre el programa, ve a Alojamiento y pulsa el nombre del hotel para sacar su lista.'],
+        ],
         'res-bandejas' => [
             'grupo' => 'reservas', 'rutas' => ['reservas.*'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Las pestañas de Reservas',
             'resumen' => 'Cada servicio avanza por estas pestañas: Sin asignar, Por reservar, Solicitados, Confirmados o Cancelados.',
@@ -285,11 +290,23 @@ class Ayuda
             'resumen' => 'Nada se borra del todo: el registro se conserva con el motivo, la persona y la fecha. Siempre hay que escribir el motivo.',
             'pasos' => ['Cobro al cliente: en la pestaña Pagos, pulsa la flecha roja de esa línea.', 'Un pago a proveedor: pulsa el icono del reloj del servicio y anúlalo desde su historial.', 'Todos los pagos de un servicio pagado: en la pestaña Pagadas, pulsa «Anular».'],
         ],
+        'cerrar-programa' => [
+            'grupo' => 'contabilidad', 'rutas' => ['programas.edit'], 'tab' => 'pagos', 'permiso' => 'programas.cerrar', 'titulo' => 'Cerrar un programa',
+            'resumen' => 'Cuando el viaje terminó y está todo cobrado y pagado, se cierra para que nada cambie. Recibes un aviso cuando está listo.',
+            'pasos' => ['Abre el programa: arriba verás lo que falta o el botón «Cerrar programa».', 'Pulsa el botón y confirma.', 'Si hay que corregir algo, pide a Administración que lo reabra.'],
+        ],
         'margen' => [
             'grupo' => 'contabilidad', 'rutas' => ['programas.edit'], 'tab' => 'precios', 'permiso' => 'margen.ver', 'solo' => true, 'titulo' => 'Vigilar el margen',
             'resumen' => 'En la pestaña Precios, «Costo y margen» compara lo cotizado con el costo actual de cada proveedor.',
             'pasos' => ['Compara el costo cotizado con el costo actual.', 'Revisa los servicios que costaron más de lo cotizado.', 'El margen se pone en naranja si bajó y en rojo si es negativo.'],
             'notas' => ['Si falta el costo por noche de un hotel, el sistema lo avisa al guardar: el margen saldría más alto de lo real.'],
+        ],
+
+        // ---- Reportes ----
+        'reportes' => [
+            'grupo' => 'general', 'rutas' => ['reportes.*'], 'titulo' => 'Reportes',
+            'resumen' => 'Ventas y cobros de los programas confirmados, por mes, agente y origen. Contabilidad y Administración ven además el costo, el margen y los proveedores.',
+            'pasos' => ['Elige el periodo y pulsa «Ver». Cuenta los programas que inician en esas fechas.', 'Pulsa «Excel» en una tabla para descargarla.', 'Abajo verás cómo van las consultas y por qué se perdieron.'],
         ],
 
         // ---- Administración ----

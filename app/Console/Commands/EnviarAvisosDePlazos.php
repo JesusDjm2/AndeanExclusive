@@ -46,6 +46,7 @@ class EnviarAvisosDePlazos extends Command
             $this->proveedoresSinPagar();
             $this->tareasVencidas();
             $this->consultasSinAtender();
+            $this->programasPorCerrar();
             $this->cerrarLoResuelto();
         });
 
@@ -126,6 +127,13 @@ class EnviarAvisosDePlazos extends Command
             $this->avisar('operaciones', "plazo:consulta:{$c->id}", "Consulta sin atender: {$c->nombre}",
                 'Recibida ' . $c->created_at->locale('es')->diffForHumans(), 'Atender consulta', 'consultas.show', ['consulta' => $c->id]);
         });
+    }
+
+    private function programasPorCerrar(): void
+    {
+        Programa::where('estado', 'confirmado')->whereNull('cerrado_at')->whereDate('fin', '<', Carbon::today())->with(['paxs', 'pagos'])->get()
+            ->reject(fn (Programa $p) => (bool) $p->pendientesParaCerrar())
+            ->each(fn (Programa $p) => $this->avisar('contabilidad', "plazo:cerrar:{$p->id}", "Listo para cerrar: {$p->codigo}", 'El viaje terminó y está todo cobrado y pagado.', 'Cerrar programa', 'programas.edit', ['programa' => $p->id, 'tab' => 'pagos'], $p));
     }
 
     /** Lo que ya no está pendiente se cierra solo, y lo resuelto hace meses deja de ocupar espacio. */

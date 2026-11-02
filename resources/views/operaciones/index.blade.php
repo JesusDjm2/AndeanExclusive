@@ -115,6 +115,25 @@
                 @endif
             </section>
 
+            @if ($vuelos->isNotEmpty())
+                <section class="card dash-card mb-4" aria-labelledby="ops-vuelos">
+                    <div class="card-header dash-card__header">
+                        <h2 id="ops-vuelos" class="dash-card__title">Vuelos del día</h2>
+                    </div>
+                    <ul class="ops-side-list">
+                        @foreach ($vuelos as $vuelo)
+                            <li>
+                                <span>
+                                    <strong>{{ $vuelo['hora'] }} · {{ $vuelo['vuelo'] ?: 'Vuelo sin número' }}</strong>
+                                    <small>{{ $vuelo['programa']->codigo }} · {{ $vuelo['programa']->nombre }} · {{ $vuelo['programa']->paxs->count() }} pax</small>
+                                </span>
+                                <span class="svc-badge {{ $vuelo['tipo'] === 'Llegada' ? 'svc-badge--confirmado' : 'svc-badge--solicitado' }}">{{ $vuelo['tipo'] }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endif
+
             <section class="card dash-card" aria-labelledby="ops-hoteles">
                 <div class="card-header dash-card__header">
                     <h2 id="ops-hoteles" class="dash-card__title">Ingresos y salidas de hotel</h2>
