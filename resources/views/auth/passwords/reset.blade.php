@@ -20,16 +20,30 @@
 
         <div class="mb-3">
             <label for="password" class="form-label">Nueva contraseña</label>
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                name="password" required autocomplete="new-password">
-            @error('password')
-                <div class="invalid-feedback" role="alert">{{ $message }}</div>
-            @enderror
+            <div class="input-group has-validation">
+                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
+                    name="password" required autocomplete="new-password" placeholder="••••••••">
+                <button type="button" class="btn btn-outline-secondary btn-toggle-password"
+                    data-toggle-password="#password" aria-label="Mostrar contraseña" title="Mostrar contraseña"
+                    aria-pressed="false">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                </button>
+                @error('password')
+                    <div class="invalid-feedback" role="alert">{{ $message }}</div>
+                @enderror
+            </div>
         </div>
 
         <div class="mb-4">
             <label for="password-confirm" class="form-label">Confirmar contraseña</label>
-            <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+            <div class="input-group">
+                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="••••••••">
+                <button type="button" class="btn btn-outline-secondary btn-toggle-password"
+                    data-toggle-password="#password-confirm" aria-label="Mostrar contraseña" title="Mostrar contraseña"
+                    aria-pressed="false">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                </button>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary w-100 py-2">Guardar contraseña</button>

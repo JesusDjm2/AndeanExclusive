@@ -30,10 +30,14 @@
                     <a class="small" href="{{ route('password.request') }}">¿La olvidaste?</a>
                 @endif
             </div>
-            <div class="input-group">
+            <div class="input-group has-validation">
                 <span class="input-group-text"><i class="fas fa-lock" aria-hidden="true"></i></span>
                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                    name="password" required autocomplete="current-password">
+                    name="password" required autocomplete="current-password" placeholder="••••••••">
+                <button type="button" class="btn btn-outline-secondary btn-toggle-password" data-toggle-password="#password"
+                    aria-label="Mostrar contraseña" title="Mostrar contraseña" aria-pressed="false">
+                    <i class="fas fa-eye" aria-hidden="true"></i>
+                </button>
                 @error('password')
                     <div class="invalid-feedback" role="alert">{{ $message }}</div>
                 @enderror

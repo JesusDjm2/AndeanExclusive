@@ -116,15 +116,22 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'role' => ['required', \Illuminate\Validation\Rule::in(array_keys(\App\Support\Permisos::AREAS))],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user->name = $request->get('name');
         $user->email = $request->get('email');
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
         $user->save();
         $rolAnterior = $user->roles->first()?->name;
         $user->syncRoles([$request->input('role')]);
         if ($rolAnterior !== $request->input('role')) {
             \App\Support\Bitacora::anotar('cambió el rol de', $user, [['campo' => 'Área', 'de' => $rolAnterior, 'a' => $request->input('role')]]);
+        }
+        if ($request->filled('password')) {
+            \App\Support\Bitacora::anotar('actualizó la contraseña de', $user, []);
         }
 
         return redirect()

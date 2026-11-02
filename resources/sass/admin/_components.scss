@@ -280,3 +280,44 @@
 // El texto oculto accesible (.visually-hidden, posición absoluta) de las celdas no debe escaparse del
 // contenedor con scroll horizontal y ensanchar la página en celulares.
 .table-responsive { position: relative; }
+
+// ---- Alternar visibilidad de contraseña (ojo) -------------------------------------
+
+.btn-toggle-password {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--ae-surface);
+    border-color: var(--ae-border);
+    color: var(--ae-ink-soft);
+    padding: 0.375rem 0.85rem;
+    min-width: 44px;
+    cursor: pointer;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out;
+
+    &:hover {
+        color: var(--ae-accent-text);
+        background-color: var(--ae-hover);
+        border-color: var(--ae-border-strong);
+    }
+
+    &:focus-visible {
+        color: var(--ae-accent-text);
+        background-color: var(--ae-hover);
+        border-color: var(--ae-accent);
+        outline: 2px solid var(--ae-accent);
+        outline-offset: 1px;
+        z-index: 5;
+    }
+
+    i {
+        font-size: 0.95rem;
+        pointer-events: none;
+        transition: transform 0.15s ease;
+    }
+
+    &:active i {
+        transform: scale(0.9);
+    }
+}
+

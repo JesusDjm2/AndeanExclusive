@@ -9,6 +9,7 @@ import { initServicioAcciones } from './servicio-acciones';
 import { initAvisos } from './avisos';
 import { initAyuda } from './ayuda';
 import { initTarifas } from './tarifas';
+import { initPasswordToggle } from './password-toggle';
 
 window.bootstrap = bootstrap;
 
@@ -153,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAvisos();
     initAyuda();
     initTarifas();
+    initPasswordToggle();
     initLogout();
     initSidebar();
     initAutoDismissAlerts();
