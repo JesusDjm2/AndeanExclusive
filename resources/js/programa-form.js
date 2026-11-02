@@ -134,7 +134,11 @@ function initEstadias(root) {
 
         filas.forEach(({ fila, ingreso, salida }) => {
             const noches = ingreso && salida ? Math.round((aFecha(salida) - aFecha(ingreso)) / 86400000) : 0;
-            fila.querySelector('[data-estadia-noches]').textContent = noches > 0 ? `${noches} ${noches === 1 ? 'noche' : 'noches'}` : '';
+            const cantidadFila = parseInt(fila.querySelector('[data-estadia-cantidad]').value, 10) || 0;
+            const costoNoche = parseFloat(fila.querySelector('[data-estadia-costo]')?.value) || 0;
+            const simbolo = fila.querySelector('[data-estadia-moneda]')?.selectedOptions[0]?.textContent.trim() ?? '';
+            const total = noches > 0 && costoNoche > 0 ? ` · ${simbolo} ${(costoNoche * cantidadFila * noches).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '';
+            fila.querySelector('[data-estadia-noches]').textContent = noches > 0 ? `${noches} ${noches === 1 ? 'noche' : 'noches'}${total}` : '';
             fila.querySelector('[data-estadia-salida]').min = ingreso;
         });
 

@@ -106,6 +106,12 @@ class Servicio extends Model
         return $this->belongsTo(Programa::class);
     }
 
+    /** Estadía que lo generó: su fecha y su costo se gestionan desde la pestaña Alojamiento. */
+    public function estadia()
+    {
+        return $this->hasOne(HabitacionFecha::class);
+    }
+
     public function pagos()
     {
         return $this->hasMany(ProveedorPago::class)->orderBy('fecha')->orderBy('id');

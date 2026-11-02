@@ -772,7 +772,7 @@
 
 .estadia-row {
     display: grid;
-    grid-template-columns: minmax(220px, 3fr) 90px repeat(2, minmax(135px, 1fr)) 72px auto;
+    grid-template-columns: minmax(200px, 3fr) 72px repeat(2, minmax(125px, 1fr)) minmax(155px, 1.2fr) 86px auto;
     gap: 0.6rem;
     align-items: end;
     padding: 0.75rem;
@@ -784,7 +784,10 @@
         padding-bottom: 0.4rem;
         color: var(--ae-ink-soft);
         font-size: 0.8rem;
-        white-space: nowrap;
+    }
+
+    &__moneda {
+        flex: 0 0 4.2rem;
     }
 
     @media (max-width: 991.98px) {
@@ -799,6 +802,12 @@
             max-width: 8rem;
         }
     }
+}
+
+.svc-row__de-estadia {
+    color: var(--ae-ink-soft);
+    font-size: 0.75rem;
+    white-space: nowrap;
 }
 
 .estadia-empty {

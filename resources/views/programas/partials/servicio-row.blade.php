@@ -81,9 +81,13 @@
                 <a href="{{ route('servicios.voucher', $s['id']) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"
                     title="Orden de servicio (PDF)" aria-label="Orden de servicio en PDF"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>
             @endif
+            @if (! empty($s['de_estadia']))
+                <span class="svc-row__de-estadia" title="Fecha y costo se cambian en la pestaña Alojamiento"><i class="fas fa-bed" aria-hidden="true"></i> Desde Alojamiento</span>
+            @else
             <button type="button" class="btn btn-sm btn-outline-danger" data-svc-remove title="Quitar servicio" aria-label="Quitar servicio">
                 <i class="fas fa-times" aria-hidden="true"></i>
             </button>
+            @endif
         </div>
     </div>
 

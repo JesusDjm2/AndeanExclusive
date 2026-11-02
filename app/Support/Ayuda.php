@@ -144,8 +144,8 @@ class Ayuda
         'prog-alojamiento' => [
             'grupo' => 'programas', 'rutas' => ['programas.create', 'programas.edit'], 'tab' => 'alojamiento', 'permiso' => 'programas.gestionar', 'titulo' => 'Asignar los hoteles',
             'resumen' => 'Dónde duerme el grupo cada noche. Por ejemplo, 3 habitaciones dobles de un hotel son una fila con cantidad 3.',
-            'pasos' => ['Pulsa «Agregar habitación».', 'Elige el hotel y la habitación, y escribe la cantidad y las fechas.', 'Agrega una fila por cada tipo de habitación y por cada estadía. El mismo hotel puede repetirse.', 'Guarda los cambios.'],
-            'notas' => ['El sistema avisa si una noche no hay plazas para todos, pero te deja guardar.', 'Esta pestaña no suma costos: agrega en Itinerario un servicio «Alojamiento (costo)» por hotel. Si lo olvidas, el margen saldrá más alto de lo real.'],
+            'pasos' => ['Pulsa «Agregar habitación».', 'Elige el hotel y la habitación, y escribe la cantidad, las fechas y el costo por noche de cada habitación.', 'Agrega una fila por cada tipo de habitación y por cada estadía. El mismo hotel puede repetirse.', 'Guarda los cambios. Cada fila con fechas crea su servicio en Itinerario, con el hotel como proveedor.'],
+            'notas' => ['El sistema avisa si una noche no hay plazas para todos, pero te deja guardar.', 'Reservas confirma el hotel y Contabilidad lo paga como cualquier otro servicio.', 'Si un programa antiguo ya tiene costos de hotel cargados a mano, no se crean otros para no contarlos dos veces.'],
         ],
         'prog-itinerario' => [
             'grupo' => 'programas', 'rutas' => ['programas.edit'], 'tab' => 'itinerario', 'permiso' => 'programas.gestionar', 'titulo' => 'Armar el itinerario',
@@ -265,7 +265,7 @@ class Ayuda
             'grupo' => 'contabilidad', 'rutas' => ['programas.edit'], 'tab' => 'precios', 'permiso' => 'margen.ver', 'solo' => true, 'titulo' => 'Vigilar el margen',
             'resumen' => 'En la pestaña Precios, «Costo y margen» compara lo cotizado con el costo actual de cada proveedor.',
             'pasos' => ['Compara el costo cotizado con el costo actual.', 'Revisa los servicios que costaron más de lo cotizado.', 'El margen se pone en naranja si bajó y en rojo si es negativo.'],
-            'notas' => ['Un margen demasiado alto puede indicar que faltan los costos de hotel: el sistema no detecta un servicio que nunca se cargó.'],
+            'notas' => ['Si falta el costo por noche de un hotel, el sistema lo avisa al guardar: el margen saldría más alto de lo real.'],
         ],
 
         // ---- Administración ----

@@ -139,6 +139,22 @@ public function paxs()
      *
      * @return array{costo: float, costoEstimado: float, venta: float, margen: float, margenPct: float, margenCotizado: float, margenCotizadoPct: float, sinCosto: int, sinProveedor: int, aumentos: \Illuminate\Support\Collection, pagantes: int, costoPorPagante: float, porPagar: float}
      */
+    /** Habitaciones individuales según el alojamiento: la noche con más, para comparar con el suplemento. */
+    public function individualesSegunAlojamiento(): int
+    {
+        $porNoche = [];
+        foreach ($this->habitacionesFechas()->with('habitacion')->get() as $estadia) {
+            if ((int) $estadia->habitacion?->capacidad !== 1 || ! $estadia->noches) {
+                continue;
+            }
+            for ($dia = \Carbon\Carbon::parse($estadia->fecha_ingreso), $n = 0; $n < $estadia->noches; $n++, $dia->addDay()) {
+                $porNoche[$dia->toDateString()] = ($porNoche[$dia->toDateString()] ?? 0) + $estadia->cantidad;
+            }
+        }
+
+        return $porNoche ? max($porNoche) : 0;
+    }
+
     public function costeo(): array
     {
         $this->loadMissing(['servicios', 'paxs']);

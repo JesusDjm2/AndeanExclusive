@@ -18,6 +18,11 @@ class Hotel extends Model
         'detalles',
     ];
 
+    public function proveedor()
+    {
+        return $this->belongsTo(Proveedor::class);
+    }
+
     public function programas()
     {
         return $this->belongsToMany(Programa::class, 'hotel_programa');

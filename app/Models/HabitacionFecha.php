@@ -16,6 +16,8 @@ class HabitacionFecha extends Model
         'programa_id',
         'habitacion_id',
         'cantidad',
+        'costo_noche',
+        'moneda',
         'fecha_ingreso',
         'fecha_salida'
     ];
@@ -28,6 +30,12 @@ class HabitacionFecha extends Model
     public function habitacion()
     {
         return $this->belongsTo(Habitacion::class);
+    }
+
+    /** Servicio que la reserva y la paga (ver App\Support\AlojamientoEnServicios). */
+    public function servicio()
+    {
+        return $this->belongsTo(Servicio::class);
     }
 
     /** "3 × Doble" o "Doble". */

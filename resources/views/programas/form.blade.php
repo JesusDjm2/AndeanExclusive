@@ -30,7 +30,7 @@
     // Itinerario: días del programa con sus servicios (lo reenviado tras un error de validación o lo guardado).
     $itinerario = $isEdit ? $programa->itinerario() : ['dias' => collect(), 'fuera' => collect()];
     $servicioRows = old('servicios') ?? $programa->servicios->values()->map(fn ($s) => [
-        'id' => $s->id, 'fecha' => $s->fecha->toDateString(), 'hora' => $s->hora_corta, 'tipo' => $s->tipo, 'titulo' => $s->titulo,
+        'id' => $s->id, 'de_estadia' => $s->estadia()->exists(), 'fecha' => $s->fecha->toDateString(), 'hora' => $s->hora_corta, 'tipo' => $s->tipo, 'titulo' => $s->titulo,
         'proveedor_id' => $s->proveedor_id, 'estado' => $s->estado, 'confirmacion' => $s->confirmacion,
         'punto_encuentro' => $s->punto_encuentro, 'descripcion' => $s->descripcion, 'notas' => $s->notas, 'visible_cliente' => $s->visible_cliente,
         'costo' => $s->costo, 'costo_estimado' => $s->costo_estimado, 'moneda' => $s->moneda, 'costo_por' => $s->costo_por, 'pagado_at' => $s->pagado_at?->toDateString(), 'situacion_pago' => $s->situacion_pago, 'saldo' => $s->saldo_proveedor,
@@ -45,7 +45,7 @@
     $costeo = $isEdit ? $programa->costeo() : null;
     $correosSugeridos = $isEdit ? \App\Support\Recordatorios::sugeridos($programa) : [];
     $estadiaRows = old('estadias') ?? $programa->habitacionesFechas->sortBy(fn ($e) => [$e->fecha_ingreso === null, (string) $e->fecha_ingreso, $e->id])->values()
-        ->map(fn ($e) => ['id' => $e->id, 'habitacion_id' => $e->habitacion_id, 'cantidad' => $e->cantidad, 'ingreso' => $e->fecha_ingreso, 'salida' => $e->fecha_salida])->all();
+        ->map(fn ($e) => ['id' => $e->id, 'habitacion_id' => $e->habitacion_id, 'cantidad' => $e->cantidad, 'costo_noche' => $e->costo_noche, 'moneda' => $e->moneda, 'ingreso' => $e->fecha_ingreso, 'salida' => $e->fecha_salida])->all();
 
     // Pestaña con errores de validación → punto rojo en la pestaña y se abre la primera.
     $tabFields = [
@@ -390,7 +390,7 @@
                 <div class="prog-section" data-estadias data-next-index="{{ count($estadiaRows) ? max(array_keys($estadiaRows)) + 1 : 0 }}">
                     <div class="prog-section__header">
                         <span class="prog-section__title">Habitaciones del grupo</span>
-                        <span class="prog-section__subtitle">Una fila por tipo de habitación y estadía. Si vuelven al mismo hotel, agrega otra fila con esas fechas.</span>
+                        <span class="prog-section__subtitle">Una fila por tipo de habitación y estadía. Con fechas, cada fila crea su servicio para reservarlo y pagarlo.</span>
                     </div>
                     <div class="prog-section__body">
                         @if ($hoteles->isEmpty())
@@ -566,6 +566,9 @@
                                 </div>
                             </div>
                             <p class="prog-input-hint mt-3 mb-0">El suplemento es precio de venta (no se le suma la ganancia). El tipo de cambio convierte a dólares los costos en soles.</p>
+                            @if ($isEdit && ($individuales = $programa->individualesSegunAlojamiento()) !== (int) $programa->habitaciones_individuales)
+                                <p class="prog-input-hint text-warning mt-1 mb-0"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Según Alojamiento hay {{ $individuales }} {{ $individuales === 1 ? 'habitación individual' : 'habitaciones individuales' }}; aquí figuran {{ (int) $programa->habitaciones_individuales }}.</p>
+                            @endif
                         </div>
                     </div>
 

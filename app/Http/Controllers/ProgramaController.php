@@ -13,6 +13,7 @@ use App\Models\Pax;
 use App\Models\Programa;
 use App\Models\Proveedor;
 use App\Models\Servicio;
+use App\Support\AlojamientoEnServicios;
 use App\Support\Paises;
 use App\Support\PassportFiles;
 use App\Support\Portadas;
@@ -205,6 +206,7 @@ class ProgramaController extends Controller
 
             $programa->agentes()->sync($request->input('agentes', []));
             $this->guardarEstadias($programa, $request);
+            AlojamientoEnServicios::sincronizar($programa);
 
             foreach ((array) $request->input('paxs', []) as $index => $paxData) {
                 $toCreate = $this->paxData($paxData);
@@ -286,6 +288,11 @@ class ProgramaController extends Controller
                 $conPagos = $this->guardarItinerario($programa, $request);
             }
 
+            // Después del itinerario: lo que vuelve del formulario no debe pisar lo que dicta la estadía.
+            if ($request->boolean('_estadias')) {
+                AlojamientoEnServicios::sincronizar($programa);
+            }
+
             DB::commit();
 
             return redirect()
@@ -308,6 +315,13 @@ class ProgramaController extends Controller
     private function avisosAlGuardar(Programa $programa): ?string
     {
         $avisos = [];
+
+        $sinCosto = $programa->habitacionesFechas()->whereNotNull('fecha_ingreso')->whereNull('costo_noche')->whereNotNull('servicio_id')->count();
+        if ($sinCosto) {
+            $avisos[] = $sinCosto === 1
+                ? 'Falta el costo por noche de 1 estadía: el margen saldrá más alto de lo real.'
+                : "Falta el costo por noche de {$sinCosto} estadías: el margen saldrá más alto de lo real.";
+        }
 
         if ($programa->inicio && $programa->fin) {
             $fuera = $programa->servicios()->where('estado', '!=', 'cancelado')
@@ -377,6 +391,8 @@ class ProgramaController extends Controller
             'estadias.*.id' => 'nullable|integer',
             'estadias.*.habitacion_id' => 'required|exists:habitacions,id',
             'estadias.*.cantidad' => 'required|integer|min:1|max:50',
+            'estadias.*.costo_noche' => 'nullable|numeric|min:0',
+            'estadias.*.moneda' => ['nullable', Rule::in(array_keys(Servicio::MONEDAS))],
             'estadias.*.ingreso' => 'nullable|required_with:estadias.*.salida|date',
             'estadias.*.salida' => 'nullable|required_with:estadias.*.ingreso|date|after:estadias.*.ingreso',
             'paxs' => 'array',
@@ -547,7 +563,8 @@ class ProgramaController extends Controller
         }
 
         $conPagos = 0;
-        $programa->servicios()->whereNotIn('id', $idsRecibidos)->withCount('pagos')->get()->each(function (Servicio $servicio) use (&$conPagos) {
+        // Los servicios de una estadía se quitan desde la pestaña Alojamiento.
+        $programa->servicios()->whereNotIn('id', $idsRecibidos)->whereDoesntHave('estadia')->withCount('pagos')->get()->each(function (Servicio $servicio) use (&$conPagos) {
             if ($servicio->pagos_count > 0) {
                 $conPagos++;
             } else {
@@ -566,6 +583,8 @@ class ProgramaController extends Controller
             $valores = [
                 'habitacion_id' => $datos['habitacion_id'],
                 'cantidad' => $datos['cantidad'],
+                'costo_noche' => isset($datos['costo_noche']) && $datos['costo_noche'] !== '' ? $datos['costo_noche'] : null,
+                'moneda' => ($datos['moneda'] ?? null) ?: 'USD',
                 'fecha_ingreso' => ($datos['ingreso'] ?? null) ?: null,
                 'fecha_salida' => ($datos['salida'] ?? null) ?: null,
             ];
@@ -578,7 +597,9 @@ class ProgramaController extends Controller
             $idsRecibidos[] = $estadia->id;
         }
 
-        $programa->habitacionesFechas()->whereNotIn('id', $idsRecibidos)->get()->each->delete();
+        // Una estadía cuyo hotel ya tiene pagos no se quita: primero Contabilidad debe anularlos.
+        $programa->habitacionesFechas()->whereNotIn('id', $idsRecibidos)->get()
+            ->each(fn (HabitacionFecha $estadia) => AlojamientoEnServicios::quitar($estadia) && $estadia->delete());
     }
 
     public function show(Programa $programa)

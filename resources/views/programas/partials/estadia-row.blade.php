@@ -1,7 +1,7 @@
 {{--
     Una fila de alojamiento en el formulario de programas: tipo de habitación, cantidad y fechas.
     @param int|string $i  Índice en estadias[] ('__INDEX__' en la plantilla).
-    @param array      $e  Valores: id, habitacion_id, cantidad, ingreso, salida.
+    @param array      $e  Valores: id, habitacion_id, cantidad, costo_noche, moneda, ingreso, salida.
     @param \Illuminate\Support\Collection $hoteles  Con sus habitaciones.
 --}}
 @php
@@ -45,6 +45,21 @@
             class="form-control form-control-sm {{ $err('salida') ? 'is-invalid' : '' }}" data-estadia-salida>
         @if ($err('salida'))<div class="invalid-feedback">{{ $err('salida') }}</div>@endif
     </div>
+    @can('cotizacion.ver')
+    <div class="estadia-row__costo">
+        <label class="prog-label" for="est-{{ $i }}-costo">Costo por noche</label>
+        <div class="input-group input-group-sm">
+            <select name="{{ $name('moneda') }}" class="form-select estadia-row__moneda" aria-label="Moneda" data-estadia-moneda>
+                @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
+                    <option value="{{ $clave }}" @selected(($e['moneda'] ?? 'USD') === $clave)>{{ $simbolo }}</option>
+                @endforeach
+            </select>
+            <input id="est-{{ $i }}-costo" type="number" name="{{ $name('costo_noche') }}" value="{{ $e['costo_noche'] ?? '' }}" min="0" step="0.01" placeholder="Por habitación"
+                class="form-control {{ $err('costo_noche') ? 'is-invalid' : '' }}" data-estadia-costo>
+        </div>
+        @if ($err('costo_noche'))<div class="invalid-feedback d-block">{{ $err('costo_noche') }}</div>@endif
+    </div>
+    @endcan
     <span class="estadia-row__noches" data-estadia-noches></span>
     <button type="button" class="btn btn-sm btn-outline-danger estadia-row__quitar" data-estadia-remove title="Quitar habitación" aria-label="Quitar habitación">
         <i class="fas fa-times" aria-hidden="true"></i>
