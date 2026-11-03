@@ -22,11 +22,18 @@
 .photo-tile {
     position: relative;
     display: block;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
+    min-height: 330px;
     overflow: hidden;
     color: var(--color-white);
     text-decoration: none;
     background: var(--color-ink);
+    transition: transform var(--duration-fast) var(--ease-premium);
+
+    @media (min-width: 576px) {
+        aspect-ratio: 4 / 3;
+        min-height: 0;
+    }
 
     @media (min-width: 992px) {
         aspect-ratio: 16 / 10;
@@ -36,6 +43,10 @@
     &:focus-within {
         color: var(--color-white);
         text-decoration: none;
+    }
+
+    &:active {
+        transform: scale(0.995);
     }
 }
 
@@ -77,6 +88,21 @@
     position: absolute;
     inset: 0;
     background: linear-gradient(180deg, rgba(24, 34, 41, 0) 45%, rgba(24, 34, 41, 0.88) 100%);
+    transition: opacity var(--duration-base) var(--ease-premium);
+}
+
+// Mobile and touch devices: calibrated multi-stop scrim ensuring crystal clear
+// legibility over bright photography when reveal is permanently expanded.
+@media (max-width: 767px), (hover: none) {
+    .photo-tile::before {
+        background: linear-gradient(
+            180deg,
+            rgba(15, 23, 42, 0.08) 0%,
+            rgba(15, 23, 42, 0.28) 25%,
+            rgba(15, 23, 42, 0.8) 60%,
+            rgba(15, 23, 42, 0.96) 100%
+        );
+    }
 }
 
 // ...plus a full ink veil that only fades in on hover/focus, so the
@@ -101,6 +127,10 @@
     inset-inline: 0;
     bottom: 0;
     padding: var(--space-sm) var(--space-md);
+
+    @media (max-width: 575px) {
+        padding: 1.25rem 1.15rem;
+    }
 }
 
 // Small uppercase accent label — publish date on blog tiles, location on
@@ -108,22 +138,23 @@
 .photo-tile__meta {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    font-size: 0.68rem;
+    gap: 0.35rem;
+    font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-primary-light);
-    margin-bottom: 0.3rem;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    margin-bottom: 0.35rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .photo-tile__title {
-    font-size: 0.95rem;
-    line-height: 1.3;
+    font-size: 1rem;
+    line-height: 1.32;
+    font-weight: 700;
     color: var(--color-white);
     margin-bottom: 0;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
@@ -162,29 +193,42 @@
 .photo-tile__excerpt {
     font-size: 0.85rem;
     line-height: 1.45;
-    color: rgba(255, 255, 255, 0.88);
-    margin-top: 0.45rem;
+    color: rgba(255, 255, 255, 0.9);
+    margin-top: 0.4rem;
     margin-bottom: 0.6rem;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+
+    @media (min-width: 768px) {
+        -webkit-line-clamp: 3;
+    }
 }
 
 .photo-tile__cta {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     font-weight: 600;
     letter-spacing: 0.02em;
     color: var(--color-white);
-    border: 1px solid rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: var(--radius-pill);
-    padding: 0.45rem 1.1rem;
+    padding: 0.45rem 1.15rem;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     transition: background-color var(--duration-fast) var(--ease-premium),
                 border-color var(--duration-fast) var(--ease-premium),
                 color var(--duration-fast) var(--ease-premium);
+
+    @media (max-width: 575px) {
+        min-height: 42px;
+        padding: 0.5rem 1.25rem;
+        background: rgba(255, 255, 255, 0.18);
+    }
 
     i {
         transition: transform var(--duration-fast) var(--ease-premium);
@@ -202,7 +246,6 @@
 }
 
 // Touch devices can't hover: keep the excerpt + CTA permanently visible
-// (the veil stays off; the bottom scrim alone guarantees legibility).
 @media (hover: none) {
     .photo-tile__reveal {
         max-height: none;
@@ -224,7 +267,6 @@
         transform: none;
     }
 }
-
 // ==========================================================================
 // LUXURY EDITORIAL JOURNAL (Senior Blog Redesign)
 // ==========================================================================
