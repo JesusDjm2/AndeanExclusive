@@ -70,52 +70,52 @@
         {{-- Plantilla oculta para el popover (renderizada por Bootstrap vía JS con container body) --}}
         <template class="ae-prog-popover-tpl">
             <div class="ae-prog-card-preview">
-                <div class="d-flex justify-content-between align-items-center gap-2 mb-2 pb-2 border-bottom">
-                    <span class="font-monospace fw-bold text-dark fs-6">{{ $cod }}</span>
+                <div class="d-flex justify-content-between align-items-center gap-2 mb-2 pb-2 ae-prog-card-header border-bottom">
+                    <span class="font-monospace fw-bold fs-6 ae-prog-code-highlight">{{ $cod }}</span>
                     <span class="badge {{ $faseInfo['badge'] }} rounded-pill px-2 py-1 small">
                         <i class="fas {{ $faseInfo['icon'] }} me-1"></i>{{ $faseInfo['label'] }}
                     </span>
                 </div>
 
-                <h6 class="fw-bold text-dark mb-2 lh-sm">{{ $programa->nombre }}</h6>
+                <h6 class="fw-bold mb-2 lh-sm ae-prog-card-name">{{ $programa->nombre }}</h6>
 
                 <div class="ae-prog-preview-meta small text-muted d-flex flex-column gap-1 mb-3">
                     <div class="d-flex align-items-baseline gap-2">
-                        <i class="fas fa-user-circle text-secondary fa-fw"></i>
+                        <i class="fas fa-user-circle fa-fw"></i>
                         <span class="text-truncate">
-                            <strong class="text-dark">Cliente:</strong> {{ $clienteNombre }}
+                            <strong>Cliente:</strong> {{ $clienteNombre }}
                         </span>
                     </div>
 
                     @if ($inicio && $fin)
                         <div class="d-flex align-items-baseline gap-2">
-                            <i class="fas fa-calendar-alt text-secondary fa-fw"></i>
+                            <i class="fas fa-calendar-alt fa-fw"></i>
                             <span>
-                                <strong class="text-dark">Fechas:</strong>
+                                <strong>Fechas:</strong>
                                 {{ $inicio->format('d/m/Y') }} al {{ $fin->format('d/m/Y') }}
-                                <span class="badge bg-light text-dark border ms-1">{{ $dias }} {{ $dias === 1 ? 'día' : 'días' }}</span>
+                                <span class="badge border ms-1 ae-prog-days-pill">{{ $dias }} {{ $dias === 1 ? 'día' : 'días' }}</span>
                             </span>
                         </div>
                     @else
                         <div class="d-flex align-items-baseline gap-2">
-                            <i class="fas fa-calendar-times text-muted fa-fw"></i>
-                            <span class="text-muted fst-italic">Fechas pendientes de definir</span>
+                            <i class="fas fa-calendar-times fa-fw"></i>
+                            <span class="fst-italic text-muted">Fechas pendientes de definir</span>
                         </div>
                     @endif
 
                     <div class="d-flex align-items-baseline gap-2">
-                        <i class="fas fa-users text-secondary fa-fw"></i>
+                        <i class="fas fa-users fa-fw"></i>
                         <span>
-                            <strong class="text-dark">Pasajeros:</strong>
+                            <strong>Pasajeros:</strong>
                             {{ $paxsCount }} {{ $paxsCount === 1 ? 'pasajero' : 'pasajeros' }}
                         </span>
                     </div>
 
                     @if ($estadoLabel)
                         <div class="d-flex align-items-baseline gap-2">
-                            <i class="fas fa-bookmark text-secondary fa-fw"></i>
+                            <i class="fas fa-bookmark fa-fw"></i>
                             <span>
-                                <strong class="text-dark">Estado:</strong> {{ $estadoLabel }}
+                                <strong>Estado:</strong> {{ $estadoLabel }}
                             </span>
                         </div>
                     @endif

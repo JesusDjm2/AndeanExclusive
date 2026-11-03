@@ -368,42 +368,82 @@
     }
 }
 
-// Estilo del Popover Bootstrap personalizado con ajuste perfecto en celulares
+// Estilo del Popover Bootstrap personalizado con ajuste perfecto en celulares y soporte total para tema claro y tema oscuro
 .popover.ae-prog-popover {
     --bs-popover-max-width: min(340px, calc(100vw - 24px));
     --bs-popover-border-radius: 12px;
-    --bs-popover-border-color: rgba(24, 34, 41, 0.12);
-    --bs-popover-box-shadow: 0 12px 28px -6px rgba(24, 34, 41, 0.18), 0 8px 12px -4px rgba(24, 34, 41, 0.08);
-    --bs-popover-bg: #ffffff;
-    border: 1px solid var(--bs-popover-border-color);
-    box-shadow: var(--bs-popover-box-shadow);
+    --bs-popover-border-color: var(--ae-border-strong, #c9d8d8);
+    --bs-popover-box-shadow: var(--ae-shadow-lg, 0 12px 28px -6px rgba(24, 34, 41, 0.18));
+    --bs-popover-bg: var(--ae-surface, #ffffff);
+    background-color: var(--ae-surface, #ffffff) !important;
+    border: 1px solid var(--ae-border-strong, #c9d8d8) !important;
+    box-shadow: var(--ae-shadow-lg, 0 12px 28px -6px rgba(24, 34, 41, 0.18)) !important;
     border-radius: var(--bs-popover-border-radius);
     z-index: 1085;
     padding: 0;
 
+    .popover-arrow {
+        &::before {
+            border-bottom-color: var(--ae-border-strong, #c9d8d8) !important;
+            border-top-color: var(--ae-border-strong, #c9d8d8) !important;
+            border-left-color: var(--ae-border-strong, #c9d8d8) !important;
+            border-right-color: var(--ae-border-strong, #c9d8d8) !important;
+        }
+
+        &::after {
+            border-bottom-color: var(--ae-surface, #ffffff) !important;
+            border-top-color: var(--ae-surface, #ffffff) !important;
+            border-left-color: var(--ae-surface, #ffffff) !important;
+            border-right-color: var(--ae-surface, #ffffff) !important;
+        }
+    }
+
     .popover-body {
         padding: 0.9rem 1rem;
-        color: #182229;
+        background-color: var(--ae-surface, #ffffff);
+        color: var(--ae-ink, #182229);
+        border-radius: inherit;
     }
 
     .ae-prog-card-preview {
         font-family: inherit;
+        color: var(--ae-ink, #182229);
 
-        h6 {
-            color: #182229;
+        .ae-prog-card-header {
+            border-bottom-color: var(--ae-border, #e3ecec) !important;
+        }
+
+        .ae-prog-code-highlight {
+            color: var(--ae-ink, #182229);
+        }
+
+        .ae-prog-card-name {
+            color: var(--ae-ink, #182229);
             font-size: 0.92rem;
             margin-bottom: 0.5rem;
             line-height: 1.35;
+        }
+
+        .ae-prog-days-pill {
+            background-color: var(--ae-chip, #eef3f3);
+            border-color: var(--ae-border, #e3ecec) !important;
+            color: var(--ae-ink, #182229);
         }
     }
 
     .ae-prog-preview-meta {
         font-size: 0.82rem;
         line-height: 1.4;
+        color: var(--ae-ink-soft, #6b7a82);
 
         i {
             width: 1rem;
             text-align: center;
+            color: var(--ae-ink-soft, #6b7a82);
+        }
+
+        strong {
+            color: var(--ae-ink, #182229);
         }
     }
 
@@ -417,6 +457,86 @@
 
         .popover-arrow {
             display: none;
+        }
+    }
+}
+
+// Adaptación completa para modo oscuro ([data-bs-theme="dark"])
+[data-bs-theme="dark"] {
+    .popover.ae-prog-popover {
+        --bs-popover-bg: var(--ae-surface);
+        --bs-popover-border-color: var(--ae-border-strong);
+        background-color: var(--ae-surface) !important;
+        border-color: var(--ae-border-strong) !important;
+
+        .popover-arrow {
+            &::before {
+                border-bottom-color: var(--ae-border-strong) !important;
+                border-top-color: var(--ae-border-strong) !important;
+                border-left-color: var(--ae-border-strong) !important;
+                border-right-color: var(--ae-border-strong) !important;
+            }
+
+            &::after {
+                border-bottom-color: var(--ae-surface) !important;
+                border-top-color: var(--ae-surface) !important;
+                border-left-color: var(--ae-surface) !important;
+                border-right-color: var(--ae-surface) !important;
+            }
+        }
+
+        .popover-body {
+            background-color: var(--ae-surface);
+            color: var(--ae-ink);
+        }
+
+        .ae-prog-card-preview {
+            color: var(--ae-ink);
+
+            .ae-prog-card-header {
+                border-bottom-color: var(--ae-border) !important;
+            }
+
+            .ae-prog-code-highlight,
+            .ae-prog-card-name {
+                color: var(--ae-ink) !important;
+            }
+
+            .ae-prog-days-pill {
+                background-color: var(--ae-chip) !important;
+                border-color: var(--ae-border) !important;
+                color: var(--ae-ink) !important;
+            }
+
+            .badge.bg-info-subtle {
+                background-color: rgba(130, 180, 240, 0.15) !important;
+                color: var(--ae-info) !important;
+                border-color: rgba(130, 180, 240, 0.3) !important;
+            }
+
+            .badge.bg-success-subtle {
+                background-color: rgba(92, 201, 143, 0.15) !important;
+                color: var(--ae-success) !important;
+                border-color: rgba(92, 201, 143, 0.3) !important;
+            }
+
+            .badge.bg-secondary-subtle {
+                background-color: rgba(157, 177, 177, 0.15) !important;
+                color: var(--ae-ink-soft) !important;
+                border-color: var(--ae-border) !important;
+            }
+        }
+
+        .ae-prog-preview-meta {
+            color: var(--ae-ink-soft);
+
+            i {
+                color: var(--ae-ink-soft) !important;
+            }
+
+            strong {
+                color: var(--ae-ink) !important;
+            }
         }
     }
 }
