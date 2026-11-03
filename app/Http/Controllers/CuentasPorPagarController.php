@@ -41,7 +41,7 @@ class CuentasPorPagarController extends Controller
         $conteos = collect(self::FILTROS)->map(fn ($etiqueta, $clave) => $consulta($clave)->count());
 
         $todos = $consulta($filtro)
-            ->with(['programa.paxs', 'proveedor.categoria', 'pagos'])
+            ->with(['programa.paxs', 'programa.cliente', 'proveedor.categoria', 'pagos'])
             ->when($filtro === 'pagadas', fn ($q) => $q->orderByDesc('pagado_at'), fn ($q) => $q->orderBy('fecha'))
             ->limit(1000)
             ->get();

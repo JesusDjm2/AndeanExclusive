@@ -11,7 +11,7 @@ class MovimientoController extends Controller
     public function index(Request $request)
     {
         $movimientos = Movimiento::query()
-            ->with('programa:id,codigo')
+            ->with(['programa' => fn ($q) => $q->select(['id', 'codigo', 'nombre', 'cliente_id', 'inicio', 'fin', 'estado'])->with(['cliente:id,nombre', 'paxs:id,programa_id'])])
             ->when($request->filled('area'), fn ($q) => $q->where('area', $request->input('area')))
             ->when($request->filled('modulo'), fn ($q) => $q->where('modulo', $request->input('modulo')))
             ->when($request->date('desde'), fn ($q, $fecha) => $q->whereDate('created_at', '>=', $fecha))

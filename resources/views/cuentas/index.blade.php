@@ -109,7 +109,7 @@
                                     <small class="d-block text-muted">{{ $servicio->tipo_etiqueta }} · {{ $fmt($servicio->costo, $servicio->moneda) }} {{ \App\Models\Servicio::COSTO_POR[$servicio->costo_por] ?? '' }}{{ $servicio->costo_por === 'persona' ? ' × ' . $servicio->programa->pagantes() : '' }}</small>
                                 </td>
                                 <td>
-                                                                            <a href="{{ route('programas.edit', [$servicio->programa, 'tab' => 'itinerario']) }}">{{ $servicio->programa->codigo }}</a>
+                                    <x-programa-codigo :programa="$servicio->programa" :codigo="$servicio->programa->codigo" tab="itinerario" />
                                     <small class="d-block text-muted">{{ \Illuminate\Support\Str::limit($servicio->programa->nombre, 32) }}</small>
                                 </td>
                                 <td class="text-end text-nowrap">

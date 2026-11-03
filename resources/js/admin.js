@@ -10,6 +10,7 @@ import { initAvisos } from './avisos';
 import { initAyuda } from './ayuda';
 import { initTarifas } from './tarifas';
 import { initPasswordToggle } from './password-toggle';
+import { initProgramaHover } from './programa-hover';
 
 window.bootstrap = bootstrap;
 
@@ -155,6 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAyuda();
     initTarifas();
     initPasswordToggle();
+    initProgramaHover(bootstrap);
     initLogout();
     initSidebar();
     initAutoDismissAlerts();

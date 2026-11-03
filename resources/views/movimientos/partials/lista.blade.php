@@ -29,11 +29,7 @@
                             {{ $mov->verbo }} {{ $objeto }} @if ($mov->titulo)<span class="mov__title">{{ $mov->titulo }}</span>@endif
                             @if ($conPrograma && $mov->programa_codigo)
                                 ·
-                                @if ($mov->programa)
-                                    <a href="{{ route('programas.edit', [$mov->programa_id, 'tab' => 'historial']) }}">{{ $mov->programa_codigo }}</a>
-                                @else
-                                    {{ $mov->programa_codigo }}
-                                @endif
+                                <x-programa-codigo :programa="$mov->programa" :codigo="$mov->programa_codigo" tab="historial" />
                             @endif
                         </p>
                         @if (! $compacto && $cambios)
