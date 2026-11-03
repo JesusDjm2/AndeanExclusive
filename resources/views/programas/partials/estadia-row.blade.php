@@ -26,6 +26,14 @@
             @endforeach
         </select>
         @if ($err('habitacion_id'))<div class="invalid-feedback">{{ $err('habitacion_id') }}</div>@endif
+        <div class="form-check form-switch mt-1">
+            <input class="form-check-input" type="checkbox" role="switch" id="est-{{ $i }}-res-cli"
+                name="{{ $name('reservado_cliente') }}" value="1" @checked(!empty($e['reservado_cliente']))
+                data-estadia-reservado-cliente>
+            <label class="form-check-label small text-info-emphasis fw-semibold" for="est-{{ $i }}-res-cli">
+                <i class="fas fa-user-check me-1" aria-hidden="true"></i> Reservado por el cliente
+            </label>
+        </div>
     </div>
     <div class="estadia-row__cantidad">
         <label class="prog-label" for="est-{{ $i }}-cant">Cantidad <span class="required">*</span></label>
@@ -46,9 +54,9 @@
         @if ($err('salida'))<div class="invalid-feedback">{{ $err('salida') }}</div>@endif
     </div>
     @can('cotizacion.ver')
-    <div class="estadia-row__costo">
+    <div class="estadia-row__costo" data-estadia-costo-wrap>
         <label class="prog-label" for="est-{{ $i }}-costo">Costo por noche</label>
-        <div class="input-group input-group-sm">
+        <div class="input-group input-group-sm" data-estadia-costo-inputs @if(!empty($e['reservado_cliente'])) style="display: none;" @endif>
             <select name="{{ $name('moneda') }}" class="form-select estadia-row__moneda" aria-label="Moneda" data-estadia-moneda>
                 @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
                     <option value="{{ $clave }}" @selected(($e['moneda'] ?? 'USD') === $clave)>{{ $simbolo }}</option>
@@ -56,6 +64,11 @@
             </select>
             <input id="est-{{ $i }}-costo" type="number" name="{{ $name('costo_noche') }}" value="{{ $e['costo_noche'] ?? '' }}" min="0" step="0.01" placeholder="Por habitación"
                 class="form-control {{ $err('costo_noche') ? 'is-invalid' : '' }}" data-estadia-costo>
+        </div>
+        <div class="estadia-row__costo-zero mt-1" data-estadia-costo-badge @if(empty($e['reservado_cliente'])) style="display: none;" @endif>
+            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle py-2 px-2 d-block text-center small">
+                <i class="fas fa-check-circle text-info me-1" aria-hidden="true"></i> Costo $0 (Cliente)
+            </span>
         </div>
         @if ($err('costo_noche'))<div class="invalid-feedback d-block">{{ $err('costo_noche') }}</div>@endif
     </div>

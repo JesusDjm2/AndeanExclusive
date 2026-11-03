@@ -45,7 +45,7 @@
     $costeo = $isEdit ? $programa->costeo() : null;
     $correosSugeridos = $isEdit ? \App\Support\Recordatorios::sugeridos($programa) : [];
     $estadiaRows = old('estadias') ?? $programa->habitacionesFechas->sortBy(fn ($e) => [$e->fecha_ingreso === null, (string) $e->fecha_ingreso, $e->id])->values()
-        ->map(fn ($e) => ['id' => $e->id, 'habitacion_id' => $e->habitacion_id, 'cantidad' => $e->cantidad, 'costo_noche' => $e->costo_noche, 'moneda' => $e->moneda, 'ingreso' => $e->fecha_ingreso, 'salida' => $e->fecha_salida])->all();
+        ->map(fn ($e) => ['id' => $e->id, 'habitacion_id' => $e->habitacion_id, 'cantidad' => $e->cantidad, 'reservado_cliente' => $e->reservado_cliente, 'costo_noche' => $e->costo_noche, 'moneda' => $e->moneda, 'ingreso' => $e->fecha_ingreso, 'salida' => $e->fecha_salida])->all();
 
     // Pestaña con errores de validación → punto rojo en la pestaña y se abre la primera.
     $tabFields = [
@@ -593,9 +593,16 @@
             <section class="tab-pane fade {{ $initialTab === 'alojamiento' ? 'show active' : '' }}" id="pf-alojamiento" role="tabpanel" aria-labelledby="pf-tab-alojamiento">
                 <input type="hidden" name="_estadias" value="1">
                 <div class="prog-section" data-estadias data-tarifa-url="{{ route('tarifas.sugerir') }}" data-next-index="{{ count($estadiaRows) ? max(array_keys($estadiaRows)) + 1 : 0 }}">
-                    <div class="prog-section__header">
-                        <span class="prog-section__title">Habitaciones del grupo</span>
-                        <span class="prog-section__subtitle">Una fila por tipo de habitación y estadía. Con fechas, cada fila crea su servicio para reservarlo y pagarlo.</span>
+                    <div class="prog-section__header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <span class="prog-section__title">Habitaciones del grupo</span>
+                            <span class="prog-section__subtitle">Una fila por tipo de habitación y estadía. Con fechas, cada fila crea su servicio para reservarlo y pagarlo.</span>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNuevoHotel">
+                                <i class="fas fa-plus-circle me-1" aria-hidden="true"></i> Nuevo hotel
+                            </button>
+                        </div>
                     </div>
                     <div class="prog-section__body">
                         @if ($hoteles->isEmpty())
@@ -634,15 +641,25 @@
                     data-itinerario data-next-index="{{ count($servicioRows) ? max(array_keys($servicioRows)) + 1 : 0 }}">
                     <input type="hidden" name="_itinerario" value="1">
 
-                    <div class="itin-summary">
-                        <div class="itin-summary__stats">
-                            <span><strong>{{ $operacion['servicios'] }}</strong> servicios</span>
-                            <span class="itin-summary__ok"><i class="fas fa-check-circle" aria-hidden="true"></i> {{ $operacion['confirmados'] }} confirmados</span>
-                            @if ($operacion['abiertos'])
-                                <span class="itin-summary__warn"><i class="fas fa-hourglass-half" aria-hidden="true"></i> {{ $operacion['abiertos'] }} por confirmar</span>
-                            @endif
+                    <div class="itin-summary d-flex flex-wrap justify-content-between align-items-center gap-3">
+                        <div>
+                            <div class="itin-summary__stats">
+                                <span><strong>{{ $operacion['servicios'] }}</strong> servicios</span>
+                                <span class="itin-summary__ok"><i class="fas fa-check-circle" aria-hidden="true"></i> {{ $operacion['confirmados'] }} confirmados</span>
+                                @if ($operacion['abiertos'])
+                                    <span class="itin-summary__warn"><i class="fas fa-hourglass-half" aria-hidden="true"></i> {{ $operacion['abiertos'] }} por confirmar</span>
+                                @endif
+                            </div>
+                            <p class="prog-input-hint mb-0">El cliente ve el título y el texto de cada día y los servicios marcados como visibles. Proveedor, estado, confirmación y notas son internos.</p>
                         </div>
-                        <p class="prog-input-hint mb-0">El cliente ve el título y el texto de cada día y los servicios marcados como visibles. Proveedor, estado, confirmación y notas son internos.</p>
+                        <div class="d-flex align-items-center gap-2 mt-2 mt-md-0">
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-itin-remove-day title="Quitar el último día del itinerario">
+                                <i class="fas fa-calendar-minus me-1" aria-hidden="true"></i> Quitar último día
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" data-itin-add-day>
+                                <i class="fas fa-calendar-plus me-1" aria-hidden="true"></i> Agregar día
+                            </button>
+                        </div>
                     </div>
 
                     @if ($itinerario['dias']->isEmpty())
@@ -654,42 +671,56 @@
                         </div>
                     @endif
 
-                    @foreach ($itinerario['dias'] as $dia)
-                        @php $filas = $serviciosPorDia->get($dia['clave'], collect()); @endphp
-                        <article class="itin-day">
-                            <header class="itin-day__header">
-                                <span class="itin-day__num">Día {{ $dia['numero'] }}</span>
-                                <span class="itin-day__date">{{ ucfirst($dia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM')) }}</span>
-                                @if ($dia['hotel'])
-                                    <span class="itin-day__hotel"><i class="fas fa-moon" aria-hidden="true"></i> {{ $dia['hotel'] }}</span>
-                                @endif
-                            </header>
-                            <div class="itin-day__body">
-                                <div class="row g-2 mb-3">
-                                    <div class="col-md-5">
-                                        <label class="prog-label" for="dia-{{ $dia['clave'] }}-titulo">Título del día</label>
-                                        <input id="dia-{{ $dia['clave'] }}-titulo" type="text" name="dias[{{ $dia['clave'] }}][titulo]" maxlength="255"
-                                            value="{{ old('dias.' . $dia['clave'] . '.titulo', $dia['dia']?->titulo) }}"
-                                            class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour">
+                    <div class="itin-days-list" data-itin-days-list>
+                        @foreach ($itinerario['dias'] as $dia)
+                            @php $filas = $serviciosPorDia->get($dia['clave'], collect()); @endphp
+                            <article class="itin-day" data-itin-day-item data-fecha="{{ $dia['clave'] }}" data-dia-num="{{ $dia['numero'] }}">
+                                <header class="itin-day__header">
+                                    <span class="itin-day__num" data-itin-day-num-label>Día {{ $dia['numero'] }}</span>
+                                    <span class="itin-day__date" data-itin-day-date-label>{{ ucfirst($dia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM')) }}</span>
+                                    @if ($dia['hotel'])
+                                        <span class="itin-day__hotel"><i class="fas fa-moon" aria-hidden="true"></i> {{ $dia['hotel'] }}</span>
+                                    @endif
+                                </header>
+                                <div class="itin-day__body">
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-5">
+                                            <label class="prog-label" for="dia-{{ $dia['clave'] }}-titulo">Título del día</label>
+                                            <input id="dia-{{ $dia['clave'] }}-titulo" type="text" name="dias[{{ $dia['clave'] }}][titulo]" maxlength="255"
+                                                value="{{ old('dias.' . $dia['clave'] . '.titulo', $dia['dia']?->titulo) }}"
+                                                class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <label class="prog-label" for="dia-{{ $dia['clave'] }}-desc">Descripción para el cliente</label>
+                                            <textarea id="dia-{{ $dia['clave'] }}-desc" name="dias[{{ $dia['clave'] }}][descripcion]" rows="2" maxlength="3000"
+                                                class="form-control form-control-sm">{{ old('dias.' . $dia['clave'] . '.descripcion', $dia['dia']?->descripcion) }}</textarea>
+                                        </div>
                                     </div>
-                                    <div class="col-md-7">
-                                        <label class="prog-label" for="dia-{{ $dia['clave'] }}-desc">Descripción para el cliente</label>
-                                        <textarea id="dia-{{ $dia['clave'] }}-desc" name="dias[{{ $dia['clave'] }}][descripcion]" rows="2" maxlength="3000"
-                                            class="form-control form-control-sm">{{ old('dias.' . $dia['clave'] . '.descripcion', $dia['dia']?->descripcion) }}</textarea>
-                                    </div>
-                                </div>
 
-                                <div class="itin-day__services" data-svc-list>
-                                    @foreach ($filas as $i => $fila)
-                                        @include('programas.partials.servicio-row', ['i' => $i, 's' => $fila])
-                                    @endforeach
+                                    <div class="itin-day__services" data-svc-list>
+                                        @foreach ($filas as $i => $fila)
+                                            @include('programas.partials.servicio-row', ['i' => $i, 's' => $fila])
+                                        @endforeach
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="{{ $dia['clave'] }}">
+                                        <i class="fas fa-plus" aria-hidden="true"></i> Agregar servicio
+                                    </button>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="{{ $dia['clave'] }}">
-                                    <i class="fas fa-plus" aria-hidden="true"></i> Agregar servicio
-                                </button>
-                            </div>
-                        </article>
-                    @endforeach
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 pt-3 border-top gap-2" data-itin-footer-actions>
+                        <span class="text-muted small"><i class="fas fa-info-circle me-1" aria-hidden="true"></i> Puedes agregar o quitar días del itinerario directamente sin salir de esta pestaña.</span>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger" data-itin-remove-day title="Quitar el último día del itinerario">
+                                <i class="fas fa-calendar-minus me-1" aria-hidden="true"></i> Quitar último día
+                            </button>
+                            <button type="button" class="btn btn-sm btn-primary" data-itin-add-day>
+                                <i class="fas fa-calendar-plus me-1" aria-hidden="true"></i> Agregar día
+                            </button>
+                        </div>
+                    </div>
 
                     @if ($serviciosPorDia->has('fuera'))
                         <article class="itin-day itin-day--outside">
@@ -706,6 +737,34 @@
                             </div>
                         </article>
                     @endif
+
+                    <template data-itin-day-template>
+                        <article class="itin-day" data-itin-day-item data-fecha="__FECHA__" data-dia-num="__NUM__">
+                            <header class="itin-day__header">
+                                <span class="itin-day__num" data-itin-day-num-label>Día __NUM__</span>
+                                <span class="itin-day__date" data-itin-day-date-label>__FECHA_LABEL__</span>
+                            </header>
+                            <div class="itin-day__body">
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-5">
+                                        <label class="prog-label" for="dia-__FECHA__-titulo">Título del día</label>
+                                        <input id="dia-__FECHA__-titulo" type="text" name="dias[__FECHA__][titulo]" maxlength="255"
+                                            class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour">
+                                    </div>
+                                    <div class="col-md-7">
+                                        <label class="prog-label" for="dia-__FECHA__-desc">Descripción para el cliente</label>
+                                        <textarea id="dia-__FECHA__-desc" name="dias[__FECHA__][descripcion]" rows="2" maxlength="3000"
+                                            class="form-control form-control-sm" placeholder="Detalles de las actividades de este día..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="itin-day__services" data-svc-list></div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="__FECHA__">
+                                    <i class="fas fa-plus" aria-hidden="true"></i> Agregar servicio
+                                </button>
+                            </div>
+                        </article>
+                    </template>
 
                     <template data-svc-template>
                         @include('programas.partials.servicio-row', ['i' => '__INDEX__', 's' => ['fecha' => '__FECHA__', 'estado' => 'pendiente', 'visible_cliente' => true]])
@@ -1170,4 +1229,7 @@
             @endif
         </div>
     </div>
+
+    {{-- Modal rápido para registrar nuevo hotel y habitación sin salir del formulario --}}
+    @include('programas.partials.modal-nuevo-hotel')
 </div>

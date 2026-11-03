@@ -257,7 +257,12 @@
                     @foreach ($estadias as $estadia)
                         @php $f = $estadia->fecha_ingreso ? $estadia : null; @endphp
                         <tr>
-                            <td>{{ $estadia->etiqueta }}</td>
+                            <td>
+                                {{ $estadia->etiqueta }}
+                                @if ($estadia->reservado_cliente)
+                                    <span class="muted" style="font-size: 8pt; display: block;">({{ $isEn ? 'Reserved by client' : 'Por cuenta del pasajero' }})</span>
+                                @endif
+                            </td>
                             <td>{{ $f ? \Carbon\Carbon::parse($f->fecha_ingreso)->format('d/m/Y') : $t['tbc'] }}</td>
                             <td>{{ $f ? \Carbon\Carbon::parse($f->fecha_salida)->format('d/m/Y') : '—' }}</td>
                             <td class="num">{{ $f ? (int) \Carbon\Carbon::parse($f->fecha_ingreso)->diffInDays(\Carbon\Carbon::parse($f->fecha_salida)) : '—' }}</td>

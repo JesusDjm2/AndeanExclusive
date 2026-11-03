@@ -57,7 +57,7 @@ class AlojamientoEnServicios
             'fecha' => $estadia->fecha_ingreso,
             'titulo' => self::titulo($estadia),
             'proveedor_id' => self::proveedorDe($estadia->habitacion?->hotel)?->id,
-            'estado' => 'pendiente',
+            'estado' => $estadia->reservado_cliente ? 'confirmado' : 'pendiente',
             'visible_cliente' => false,
             'costo_estimado' => $importe,
             'costo' => $importe,
@@ -74,10 +74,15 @@ class AlojamientoEnServicios
         $importe = self::importe($estadia);
         $cambios = ['fecha' => $estadia->fecha_ingreso, 'titulo' => self::titulo($estadia), 'costo_estimado' => $importe];
 
-        // El costo real sigue al estimado hasta que Reservas pone el del hotel o ya hay pagos.
-        $sinTocar = $servicio->costo === null || (float) $servicio->costo === (float) $servicio->costo_estimado;
-        if ($sinTocar && $servicio->pagos()->doesntExist()) {
-            $cambios += ['costo' => $importe, 'moneda' => $estadia->moneda ?: 'USD'];
+        if ($estadia->reservado_cliente) {
+            $cambios['estado'] = 'confirmado';
+            $cambios['costo'] = 0.0;
+        } else {
+            // El costo real sigue al estimado hasta que Reservas pone el del hotel o ya hay pagos.
+            $sinTocar = $servicio->costo === null || (float) $servicio->costo === (float) $servicio->costo_estimado;
+            if ($sinTocar && $servicio->pagos()->doesntExist()) {
+                $cambios += ['costo' => $importe, 'moneda' => $estadia->moneda ?: 'USD'];
+            }
         }
 
         $servicio->update($cambios);
@@ -85,14 +90,19 @@ class AlojamientoEnServicios
 
     private static function importe(HabitacionFecha $estadia): ?float
     {
+        if ($estadia->reservado_cliente) {
+            return 0.0;
+        }
+
         return $estadia->costo_noche === null ? null : round((float) $estadia->costo_noche * $estadia->cantidad * $estadia->noches, 2);
     }
 
     private static function titulo(HabitacionFecha $estadia): string
     {
         $noches = $estadia->noches === 1 ? '1 noche' : "{$estadia->noches} noches";
+        $notaCliente = $estadia->reservado_cliente ? ' (Reservado por el cliente)' : '';
 
-        return "Alojamiento: {$estadia->habitacion?->hotel?->nombre} · {$estadia->etiqueta} · {$noches}";
+        return "Alojamiento: {$estadia->habitacion?->hotel?->nombre} · {$estadia->etiqueta} · {$noches}{$notaCliente}";
     }
 
     /** El hotel se paga como un proveedor más: la primera vez se crea su ficha de proveedor con sus mismos datos. */

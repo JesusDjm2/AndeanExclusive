@@ -19,6 +19,15 @@ trait HasBlogImages
         return $this->blogImageUrl($this->imgFull, 'img/full/');
     }
 
+    /**
+     * Optimized image URL for mobile viewports (<= 768px), preventing
+     * heavy 1920-2700px desktop hero downloads on handheld devices.
+     */
+    public function mobileHeroUrl(): string
+    {
+        return $this->thumbUrl() ?: $this->fullUrl();
+    }
+
     private function blogImageUrl(?string $path, string $folder): string
     {
         $path = ltrim((string) $path, '/');

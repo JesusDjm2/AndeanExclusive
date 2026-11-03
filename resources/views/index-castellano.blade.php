@@ -11,7 +11,10 @@
 @section('contenido')
     <section class="hero">
         <div class="hero__media" data-parallax-container>
-            <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" data-parallax="12" data-breathe>
+            <picture>
+                <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/machupicchu-mobile.webp') }}" type="image/webp">
+                <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" decoding="async" data-parallax="12" data-breathe>
+            </picture>
         </div>
         <div class="hero__content">
             <h1 class="hero__title">Tours de lujo en Perú, hechos exclusivamente para ti</h1>

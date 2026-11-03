@@ -22,11 +22,6 @@
     $bucket = $diasNum <= 3 ? 'short' : ($diasNum <= 7 ? 'medium' : 'long');
     $locationText = $tour->recorrido ?: ($isEs ? 'Cusco & Perú' : 'Cusco & Peru');
     $searchBlob = Str::lower($tour->nombre . ' ' . $locationText . ' ' . ($tour->descripcionCorta ?? ''));
-
-    $waMessage = $isEs
-        ? "¡Hola! Quisiera recibir información y cotizar el tour: {$tour->nombre}"
-        : "Hello! I would like more information and a quote for: {$tour->nombre}";
-    $waUrl = 'https://wa.me/51979721194?text=' . rawurlencode($waMessage);
 @endphp
 
 <article class="card-tour"
@@ -37,7 +32,7 @@
 
     <div class="card-tour__media">
         <a href="{{ route($tourRoute, $tour->slug) }}" class="card-tour__media-link" tabindex="-1" aria-hidden="true">
-            <img src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}" loading="lazy">
+            <img src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}" loading="lazy" decoding="async" width="400" height="250">
         </a>
         <div class="card-tour__badges">
             <span class="card-tour__badge card-tour__badge--duration">
@@ -100,22 +95,6 @@
                     <span>{{ $isEs ? 'Ver itinerario' : 'View itinerary' }}</span>
                     <i class="fa fa-arrow-right" aria-hidden="true"></i>
                 </a>
-                <a href="{{ $waUrl }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="card-tour__icon-btn card-tour__icon-btn--wa"
-                    title="{{ $isEs ? 'Consultar disponibilidad por WhatsApp' : 'Check availability on WhatsApp' }}"
-                    aria-label="{{ $isEs ? 'Consultar disponibilidad por WhatsApp' : 'Check availability on WhatsApp' }}">
-                    <i class="fa fa-whatsapp" aria-hidden="true"></i>
-                </a>
-                <button type="button"
-                    class="card-tour__icon-btn card-tour__icon-btn--quote"
-                    data-contact-open
-                    data-tour-name="{{ $tour->nombre }}"
-                    title="{{ $isEs ? 'Cotizar este viaje personalizado' : 'Request bespoke quote' }}"
-                    aria-label="{{ $isEs ? 'Cotizar este viaje personalizado' : 'Request bespoke quote' }}">
-                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
-                </button>
             </div>
         </div>
     </div>

@@ -198,4 +198,48 @@ class HotelController extends Controller
 
         return redirect()->route('hotel.index')->with('success', 'Hotel eliminado correctamente.');
     }
+
+    /**
+     * Registro rápido de hotel y habitación inicial desde modal en programas.
+     */
+    public function rapido(\Illuminate\Http\Request $request)
+    {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'correo' => 'nullable|email|max:255',
+            'habitacion_tipo' => 'nullable|string|max:100',
+            'habitacion_capacidad' => 'nullable|integer|min:1|max:20',
+        ]);
+
+        $hotel = \App\Models\Hotel::create([
+            'nombre' => trim($data['nombre']),
+            'direccion' => $data['direccion'] ?? null,
+            'telefono' => $data['telefono'] ?? null,
+            'correo' => $data['correo'] ?? null,
+        ]);
+
+        $tipo = trim($data['habitacion_tipo'] ?? '') ?: 'Estándar / Doble';
+        $capacidad = (int) ($data['habitacion_capacidad'] ?? 2) ?: 2;
+
+        $habitacion = $hotel->habitaciones()->create([
+            'tipo' => $tipo,
+            'capacidad' => $capacidad,
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'hotel' => [
+                'id' => $hotel->id,
+                'nombre' => $hotel->nombre,
+            ],
+            'habitacion' => [
+                'id' => $habitacion->id,
+                'tipo' => $habitacion->tipo,
+                'capacidad' => $habitacion->capacidad,
+                'texto' => "{$hotel->nombre} · {$habitacion->tipo} ({$habitacion->capacidad} " . ($habitacion->capacidad === 1 ? 'persona' : 'personas') . ")",
+            ],
+        ]);
+    }
 }

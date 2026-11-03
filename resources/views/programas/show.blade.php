@@ -433,7 +433,14 @@
                                             $salida = $fecha ? \Carbon\Carbon::parse($fecha->fecha_salida) : null;
                                         @endphp
                                         <li class="itin-room">
-                                            <span class="itin-room__type"><i class="fa fa-bed" aria-hidden="true"></i> {{ $estadia->etiqueta }}</span>
+                                            <span class="itin-room__type">
+                                                <i class="fa fa-bed" aria-hidden="true"></i> {{ $estadia->etiqueta }}
+                                                @if ($estadia->reservado_cliente)
+                                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle ms-2 py-1 px-2 small" style="font-size: 0.72rem;">
+                                                        <i class="fa fa-user me-1" aria-hidden="true"></i> {{ $isEn ? 'Reserved by client' : 'Por cuenta del pasajero' }}
+                                                    </span>
+                                                @endif
+                                            </span>
                                             @if ($fecha)
                                                 <span class="itin-room__dates">{{ $t['check_in'] }} {{ $ingreso->locale($locale)->isoFormat('D MMM') }} · {{ $t['check_out'] }} {{ $salida->locale($locale)->isoFormat('D MMM') }}</span>
                                                 <span class="itin-room__nights">{{ $plural((int) $ingreso->diffInDays($salida), 'night', 'nights') }}</span>

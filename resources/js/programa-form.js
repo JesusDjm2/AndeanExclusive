@@ -69,15 +69,147 @@ function initPassengers(root, onChange) {
     refresh();
 }
 
-// Itinerario: servicios por día (agregar desde la plantilla, quitar y color del estado).
+// Itinerario: servicios por día y agregar / quitar días en caliente sin salir a pestaña Datos.
 function initItinerario(root) {
     const section = root.querySelector('[data-itinerario]');
     const template = root.querySelector('[data-svc-template]');
+    const dayTemplate = root.querySelector('[data-itin-day-template]');
+    const daysList = section?.querySelector('[data-itin-days-list]');
+    const finInput = root.querySelector('[data-fecha-fin]');
+    const inicioInput = root.querySelector('[data-fecha-inicio]');
     if (!section || !template) return;
 
     let nextIndex = parseInt(section.dataset.nextIndex, 10) || 0;
 
+    const aIso = (d) => {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    };
+
+    const formatearFechaEs = (isoStr) => {
+        try {
+            const parts = isoStr.split('-');
+            const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+            return `${diasSemana[date.getDay()]} ${date.getDate()} de ${meses[date.getMonth()]}`;
+        } catch {
+            return isoStr;
+        }
+    };
+
+    // Agregar nuevo día al final del itinerario
+    const agregarDia = () => {
+        if (!dayTemplate || !daysList) return;
+        const dayItems = daysList.querySelectorAll('[data-itin-day-item]');
+        let nextDateStr = '';
+        let nextDayNum = dayItems.length + 1;
+
+        if (dayItems.length > 0) {
+            const lastDay = dayItems[dayItems.length - 1];
+            const lastDate = lastDay.dataset.fecha;
+            const d = new Date(lastDate + 'T00:00:00');
+            d.setDate(d.getDate() + 1);
+            nextDateStr = aIso(d);
+        } else if (finInput?.value) {
+            const d = new Date(finInput.value + 'T00:00:00');
+            d.setDate(d.getDate() + 1);
+            nextDateStr = aIso(d);
+        } else if (inicioInput?.value) {
+            nextDateStr = inicioInput.value;
+        } else {
+            const today = new Date();
+            nextDateStr = aIso(today);
+        }
+
+        const fechaLabel = formatearFechaEs(nextDateStr);
+        const html = dayTemplate.innerHTML
+            .replaceAll('__FECHA__', nextDateStr)
+            .replaceAll('__NUM__', nextDayNum)
+            .replaceAll('__FECHA_LABEL__', fechaLabel);
+
+        daysList.insertAdjacentHTML('beforeend', html);
+
+        // Sincronizar fecha fin del programa
+        if (finInput) {
+            finInput.value = nextDateStr;
+            finInput.dispatchEvent(new Event('input', { bubbles: true }));
+            finInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        const nuevoDia = daysList.lastElementChild;
+        nuevoDia?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        nuevoDia?.querySelector('input[name$="[titulo]"]')?.focus();
+    };
+
+    // Quitar el último día del itinerario con confirmación si tiene servicios o texto
+    const quitarUltimoDia = () => {
+        if (!daysList) return;
+        const dayItems = daysList.querySelectorAll('[data-itin-day-item]');
+        if (dayItems.length <= 1) {
+            const msg = 'El programa debe conservar al menos 1 día en su itinerario.';
+            if (window.Swal) {
+                window.Swal.fire({ icon: 'info', title: 'Atención', text: msg, confirmButtonColor: '#078f84' });
+            } else {
+                alert(msg);
+            }
+            return;
+        }
+
+        const ultimoDia = dayItems[dayItems.length - 1];
+        const numDia = ultimoDia.dataset.diaNum || dayItems.length;
+        const servicesCount = ultimoDia.querySelectorAll('[data-svc-item]').length;
+        const titleVal = ultimoDia.querySelector('input[name$="[titulo]"]')?.value.trim();
+        const descVal = ultimoDia.querySelector('textarea[name$="[descripcion]"]')?.value.trim();
+        const tieneContenido = servicesCount > 0 || !!titleVal || !!descVal;
+
+        const procederQuitar = () => {
+            ultimoDia.remove();
+            const remainingDays = daysList.querySelectorAll('[data-itin-day-item]');
+            const nuevoUltimo = remainingDays[remainingDays.length - 1];
+            if (nuevoUltimo && finInput) {
+                finInput.value = nuevoUltimo.dataset.fecha;
+                finInput.dispatchEvent(new Event('input', { bubbles: true }));
+                finInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        };
+
+        if (tieneContenido) {
+            const confirmText = `El Día ${numDia} contiene ${servicesCount} servicio(s) o textos. ¿Seguro que deseas eliminarlo del viaje?`;
+            if (window.Swal) {
+                window.Swal.fire({
+                    title: `¿Eliminar Día ${numDia}?`,
+                    text: confirmText,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Sí, quitar día',
+                    cancelButtonText: 'Cancelar'
+                }).then((res) => {
+                    if (res.isConfirmed) procederQuitar();
+                });
+            } else if (confirm(confirmText)) {
+                procederQuitar();
+            }
+        } else {
+            procederQuitar();
+        }
+    };
+
     section.addEventListener('click', (event) => {
+        if (event.target.closest('[data-itin-add-day]')) {
+            event.preventDefault();
+            agregarDia();
+            return;
+        }
+        if (event.target.closest('[data-itin-remove-day]')) {
+            event.preventDefault();
+            quitarUltimoDia();
+            return;
+        }
         const add = event.target.closest('[data-svc-add]');
         if (add) {
             const list = add.parentElement.querySelector('[data-svc-list]');
@@ -207,6 +339,32 @@ function initEstadias(root) {
         const quitar = event.target.closest('[data-estadia-remove]');
         if (!quitar) return;
         quitar.closest('[data-estadia-item]').remove();
+        actualizar();
+    });
+
+    // Control de "Reservado por el cliente": oculta inputs de costo, muestra badge de costo $0 y recalcula presupuesto
+    list.addEventListener('change', (event) => {
+        const switchCli = event.target.closest('[data-estadia-reservado-cliente]');
+        if (!switchCli) return;
+        const fila = switchCli.closest('[data-estadia-item]');
+        const inputsWrap = fila?.querySelector('[data-estadia-costo-inputs]');
+        const badgeWrap = fila?.querySelector('[data-estadia-costo-badge]');
+        const costoInput = fila?.querySelector('[data-estadia-costo]');
+
+        if (switchCli.checked) {
+            if (inputsWrap) inputsWrap.style.display = 'none';
+            if (badgeWrap) badgeWrap.style.display = 'block';
+            if (costoInput) {
+                costoInput.dataset.prevCost = costoInput.value;
+                costoInput.value = '0.00';
+            }
+        } else {
+            if (inputsWrap) inputsWrap.style.display = 'flex';
+            if (badgeWrap) badgeWrap.style.display = 'none';
+            if (costoInput && costoInput.dataset.prevCost !== undefined) {
+                costoInput.value = costoInput.dataset.prevCost || '';
+            }
+        }
         actualizar();
     });
 
@@ -494,6 +652,108 @@ function initNotificaciones(root) {
     });
 }
 
+// Modal para registrar nuevo hotel y habitación al vuelo vía AJAX sin perder datos
+function initNuevoHotelModal(root) {
+    const modalEl = document.getElementById('modalNuevoHotel');
+    const form = modalEl?.querySelector('[data-nuevo-hotel-form]');
+    if (!modalEl || !form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = form.querySelector('[data-nuevo-hotel-submit]');
+        const errorBox = form.querySelector('[data-nuevo-hotel-error]');
+        if (errorBox) {
+            errorBox.style.display = 'none';
+            errorBox.textContent = '';
+        }
+
+        const prevBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1" aria-hidden="true"></i> Guardando...';
+        }
+
+        try {
+            const formData = new FormData(form);
+            const res = await fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            });
+            const data = await res.json();
+
+            if (!res.ok || !data.ok) {
+                const errs = data.errors ? Object.values(data.errors).flat().join('<br>') : (data.mensaje || 'Error al registrar hotel');
+                if (errorBox) {
+                    errorBox.innerHTML = errs;
+                    errorBox.style.display = 'block';
+                }
+                return;
+            }
+
+            // Inyectar optgroup y option en todos los selects de habitación (incluyendo templates)
+            const selects = root.querySelectorAll('select[data-estadia-habitacion]');
+            selects.forEach((sel) => {
+                let group = [...sel.querySelectorAll('optgroup')].find(
+                    (g) => g.label.toLowerCase().trim() === data.hotel.nombre.toLowerCase().trim()
+                );
+                if (!group) {
+                    group = document.createElement('optgroup');
+                    group.label = data.hotel.nombre;
+                    sel.appendChild(group);
+                }
+                const opt = document.createElement('option');
+                opt.value = data.habitacion.id;
+                opt.dataset.capacidad = data.habitacion.capacidad;
+                opt.textContent = `${data.hotel.nombre} · ${data.habitacion.tipo} (${data.habitacion.capacidad} ${data.habitacion.capacidad === 1 ? 'persona' : 'personas'})`;
+                group.appendChild(opt);
+            });
+
+            // Seleccionar automáticamente en la fila que no tenga habitación asignada o en la última
+            const list = root.querySelector('[data-estadias-list]');
+            const rows = list ? [...list.querySelectorAll('[data-estadia-item]')] : [];
+            const targetRow = rows.find((r) => !r.querySelector('select[data-estadia-habitacion]').value) || rows[rows.length - 1];
+            if (targetRow) {
+                const sel = targetRow.querySelector('select[data-estadia-habitacion]');
+                if (sel) {
+                    sel.value = data.habitacion.id;
+                    sel.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            }
+
+            // Cerrar el modal de Bootstrap y limpiar campos
+            const bsModal = window.bootstrap?.Modal?.getInstance(modalEl) || (window.bootstrap?.Modal ? new window.bootstrap.Modal(modalEl) : null);
+            bsModal?.hide();
+            form.reset();
+
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'success',
+                    title: '¡Hotel registrado!',
+                    text: `${data.hotel.nombre} ha sido agregado y seleccionado en alojamiento.`,
+                    timer: 2800,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end'
+                });
+            }
+        } catch (err) {
+            if (errorBox) {
+                errorBox.textContent = 'Hubo un error de conexión al guardar el hotel.';
+                errorBox.style.display = 'block';
+            }
+        } finally {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = prevBtnHtml;
+            }
+        }
+    });
+}
+
 export function initProgramaForm() {
     const root = document.querySelector('[data-programa-form]');
     if (!root) return;
@@ -503,6 +763,7 @@ export function initProgramaForm() {
     initPassengers(root, recompute);
     initEstadias(root);
     initItinerario(root);
+    initNuevoHotelModal(root);
     initClientePicker(root);
     initDuration(root);
     initFlightControls(root);

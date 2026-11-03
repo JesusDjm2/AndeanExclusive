@@ -5,12 +5,15 @@
 @extends('layouts.public')
 
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'around', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'around', 'og_image' => '/img/tours/valle-sagrado.jpg'])
 @endsection
 
 @section('contenido')
     <section class="page-banner page-banner--tall">
-        <img src="{{ asset('img/andean_exclusive_tours_slide2.jpg') }}" alt="Tours around Peru" data-parallax="10" loading="eager" fetchpriority="high">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/valle-sagrado-mobile.webp') }}" type="image/webp">
+            <img src="{{ asset('img/tours/valle-sagrado.jpg') }}" alt="Tours around Peru" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
             <span class="page-banner__eyebrow">Multi-Destination Grand Journeys</span>
             <h1 class="page-banner__title">Tours Around Perú</h1>

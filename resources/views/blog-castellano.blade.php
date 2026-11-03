@@ -16,7 +16,10 @@
 @section('contenido')
     @if ($lastBlog)
         <section class="page-banner page-banner--tall">
-            <img src="{{ $lastBlog->fullUrl() }}" alt="{{ $lastBlog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high">
+            <picture>
+                <source media="(max-width: 768px)" srcset="{{ $lastBlog->mobileHeroUrl() }}">
+                <img src="{{ $lastBlog->fullUrl() }}" alt="{{ $lastBlog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+            </picture>
             <div class="page-banner__content">
                 <h1 class="page-banner__title">Blog de Turismo en el Perú</h1>
                 <div class="page-banner__divider"></div>
@@ -44,7 +47,7 @@
         <section class="photo-wall" data-reveal-stagger aria-label="Artículos de viaje en el Perú">
             @foreach ($blogs as $blog)
                 <a href="{{ route('esblog.show', $blog->slug) }}" class="photo-tile">
-                    <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" class="photo-tile__img">
+                    <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" decoding="async" class="photo-tile__img">
                     <div class="photo-tile__body">
                         @if ($blog->created_at)
                             <span class="photo-tile__meta">{{ $blog->created_at->format('d/m/Y') }}</span>

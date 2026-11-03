@@ -5,12 +5,15 @@
 @extends('layouts.public')
 
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'adventures', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
+    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'adventures', 'og_image' => '/img/tours/rainbow-mountain-vinicunca.jpg'])
 @endsection
 
 @section('contenido')
     <section class="page-banner page-banner--tall">
-        <img src="{{ asset('img/climbing-peru-adventures-andean.jpg') }}" alt="Adventure tours in Peru" data-parallax="10" loading="eager" fetchpriority="high">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/rainbow-mountain-vinicunca-mobile.webp') }}" type="image/webp">
+            <img src="{{ asset('img/tours/rainbow-mountain-vinicunca.jpg') }}" alt="Adventure tours in Peru" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
             <span class="page-banner__eyebrow">Raw Nature, Adrenaline & Luxury Comfort</span>
             <h1 class="page-banner__title">Adventure Tours in Perú</h1>

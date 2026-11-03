@@ -16,10 +16,15 @@ class HabitacionFecha extends Model
         'programa_id',
         'habitacion_id',
         'cantidad',
+        'reservado_cliente',
         'costo_noche',
         'moneda',
         'fecha_ingreso',
         'fecha_salida'
+    ];
+
+    protected $casts = [
+        'reservado_cliente' => 'boolean',
     ];
 
     public function programa()

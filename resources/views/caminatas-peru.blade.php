@@ -5,12 +5,15 @@
 @extends('layouts.public')
 
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'caminatas', 'og_image' => '/img/Machu-Picchu-exclusive.jpg'])
+    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'caminatas', 'og_image' => '/img/tours/rainbow-mountain-vinicunca.jpg'])
 @endsection
 
 @section('contenido')
     <section class="page-banner page-banner--tall">
-        <img src="{{ asset('img/climbing-peru-adventures-andean.jpg') }}" alt="Tours de aventura en Perú" data-parallax="10" loading="eager" fetchpriority="high">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/rainbow-mountain-vinicunca-mobile.webp') }}" type="image/webp">
+            <img src="{{ asset('img/tours/rainbow-mountain-vinicunca.jpg') }}" alt="Tours de aventura en Perú" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
             <span class="page-banner__eyebrow">Naturaleza, Adrenalina y Confort VIP</span>
             <h1 class="page-banner__title">Tours de Aventura en Perú</h1>

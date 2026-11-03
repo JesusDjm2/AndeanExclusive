@@ -40,7 +40,10 @@
 
 @section('contenido')
     <section class="page-banner page-banner--tall">
-        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ $blog->mobileHeroUrl() }}">
+            <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
             <h1 class="page-banner__title">{{ $blog->nombre }}</h1>
             <div class="page-banner__divider"></div>
@@ -71,7 +74,7 @@
             <div class="article-layout">
                 <article>
                     <div class="article-figure" data-reveal>
-                        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" loading="lazy">
+                        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" decoding="async">
                     </div>
                     <div class="legal-prose legal-prose--fluid">
                         {!! $blog->descripcion !!}
@@ -93,7 +96,7 @@
                         <h3 class="article-sidebar__title">Blogs Similares</h3>
                         @foreach ($blogs as $item)
                             <a href="{{ route('esblog.show', $item->slug) }}" class="article-side-card">
-                                <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy">
+                                <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
                                 <div>
                                     <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
                                     @if ($item->created_at)

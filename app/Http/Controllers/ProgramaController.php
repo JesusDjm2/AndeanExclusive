@@ -403,6 +403,7 @@ class ProgramaController extends Controller
             'estadias.*.id' => 'nullable|integer',
             'estadias.*.habitacion_id' => 'required|exists:habitacions,id',
             'estadias.*.cantidad' => 'required|integer|min:1|max:50',
+            'estadias.*.reservado_cliente' => 'nullable|boolean',
             'estadias.*.costo_noche' => 'nullable|numeric|min:0',
             'estadias.*.moneda' => ['nullable', Rule::in(array_keys(Servicio::MONEDAS))],
             'estadias.*.ingreso' => 'nullable|required_with:estadias.*.salida|date',
@@ -540,6 +541,14 @@ class ProgramaController extends Controller
             }
         }
 
+        // Si el itinerario fue acortado, limpiar registros de días que queden fuera de las nuevas fechas
+        if ($programa->inicio && $programa->fin) {
+            $programa->dias()->where(function ($q) use ($programa) {
+                $q->whereDate('fecha', '<', $programa->inicio)
+                  ->orWhereDate('fecha', '>', $programa->fin);
+            })->delete();
+        }
+
         $idsRecibidos = [];
         foreach ((array) $request->input('servicios', []) as $datos) {
             $valores = [
@@ -595,10 +604,12 @@ class ProgramaController extends Controller
     {
         $idsRecibidos = [];
         foreach ((array) $request->input('estadias', []) as $datos) {
+            $esReservadoCliente = ! empty($datos['reservado_cliente']);
             $valores = [
                 'habitacion_id' => $datos['habitacion_id'],
                 'cantidad' => $datos['cantidad'],
-                'costo_noche' => isset($datos['costo_noche']) && $datos['costo_noche'] !== '' ? $datos['costo_noche'] : null,
+                'reservado_cliente' => $esReservadoCliente,
+                'costo_noche' => $esReservadoCliente ? 0.00 : (isset($datos['costo_noche']) && $datos['costo_noche'] !== '' ? $datos['costo_noche'] : null),
                 'moneda' => ($datos['moneda'] ?? null) ?: 'USD',
                 'fecha_ingreso' => ($datos['ingreso'] ?? null) ?: null,
                 'fecha_salida' => ($datos['salida'] ?? null) ?: null,

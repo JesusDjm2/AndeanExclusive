@@ -130,6 +130,7 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::get('paxs/{pax}/pasaporte', [PaxController::class, 'pasaporte'])->name('paxs.pasaporte');
         Route::resource('clientes', ClienteController::class)->except('show')->names('clientes');
         Route::resource('paxs', PaxController::class)->names('paxs');
+        Route::post('hoteles/rapido', [HotelController::class, 'rapido'])->name('hotel.rapido');
         Route::resource('hoteles', HotelController::class)->names('hotel')->parameters(['hoteles' => 'hotel']);
         Route::resource('habitaciones', HabitacionController::class)->names('habitacion');
     });

@@ -10,7 +10,10 @@
 
 @section('contenido')
     <section class="page-banner page-banner--tall">
-        <img src="{{ asset('img/hermoso-peru.jpg') }}" alt="Tours exclusivos y privados en Perú" data-parallax="10" loading="eager" fetchpriority="high">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/Machu-Picchu-exclusive-mobile.webp') }}" type="image/webp">
+            <img src="{{ asset('img/Machu-Picchu-exclusive.jpg') }}" alt="Tours exclusivos y privados en Perú" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
             <span class="page-banner__eyebrow">Experiencias Privadas de Alta Gama</span>
             <h1 class="page-banner__title">Tours Exclusivos en Perú</h1>
