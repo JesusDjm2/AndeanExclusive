@@ -277,28 +277,147 @@
                     </div>
                 </div>
 
-                <div class="prog-section">
+                <div class="prog-section" data-vuelos-section>
                     <div class="prog-section__header">
-                        <span class="prog-section__title">Vuelos del grupo</span>
-                        <span class="prog-section__subtitle">Aparecen en la hoja de operaciones, para coordinar los traslados</span>
+                        <span class="prog-section__title"><i class="fas fa-plane text-primary me-2"></i> Vuelos del grupo</span>
+                        <span class="prog-section__subtitle">Horarios de arribo y partida para coordinar traslados y la hoja de operaciones</span>
                     </div>
                     <div class="prog-section__body">
-                        <div class="row g-3">
-                            <div class="col-sm-6 col-lg-3">
-                                <label for="pf-llegada-vuelo" class="prog-label">Vuelo de llegada</label>
-                                <input id="pf-llegada-vuelo" type="text" name="llegada_vuelo" value="{{ old('llegada_vuelo', $programa->llegada_vuelo) }}" maxlength="40" placeholder="LA 2021" class="form-control @error('llegada_vuelo') is-invalid @enderror">
+                        <div class="row g-4">
+                            {{-- Tarjeta Vuelo de Llegada --}}
+                            <div class="col-12 col-lg-6">
+                                <div class="card h-100 border shadow-sm rounded-3">
+                                    <div class="card-header bg-light-subtle py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-dark small">
+                                            <i class="fas fa-plane-arrival text-success me-1"></i> Vuelo de Llegada (Arribo)
+                                        </span>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2"
+                                            data-flight-sync="llegada" title="Copiar la fecha de inicio del tour">
+                                            <i class="fas fa-calendar-day me-1"></i> Usar día de inicio
+                                        </button>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <label for="pf-llegada-vuelo" class="prog-label small fw-semibold text-muted mb-1">
+                                                Aerolínea / N° de Vuelo
+                                            </label>
+                                            <input id="pf-llegada-vuelo" type="text" name="llegada_vuelo"
+                                                value="{{ old('llegada_vuelo', $programa->llegada_vuelo) }}" maxlength="40"
+                                                placeholder="Ej. LA 2021 (LATAM)"
+                                                class="form-control form-control-sm @error('llegada_vuelo') is-invalid @enderror">
+                                            @error('llegada_vuelo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+
+                                        <label class="prog-label small fw-semibold text-muted mb-1">Fecha y hora de arribo</label>
+                                        <div class="row g-2 align-items-end mb-2">
+                                            <div class="col-7">
+                                                <input type="date" class="form-control form-control-sm" id="pf-llegada-fecha"
+                                                    data-flight-date="llegada"
+                                                    value="{{ old('llegada_at') ? substr(old('llegada_at'), 0, 10) : ($programa->llegada_at ? $programa->llegada_at->format('Y-m-d') : '') }}">
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="time" class="form-control form-control-sm" id="pf-llegada-hora"
+                                                    data-flight-time="llegada"
+                                                    value="{{ old('llegada_at') ? substr(old('llegada_at'), 11, 5) : ($programa->llegada_at ? $programa->llegada_at->format('H:i') : '') }}">
+                                            </div>
+                                        </div>
+
+                                        {{-- Botón Aceptar y Acciones --}}
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 pt-2 border-top">
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-primary py-1 px-3" data-flight-accept="llegada">
+                                                    <i class="fas fa-check me-1"></i> Aceptar fecha y hora
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-flight-clear="llegada" title="Borrar horario de llegada">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="small text-muted d-flex gap-1 align-items-center">
+                                                <span class="text-xs">Sugeridos:</span>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="llegada" data-time="09:00">09:00</button>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="llegada" data-time="11:30">11:30</button>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="llegada" data-time="14:00">14:00</button>
+                                            </div>
+                                        </div>
+
+                                        {{-- Campo oculto para envío seguro a Laravel (mantiene compatibilidad 100%) --}}
+                                        <input id="pf-llegada-at" type="hidden" name="llegada_at"
+                                            data-flight-target="llegada"
+                                            value="{{ old('llegada_at', $programa->llegada_at?->format('Y-m-d\TH:i')) }}">
+                                        @error('llegada_at')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+
+                                        {{-- Tarjeta de estado de confirmación visible --}}
+                                        <div class="mt-2" data-flight-status="llegada"></div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <label for="pf-llegada-at" class="prog-label">Llega</label>
-                                <input id="pf-llegada-at" type="datetime-local" name="llegada_at" value="{{ old('llegada_at', $programa->llegada_at?->format('Y-m-d\TH:i')) }}" class="form-control @error('llegada_at') is-invalid @enderror">
-                            </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <label for="pf-salida-vuelo" class="prog-label">Vuelo de salida</label>
-                                <input id="pf-salida-vuelo" type="text" name="salida_vuelo" value="{{ old('salida_vuelo', $programa->salida_vuelo) }}" maxlength="40" class="form-control @error('salida_vuelo') is-invalid @enderror">
-                            </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <label for="pf-salida-at" class="prog-label">Sale</label>
-                                <input id="pf-salida-at" type="datetime-local" name="salida_at" value="{{ old('salida_at', $programa->salida_at?->format('Y-m-d\TH:i')) }}" class="form-control @error('salida_at') is-invalid @enderror">
+
+                            {{-- Tarjeta Vuelo de Salida --}}
+                            <div class="col-12 col-lg-6">
+                                <div class="card h-100 border shadow-sm rounded-3">
+                                    <div class="card-header bg-light-subtle py-2 px-3 border-bottom d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-dark small">
+                                            <i class="fas fa-plane-departure text-danger me-1"></i> Vuelo de Salida (Despedida)
+                                        </span>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary rounded-pill py-0 px-2"
+                                            data-flight-sync="salida" title="Copiar la fecha de fin del tour">
+                                            <i class="fas fa-calendar-day me-1"></i> Usar día de fin
+                                        </button>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <div class="mb-3">
+                                            <label for="pf-salida-vuelo" class="prog-label small fw-semibold text-muted mb-1">
+                                                Aerolínea / N° de Vuelo
+                                            </label>
+                                            <input id="pf-salida-vuelo" type="text" name="salida_vuelo"
+                                                value="{{ old('salida_vuelo', $programa->salida_vuelo) }}" maxlength="40"
+                                                placeholder="Ej. LA 2040 (LATAM)"
+                                                class="form-control form-control-sm @error('salida_vuelo') is-invalid @enderror">
+                                            @error('salida_vuelo')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+
+                                        <label class="prog-label small fw-semibold text-muted mb-1">Fecha y hora de partida</label>
+                                        <div class="row g-2 align-items-end mb-2">
+                                            <div class="col-7">
+                                                <input type="date" class="form-control form-control-sm" id="pf-salida-fecha"
+                                                    data-flight-date="salida"
+                                                    value="{{ old('salida_at') ? substr(old('salida_at'), 0, 10) : ($programa->salida_at ? $programa->salida_at->format('Y-m-d') : '') }}">
+                                            </div>
+                                            <div class="col-5">
+                                                <input type="time" class="form-control form-control-sm" id="pf-salida-hora"
+                                                    data-flight-time="salida"
+                                                    value="{{ old('salida_at') ? substr(old('salida_at'), 11, 5) : ($programa->salida_at ? $programa->salida_at->format('H:i') : '') }}">
+                                            </div>
+                                        </div>
+
+                                        {{-- Botón Aceptar y Acciones --}}
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2 pt-2 border-top">
+                                            <div class="d-flex gap-1">
+                                                <button type="button" class="btn btn-sm btn-primary py-1 px-3" data-flight-accept="salida">
+                                                    <i class="fas fa-check me-1"></i> Aceptar fecha y hora
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-flight-clear="salida" title="Borrar horario de salida">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            </div>
+                                            <div class="small text-muted d-flex gap-1 align-items-center">
+                                                <span class="text-xs">Sugeridos:</span>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="salida" data-time="11:00">11:00</button>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="salida" data-time="16:30">16:30</button>
+                                                <button type="button" class="badge bg-light text-dark border p-1" data-flight-preset="salida" data-time="19:00">19:00</button>
+                                            </div>
+                                        </div>
+
+                                        {{-- Campo oculto para envío seguro a Laravel --}}
+                                        <input id="pf-salida-at" type="hidden" name="salida_at"
+                                            data-flight-target="salida"
+                                            value="{{ old('salida_at', $programa->salida_at?->format('Y-m-d\TH:i')) }}">
+                                        @error('salida_at')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+
+                                        {{-- Tarjeta de estado de confirmación visible --}}
+                                        <div class="mt-2" data-flight-status="salida"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -394,13 +513,26 @@
 
                 <div class="prog-section">
                     <div class="prog-section__header">
-                        <span class="prog-section__title">Descripción e itinerario</span>
-                        <span class="prog-section__subtitle">Lo que verá el cliente, día a día</span>
+                        <span class="prog-section__title"><i class="fas fa-file-alt text-primary me-2"></i> Presentación general del programa</span>
+                        <span class="prog-section__subtitle">Texto de bienvenida y narrativa general que encabeza el viaje en el PDF y en la web del cliente</span>
                     </div>
                     <div class="prog-section__body">
-                        <label for="presentacion" class="visually-hidden">Descripción e itinerario</label>
+                        <div class="alert alert-light border border-info-subtle bg-info-subtle p-3 rounded-3 small mb-3">
+                            <div class="d-flex align-items-start gap-2">
+                                <i class="fas fa-info-circle text-primary mt-1"></i>
+                                <div>
+                                    <strong class="text-dark">¿Qué diferencia tiene esta Presentación frente al Itinerario Día a Día?</strong>
+                                    <ul class="mb-0 ps-3 mt-1 text-muted">
+                                        <li><strong>Esta Presentación:</strong> Es la carta editorial de bienvenida que introduce el concepto del tour. Resume el espíritu de la experiencia y los atractivos principales (aparece en la portada y primera página del documento).</li>
+                                        <li><strong>El Itinerario Día a Día:</strong> Es el desglose cronológico de cada jornada (Día 1, Día 2...), donde se asignan las actividades específicas, traslados, hoteles, guías y entradas. Ese detalle logístico se arma en la pestaña superior <strong>«Itinerario»</strong>.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <label for="presentacion" class="visually-hidden">Presentación general del programa</label>
                         <textarea name="presentacion" id="presentacion" class="ckeditor form-control @error('presentacion') is-invalid @enderror"
-                            rows="6">{{ old('presentacion', $programa->presentacion) }}</textarea>
+                            rows="6" placeholder="Escribe aquí la bienvenida y narrativa general del viaje...">{{ old('presentacion', $programa->presentacion) }}</textarea>
                         @error('presentacion')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
                 </div>

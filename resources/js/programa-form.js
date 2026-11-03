@@ -283,15 +283,163 @@ function initDuration(root) {
     const base = hint.innerHTML;
     const update = () => {
         if (!inicio.value || !fin.value) { hint.innerHTML = base; return; }
-        const dias = Math.round((new Date(fin.value) - new Date(inicio.value)) / 86400000) + 1;
-        hint.innerHTML = dias > 0
-            ? `<i class="fas fa-calendar-check" aria-hidden="true"></i> Duración: <strong>${dias} ${dias === 1 ? 'día' : 'días'}</strong>. Año y mes se asignan solos.`
-            : '<i class="fas fa-exclamation-triangle" aria-hidden="true"></i> La fecha de fin es anterior al inicio.';
+        const diffMs = new Date(fin.value + 'T00:00:00') - new Date(inicio.value + 'T00:00:00');
+        const dias = Math.round(diffMs / 86400000) + 1;
+        const noches = Math.max(0, dias - 1);
+        if (dias > 0) {
+            hint.innerHTML = `
+                <div class="d-inline-flex flex-column gap-1">
+                    <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle px-3 py-2 text-start fs-6">
+                        <i class="fas fa-check-circle me-1"></i> Duración fijada: <strong>${dias} ${dias === 1 ? 'día' : 'días'} / ${noches} ${noches === 1 ? 'noche' : 'noches'}</strong>
+                    </span>
+                    <small class="text-muted"><i class="fas fa-info-circle me-1"></i> El año y mes se asignan automáticamente.</small>
+                </div>
+            `;
+        } else {
+            hint.innerHTML = '<span class="badge bg-danger-subtle text-danger border border-danger-subtle p-2"><i class="fas fa-exclamation-triangle me-1"></i> La fecha de fin debe ser posterior al inicio.</span>';
+        }
         fin.min = inicio.value;
     };
     inicio.addEventListener('change', update);
     fin.addEventListener('change', update);
     update();
+}
+
+// Control interactivo de vuelos de llegada y salida con aceptación explícita de fecha/hora
+function initFlightControls(root) {
+    const inicioInput = root.querySelector('[data-fecha-inicio]');
+    const finInput = root.querySelector('[data-fecha-fin]');
+
+    ['llegada', 'salida'].forEach((tipo) => {
+        const dateInput = root.querySelector(`[data-flight-date="${tipo}"]`);
+        const timeInput = root.querySelector(`[data-flight-time="${tipo}"]`);
+        const targetInput = root.querySelector(`[data-flight-target="${tipo}"]`);
+        const statusBox = root.querySelector(`[data-flight-status="${tipo}"]`);
+        const acceptBtn = root.querySelector(`[data-flight-accept="${tipo}"]`);
+        const clearBtn = root.querySelector(`[data-flight-clear="${tipo}"]`);
+        const syncBtn = root.querySelector(`[data-flight-sync="${tipo}"]`);
+        const presetBtns = root.querySelectorAll(`[data-flight-preset="${tipo}"]`);
+
+        if (!dateInput || !timeInput || !targetInput || !statusBox) return;
+
+        const formatHumanDate = (dateStr, timeStr) => {
+            if (!dateStr) return '';
+            try {
+                const [y, m, d] = dateStr.split('-').map(Number);
+                const fecha = new Date(y, m - 1, d);
+                const formateada = fecha.toLocaleDateString('es-PE', {
+                    weekday: 'short',
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                });
+                const conMayus = formateada.charAt(0).toUpperCase() + formateada.slice(1);
+                return timeStr ? `${conMayus} a las ${timeStr} hrs` : conMayus;
+            } catch {
+                return dateStr + (timeStr ? ` ${timeStr}` : '');
+            }
+        };
+
+        const updateStatus = (confirmed = false) => {
+            const dateVal = dateInput.value;
+            const timeVal = timeInput.value || '';
+
+            if (dateVal) {
+                targetInput.value = timeVal ? `${dateVal}T${timeVal}` : `${dateVal}T00:00`;
+                const human = formatHumanDate(dateVal, timeVal);
+                statusBox.innerHTML = `
+                    <div class="alert alert-success py-2 px-3 small d-flex align-items-center justify-content-between mb-0 mt-2">
+                        <span class="d-flex align-items-center gap-2">
+                            <i class="fas fa-check-circle text-success fs-6"></i>
+                            <span><strong>${tipo === 'llegada' ? 'Arribo' : 'Salida'} aceptada:</strong> ${human}</span>
+                        </span>
+                        <span class="badge bg-success text-white">Listo</span>
+                    </div>
+                `;
+            } else {
+                targetInput.value = '';
+                statusBox.innerHTML = `
+                    <div class="text-muted small fst-italic py-1 mt-1">
+                        <i class="fas fa-info-circle text-secondary me-1"></i> Sin fecha ni hora fijada aún.
+                    </div>
+                `;
+            }
+        };
+
+        // Al pulsar "Aceptar fecha y hora"
+        acceptBtn?.addEventListener('click', () => {
+            if (!dateInput.value) {
+                const defaultFecha = tipo === 'llegada' ? inicioInput?.value : finInput?.value;
+                if (defaultFecha) dateInput.value = defaultFecha;
+            }
+            if (!timeInput.value) {
+                timeInput.value = tipo === 'llegada' ? '09:00' : '16:00';
+            }
+            updateStatus(true);
+
+            // Feedback visual en el botón
+            acceptBtn.classList.remove('btn-primary');
+            acceptBtn.classList.add('btn-success');
+            acceptBtn.innerHTML = '<i class="fas fa-check-double me-1"></i> ¡Aceptado!';
+            setTimeout(() => {
+                acceptBtn.classList.remove('btn-success');
+                acceptBtn.classList.add('btn-primary');
+                acceptBtn.innerHTML = '<i class="fas fa-check me-1"></i> Aceptar fecha y hora';
+            }, 1800);
+        });
+
+        // Botón limpiar
+        clearBtn?.addEventListener('click', () => {
+            dateInput.value = '';
+            timeInput.value = '';
+            targetInput.value = '';
+            updateStatus(false);
+        });
+
+        // Botón sincronizar con día de inicio o fin
+        syncBtn?.addEventListener('click', () => {
+            const baseDate = tipo === 'llegada' ? inicioInput?.value : finInput?.value;
+            if (baseDate) {
+                dateInput.value = baseDate;
+                if (!timeInput.value) {
+                    timeInput.value = tipo === 'llegada' ? '09:30' : '17:00';
+                }
+                updateStatus(true);
+            } else {
+                window.Swal?.fire({
+                    icon: 'info',
+                    title: 'Fechas del viaje pendientes',
+                    text: `Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje en la sección superior.`,
+                    confirmButtonColor: '#078f84'
+                }) || alert(`Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje.`);
+            }
+        });
+
+        // Píldoras de horas sugeridas
+        presetBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                timeInput.value = btn.dataset.time;
+                if (!dateInput.value) {
+                    const baseDate = tipo === 'llegada' ? inicioInput?.value : finInput?.value;
+                    if (baseDate) dateInput.value = baseDate;
+                }
+                updateStatus(true);
+            });
+        });
+
+        dateInput.addEventListener('change', () => updateStatus(false));
+        timeInput.addEventListener('change', () => updateStatus(false));
+
+        // Inicialización
+        if (targetInput.value) {
+            const [d, t] = targetInput.value.split('T');
+            if (d && !dateInput.value) dateInput.value = d;
+            if (t && !timeInput.value) timeInput.value = t.substring(0, 5);
+            updateStatus(true);
+        } else {
+            updateStatus(false);
+        }
+    });
 }
 
 // Cliente: elegir uno existente o crearlo en el mismo formulario.
@@ -357,6 +505,7 @@ export function initProgramaForm() {
     initItinerario(root);
     initClientePicker(root);
     initDuration(root);
+    initFlightControls(root);
     initDirtyGuard(root);
     initNotificaciones(root);
     recompute();
