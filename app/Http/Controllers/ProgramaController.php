@@ -139,7 +139,7 @@ class ProgramaController extends Controller
         $programas = collect();
         if ($anioId && $mesId) {
             $programas = Programa::query()
-                ->with(['paxs', 'agentes', 'anio', 'mes'])
+                ->with(['paxs', 'agentes', 'anio', 'mes', 'cliente', 'pagos', 'servicios', 'habitacionesFechas', 'tareas'])
                 ->where('anio_id', $anioId)
                 ->where('mes_id', $mesId)
                 ->orderBy('nombre')

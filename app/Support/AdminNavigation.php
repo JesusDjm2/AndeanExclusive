@@ -28,10 +28,9 @@ class AdminNavigation
             'label' => 'Operaciones',
             'items' => [
                 ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
-                ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.index', 'programas.create', 'programas.edit', 'programas.pdf']],
+                ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.*']],
                 ['label' => 'Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
                 ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],
-                ['label' => 'Por año y mes', 'icon' => 'fa-calendar-alt', 'route' => 'programas.por-periodo', 'active' => ['programas.por-periodo']],
                 ['label' => 'Clientes', 'icon' => 'fa-address-book', 'route' => 'clientes.index', 'active' => ['clientes.*']],
                 ['label' => 'Pasajeros', 'icon' => 'fa-users', 'route' => 'paxs.index', 'active' => ['paxs.*']],
             ],

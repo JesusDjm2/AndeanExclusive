@@ -20,15 +20,15 @@
             <small class="ae-admin-page-desc">Itinerarios de clientes: fechas, pasajeros, hoteles, servicios y presupuesto.</small>
         </div>
         <div class="d-flex flex-wrap gap-2">
-            <a href="{{ route('programas.plantillas') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-copy" aria-hidden="true"></i> Plantillas
+            <a href="{{ route('programas.por-periodo') }}" class="btn btn-outline-primary" title="Ver viajes segmentados por calendario (año y mes)">
+                <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i> Vista por Año y Mes
             </a>
-            <a href="{{ route('programas.por-periodo') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-calendar-alt" aria-hidden="true"></i> Por año y mes
+            <a href="{{ route('programas.plantillas') }}" class="btn btn-outline-secondary" title="Plantillas maestras reutilizables">
+                <i class="fas fa-copy me-1" aria-hidden="true"></i> Plantillas
             </a>
             @if ($canEdit)
                 <a href="{{ route('programas.create') }}" class="btn btn-primary">
-                    <i class="fas fa-plus" aria-hidden="true"></i> Nuevo programa
+                    <i class="fas fa-plus me-1" aria-hidden="true"></i> Nuevo programa
                 </a>
             @endif
         </div>
