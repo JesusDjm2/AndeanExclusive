@@ -12,49 +12,57 @@
     <section class="page-banner page-banner--tall">
         <img src="{{ asset('img/hermoso-peru.jpg') }}" alt="Exclusive private tours in Peru" data-parallax="10" loading="eager" fetchpriority="high">
         <div class="page-banner__content">
-            <h1 class="page-banner__title">Exclusive — Private tours in Perú</h1>
+            <span class="page-banner__eyebrow">Signature Luxury & Private Journeys</span>
+            <h1 class="page-banner__title">Exclusive Tours in Perú</h1>
             <div class="page-banner__divider"></div>
-            <span class="page-banner__eyebrow">Tailored, private, unforgettable</span>
+            <p class="hero__subtitle">
+                Handcrafted itineraries for discerning travellers seeking absolute privacy, authentic cultural depth, and world-class comfort across Cusco, Machu Picchu and beyond.
+            </p>
+            <div class="hero__actions mt-md">
+                <button type="button" class="btn-brand btn-brand--primary" data-contact-open>
+                    <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                    <span>Design my bespoke trip</span>
+                </button>
+                <a href="#tours-coleccion" class="btn-brand btn-brand--outline">
+                    <span>Explore journeys</span>
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                </a>
+            </div>
         </div>
     </section>
 
-    <section class="section">
-        <div class="site-container text-center" data-reveal>
-            <h2 class="section-title">Exclusive tours in Perú</h2>
-            <p class="section-lead max-w-prose mx-auto">
-                If we are looking for a destination with the widest range of experiences possible, without a doubt
-                more than one traveler would say: visit Peru! The wealth that this South American country possesses
-                is difficult to surpass, giving us the opportunity to visit places as dry as the desert coasts of
-                the south of the country, walk through glaciers in the Andean mountain range, navigate through the
-                deep jungle that surrounds the Amazon River, visit ancient cities where lost civilizations resided,
-                or simply taste one of the best valued cuisines on the planet.
-            </p>
-            <p class="section-lead max-w-prose mx-auto">
-                Travelers look for destinations according to their needs — some seek cultural experiences, others
-                gastronomic, and the most daring seek contact with nature. Peru offers this and much more, never
-                disappoints and always forces you to return. Peru has the experience you were looking for. Every
-                experience has a hidden wealth — find it!
-            </p>
-        </div>
-    </section>
+    @include('layouts.partials.collection-trust-strip', ['locale' => 'en'])
 
-    <section class="section section--sand">
+    <section class="section section--sand" id="tours-coleccion" data-collection-container>
         <div class="site-container">
             <div class="section-header">
-                <span class="section-eyebrow font-display">In high demand</span>
-                <h2 class="section-title">Most Requested Experiences</h2>
+                <span class="section-eyebrow font-display">Curated Collection</span>
+                <h2 class="section-title">Most Requested Exclusive Experiences</h2>
+                <p class="section-lead">
+                    Every itinerary features VIP access, licensed private historians, premium transport, and handpicked luxury boutique hotels.
+                </p>
             </div>
+
+            @include('layouts.partials.collection-controls', [
+                'locale' => 'en',
+                'totalTours' => $tours->count(),
+            ])
+
             <div class="grid-auto" data-reveal-stagger>
                 @foreach ($tours as $tour)
                     @include('layouts.partials.public-tour-card', [
                         'tour' => $tour,
                         'tourRoute' => 'tour.show',
                         'categoryRoute' => 'category.show',
-                        'daysLabel' => 'days',
-                        'moreLabel' => 'Read more',
+                        'locale' => 'en',
                     ])
                 @endforeach
             </div>
         </div>
     </section>
+
+    @include('layouts.partials.collection-bottom-cta', [
+        'locale' => 'en',
+        'categoryName' => 'Exclusive Tours',
+    ])
 @endsection

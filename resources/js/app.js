@@ -7,6 +7,7 @@ import { initContactModals } from './contact-modal';
 import { initBlogRails } from './blog-carousel';
 import { initTourDetail } from './tour-detail';
 import { initToc } from './toc';
+import { initCollectionFilter } from './collection-filter';
 
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.remove('no-js');
@@ -19,4 +20,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initBlogRails();
     initTourDetail();
     initToc();
+    initCollectionFilter();
 });

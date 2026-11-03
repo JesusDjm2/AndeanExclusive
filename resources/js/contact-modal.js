@@ -15,12 +15,23 @@ export function initContactModals() {
         ...modal.querySelectorAll('button, [href], input, textarea, [tabindex]:not([tabindex="-1"])'),
     ].filter((el) => !el.disabled && el.offsetParent !== null);
 
-    const open = () => {
+    const open = (tourName = null) => {
         previouslyFocused.current = document.activeElement;
         modal.hidden = false;
         modal.setAttribute('aria-hidden', 'false');
         modal.classList.add('is-open');
         document.body.style.overflow = 'hidden';
+
+        if (tourName) {
+            const textarea = modal.querySelector('textarea[name="mensaje"]');
+            if (textarea && !textarea.value.trim()) {
+                const isEs = (document.documentElement.lang || 'es').startsWith('es');
+                textarea.value = isEs
+                    ? `¡Hola! Me interesa recibir información y cotizar el tour "${tourName}".\nFechas tentativas y número de personas: `
+                    : `Hello! I would like more information and a quote for the tour "${tourName}".\nTentative dates and number of travelers: `;
+            }
+        }
+
         const first = dialog.querySelector('[data-aet-gracias], [data-aet-field].is-invalid input, [data-aet-field].is-invalid textarea, input:not([type=hidden]):not([tabindex="-1"])');
         (first ?? dialog).focus({ preventScroll: true });
     };
@@ -37,7 +48,8 @@ export function initContactModals() {
         const trigger = event.target.closest('[data-contact-open]');
         if (trigger) {
             event.preventDefault();
-            open();
+            const tourName = trigger.dataset.tourName || null;
+            open(tourName);
             return;
         }
         if (event.target.closest('[data-contact-close]')) close();

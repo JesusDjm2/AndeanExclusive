@@ -2,26 +2,31 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-xl);
     overflow: hidden;
     background: var(--color-white);
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--duration-base) var(--ease-premium), transform var(--duration-base) var(--ease-premium);
+    border: 1px solid rgba(24, 34, 41, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(24, 34, 41, 0.06), 0 2px 6px -1px rgba(24, 34, 41, 0.04);
+    transition: box-shadow var(--duration-base) var(--ease-premium),
+                transform var(--duration-base) var(--ease-premium),
+                border-color var(--duration-base) var(--ease-premium);
     text-decoration: none;
     color: inherit;
     height: 100%;
 
     &:hover {
-        box-shadow: var(--shadow-lg);
-        transform: translateY(-4px);
+        box-shadow: 0 18px 38px -4px rgba(24, 34, 41, 0.13), 0 6px 12px -2px rgba(24, 34, 41, 0.06);
+        transform: translateY(-5px);
+        border-color: rgba(9, 204, 189, 0.35);
         color: inherit;
     }
 }
 
 .card-tour__media {
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
+    background: var(--color-sand);
 
     img {
         width: 100%;
@@ -29,61 +34,288 @@
         object-fit: cover;
         transition: transform var(--duration-slow) var(--ease-premium);
     }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0) 50%, rgba(24, 34, 41, 0.45) 100%);
+        pointer-events: none;
+    }
 }
 
 .card-tour:hover .card-tour__media img {
     transform: scale(1.06);
 }
 
+.card-tour__badges {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.card-tour__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: var(--radius-pill);
+    padding: 0.3rem 0.7rem;
+    line-height: 1;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card-tour__badge--duration {
+    background: rgba(24, 34, 41, 0.85);
+    color: var(--color-white);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.card-tour__badge--style {
+    background: rgba(9, 204, 189, 0.92);
+    color: #0d3835;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.02em;
+}
+
 .card-tour__body {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    padding: var(--space-sm) var(--space-md) var(--space-md);
+    padding: var(--space-md);
 }
 
-.card-tour__title {
-    font-size: 1.15rem;
-    margin-bottom: 0.4rem;
-}
-
-// Stretched-link pattern: used when a card needs secondary clickable elements
-// (e.g. category pills) alongside the main link — makes the whole card
-// clickable via the title link without nesting <a> inside <a>.
-.card-tour__title-link {
-    color: inherit;
-    text-decoration: none;
-
-    &::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        z-index: 1;
-    }
-
-    &:hover {
-        color: inherit;
-    }
-}
-
-.card-tour__excerpt {
-    font-size: 0.9rem;
-    color: var(--color-ink-soft);
+.card-tour__meta-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
 }
 
 .card-tour__location {
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    color: var(--color-primary);
-    font-size: 0.85rem;
+    color: var(--color-primary-dark);
+    font-size: 0.82rem;
     font-weight: 600;
-    margin-bottom: 0.3rem;
+    max-width: 65%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-tour__rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.card-tour__stars {
+    color: #f59e0b;
+    display: inline-flex;
+    gap: 1px;
+    font-size: 0.7rem;
+}
+
+.card-tour__score {
+    color: var(--color-ink);
+}
+
+.card-tour__title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.45rem;
+}
+
+.card-tour__title-link {
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: color var(--duration-fast);
+
+    &:hover {
+        color: var(--color-primary-dark);
+        text-decoration: none;
+    }
+}
+
+.card-tour__excerpt {
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-ink-soft);
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-tour__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+}
+
+.card-tour__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(24, 34, 41, 0.04);
+    color: var(--color-ink);
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-sm);
+
+    i {
+        color: var(--color-primary-dark);
+        font-size: 0.7rem;
+    }
 }
 
 .card-tour__footer {
     margin-top: auto;
-    padding-top: var(--space-xs);
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(24, 34, 41, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 2;
+
+    @media (max-width: 480px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.65rem;
+    }
+}
+
+.card-tour__pricing {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-tour__price-label {
+    font-size: 0.72rem;
+    color: var(--color-ink-soft);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1;
+}
+
+.card-tour__price-group {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.card-tour__price-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    line-height: 1.2;
+}
+
+.card-tour__price-per {
+    font-size: 0.76rem;
+    color: var(--color-ink-soft);
+}
+
+.card-tour__price-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: var(--color-primary-dark);
+}
+
+.card-tour__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+
+    @media (max-width: 480px) {
+        justify-content: space-between;
+    }
+}
+
+.card-tour__btn-primary {
+    padding: 0.55rem 1.05rem;
+    font-size: 0.85rem;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+
+    @media (max-width: 480px) {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+.card-tour__icon-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 50%;
+    border: 1px solid rgba(24, 34, 41, 0.12);
+    background: var(--color-white);
+    color: var(--color-ink);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-premium);
+    font-size: 0.95rem;
+
+    &:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+}
+
+.card-tour__icon-btn--wa {
+    color: #25d366;
+    border-color: rgba(37, 211, 102, 0.35);
+
+    &:hover {
+        background: #25d366;
+        color: var(--color-white);
+        border-color: #25d366;
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35);
+    }
+}
+
+.card-tour__icon-btn--quote {
+    color: var(--color-primary-dark);
+    border-color: rgba(9, 204, 189, 0.35);
+
+    &:hover {
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-color: var(--color-primary);
+        box-shadow: 0 4px 12px rgba(9, 204, 189, 0.35);
+    }
 }
 
 .card-tour__meta {

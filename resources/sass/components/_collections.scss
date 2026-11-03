@@ -1,0 +1,442 @@
+// ==========================================================================
+// Tour Collections & Category Listing Pages (Senior Luxury Boutique Standard)
+// Andean Exclusive Tours — High Conversion & Mobile-First
+// ==========================================================================
+
+// --------------------------------------------------------------------------
+// 1. Trust Pillars Strip
+// --------------------------------------------------------------------------
+.collection-trust-strip {
+    background: linear-gradient(180deg, #ffffff 0%, var(--color-sand) 100%);
+    border-bottom: 1px solid rgba(24, 34, 41, 0.08);
+    padding-block: var(--space-md);
+    position: relative;
+    z-index: 2;
+}
+
+.collection-trust-strip__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-md);
+
+    @media (max-width: 991.98px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md) var(--space-sm);
+    }
+
+    @media (max-width: 575.98px) {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+    }
+}
+
+.collection-trust-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+    padding: 0.5rem;
+}
+
+.collection-trust-item__icon {
+    flex-shrink: 0;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: var(--radius-pill);
+    background: rgba(9, 204, 189, 0.12);
+    color: var(--color-primary-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    transition: transform var(--duration-fast) var(--ease-premium), background var(--duration-fast);
+
+    .collection-trust-item:hover & {
+        transform: scale(1.08);
+        background: var(--color-primary);
+        color: var(--color-white);
+    }
+}
+
+.collection-trust-item__content {
+    flex: 1;
+}
+
+.collection-trust-item__title {
+    font-size: 0.98rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 0.2rem;
+    letter-spacing: -0.01em;
+}
+
+.collection-trust-item__desc {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--color-ink-soft);
+    margin: 0;
+}
+
+// --------------------------------------------------------------------------
+// 2. Interactive Collection Controls (Filters, Search & Counter)
+// --------------------------------------------------------------------------
+.collection-controls {
+    margin-bottom: var(--space-lg);
+}
+
+.collection-controls__bar {
+    background: var(--color-white);
+    border: 1px solid rgba(24, 34, 41, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 4px 20px -2px rgba(24, 34, 41, 0.05);
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    @media (max-width: 991.98px) {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+    }
+}
+
+.collection-controls__filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collection-pill {
+    appearance: none;
+    border: 1px solid rgba(24, 34, 41, 0.12);
+    background: transparent;
+    color: var(--color-ink);
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all var(--duration-fast) var(--ease-premium);
+    min-height: 42px;
+
+    &:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary-dark);
+        background: rgba(9, 204, 189, 0.05);
+    }
+
+    &.is-active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-white);
+        box-shadow: 0 2px 8px rgba(9, 204, 189, 0.35);
+
+        .collection-pill__badge {
+            background: rgba(255, 255, 255, 0.25);
+            color: var(--color-white);
+        }
+
+        .collection-pill__sub {
+            color: rgba(255, 255, 255, 0.85);
+        }
+    }
+}
+
+.collection-pill__badge {
+    background: rgba(24, 34, 41, 0.08);
+    color: var(--color-ink);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: var(--radius-pill);
+}
+
+.collection-pill__sub {
+    font-size: 0.75rem;
+    color: var(--color-ink-soft);
+    font-weight: 400;
+}
+
+.collection-controls__search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    @media (max-width: 991.98px) {
+        width: 100%;
+        flex-direction: row;
+    }
+
+    @media (max-width: 575.98px) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+.collection-search {
+    position: relative;
+    min-width: 280px;
+
+    @media (max-width: 991.98px) {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
+.collection-search__icon {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.collection-search__input {
+    width: 100%;
+    height: 42px;
+    padding: 0.5rem 2.2rem 0.5rem 2.4rem;
+    border: 1px solid rgba(24, 34, 41, 0.15);
+    border-radius: var(--radius-pill);
+    font-size: 0.88rem;
+    color: var(--color-ink);
+    background: var(--color-sand);
+    transition: all var(--duration-fast);
+
+    &:focus {
+        outline: none;
+        background: var(--color-white);
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(9, 204, 189, 0.2);
+    }
+
+    &::placeholder {
+        color: var(--color-ink-soft);
+        opacity: 0.8;
+    }
+}
+
+.collection-search__clear {
+    position: absolute;
+    right: 0.6rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: var(--color-ink-soft);
+    cursor: pointer;
+    padding: 0.35rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    border-radius: 50%;
+
+    &:hover {
+        color: var(--color-ink);
+    }
+}
+
+.collection-controls__custom-btn {
+    flex-shrink: 0;
+    min-height: 42px;
+}
+
+// --------------------------------------------------------------------------
+// 3. Empty State (Zero Search Results)
+// --------------------------------------------------------------------------
+.collection-empty {
+    text-align: center;
+    padding: var(--space-xl) var(--space-md);
+    background: var(--color-white);
+    border-radius: var(--radius-xl);
+    border: 1px dashed rgba(24, 34, 41, 0.2);
+    margin-top: var(--space-md);
+}
+
+.collection-empty__icon {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto var(--space-sm);
+    border-radius: 50%;
+    background: rgba(9, 204, 189, 0.1);
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+}
+
+.collection-empty__title {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--color-ink);
+    margin-bottom: 0.5rem;
+}
+
+.collection-empty__desc {
+    max-width: 58ch;
+    margin: 0 auto var(--space-md);
+    color: var(--color-ink-soft);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.collection-empty__actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+// --------------------------------------------------------------------------
+// 4. Category Pills Navigation (for category views)
+// --------------------------------------------------------------------------
+.collection-nav-pills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: var(--space-md);
+}
+
+.collection-nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1.15rem;
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    border: 1px solid rgba(24, 34, 41, 0.12);
+    color: var(--color-ink);
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all var(--duration-fast) var(--ease-premium);
+
+    &:hover {
+        background: rgba(9, 204, 189, 0.08);
+        border-color: var(--color-primary);
+        color: var(--color-primary-dark);
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+
+    &.is-active {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-white);
+        box-shadow: 0 4px 12px rgba(9, 204, 189, 0.35);
+    }
+}
+
+// --------------------------------------------------------------------------
+// 5. High-Converting Bottom Banner
+// --------------------------------------------------------------------------
+.collection-bottom-cta {
+    padding-block: var(--space-2xl);
+    background: var(--color-sand);
+}
+
+.collection-bottom-cta__card {
+    background: linear-gradient(135deg, #182229 0%, #0f172a 100%);
+    border-radius: var(--radius-2xl);
+    padding: clamp(2rem, 1.5rem + 2.5vw, 4rem) clamp(1.25rem, 1rem + 2vw, 3.5rem);
+    color: var(--color-white);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.3);
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -30%;
+        right: -10%;
+        width: 32rem;
+        height: 32rem;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(9, 204, 189, 0.18) 0%, rgba(9, 204, 189, 0) 70%);
+        pointer-events: none;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -10%;
+        width: 28rem;
+        height: 28rem;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(230, 169, 58, 0.12) 0%, rgba(230, 169, 58, 0) 70%);
+        pointer-events: none;
+    }
+}
+
+.collection-bottom-cta__content {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin-inline: auto;
+    text-align: center;
+}
+
+.collection-bottom-cta__eyebrow {
+    display: inline-block;
+    color: var(--color-accent);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.collection-bottom-cta__title {
+    font-size: clamp(1.65rem, 1.3rem + 1.6vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--color-white);
+    margin-bottom: var(--space-sm);
+}
+
+.collection-bottom-cta__lead {
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.6;
+    margin-bottom: var(--space-lg);
+}
+
+.collection-bottom-cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: var(--space-lg);
+
+    .btn-brand--lg {
+        padding: 0.95rem 2rem;
+        font-size: 1.02rem;
+    }
+}
+
+.collection-bottom-cta__trust {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    font-size: 0.88rem;
+    color: rgba(255, 255, 255, 0.75);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: var(--space-md);
+}
+
+.collection-bottom-cta__trust-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+
+    i {
+        color: var(--color-primary);
+    }
+}
