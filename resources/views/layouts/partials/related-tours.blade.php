@@ -13,6 +13,7 @@
                         'categoryRoute' => $categoryRoute,
                         'daysLabel' => $locale === 'es' ? ($relatedTour->dias == 1 ? 'día' : 'días') : 'days',
                         'moreLabel' => $moreLabel,
+                        'locale' => $locale,
                     ])
                 @endforeach
             </div>

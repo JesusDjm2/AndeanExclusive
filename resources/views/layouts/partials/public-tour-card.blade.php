@@ -10,7 +10,9 @@
     @param string|null $locale 'es'|'en'
 --}}
 @php
-    $isEs = ($locale ?? (app()->getLocale() === 'es' || ($daysLabel ?? '') === 'días' || ($daysLabel ?? '') === 'día'));
+    $isEs = isset($locale)
+        ? ($locale === 'es')
+        : (app()->getLocale() === 'es' || in_array($daysLabel ?? '', ['días', 'día'], true));
     $diasNum = (int) filter_var($tour->dias, FILTER_SANITIZE_NUMBER_INT);
     if ($diasNum <= 0) {
         $diasNum = 1;
