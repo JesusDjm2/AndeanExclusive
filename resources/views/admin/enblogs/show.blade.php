@@ -127,8 +127,9 @@
                     ])
                 </article>
 
-                <aside data-reveal>
-                    {{-- Sticky Concierge Card --}}
+                {{-- Senior Sticky Sidebar Rail --}}
+                <aside class="article-sidebar">
+                    {{-- 1. Sticky Concierge Conversion Card --}}
                     <div class="sidebar-concierge-card">
                         <span class="sidebar-concierge-card__eyebrow">Private Concierge</span>
                         <h3 class="sidebar-concierge-card__title">Ready to Explore Perú?</h3>
@@ -146,29 +147,50 @@
                         </a>
                     </div>
 
+                    {{-- 2. Similar Stories --}}
                     @if ($blogs->count())
-                        <h3 class="article-sidebar__title">Similar Stories</h3>
-                        @foreach ($blogs as $item)
-                            <a href="{{ route('enblog.show', $item->slug) }}" class="article-side-card">
-                                <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
-                                <div>
-                                    <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
-                                    @if ($item->created_at)
-                                        <span class="article-side-card__date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ $item->created_at->format('M d, Y') }}</span>
-                                    @endif
-                                </div>
-                            </a>
-                        @endforeach
-                    @endif
-
-                    @if ($blog->tags->count())
-                        <h3 class="article-sidebar__title mt-lg">Tags</h3>
-                        <div class="article-tags">
-                            @foreach ($blog->tags as $tag)
-                                <a href="{{ route('entag.show', $tag->slug) }}" class="tag-pill tag-pill--muted">#{{ $tag->nombre }}</a>
-                            @endforeach
+                        <div class="article-sidebar__box">
+                            <h3 class="article-sidebar__title">Similar Stories</h3>
+                            <div class="article-sidebar__stories">
+                                @foreach ($blogs as $item)
+                                    <a href="{{ route('enblog.show', $item->slug) }}" class="article-side-card">
+                                        <div class="article-side-card__media">
+                                            <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
+                                        </div>
+                                        <div class="article-side-card__info">
+                                            <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
+                                            @if ($item->created_at)
+                                                <span class="article-side-card__date">
+                                                    <i class="fa fa-calendar-o" aria-hidden="true"></i> {{ $item->created_at->format('M d, Y') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
+
+                    {{-- 3. Topic Tags --}}
+                    @if ($blog->tags->count())
+                        <div class="article-sidebar__box">
+                            <h3 class="article-sidebar__title">Explore Topics</h3>
+                            <div class="article-tags">
+                                @foreach ($blog->tags as $tag)
+                                    <a href="{{ route('entag.show', $tag->slug) }}" class="tag-pill tag-pill--muted">#{{ $tag->nombre }}</a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- 4. Fast Concierge Assistance Callout --}}
+                    <div class="article-sidebar__quick-cta">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                        <div>
+                            <strong>Questions about this trip?</strong>
+                            <span>Our travel specialists in Cusco reply within 1 business day.</span>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>

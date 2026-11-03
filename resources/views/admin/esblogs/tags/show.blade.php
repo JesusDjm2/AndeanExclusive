@@ -130,7 +130,7 @@
                     @endif
                 </div>
 
-                <aside data-reveal>
+                <aside class="article-sidebar">
                     {{-- Concierge Privado Sticky Widget --}}
                     <div class="sidebar-concierge-card">
                         <span class="sidebar-concierge-card__eyebrow">Concierge Privado</span>

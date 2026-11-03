@@ -128,48 +128,70 @@
                     ])
                 </article>
 
-                <aside data-reveal>
-                    {{-- Concierge Privado Sticky Widget --}}
+                {{-- Barra Lateral Sticky de Alta Gama --}}
+                <aside class="article-sidebar">
+                    {{-- 1. Tarjeta Concierge de Conversión --}}
                     <div class="sidebar-concierge-card">
                         <span class="sidebar-concierge-card__eyebrow">Concierge Privado</span>
                         <h3 class="sidebar-concierge-card__title">¿Listo para Explorar Perú?</h3>
                         <p class="sidebar-concierge-card__desc">Diseñamos itinerarios 100% personalizados con hoteles boutique de lujo, transporte privado de primera y guías expertos.</p>
                         <ul class="sidebar-concierge-card__features">
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Guías privados expertos</li>
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Guías privados expertos nativos</li>
                             <li><i class="fa fa-check-circle" aria-hidden="true"></i> Hoteles y lodges seleccionados</li>
                             <li><i class="fa fa-check-circle" aria-hidden="true"></i> Asistencia concierge 24/7</li>
                         </ul>
                         <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
-                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Planificar Viaje
+                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Planificar Mi Viaje
                         </button>
                         <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
                             <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Directo
                         </a>
                     </div>
 
+                    {{-- 2. Historias Similares --}}
                     @if ($blogs->count())
-                        <h3 class="article-sidebar__title">Artículos Similares</h3>
-                        @foreach ($blogs as $item)
-                            <a href="{{ route('esblog.show', $item->slug) }}" class="article-side-card">
-                                <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
-                                <div>
-                                    <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
-                                    @if ($item->created_at)
-                                        <span class="article-side-card__date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ $item->created_at->format('d/m/Y') }}</span>
-                                    @endif
-                                </div>
-                            </a>
-                        @endforeach
-                    @endif
-
-                    @if ($blog->tags->count())
-                        <h3 class="article-sidebar__title mt-lg">Tags</h3>
-                        <div class="article-tags">
-                            @foreach ($blog->tags as $tag)
-                                <a href="{{ route('estag.show', $tag->slug) }}" class="tag-pill tag-pill--muted">{{ $tag->nombre }}</a>
-                            @endforeach
+                        <div class="article-sidebar__box">
+                            <h3 class="article-sidebar__title">Historias Similares</h3>
+                            <div class="article-sidebar__stories">
+                                @foreach ($blogs as $item)
+                                    <a href="{{ route('esblog.show', $item->slug) }}" class="article-side-card">
+                                        <div class="article-side-card__media">
+                                            <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
+                                        </div>
+                                        <div class="article-side-card__info">
+                                            <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
+                                            @if ($item->created_at)
+                                                <span class="article-side-card__date">
+                                                    <i class="fa fa-calendar-o" aria-hidden="true"></i> {{ $item->created_at->format('d/m/Y') }}
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </a>
+                                @endforeach
+                            </div>
                         </div>
                     @endif
+
+                    {{-- 3. Etiquetas / Temas --}}
+                    @if ($blog->tags->count())
+                        <div class="article-sidebar__box">
+                            <h3 class="article-sidebar__title">Temas Relacionados</h3>
+                            <div class="article-tags">
+                                @foreach ($blog->tags as $tag)
+                                    <a href="{{ route('estag.show', $tag->slug) }}" class="tag-pill tag-pill--muted">#{{ $tag->nombre }}</a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- 4. Llamada Rápida a la Acción --}}
+                    <div class="article-sidebar__quick-cta">
+                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                        <div>
+                            <strong>¿Consultas sobre este destino?</strong>
+                            <span>Nuestros especialistas en Cusco responden en menos de 24 horas.</span>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>
