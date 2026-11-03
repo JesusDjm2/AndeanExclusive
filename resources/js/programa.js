@@ -74,7 +74,82 @@ function initPaxForm() {
     form.querySelector('.is-invalid')?.focus();
 }
 
+// Acordeones Día a día (show.blade.php): optimizado para celulares, tablets y escritorios.
+function initDayAccordions() {
+    const section = document.querySelector('#dia-a-dia');
+    if (!section) return;
+
+    const days = section.querySelectorAll('[data-itin-day]');
+    if (!days.length) return;
+
+    const setDayOpen = (dayEl, open) => {
+        const toggle = dayEl.querySelector('[data-itin-day-toggle]');
+        const collapse = dayEl.querySelector('.itin-day__collapse');
+        if (!collapse) return;
+
+        dayEl.classList.toggle('is-open', open);
+        if (toggle) {
+            toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        }
+
+        if (open) {
+            collapse.removeAttribute('hidden');
+        } else {
+            collapse.setAttribute('hidden', '');
+        }
+    };
+
+    days.forEach((dayEl) => {
+        const toggle = dayEl.querySelector('[data-itin-day-toggle]');
+        const marker = dayEl.querySelector('[data-itin-marker-toggle]');
+
+        const toggleHandler = (e) => {
+            e.preventDefault();
+            const isOpen = dayEl.classList.contains('is-open');
+            setDayOpen(dayEl, !isOpen);
+        };
+
+        if (toggle) toggle.addEventListener('click', toggleHandler);
+        if (marker) marker.addEventListener('click', toggleHandler);
+    });
+
+    const expandAllBtn = section.querySelector('[data-itin-expand-all]');
+    const collapseAllBtn = section.querySelector('[data-itin-collapse-all]');
+
+    if (expandAllBtn) {
+        expandAllBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            days.forEach((d) => setDayOpen(d, true));
+        });
+    }
+
+    if (collapseAllBtn) {
+        collapseAllBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            days.forEach((d) => setDayOpen(d, false));
+        });
+    }
+
+    // Si la URL apunta a un día específico (#dia-3), abrirlo y enfocarlo suavemente
+    const handleHash = () => {
+        if (!window.location.hash) return;
+        const target = document.querySelector(window.location.hash);
+        if (target && target.hasAttribute('data-itin-day')) {
+            setDayOpen(target, true);
+            setTimeout(() => {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 250);
+        }
+    };
+
+    window.addEventListener('hashchange', handleHash);
+    if (window.location.hash) {
+        handleHash();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initSectionNav();
     initPaxForm();
+    initDayAccordions();
 });

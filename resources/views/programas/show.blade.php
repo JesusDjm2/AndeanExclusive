@@ -18,6 +18,8 @@
             'overview_title' => 'Trip overview', 'empty_overview' => 'Your program overview will be available soon.',
             'days_title' => 'Day by day', 'days_sub' => 'Times are local (Peru, GMT−5) and may be adjusted with your guide.',
             'empty_days' => 'The day-by-day itinerary will be available soon.', 'overnight' => 'Overnight',
+            'expand_all' => 'Expand all', 'collapse_all' => 'Collapse all',
+            'activity' => 'activity', 'activities' => 'activities',
             'stay_title' => 'Accommodation', 'stay_sub' => 'Hotels selected for your journey.', 'empty_stay' => 'Accommodation details will be available soon.',
             'check_in' => 'Check-in', 'check_out' => 'Check-out', 'no_dates' => 'Dates to be confirmed',
             'travelers_title' => 'Travelers', 'empty_travelers' => 'No traveler details yet.',
@@ -36,6 +38,8 @@
             'overview_title' => 'Descripción del viaje', 'empty_overview' => 'La descripción del programa estará disponible próximamente.',
             'days_title' => 'Día a día', 'days_sub' => 'Horarios en hora local (Perú, GMT−5); pueden ajustarse con su guía.',
             'empty_days' => 'El itinerario día a día estará disponible próximamente.', 'overnight' => 'Alojamiento',
+            'expand_all' => 'Expandir todos', 'collapse_all' => 'Colapsar todos',
+            'activity' => 'actividad', 'activities' => 'actividades',
             'stay_title' => 'Alojamiento', 'stay_sub' => 'Hoteles seleccionados para su viaje.', 'empty_stay' => 'La información de hospedaje estará disponible próximamente.',
             'check_in' => 'Ingreso', 'check_out' => 'Salida', 'no_dates' => 'Fechas por confirmar',
             'travelers_title' => 'Viajeros', 'empty_travelers' => 'Aún no hay datos de viajeros.',
@@ -272,9 +276,24 @@
 
         {{-- Día a día --}}
         <section id="dia-a-dia" class="itin-section" aria-labelledby="dias-title" data-itin-section>
-            <header class="itin-section__head">
-                <h2 id="dias-title" class="itin-section__title">{{ $t['days_title'] }}</h2>
-                <p class="itin-section__sub">{{ $t['days_sub'] }}</p>
+            <header class="itin-section__head itin-section__head--actions">
+                <div class="itin-section__head-titles">
+                    <h2 id="dias-title" class="itin-section__title">{{ $t['days_title'] }}</h2>
+                    <p class="itin-section__sub">{{ $t['days_sub'] }}</p>
+                </div>
+                @if ($diasConContenido->isNotEmpty())
+                    <div class="itin-accordion-controls" role="group" aria-label="{{ $isEn ? 'Day by day controls' : 'Controles de día a día' }}">
+                        <button type="button" class="itin-accordion-btn" data-itin-expand-all aria-label="{{ $t['expand_all'] }}">
+                            <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                            <span>{{ $t['expand_all'] }}</span>
+                        </button>
+                        <span class="itin-accordion-controls__divider" aria-hidden="true">·</span>
+                        <button type="button" class="itin-accordion-btn" data-itin-collapse-all aria-label="{{ $t['collapse_all'] }}">
+                            <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                            <span>{{ $t['collapse_all'] }}</span>
+                        </button>
+                    </div>
+                @endif
             </header>
 
             @if ($diasConContenido->isEmpty())
@@ -282,38 +301,95 @@
             @else
                 <ol class="itin-timeline">
                     @foreach ($itinerario['dias'] as $dia)
-                        <li class="itin-day">
-                            <div class="itin-day__marker" aria-hidden="true">
+                        @php
+                            $numServicios = $dia['servicios']->count();
+                            $hasServices = $numServicios > 0;
+                            $hasHotel = !empty($dia['hotel']);
+                            $isOpen = $loop->first;
+                        @endphp
+                        <li class="itin-day {{ $isOpen ? 'is-open' : '' }}" data-itin-day id="dia-{{ $dia['numero'] }}">
+                            <button type="button" 
+                                    class="itin-day__marker itin-day__marker--interactive" 
+                                    data-itin-marker-toggle
+                                    aria-hidden="true" 
+                                    tabindex="-1"
+                                    title="{{ $t['day'] }} {{ $dia['numero'] }}">
                                 <span class="itin-day__label">{{ $t['day'] }}</span>
                                 <span class="itin-day__num">{{ $dia['numero'] }}</span>
-                            </div>
+                            </button>
                             <article class="itin-card itin-day__card">
-                                <header class="itin-day__head">
-                                    <p class="itin-day__date">{{ ucfirst($dia['fecha']->locale($locale)->isoFormat($isEn ? 'dddd, MMMM D' : 'dddd D [de] MMMM')) }}</p>
-                                    <h3 class="itin-day__title">{{ $dia['dia']?->titulo ?: $t['day'] . ' ' . $dia['numero'] }}</h3>
-                                </header>
-                                @if ($dia['dia']?->descripcion)
-                                    <p class="itin-day__text">{!! nl2br(e($dia['dia']->descripcion)) !!}</p>
-                                @endif
-                                @if ($dia['servicios']->isNotEmpty())
-                                    <ul class="itin-services">
-                                        @foreach ($dia['servicios'] as $servicio)
-                                            <li class="itin-service">
-                                                <span class="itin-service__time">{{ $servicio->hora_corta ?? '' }}</span>
-                                                <span class="itin-service__icon" aria-hidden="true"><i class="fa {{ \App\Models\Servicio::TIPOS[$servicio->tipo][3] ?? 'fa-check' }}"></i></span>
-                                                <span class="itin-service__body">
-                                                    <span class="itin-service__name">{{ $servicio->titulo }}</span>
-                                                    @if ($servicio->descripcion)
-                                                        <span class="itin-service__desc">{{ $servicio->descripcion }}</span>
-                                                    @endif
+                                <header class="itin-day__header">
+                                    <button type="button" 
+                                            class="itin-day__toggle" 
+                                            data-itin-day-toggle
+                                            aria-expanded="{{ $isOpen ? 'true' : 'false' }}" 
+                                            aria-controls="dia-collapse-{{ $dia['numero'] }}">
+                                        <div class="itin-day__toggle-left">
+                                            <div class="itin-day__meta-top">
+                                                <span class="itin-day__mobile-badge" aria-hidden="true">
+                                                    {{ $t['day'] }} {{ $dia['numero'] }}
                                                 </span>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                @endif
-                                @if ($dia['hotel'])
-                                    <p class="itin-day__hotel"><i class="fa fa-moon-o" aria-hidden="true"></i> {{ $t['overnight'] }}: <strong>{{ $dia['hotel'] }}</strong></p>
-                                @endif
+                                                <span class="itin-day__date">{{ ucfirst($dia['fecha']->locale($locale)->isoFormat($isEn ? 'dddd, MMMM D' : 'dddd D [de] MMMM')) }}</span>
+                                            </div>
+                                            <h3 class="itin-day__title">{{ $dia['dia']?->titulo ?: $t['day'] . ' ' . $dia['numero'] }}</h3>
+                                            
+                                            {{-- Resumen compacto en pastillas visible en mobile y tablet --}}
+                                            @if ($hasServices || $hasHotel)
+                                                <div class="itin-day__summary-pills">
+                                                    @if ($hasServices)
+                                                        <span class="itin-day__pill">
+                                                            <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                                            {{ $numServicios }} {{ $plural($numServicios, 'activity', 'activities') }}
+                                                        </span>
+                                                    @endif
+                                                    @if ($hasHotel)
+                                                        <span class="itin-day__pill itin-day__pill--hotel">
+                                                            <i class="fa fa-bed" aria-hidden="true"></i>
+                                                            <span class="itin-day__pill-hotel-name">{{ $dia['hotel'] }}</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="itin-day__toggle-right" aria-hidden="true">
+                                            <span class="itin-day__chevron-circle">
+                                                <i class="fa fa-chevron-down itin-day__chevron"></i>
+                                            </span>
+                                        </div>
+                                    </button>
+                                </header>
+
+                                <div id="dia-collapse-{{ $dia['numero'] }}" 
+                                     class="itin-day__collapse" 
+                                     role="region" 
+                                     aria-label="{{ $t['day'] }} {{ $dia['numero'] }}"
+                                     {{ $isOpen ? '' : 'hidden' }}>
+                                    <div class="itin-day__content">
+                                        @if ($dia['dia']?->descripcion)
+                                            <div class="itin-day__text">{!! nl2br(e($dia['dia']->descripcion)) !!}</div>
+                                        @endif
+                                        @if ($dia['servicios']->isNotEmpty())
+                                            <ul class="itin-services">
+                                                @foreach ($dia['servicios'] as $servicio)
+                                                    <li class="itin-service">
+                                                        <span class="itin-service__time">{{ $servicio->hora_corta ?? '' }}</span>
+                                                        <span class="itin-service__icon" aria-hidden="true"><i class="fa {{ \App\Models\Servicio::TIPOS[$servicio->tipo][3] ?? 'fa-check' }}"></i></span>
+                                                        <span class="itin-service__body">
+                                                            <span class="itin-service__name">{{ $servicio->titulo }}</span>
+                                                            @if ($servicio->descripcion)
+                                                                <span class="itin-service__desc">{{ $servicio->descripcion }}</span>
+                                                            @endif
+                                                        </span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+                                        @if ($dia['hotel'])
+                                            <p class="itin-day__hotel"><i class="fa fa-moon-o" aria-hidden="true"></i> {{ $t['overnight'] }}: <strong>{{ $dia['hotel'] }}</strong></p>
+                                        @endif
+                                    </div>
+                                </div>
                             </article>
                         </li>
                     @endforeach
