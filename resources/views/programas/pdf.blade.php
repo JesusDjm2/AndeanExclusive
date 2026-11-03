@@ -231,7 +231,7 @@
                                 @foreach ($dia['servicios'] as $servicio)
                                     <tr>
                                         <td class="time">{{ $servicio->hora_corta }}</td>
-                                        <td>{{ $servicio->titulo }}@if ($servicio->descripcion)<span class="desc">{{ $servicio->descripcion }}</span>@endif</td>
+                                        <td>{{ $servicio->titulo ?: $servicio->tipo_etiqueta }}@if ($servicio->descripcion)<span class="desc">{{ $servicio->descripcion }}</span>@endif</td>
                                     </tr>
                                 @endforeach
                             </table>

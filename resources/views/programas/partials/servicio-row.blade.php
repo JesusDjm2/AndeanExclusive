@@ -41,12 +41,6 @@
                 @endforeach
             </select>
         </div>
-        <div class="svc-row__titulo">
-            <label class="prog-label" for="svc-{{ $i }}-titulo">Servicio <span class="required">*</span></label>
-            <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $v('titulo') }}" maxlength="255"
-                class="form-control form-control-sm {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Ej. Traslado aeropuerto → hotel" data-svc-titulo>
-            @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
-        </div>
         <div class="svc-row__proveedor">
             <label class="prog-label" for="svc-{{ $i }}-prov">Proveedor</label>
             @if ($bloqueado)<input type="hidden" name="{{ $name('proveedor_id') }}" value="{{ $v('proveedor_id') }}">@endif
@@ -60,6 +54,12 @@
                     </optgroup>
                 @endforeach
             </select>
+        </div>
+        <div class="svc-row__titulo">
+            <label class="prog-label" for="svc-{{ $i }}-titulo">Servicio</label>
+            <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $v('titulo') }}" maxlength="255"
+                class="form-control form-control-sm {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Ej. Traslado aeropuerto → hotel (opcional)" data-svc-titulo>
+            @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
         </div>
         <div class="svc-row__estado">
             <label class="prog-label" for="svc-{{ $i }}-estado">Estado</label>

@@ -70,7 +70,7 @@
             <td>
                 <div class="box">
                     <span class="label">Servicio</span>
-                    <span class="value">{{ $servicio->titulo }}</span>
+                    <span class="value">{{ $servicio->titulo ?: $servicio->tipo_etiqueta }}</span>
                     <div>{{ $servicio->tipo_etiqueta }}</div>
                 </div>
             </td>

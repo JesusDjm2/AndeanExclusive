@@ -376,7 +376,7 @@
                                                         <span class="itin-service__time">{{ $servicio->hora_corta ?? '' }}</span>
                                                         <span class="itin-service__icon" aria-hidden="true"><i class="fa {{ \App\Models\Servicio::TIPOS[$servicio->tipo][3] ?? 'fa-check' }}"></i></span>
                                                         <span class="itin-service__body">
-                                                            <span class="itin-service__name">{{ $servicio->titulo }}</span>
+                                                            <span class="itin-service__name">{{ $servicio->titulo ?: $servicio->tipo_etiqueta }}</span>
                                                             @if ($servicio->descripcion)
                                                                 <span class="itin-service__desc">{{ $servicio->descripcion }}</span>
                                                             @endif
