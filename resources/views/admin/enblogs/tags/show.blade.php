@@ -128,28 +128,11 @@
                     @endif
                 </div>
 
+                {{-- Senior Sticky Sidebar Rail --}}
                 <aside class="article-sidebar">
-                    {{-- Sticky Concierge Card --}}
-                    <div class="sidebar-concierge-card">
-                        <span class="sidebar-concierge-card__eyebrow">Private Concierge</span>
-                        <h3 class="sidebar-concierge-card__title">Inspired by {{ $tag->nombre }}?</h3>
-                        <p class="sidebar-concierge-card__desc">Speak with our private travel designers. We weave every cultural theme and landscape into custom-tailored Peru itineraries with private guides and boutique luxury lodges.</p>
-                        <ul class="sidebar-concierge-card__features">
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 100% private custom itineraries</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Native expert guides &amp; VIP access</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 24/7 dedicated local concierge</li>
-                        </ul>
-                        <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
-                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan a Custom Trip
-                        </button>
-                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
-                            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Us
-                        </a>
-                    </div>
-
-                    {{-- Topic Cloud --}}
+                    {{-- 1. Topic Cloud --}}
                     @if ($tags->count())
-                        <div class="tag-cloud-card">
+                        <div class="article-sidebar__box">
                             <h3 class="article-sidebar__title">Explore Topics</h3>
                             <div class="tag-cloud">
                                 @foreach ($tags as $t)
@@ -163,6 +146,21 @@
                             </div>
                         </div>
                     @endif
+
+                    {{-- 2. Compact Bespoke Journey CTA --}}
+                    <div class="article-sidebar__cta-card">
+                        <span class="article-sidebar__cta-eyebrow font-display">Bespoke Journeys</span>
+                        <h4 class="article-sidebar__cta-title">Inspired by {{ $tag->nombre }}?</h4>
+                        <p class="article-sidebar__cta-text">We weave every cultural theme and landscape into custom-tailored Peru itineraries with private guides and boutique luxury lodges.</p>
+                        <div class="article-sidebar__cta-actions">
+                            <button type="button" class="btn-brand btn-brand--primary btn-brand--sm btn-brand--block" data-contact-open>
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan Custom Trip
+                            </button>
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp btn-brand--sm btn-brand--block">
+                                <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Concierge
+                            </a>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>

@@ -5,7 +5,7 @@
         'Tradiciones' => 'Traditions',
         'Historia' => 'History',
         'Tips-de-viaje' => 'Travel-Tips',
-        'Gastronomia' => 'Gastronomia',
+        'Gastronomia' => 'Gastronomy',
         'Feriados' => 'Holidays',
         'Actividades' => 'Activities',
         'Costumbres' => 'Traditions',
@@ -130,28 +130,11 @@
                     @endif
                 </div>
 
+                {{-- Barra Lateral Sticky de Alta Gama --}}
                 <aside class="article-sidebar">
-                    {{-- Concierge Privado Sticky Widget --}}
-                    <div class="sidebar-concierge-card">
-                        <span class="sidebar-concierge-card__eyebrow">Concierge Privado</span>
-                        <h3 class="sidebar-concierge-card__title">¿Inspirado por {{ $tag->nombre }}?</h3>
-                        <p class="sidebar-concierge-card__desc">Conversa con nuestros diseñadores de viajes en Cusco. Integramos las vivencias culturales y paisajes de este artículo en un itinerario privado hecho exclusivamente para ti.</p>
-                        <ul class="sidebar-concierge-card__features">
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Itinerarios 100% personalizados</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Guías expertos nativos y accesos VIP</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Soporte concierge local 24/7</li>
-                        </ul>
-                        <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
-                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Planificar Mi Viaje
-                        </button>
-                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
-                            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Directo
-                        </a>
-                    </div>
-
-                    {{-- Topic Cloud --}}
+                    {{-- 1. Nube de Temas --}}
                     @if ($tags->count())
-                        <div class="tag-cloud-card">
+                        <div class="article-sidebar__box">
                             <h3 class="article-sidebar__title">Explorar Temas</h3>
                             <div class="tag-cloud">
                                 @foreach ($tags as $t)
@@ -165,6 +148,21 @@
                             </div>
                         </div>
                     @endif
+
+                    {{-- 2. Llamada a la Acción Compacta --}}
+                    <div class="article-sidebar__cta-card">
+                        <span class="article-sidebar__cta-eyebrow font-display">Viajes a Medida</span>
+                        <h4 class="article-sidebar__cta-title">¿Inspirado por {{ $tag->nombre }}?</h4>
+                        <p class="article-sidebar__cta-text">Integramos las vivencias culturales y paisajes de esta temática en un itinerario privado hecho exclusivamente para ti.</p>
+                        <div class="article-sidebar__cta-actions">
+                            <button type="button" class="btn-brand btn-brand--primary btn-brand--sm btn-brand--block" data-contact-open>
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i> Planificar Mi Viaje
+                            </button>
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp btn-brand--sm btn-brand--block">
+                                <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Concierge
+                            </a>
+                        </div>
+                    </div>
                 </aside>
             </div>
         </div>

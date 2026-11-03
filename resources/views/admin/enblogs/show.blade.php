@@ -129,25 +129,7 @@
 
                 {{-- Senior Sticky Sidebar Rail --}}
                 <aside class="article-sidebar">
-                    {{-- 1. Sticky Concierge Conversion Card --}}
-                    <div class="sidebar-concierge-card">
-                        <span class="sidebar-concierge-card__eyebrow">Private Concierge</span>
-                        <h3 class="sidebar-concierge-card__title">Ready to Explore Perú?</h3>
-                        <p class="sidebar-concierge-card__desc">Speak with our private travel designers. 100% custom itineraries, hand-selected luxury boutique hotels, and VIP access.</p>
-                        <ul class="sidebar-concierge-card__features">
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Private expert guides</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Curated luxury lodges</li>
-                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 24/7 dedicated concierge</li>
-                        </ul>
-                        <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
-                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan a Custom Trip
-                        </button>
-                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
-                            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Us
-                        </a>
-                    </div>
-
-                    {{-- 2. Similar Stories --}}
+                    {{-- 1. Similar Stories --}}
                     @if ($blogs->count())
                         <div class="article-sidebar__box">
                             <h3 class="article-sidebar__title">Similar Stories</h3>
@@ -171,7 +153,7 @@
                         </div>
                     @endif
 
-                    {{-- 3. Topic Tags --}}
+                    {{-- 2. Topic Tags --}}
                     @if ($blog->tags->count())
                         <div class="article-sidebar__box">
                             <h3 class="article-sidebar__title">Explore Topics</h3>
@@ -183,12 +165,18 @@
                         </div>
                     @endif
 
-                    {{-- 4. Fast Concierge Assistance Callout --}}
-                    <div class="article-sidebar__quick-cta">
-                        <i class="fa fa-clock-o" aria-hidden="true"></i>
-                        <div>
-                            <strong>Questions about this trip?</strong>
-                            <span>Our travel specialists in Cusco reply within 1 business day.</span>
+                    {{-- 3. Compact Bespoke Journey CTA --}}
+                    <div class="article-sidebar__cta-card">
+                        <span class="article-sidebar__cta-eyebrow font-display">Bespoke Journeys</span>
+                        <h4 class="article-sidebar__cta-title">Craft Your Peru Itinerary</h4>
+                        <p class="article-sidebar__cta-text">Tailored 100% to your rhythm with private guides and handpicked boutique stays.</p>
+                        <div class="article-sidebar__cta-actions">
+                            <button type="button" class="btn-brand btn-brand--primary btn-brand--sm btn-brand--block" data-contact-open>
+                                <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan Custom Trip
+                            </button>
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp btn-brand--sm btn-brand--block">
+                                <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Concierge
+                            </a>
                         </div>
                     </div>
                 </aside>
