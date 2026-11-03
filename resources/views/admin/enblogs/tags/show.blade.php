@@ -1,65 +1,175 @@
 @php
     $locale = 'en';
+    $tagMap = [
+        'Magic-Places' => 'Lugares-mágicos',
+        'Traditions' => 'Tradiciones',
+        'History' => 'Historia',
+        'Travel-Tips' => 'Tips-de-viaje',
+        'Gastronomy' => 'Gastronomia',
+        'Holidays' => 'Feriados',
+        'Activities' => 'Actividades',
+    ];
+    $esSlug = $tagMap[$tag->slug] ?? null;
+    $altUrl = $esSlug ? route('estag.show', $esSlug) : route('blog-es');
+    $waText = 'Hello Andean Exclusive, I am exploring your articles about ' . $tag->nombre . ' and would like to design a bespoke journey in Peru.';
+    $waUrl = 'https://wa.me/51979721194?text=' . rawurlencode($waText);
+
+    $heroBlog = $blogs->first();
+    $heroImage = $heroBlog ? $heroBlog->fullUrl() : asset('img/tours/Hiram-bingham.webp');
+    $mobileHero = $heroBlog ? $heroBlog->mobileHeroUrl() : $heroImage;
 @endphp
 @extends('layouts.public')
 
 @section('metas')
     @include('layouts.seo-head', [
         'locale' => 'en',
-        'title' => 'Blog: ' . $tag->nombre . ' | ' . config('seo.brand'),
-        'description' => 'Peru travel blog posts tagged ' . $tag->nombre . '.',
+        'page' => null,
+        'title' => $tag->nombre . ' - Stories & Travel Guides | ' . config('seo.brand'),
+        'description' => 'Explore our curated Peru luxury travel stories and insights tagged under ' . $tag->nombre . '. Private tours, boutique stays, and cultural heritage.',
         'canonical' => route('entag.show', $tag->slug, true),
-        'og_image' => $blogs->first()?->thumbUrl(),
+        'og_image' => $heroImage,
     ])
+    @if ($esSlug)
+        <link rel="alternate" hreflang="es" href="{{ route('estag.show', $esSlug, true) }}">
+        <link rel="alternate" hreflang="en" href="{{ route('entag.show', $tag->slug, true) }}">
+        <link rel="alternate" hreflang="x-default" href="{{ route('entag.show', $tag->slug, true) }}">
+    @endif
 @endsection
 
+@push('seo-structured-data')
+<script type="application/ld+json">{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'CollectionPage',
+    'name' => $tag->nombre . ' - Andean Exclusive Journal',
+    'description' => 'Curated travel articles and guides tagged under ' . $tag->nombre . '.',
+    'url' => route('entag.show', $tag->slug, true),
+    'publisher' => [
+        '@type' => 'Organization',
+        'name' => config('seo.brand'),
+        'logo' => [
+            '@type' => 'ImageObject',
+            'url' => rtrim(config('seo.site_url'), '/') . '/img/andean-exclusive-logo.png'
+        ]
+    ]
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush
+
 @section('contenido')
-    <section class="page-banner">
-        <img src="{{ asset('img/tours/Hiram-bingham.webp') }}" alt="{{ $tag->nombre }}" data-parallax="10" loading="eager" fetchpriority="high">
+    <section class="page-banner page-banner--tall">
+        <picture>
+            <source media="(max-width: 768px)" srcset="{{ $mobileHero }}">
+            <img src="{{ $heroImage }}" alt="{{ $tag->nombre }}" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
         <div class="page-banner__content">
-            <h1 class="page-banner__title">Tagged: {{ $tag->nombre }}</h1>
+            <span class="page-banner__eyebrow font-display">Topic Collection</span>
+            <h1 class="page-banner__title">#{{ $tag->nombre }}</h1>
             <div class="page-banner__divider"></div>
-            <span class="page-banner__eyebrow">Andean Exclusive Journal</span>
+            <div class="tag-hero-meta">
+                <span class="tag-hero-badge">
+                    <i class="fa fa-folder-open-o" aria-hidden="true"></i>
+                    {{ $blogs->count() }} {{ $blogs->count() === 1 ? 'Curated Story' : 'Curated Stories' }}
+                </span>
+                <span>
+                    <i class="fa fa-compass" aria-hidden="true"></i>
+                    Andean Exclusive Journal
+                </span>
+            </div>
         </div>
     </section>
 
-    <section class="section">
+    <section class="section--tight">
         <div class="site-container">
             @include('layouts.partials.breadcrumb', [
+                'ariaLabel' => 'Breadcrumb',
                 'crumbs' => [
                     ['label' => 'Home', 'url' => route('index')],
-                    ['label' => 'Blog', 'url' => route('blog-en')],
-                    ['label' => $tag->nombre],
+                    ['label' => 'Journal', 'url' => route('blog-en')],
+                    ['label' => '#' . $tag->nombre],
                 ],
             ])
 
             <div class="article-layout">
                 <div>
-                    <div class="grid-auto" data-reveal-stagger>
-                        @foreach ($blogs as $blog)
-                            <a href="{{ route('enblog.show', $blog->slug) }}" class="card-blog">
-                                <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy">
-                                <div class="card-blog__body">
-                                    @if ($blog->created_at)
-                                        <span class="card-blog__date">{{ $blog->created_at->format('M d, Y') }}</span>
-                                    @endif
-                                    <h2 class="card-blog__title">{{ $blog->nombre }}</h2>
-                                    <p class="card-blog__excerpt">{{ $blog->descripcionCorta }}</p>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
+                    @if ($blogs->count())
+                        <div class="tag-stories-grid" data-reveal-stagger aria-label="{{ $tag->nombre }} articles">
+                            @foreach ($blogs as $blog)
+                                <article class="tag-story-card">
+                                    <a href="{{ route('enblog.show', $blog->slug) }}" class="tag-story-card__media">
+                                        <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" decoding="async" class="tag-story-card__img">
+                                        <span class="tag-story-card__reading">
+                                            <i class="fa fa-clock-o" aria-hidden="true"></i> {{ $blog->readingTime('en') }}
+                                        </span>
+                                    </a>
+                                    <div class="tag-story-card__body">
+                                        <div class="tag-story-card__meta">
+                                            @if ($blog->created_at)
+                                                <span><i class="fa fa-calendar-o" aria-hidden="true"></i> {{ $blog->created_at->format('M d, Y') }}</span>
+                                            @endif
+                                        </div>
+                                        <h2 class="tag-story-card__title">
+                                            <a href="{{ route('enblog.show', $blog->slug) }}">{{ $blog->nombre }}</a>
+                                        </h2>
+                                        <p class="tag-story-card__excerpt">{{ $blog->descripcionCorta }}</p>
+                                        <div class="tag-story-card__footer">
+                                            <a href="{{ route('enblog.show', $blog->slug) }}" class="tag-story-card__cta">
+                                                <span>Read story</span>
+                                                <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="empty-state text-center py-2xl">
+                            <p class="section-lead">No stories published under this topic yet. Explore our other journal dispatches below.</p>
+                            <a href="{{ route('blog-en') }}" class="btn-brand btn-brand--primary mt-md">Back to Journal</a>
+                        </div>
+                    @endif
                 </div>
 
-                <aside>
-                    <h3 class="article-sidebar__title">Tags</h3>
-                    <div class="tour-categories">
-                        @foreach ($tags as $t)
-                            <a href="{{ route('entag.show', $t->slug) }}" class="tag-pill tag-pill--muted">#{{ $t->nombre }}</a>
-                        @endforeach
+                <aside data-reveal>
+                    {{-- Sticky Concierge Card --}}
+                    <div class="sidebar-concierge-card">
+                        <span class="sidebar-concierge-card__eyebrow">Private Concierge</span>
+                        <h3 class="sidebar-concierge-card__title">Inspired by {{ $tag->nombre }}?</h3>
+                        <p class="sidebar-concierge-card__desc">Speak with our private travel designers. We weave every cultural theme and landscape into custom-tailored Peru itineraries with private guides and boutique luxury lodges.</p>
+                        <ul class="sidebar-concierge-card__features">
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 100% private custom itineraries</li>
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Native expert guides &amp; VIP access</li>
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 24/7 dedicated local concierge</li>
+                        </ul>
+                        <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
+                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan a Custom Trip
+                        </button>
+                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
+                            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Us
+                        </a>
                     </div>
+
+                    {{-- Topic Cloud --}}
+                    @if ($tags->count())
+                        <div class="tag-cloud-card">
+                            <h3 class="article-sidebar__title">Explore Topics</h3>
+                            <div class="tag-cloud">
+                                @foreach ($tags as $t)
+                                    @php
+                                        $isActive = ($t->id === $tag->id);
+                                    @endphp
+                                    <a href="{{ route('entag.show', $t->slug) }}" class="tag-pill {{ $isActive ? 'tag-pill--active' : 'tag-pill--muted' }}">
+                                        #{{ $t->nombre }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </aside>
             </div>
         </div>
     </section>
+
+    @include('layouts.partials.collection-bottom-cta', [
+        'locale' => 'en',
+        'categoryName' => $tag->nombre,
+    ])
 @endsection
