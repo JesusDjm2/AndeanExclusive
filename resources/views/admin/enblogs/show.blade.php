@@ -1,6 +1,8 @@
 @php
     $locale = 'en';
     $altUrl = $esblog ? route('esblog.show', $esblog->slug) : null;
+    $waText = 'Hello Andean Exclusive, I am reading "' . $blog->nombre . '" and would like to design a bespoke journey in Peru.';
+    $waUrl = 'https://wa.me/51979721194?text=' . rawurlencode($waText);
 @endphp
 @extends('layouts.public')
 
@@ -46,9 +48,13 @@
         <div class="page-banner__content">
             <h1 class="page-banner__title">{{ $blog->nombre }}</h1>
             <div class="page-banner__divider"></div>
-            @if ($blog->created_at)
-                <span class="page-banner__eyebrow">{{ $blog->created_at->format('M d, Y') }}</span>
-            @endif
+            <div class="article-reading-meta">
+                @if ($blog->created_at)
+                    <span><i class="fa fa-calendar-o" aria-hidden="true"></i> {{ $blog->created_at->format('M d, Y') }}</span>
+                @endif
+                <span class="article-reading-meta__badge"><i class="fa fa-clock-o" aria-hidden="true"></i> {{ $blog->readingTime('en') }}</span>
+                <span><i class="fa fa-bookmark-o" aria-hidden="true"></i> Andean Exclusive Journal</span>
+            </div>
             @if ($blog->tags->count())
                 <div class="article-tags">
                     @foreach ($blog->tags as $tag)
@@ -65,46 +71,96 @@
                 'ariaLabel' => 'Breadcrumb',
                 'crumbs' => [
                     ['label' => 'Home', 'url' => route('index')],
-                    ['label' => 'Blog', 'url' => route('blog-en')],
+                    ['label' => 'Journal', 'url' => route('blog-en')],
                     ['label' => $blog->nombre],
                 ],
             ])
 
             <div class="article-layout">
                 <article>
-                    <div class="article-figure" data-reveal>
-                        <img src="{{ $blog->fullUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" decoding="async">
-                    </div>
+                    @if (!empty(trim(strip_tags($blog->descripcionCorta))))
+                        <div class="article-highlights" data-reveal>
+                            <span class="article-highlights__eyebrow">Editorial Overview</span>
+                            <p class="article-highlights__lead">{{ strip_tags($blog->descripcionCorta) }}</p>
+                        </div>
+                    @endif
+
                     <div class="legal-prose legal-prose--fluid">
-                        {!! $blog->descripcion !!}
+                        {!! $blog->renderedContent() !!}
                     </div>
+
+                    {{-- Commercial In-Article Conversion Hook --}}
+                    <div class="article-cta-box" data-reveal>
+                        <span class="article-cta-box__eyebrow">Bespoke Travel Planning</span>
+                        <h3 class="article-cta-box__title">Experience This Journey in Complete Privacy</h3>
+                        <p class="article-cta-box__text">Every destination featured in our journal can be seamlessly woven into your private Peru itinerary. Tell our Cusco-based luxury specialists what inspires you, and we will handle every detail.</p>
+                        <div class="article-cta-box__actions">
+                            <button type="button" class="btn-brand btn-brand--primary" data-contact-open>
+                                <i class="fa fa-envelope-o" aria-hidden="true"></i> Design My Journey
+                            </button>
+                            <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp">
+                                <i class="fa fa-whatsapp" aria-hidden="true"></i> Chat on WhatsApp
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- Author / Editorial Signature --}}
+                    <div class="article-author-card" data-reveal>
+                        <div class="article-author-card__avatar">
+                            <i class="fa fa-compass" aria-hidden="true"></i>
+                        </div>
+                        <div>
+                            <h4 class="article-author-card__name">Andean Exclusive Editorial Team</h4>
+                            <p class="article-author-card__bio">Curated by our native travel specialists and private guides based in Cusco and Lima, dedicated to genuine Peruvian luxury and authentic cultural immersion.</p>
+                        </div>
+                    </div>
+
                     @include('layouts.partials.share-links', [
                         'url' => route('enblog.show', $blog->slug, true),
                         'i18n' => [
                             'share' => 'Share:',
                             'on' => 'Share on',
                             'email' => 'Share by email',
-                            'subject' => 'Andean Exclusive',
-                            'body' => 'I recommend this article: ',
+                            'subject' => 'Andean Exclusive - ' . $blog->nombre,
+                            'body' => 'I recommend reading this article from Andean Exclusive: ',
                         ],
                     ])
                 </article>
 
                 <aside data-reveal>
+                    {{-- Sticky Concierge Card --}}
+                    <div class="sidebar-concierge-card">
+                        <span class="sidebar-concierge-card__eyebrow">Private Concierge</span>
+                        <h3 class="sidebar-concierge-card__title">Ready to Explore Perú?</h3>
+                        <p class="sidebar-concierge-card__desc">Speak with our private travel designers. 100% custom itineraries, hand-selected luxury boutique hotels, and VIP access.</p>
+                        <ul class="sidebar-concierge-card__features">
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Private expert guides</li>
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> Curated luxury lodges</li>
+                            <li><i class="fa fa-check-circle" aria-hidden="true"></i> 24/7 dedicated concierge</li>
+                        </ul>
+                        <button type="button" class="btn-brand btn-brand--primary sidebar-concierge-card__btn" data-contact-open>
+                            <i class="fa fa-paper-plane" aria-hidden="true"></i> Plan a Custom Trip
+                        </button>
+                        <a href="{{ $waUrl }}" target="_blank" rel="noopener noreferrer" class="btn-brand btn-brand--whatsapp sidebar-concierge-card__wa">
+                            <i class="fa fa-whatsapp" aria-hidden="true"></i> WhatsApp Us
+                        </a>
+                    </div>
+
                     @if ($blogs->count())
-                        <h3 class="article-sidebar__title">Similar Blogs</h3>
+                        <h3 class="article-sidebar__title">Similar Stories</h3>
                         @foreach ($blogs as $item)
                             <a href="{{ route('enblog.show', $item->slug) }}" class="article-side-card">
                                 <img src="{{ $item->thumbUrl() }}" alt="{{ $item->nombre }}" class="article-side-card__img" loading="lazy" decoding="async">
                                 <div>
                                     <h4 class="article-side-card__title">{{ $item->nombre }}</h4>
                                     @if ($item->created_at)
-                                        <span class="article-side-card__date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ $item->created_at->format('d M, Y') }}</span>
+                                        <span class="article-side-card__date"><i class="fa fa-calendar" aria-hidden="true"></i> {{ $item->created_at->format('M d, Y') }}</span>
                                     @endif
                                 </div>
                             </a>
                         @endforeach
                     @endif
+
                     @if ($blog->tags->count())
                         <h3 class="article-sidebar__title mt-lg">Tags</h3>
                         <div class="article-tags">
@@ -121,10 +177,10 @@
     @include('layouts.partials.related-tours', [
         'tours' => $tours,
         'locale' => 'en',
-        'eyebrow' => 'You may also like',
-        'title' => 'Exclusive Tours for Perú',
+        'eyebrow' => 'Handcrafted Journeys',
+        'title' => 'Featured Private Tours in Perú',
         'tourRoute' => 'tour.show',
         'categoryRoute' => 'category.show',
-        'moreLabel' => 'Read more',
+        'moreLabel' => 'View itinerary',
     ])
 @endsection
