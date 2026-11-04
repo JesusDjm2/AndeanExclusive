@@ -17,7 +17,10 @@
     <main>
         <h1>No tienes permiso para esta acción</h1>
         <p>{{ $exception->getMessage() ?: 'Si crees que deberías tenerlo, habla con Administración.' }}</p>
-        <a href="{{ auth()->check() ? url('/home') : route('login') }}">Volver</a>
+        <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+            <a href="{{ url('/home') }}">Ir al Panel</a>
+            <a href="{{ url('/logout') }}" style="background:#e05260;">Cerrar sesión</a>
+        </div>
     </main>
 </body>
 </html>
