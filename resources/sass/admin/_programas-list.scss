@@ -107,7 +107,7 @@
     transition: box-shadow 0.15s ease, border-color 0.15s ease;
 
     &:hover { border-color: var(--ae-border-strong); }
-    &:has(.collapse.show) { box-shadow: 0 6px 20px rgba(23, 36, 42, 0.08); }
+    &:has(.collapse.show) { box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08); }
 }
 
 .prog-row {

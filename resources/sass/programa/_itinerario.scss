@@ -1,14 +1,14 @@
 // Itinerario privado del cliente (resources/views/programas/show.blade.php).
 // Mobile first: una columna en celular, dos en tablet horizontal y escritorio. Paleta de marca (tokens).
 
-$itin-ink: #1f2a2c;
-$itin-ink-soft: #5b6b6d;
-$itin-bg: #f5f8f8;
-$itin-line: #e3ecec;
-$itin-deep: #0b1d1f;          // portada y pie
-$itin-accent: $color-accent;  // #078f84 (AA sobre blanco)
+$itin-ink: #0f172a;
+$itin-ink-soft: #64748b;
+$itin-bg: #f8fafc;
+$itin-line: #e2e8f0;
+$itin-deep: #020617;          // portada y pie
+$itin-accent: $color-primary;
 $itin-radius: 16px;
-$itin-shadow: 0 1px 2px rgba(11, 29, 31, 0.04), 0 8px 24px rgba(11, 29, 31, 0.06);
+$itin-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.06);
 $itin-nav-h: 3.5rem;
 
 :root {

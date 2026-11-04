@@ -35,7 +35,7 @@ function initLogout() {
                 showCancelButton: true,
                 confirmButtonText: 'Sí, cerrar sesión',
                 cancelButtonText: 'Seguir conectado',
-                confirmButtonColor: '#078f84',
+                confirmButtonColor: '#0f172a',
                 reverseButtons: true,
             });
             if (result.isConfirmed) form.submit();
@@ -86,7 +86,7 @@ function initConfirmForms() {
                 showCancelButton: true,
                 confirmButtonText: confirmButton || 'Confirmar',
                 cancelButtonText: 'Cancelar',
-                confirmButtonColor: danger ? '#c2422f' : '#078f84',
+                confirmButtonColor: danger ? '#dc2626' : '#0f172a',
                 reverseButtons: true,
                 focusCancel: danger && !pideMotivo,
                 ...(pideMotivo && {

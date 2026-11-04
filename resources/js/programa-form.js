@@ -151,7 +151,7 @@ function initItinerario(root) {
         if (dayItems.length <= 1) {
             const msg = 'El programa debe conservar al menos 1 día en su itinerario.';
             if (window.Swal) {
-                window.Swal.fire({ icon: 'info', title: 'Atención', text: msg, confirmButtonColor: '#078f84' });
+                window.Swal.fire({ icon: 'info', title: 'Atención', text: msg, confirmButtonColor: '#0f172a' });
             } else {
                 alert(msg);
             }
@@ -568,7 +568,7 @@ function initFlightControls(root) {
                     icon: 'info',
                     title: 'Fechas del viaje pendientes',
                     text: `Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje en la sección superior.`,
-                    confirmButtonColor: '#078f84'
+                    confirmButtonColor: '#0f172a'
                 }) || alert(`Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje.`);
             }
         });

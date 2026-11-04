@@ -26,8 +26,8 @@
         height: 2.4rem;
         margin-right: 0.4rem !important;
         border-radius: $border-radius;
-        background: rgba($color-accent, 0.1);
-        color: var(--ae-accent-text) !important;
+        background: var(--ae-chip);
+        color: var(--ae-ink) !important;
         font-size: 1rem;
     }
 }
@@ -58,7 +58,7 @@
 // "shadow" de Bootstrap es muy pesada para un panel con muchas tarjetas.
 .admin .card.shadow,
 .admin .card.shadow-sm {
-    box-shadow: 0 1px 2px rgba(23, 36, 42, 0.04), 0 2px 8px rgba(23, 36, 42, 0.04) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.04) !important;
 }
 
 .card-header {
@@ -99,7 +99,7 @@
     tbody tr {
         transition: background-color 0.12s ease;
 
-        &:hover { --bs-table-bg-state: rgba(9, 204, 189, 0.06); }
+        &:hover { --bs-table-bg-state: rgba(15, 23, 42, 0.035); }
     }
 
     img {
@@ -134,7 +134,7 @@
 
 .form-control:focus,
 .form-select:focus {
-    box-shadow: 0 0 0 0.2rem rgba(9, 204, 189, 0.18);
+    box-shadow: 0 0 0 0.2rem rgba(15, 23, 42, 0.12);
 }
 
 // ---- Botones ---------------------------------------------------------------------
@@ -174,7 +174,8 @@
     i {
         display: block;
         margin-bottom: 0.75rem;
-        color: rgba($color-accent, 0.45);
+        color: var(--ae-ink-soft);
+        opacity: 0.5;
         font-size: 2rem;
     }
 }
@@ -332,17 +333,18 @@
 }
 
 .ae-prog-code-link {
-    color: var(--ae-accent-text, #078f84);
+    color: var(--ae-ink);
     text-decoration: underline;
-    text-decoration-color: rgba(7, 143, 132, 0.35);
+    text-decoration-color: rgba(15, 23, 42, 0.35);
     text-underline-offset: 2px;
     font-size: 0.88rem;
+    font-weight: 600;
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
 
     &:hover,
     &:focus-visible {
-        color: var(--ae-accent, #057067);
-        text-decoration-color: var(--ae-accent, #057067);
+        color: var(--ae-accent-text);
+        text-decoration-color: var(--ae-accent-text);
     }
 }
 
@@ -361,8 +363,8 @@
 
     &:hover,
     &:focus-visible {
-        background-color: rgba(7, 143, 132, 0.12);
-        color: var(--ae-accent-text, #078f84);
+        background-color: var(--ae-chip);
+        color: var(--ae-ink);
         transform: scale(1.1);
         outline: none;
     }
@@ -372,78 +374,78 @@
 .popover.ae-prog-popover {
     --bs-popover-max-width: min(340px, calc(100vw - 24px));
     --bs-popover-border-radius: 12px;
-    --bs-popover-border-color: var(--ae-border-strong, #c9d8d8);
-    --bs-popover-box-shadow: var(--ae-shadow-lg, 0 12px 28px -6px rgba(24, 34, 41, 0.18));
-    --bs-popover-bg: var(--ae-surface, #ffffff);
-    background-color: var(--ae-surface, #ffffff) !important;
-    border: 1px solid var(--ae-border-strong, #c9d8d8) !important;
-    box-shadow: var(--ae-shadow-lg, 0 12px 28px -6px rgba(24, 34, 41, 0.18)) !important;
+    --bs-popover-border-color: var(--ae-border-strong);
+    --bs-popover-box-shadow: var(--ae-shadow-lg);
+    --bs-popover-bg: var(--ae-surface);
+    background-color: var(--ae-surface) !important;
+    border: 1px solid var(--ae-border-strong) !important;
+    box-shadow: var(--ae-shadow-lg) !important;
     border-radius: var(--bs-popover-border-radius);
     z-index: 1085;
     padding: 0;
 
     .popover-arrow {
         &::before {
-            border-bottom-color: var(--ae-border-strong, #c9d8d8) !important;
-            border-top-color: var(--ae-border-strong, #c9d8d8) !important;
-            border-left-color: var(--ae-border-strong, #c9d8d8) !important;
-            border-right-color: var(--ae-border-strong, #c9d8d8) !important;
+            border-bottom-color: var(--ae-border-strong) !important;
+            border-top-color: var(--ae-border-strong) !important;
+            border-left-color: var(--ae-border-strong) !important;
+            border-right-color: var(--ae-border-strong) !important;
         }
 
         &::after {
-            border-bottom-color: var(--ae-surface, #ffffff) !important;
-            border-top-color: var(--ae-surface, #ffffff) !important;
-            border-left-color: var(--ae-surface, #ffffff) !important;
-            border-right-color: var(--ae-surface, #ffffff) !important;
+            border-bottom-color: var(--ae-surface) !important;
+            border-top-color: var(--ae-surface) !important;
+            border-left-color: var(--ae-surface) !important;
+            border-right-color: var(--ae-surface) !important;
         }
     }
 
     .popover-body {
         padding: 0.9rem 1rem;
-        background-color: var(--ae-surface, #ffffff);
-        color: var(--ae-ink, #182229);
+        background-color: var(--ae-surface);
+        color: var(--ae-ink);
         border-radius: inherit;
     }
 
     .ae-prog-card-preview {
         font-family: inherit;
-        color: var(--ae-ink, #182229);
+        color: var(--ae-ink);
 
         .ae-prog-card-header {
-            border-bottom-color: var(--ae-border, #e3ecec) !important;
+            border-bottom-color: var(--ae-border) !important;
         }
 
         .ae-prog-code-highlight {
-            color: var(--ae-ink, #182229);
+            color: var(--ae-ink);
         }
 
         .ae-prog-card-name {
-            color: var(--ae-ink, #182229);
+            color: var(--ae-ink);
             font-size: 0.92rem;
             margin-bottom: 0.5rem;
             line-height: 1.35;
         }
 
         .ae-prog-days-pill {
-            background-color: var(--ae-chip, #eef3f3);
-            border-color: var(--ae-border, #e3ecec) !important;
-            color: var(--ae-ink, #182229);
+            background-color: var(--ae-chip);
+            border-color: var(--ae-border) !important;
+            color: var(--ae-ink);
         }
     }
 
     .ae-prog-preview-meta {
         font-size: 0.82rem;
         line-height: 1.4;
-        color: var(--ae-ink-soft, #6b7a82);
+        color: var(--ae-ink-soft);
 
         i {
             width: 1rem;
             text-align: center;
-            color: var(--ae-ink-soft, #6b7a82);
+            color: var(--ae-ink-soft);
         }
 
         strong {
-            color: var(--ae-ink, #182229);
+            color: var(--ae-ink);
         }
     }
 

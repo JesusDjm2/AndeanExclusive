@@ -1,7 +1,7 @@
 // Estructura del panel: sidebar (offcanvas en móvil/tablet), topbar y área de contenido.
 
 $sidebar-w: 268px;
-$sidebar-bg: #17242a;
+$sidebar-bg: #0f172a;
 $sidebar-fg: rgba(255, 255, 255, 0.72);
 $topbar-h: 4rem;
 
@@ -107,10 +107,11 @@ $topbar-h: 4rem;
     &:hover { background: rgba(255, 255, 255, 0.06); }
 
     &.is-active {
-        background: rgba(9, 204, 189, 0.14);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: inset 3px 0 0 #ffffff;
 
-        .admin-nav__link { color: $white; }
-        .admin-nav__link i { color: $color-primary; }
+        .admin-nav__link { color: $white; font-weight: 600; }
+        .admin-nav__link i { color: #ffffff; }
     }
 }
 
@@ -136,7 +137,7 @@ $topbar-h: 4rem;
     &:hover { color: $white; }
 
     &:focus-visible {
-        outline: 2px solid $color-primary;
+        outline: 2px solid rgba(255, 255, 255, 0.5);
         outline-offset: -2px;
         border-radius: $border-radius;
     }
@@ -162,8 +163,8 @@ $topbar-h: 4rem;
     &:hover { border-color: rgba(255, 255, 255, 0.45); color: $white; }
 
     &.is-active {
-        border-color: $color-primary;
-        background: $color-primary;
+        border-color: #ffffff;
+        background: #ffffff;
         color: $sidebar-bg;
     }
 }

@@ -22,8 +22,8 @@
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
         &:focus-within {
-            border-color: rgba(9, 204, 189, 0.45);
-            box-shadow: 0 4px 12px rgba(9, 204, 189, 0.08);
+            border-color: rgba(15, 23, 42, 0.25);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
         }
 
         .ae-form-card-header {
@@ -84,7 +84,7 @@
 
             &:hover {
                 color: var(--ae-ink);
-                border-bottom-color: rgba(9, 204, 189, 0.4);
+                border-bottom-color: rgba(15, 23, 42, 0.3);
             }
 
             &.active {
@@ -107,8 +107,8 @@
         cursor: pointer;
 
         &:hover {
-            border-color: var(--ae-accent-text);
-            background: rgba(9, 204, 189, 0.04);
+            border-color: var(--ae-border-strong);
+            background: var(--ae-chip);
         }
 
         &.has-image {
@@ -208,10 +208,10 @@
                 cursor: pointer;
 
                 &:checked + label {
-                    background: var(--ae-accent-text);
+                    background: var(--ae-ink);
                     color: #fff;
-                    border-color: var(--ae-accent-text);
-                    box-shadow: 0 2px 6px rgba(9, 204, 189, 0.25);
+                    border-color: var(--ae-ink);
+                    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
                 }
             }
 
@@ -298,7 +298,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(7, 143, 132, 0.75);
+            background: rgba(15, 23, 42, 0.75);
             color: #fff;
             font-size: 0.95rem;
             opacity: 0;
@@ -408,8 +408,8 @@
             flex-shrink: 0;
 
             &.is-primary {
-                background: rgba(9, 204, 189, 0.12);
-                color: var(--ae-accent-text);
+                background: var(--ae-chip);
+                color: var(--ae-ink);
             }
             &.is-info {
                 background: rgba(13, 110, 253, 0.12);
@@ -466,10 +466,10 @@
         padding: 0.4rem 0.9rem;
         border-radius: 2rem;
         background: var(--ae-surface);
-        border: 1px solid var(--ae-accent-text);
-        color: var(--ae-accent-text);
+        border: 1px solid var(--ae-border-strong);
+        color: var(--ae-ink);
         font-weight: 700;
         font-size: 0.85rem;
-        box-shadow: 0 2px 6px rgba(9, 204, 189, 0.15);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
     }
 }

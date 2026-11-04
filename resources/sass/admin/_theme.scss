@@ -14,53 +14,53 @@
 //  --ae-success|warn|danger|info  textos de estado
 
 @mixin ae-theme-light {
-    --ae-bg: #f4f7f8;
+    --ae-bg: #f8fafc;
     --ae-surface: #ffffff;
     --ae-surface-rgb: 255, 255, 255;
-    --ae-surface-2: #f8fafa;
-    --ae-hover: #f1f6f6;
-    --ae-chip: #eef3f3;
-    --ae-border: #e3ecec;
-    --ae-border-strong: #c9d8d8;
-    --ae-border-soft: #eef3f3;
-    --ae-input-border: #d5e1e1;
+    --ae-surface-2: #f1f5f9;
+    --ae-hover: #f1f5f9;
+    --ae-chip: #e2e8f0;
+    --ae-border: #e2e8f0;
+    --ae-border-strong: #cbd5e1;
+    --ae-border-soft: #f1f5f9;
+    --ae-input-border: #cbd5e1;
     --ae-ink: #{$color-ink};
     --ae-ink-soft: #{$color-ink-soft};
-    --ae-accent-text: #{$color-accent};
+    --ae-accent-text: #{$color-primary};
     --ae-success: #{$color-success};
     --ae-warn: #b25e09;
     --ae-danger: #{$color-danger};
     --ae-info: #2563a8;
     --ae-violet: #6d28d9;
-    --ae-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    --ae-shadow-lg: 0 10px 30px rgba(15, 40, 40, 0.08);
+    --ae-shadow: 0 1px 3px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03);
+    --ae-shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.07), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
     --ae-inverse: #{$color-ink};          // paneles oscuros destacados (presupuesto)
     --ae-inverse-border: transparent;
 }
 
 @mixin ae-theme-dark {
-    --ae-bg: #0e1517;
-    --ae-surface: #152022;
-    --ae-surface-rgb: 21, 32, 34;
-    --ae-surface-2: #1a2729;
-    --ae-hover: #1f2e31;
-    --ae-chip: #243538;
-    --ae-border: #283a3d;
-    --ae-border-strong: #3a5155;
-    --ae-border-soft: #213134;
-    --ae-input-border: #33484b;
-    --ae-ink: #e3ecec;
-    --ae-ink-soft: #9db1b1;
-    --ae-accent-text: #4fd6ca;
-    --ae-success: #5cc98f;
-    --ae-warn: #f0a85e;
-    --ae-danger: #f2846f;
-    --ae-info: #82b4f0;
-    --ae-violet: #b79cf5;
+    --ae-bg: #090d16;
+    --ae-surface: #0f172a;
+    --ae-surface-rgb: 15, 23, 42;
+    --ae-surface-2: #1e293b;
+    --ae-hover: #253247;
+    --ae-chip: #243144;
+    --ae-border: #2a384c;
+    --ae-border-strong: #3f526c;
+    --ae-border-soft: #1e293b;
+    --ae-input-border: #33445c;
+    --ae-ink: #f8fafc;
+    --ae-ink-soft: #94a3b8;
+    --ae-accent-text: #e2e8f0;
+    --ae-success: #4ade80;
+    --ae-warn: #fbbf24;
+    --ae-danger: #f87171;
+    --ae-info: #60a5fa;
+    --ae-violet: #c084fc;
     --ae-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
     --ae-shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.5);
-    --ae-inverse: #0a1112;
-    --ae-inverse-border: #2f4649;
+    --ae-inverse: #020617;
+    --ae-inverse-border: #2a384c;
 }
 
 :root,
@@ -91,14 +91,25 @@
     .btn-light { --bs-btn-bg: var(--ae-chip); --bs-btn-border-color: var(--ae-border); --bs-btn-color: var(--ae-ink); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); }
     .btn-outline-secondary { --bs-btn-color: var(--ae-ink-soft); --bs-btn-border-color: var(--ae-border-strong); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); --bs-btn-hover-border-color: var(--ae-border-strong); }
     .btn-outline-primary { --bs-btn-color: var(--ae-accent-text); --bs-btn-border-color: var(--ae-accent-text); }
+    .btn-primary {
+        --bs-btn-bg: #f8fafc;
+        --bs-btn-border-color: #f8fafc;
+        --bs-btn-color: #0f172a;
+        --bs-btn-hover-bg: #ffffff;
+        --bs-btn-hover-border-color: #ffffff;
+        --bs-btn-hover-color: #0f172a;
+        --bs-btn-active-bg: #e2e8f0;
+        --bs-btn-active-border-color: #e2e8f0;
+        --bs-btn-active-color: #0f172a;
+    }
     .btn-link { --bs-btn-color: var(--ae-accent-text); }
     .text-success { color: var(--ae-success) !important; }
     .text-danger { color: var(--ae-danger) !important; }
     .text-warning { color: var(--ae-warn) !important; }
-    .alert-success { --bs-alert-bg: rgba(92, 201, 143, 0.12); --bs-alert-color: var(--ae-success); --bs-alert-border-color: transparent; }
-    .alert-danger { --bs-alert-bg: rgba(242, 132, 111, 0.12); --bs-alert-color: var(--ae-danger); --bs-alert-border-color: transparent; }
-    .alert-warning { --bs-alert-bg: rgba(240, 168, 94, 0.12); --bs-alert-color: var(--ae-warn); --bs-alert-border-color: transparent; }
-    .alert-info { --bs-alert-bg: rgba(130, 180, 240, 0.12); --bs-alert-color: var(--ae-info); --bs-alert-border-color: transparent; }
+    .alert-success { --bs-alert-bg: rgba(74, 222, 128, 0.12); --bs-alert-color: var(--ae-success); --bs-alert-border-color: transparent; }
+    .alert-danger { --bs-alert-bg: rgba(248, 113, 113, 0.12); --bs-alert-color: var(--ae-danger); --bs-alert-border-color: transparent; }
+    .alert-warning { --bs-alert-bg: rgba(251, 191, 36, 0.12); --bs-alert-color: var(--ae-warn); --bs-alert-border-color: transparent; }
+    .alert-info { --bs-alert-bg: rgba(96, 165, 250, 0.12); --bs-alert-color: var(--ae-info); --bs-alert-border-color: transparent; }
 
     // Editor CKEditor 4 y SweetAlert2 no tienen tema oscuro: se enmarcan para que no "brillen" sobre el fondo.
     .cke { border-color: var(--ae-border) !important; border-radius: $border-radius; overflow: hidden; }

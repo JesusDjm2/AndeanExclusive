@@ -8,10 +8,10 @@
     <meta name="robots" content="noindex">
     <title>{{ $es ? 'Página no encontrada' : 'Page not found' }} | Andean Exclusive Tours</title>
     <style>
-        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: #f4f7f8; color: #1b2a33; font-family: system-ui, sans-serif; text-align: center; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; background: #f8fafc; color: #0f172a; font-family: system-ui, sans-serif; text-align: center; }
         h1 { margin: 0 0 .5rem; font-size: 1.75rem; }
-        p { margin: 0 0 1.25rem; color: #51626d; }
-        a { display: inline-block; padding: .65rem 1.2rem; border-radius: .4rem; background: #078f84; color: #fff; font-weight: 600; text-decoration: none; }
+        p { margin: 0 0 1.25rem; color: #64748b; }
+        a { display: inline-block; padding: .65rem 1.2rem; border-radius: .4rem; background: #0f172a; color: #fff; font-weight: 600; text-decoration: none; }
     </style>
 </head>
 <body>

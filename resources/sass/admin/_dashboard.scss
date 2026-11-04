@@ -11,7 +11,7 @@
 
 .dash-hero__date {
     margin-bottom: 0.2rem;
-    color: var(--ae-accent-text);
+    color: var(--ae-ink-soft);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -87,8 +87,8 @@
     width: 2.75rem;
     height: 2.75rem;
     border-radius: $border-radius;
-    background: rgba($color-accent, 0.1);
-    color: var(--ae-accent-text);
+    background: var(--ae-chip);
+    color: var(--ae-ink);
     font-size: 1.1rem;
 
     &--live {
@@ -250,7 +250,7 @@
     line-height: 1;
 
     &--soon { background: rgba($color-danger, 0.1); color: var(--ae-danger); }
-    &--near { background: rgba($color-accent, 0.1); color: var(--ae-accent-text); }
+    &--near { background: var(--ae-chip); color: var(--ae-ink); }
 }
 
 .trip__day {
@@ -281,7 +281,7 @@
     color: $color-ink-soft;
     font-size: 0.82rem;
 
-    i { margin-right: 0.2rem; color: rgba($color-accent, 0.7); }
+    i { margin-right: 0.2rem; color: var(--ae-ink-soft); }
 }
 
 .trip__side {
@@ -296,7 +296,7 @@
     font-weight: 600;
 
     &--soon { background: rgba($color-danger, 0.12); color: var(--ae-danger); }
-    &--near { background: rgba($color-accent, 0.12); color: var(--ae-accent-text); }
+    &--near { background: var(--ae-chip); color: var(--ae-ink); }
     &--later { background: var(--ae-chip); color: $color-ink-soft; }
 }
 
@@ -323,8 +323,8 @@
     gap: 0.3rem;
 
     &.is-current {
-        .month-bars__fill { background: $color-accent; }
-        .month-bars__label { color: var(--ae-accent-text); font-weight: 700; }
+        .month-bars__fill { background: var(--ae-ink); }
+        .month-bars__label { color: var(--ae-ink); font-weight: 700; }
     }
 }
 
@@ -347,7 +347,7 @@
     display: block;
     width: 100%;
     border-radius: 4px;
-    background: rgba($color-accent, 0.45);
+    background: rgba(15, 23, 42, 0.22);
 }
 
 // Alturas en pasos de 5 % (data-fill), sin estilos en línea.
@@ -427,7 +427,7 @@
     color: $color-ink;
     font-size: 0.88rem;
 
-    i { width: 1rem; margin-right: 0.3rem; color: var(--ae-accent-text); }
+    i { width: 1rem; margin-right: 0.3rem; color: var(--ae-ink-soft); }
     small { display: block; margin-left: 1.3rem; color: $color-ink-soft; }
 }
 

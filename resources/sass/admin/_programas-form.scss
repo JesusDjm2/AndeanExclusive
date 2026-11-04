@@ -33,13 +33,13 @@
   font-size: 0.85rem;
   flex-shrink: 0;
 }
-.prog-section__icon--blue   { background: rgba(7, 143, 132, 0.12); color: var(--ae-accent-text); }
-.prog-section__icon--green  { background: rgba(28, 200, 138, 0.15); color: #1cc88a; }
-.prog-section__icon--orange { background: rgba(246, 194, 62, 0.18); color: #e0a915; }
-.prog-section__icon--teal   { background: rgba(12, 129, 120, 0.14); color: var(--ae-accent-text); }
+.prog-section__icon--blue   { background: rgba(15, 23, 42, 0.08); color: var(--ae-ink); }
+.prog-section__icon--green  { background: rgba(22, 163, 74, 0.12); color: #16a34a; }
+.prog-section__icon--orange { background: rgba(217, 119, 6, 0.15); color: #d97706; }
+.prog-section__icon--teal   { background: rgba(15, 23, 42, 0.08); color: var(--ae-ink); }
 .prog-section__icon--purple { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
-.prog-section__icon--red    { background: rgba(231, 74, 59, 0.12); color: var(--ae-danger); }
-.prog-section__icon--cyan   { background: rgba(54, 185, 204, 0.15); color: #36b9cc; }
+.prog-section__icon--red    { background: rgba(220, 38, 38, 0.12); color: var(--ae-danger); }
+.prog-section__icon--cyan   { background: rgba(37, 99, 235, 0.12); color: #2563eb; }
 
 .prog-section__title {
   font-size: 0.9rem;
@@ -147,12 +147,12 @@
 .prog-hotel-btn .prog-hotel-btn__icon {
   width: 28px;
   height: 28px;
-  background: rgba(7, 143, 132, 0.12);
+  background: var(--ae-chip);
   border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--ae-accent-text);
+  color: var(--ae-ink);
   font-size: 0.75rem;
   flex-shrink: 0;
 }
@@ -204,7 +204,7 @@
   box-shadow: 0 1px 4px rgba(0,0,0,.04);
   transition: border-color .15s, box-shadow .15s;
 }
-.prog-pax-card:hover { border-color: #{$color-accent}; box-shadow: 0 3px 12px rgba(7,143,132,.12); }
+.prog-pax-card:hover { border-color: var(--ae-border-strong); box-shadow: 0 3px 12px rgba(15, 23, 42, 0.06); }
 .prog-pax-card__top {
   display: flex;
   align-items: center;
@@ -585,7 +585,7 @@
     padding: 0.75rem 1.5rem calc(0.75rem + env(safe-area-inset-bottom));
     border-top: 1px solid $card-border-color;
     background: rgba(var(--ae-surface-rgb), 0.96);
-    box-shadow: 0 -6px 20px rgba(23, 36, 42, 0.06);
+    box-shadow: 0 -6px 20px rgba(15, 23, 42, 0.06);
     backdrop-filter: blur(6px);
 
     @include media-breakpoint-up(lg) { left: 268px; } // ancho del sidebar
@@ -648,7 +648,7 @@
     input:checked + span {
         background: var(--ae-surface);
         color: var(--ae-accent-text);
-        box-shadow: 0 1px 3px rgba(23, 36, 42, 0.12);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
     }
 
     input:focus-visible + span { outline: 2px solid $color-primary; outline-offset: 1px; }
