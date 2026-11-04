@@ -71,6 +71,9 @@ class Ayuda
         ['«…no se quitaron: primero Contabilidad debe anular esos pagos»', 'El servicio tiene pagos. Pide a Contabilidad que los anule o cancélalo con Reservas.'],
         ['«No se puede eliminar…» un cliente, hotel o habitación', 'Está en uso en algún programa. Primero cambia o quita ese uso.'],
         ['Los botones de correo aparecen apagados', 'El cliente no tiene correo. Agrégalo en su ficha.'],
+        ['No puedo entrar o veo «No tienes permiso para esta acción»', 'Entra a /logout para cerrar cualquier sesión residual e inicia sesión nuevamente con tu correo y contraseña.'],
+        ['Al pulsar la foto de un tour o blog, ¿se sale de la página?', 'No, ahora se abre en un popup modal centrado en alta resolución para inspeccionarla sin salir de la lista ni perder los filtros activos.'],
+        ['¿Cómo edito un tour o blog que estoy viendo en la web pública?', 'Si iniciaste sesión como Administrador en el panel, verás un botón flotante abajo a la izquierda para editarlo en 1 clic.'],
         ['No puedo entrar', 'Usa «¿La olvidaste?» o espera un minuto si fallaste varias veces. Si sigue igual, pide a Administración que revise tu usuario.'],
     ];
 
@@ -87,6 +90,10 @@ class Ayuda
         ['Margen', 'Lo que le queda a la agencia: venta menos costos. Solo lo ven Contabilidad y Administración.'],
         ['Notificación', 'Un aviso interno para tu área. El cliente nunca lo ve.'],
         ['Movimiento', 'Una línea del registro: quién hizo qué y cuándo. Nadie puede modificarlo.'],
+        ['Slug', 'La parte amigable y única de la dirección web (ej. /category/adventure-tours o /en/blog/machu-picchu).'],
+        ['Lightbox / Popup modal', 'Ventana flotante sobre la misma página que muestra la foto ampliada sin recargar la vista.'],
+        ['Taxonomía (Categorías / Tags)', 'Estructura para organizar y clasificar tours por tipo de experiencia y blogs por temática.'],
+        ['Acceso de Edición Pública', 'Botón flotante visible solo para administradores autenticados que permite editar un tour o post directamente desde la web pública.'],
     ];
 
     public const TEMAS = [
@@ -333,11 +340,85 @@ class Ayuda
             'resumen' => 'Las personas que atienden a los clientes. Operaciones los elige en cada programa, y el cliente los ve como su contacto.',
             'pasos' => ['Crea cada agente con su teléfono y correo.', 'Mantén sus datos al día: son los que ve el cliente.'],
         ],
-        'sitio-web' => [
-            'grupo' => 'administracion', 'rutas' => ['tours.*', 'estours.*', 'categories.*', 'categorias.*', 'enblogs.*', 'esblogs.*', 'entags.*', 'estags.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Sitio web: tours y blog',
-            'resumen' => 'El contenido público de la agencia. Cada elemento tiene una versión en inglés (EN) y otra en español (ES).',
-            'pasos' => ['Elige EN o ES en el menú según el idioma que vas a editar.', 'Crea o edita el tour o el artículo y guarda.', 'En Inicio, «Contenido del sitio web» avisa de lo que falta traducir.'],
-            'notas' => ['Cada idioma se edita por separado: cambiar uno no cambia el otro.'],
+        'tours-catalogo' => [
+            'grupo' => 'administracion', 'rutas' => ['tours.*', 'estours.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Tours y Experiencias (EN / ES)',
+            'resumen' => 'Catálogo comercial y público de experiencias de lujo. Cuenta con editor senior en 2 columnas, panel sticky lateral y gestión bilingüe independiente.',
+            'pasos' => [
+                'Crea o edita el tour completando título, duración, precio base por persona, recorrido y descripción corta.',
+                'En el panel lateral, sube la portada Full HD y la miniatura con previsualización en vivo (dropzone).',
+                'Usa CKEditor para redactar el itinerario día por día, inclusiones, exclusiones y notas importantes.',
+                'Vincula el tour con su contraparte en el otro idioma (EN <-> ES) para navegación sincronizada en la web.',
+                'En el listado, haz clic en la foto de portada para abrir el popup en alta resolución sin salir de la vista.',
+            ],
+            'notas' => [
+                'Cada idioma se edita por separado: cambiar el tour en inglés no modifica el tour en español hasta que tú lo edites.',
+                'Si estás logueado como administrador, puedes pulsar el botón flotante en la web pública para editar cualquier tour al instante.',
+            ],
+        ],
+        'blogs-catalogo' => [
+            'grupo' => 'administracion', 'rutas' => ['enblogs.*', 'esblogs.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Blog y Artículos Editoriales (EN / ES)',
+            'resumen' => 'Artículos de viaje, guías culturales y gastronómicas para inspirar a los viajeros y optimizar el posicionamiento SEO en Google.',
+            'pasos' => [
+                'Redacta el artículo usando el editor enriquecido con encabezados, listas y párrafos destacados.',
+                'Asigna etiquetas temáticas (tags) usando el selector visual de chips para relacionar lecturas afines.',
+                'Completa los metadatos SEO: palabras clave (keywords) y descripción corta para el resumen de búsqueda.',
+                'Sube la imagen de portada y vincula el artículo con su versión en el idioma opuesto.',
+            ],
+            'notas' => [
+                'El tiempo estimado de lectura se calcula automáticamente a razón de 200 palabras por minuto.',
+                'Las fotos de portada en la tabla cuentan con visor lightbox interactivo al hacer clic.',
+            ],
+        ],
+        'categorias-tours' => [
+            'grupo' => 'administracion', 'rutas' => ['categories.*', 'categorias.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Categorías y Colecciones de Tours',
+            'resumen' => 'Taxonomía que agrupa las experiencias (ej. Aventura, Lujo, Machu Picchu) y genera páginas de aterrizaje públicas automáticas.',
+            'pasos' => [
+                'Escribe el nombre de la categoría: el slug para la URL canónica se genera automáticamente.',
+                'Usa el candado para desbloquear la edición manual del slug si requieres una URL personalizada.',
+                'Verifica en el recuadro de previsualización en vivo cómo se verá el chip antes de guardar.',
+                'En la tabla, consulta el contador en tiempo real de cuántos tours activos tiene asignados cada categoría.',
+            ],
+            'notas' => [
+                'Al eliminar una categoría, los tours vinculados se desasocian limpiamente pero nunca se borran.',
+            ],
+        ],
+        'tags-blogs' => [
+            'grupo' => 'administracion', 'rutas' => ['entags.*', 'estags.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Etiquetas Temáticas de Blogs (Tags)',
+            'resumen' => 'Etiquetas temáticas (#Traditions, #History, etc.) que permiten a los lectores descubrir artículos de intereses afines.',
+            'pasos' => [
+                'Crea el tag ingresando su nombre y slug URL.',
+                'Asigna los tags desde el editor de artículos de blog mediante los chips de selección múltiple.',
+                'Supervisa en el listado qué tags tienen artículos activos y cuáles están sin usar.',
+            ],
+            'notas' => [
+                'Cada tag genera una página pública propia (/en/tag/slug) con el listado filtrado de artículos asociados.',
+            ],
+        ],
+        'edicion-publica-admin' => [
+            'grupo' => 'administracion', 'rutas' => ['tours.*', 'estours.*', 'categories.*', 'categorias.*', 'enblogs.*', 'esblogs.*', 'entags.*', 'estags.*', 'home'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Acceso Rápido de Edición desde la Web Pública',
+            'resumen' => 'Acceso directo exclusivo para administradores autenticados que navegan por el sitio web oficial andeanexclusivetours.com.',
+            'pasos' => [
+                'Inicia sesión normalmente en el panel de gestión con tu usuario administrador.',
+                'Abre o visita cualquier tour, post de blog, categoría o tag en el sitio web público.',
+                'Verás un botón flotante esmeralda con icono de lápiz en la esquina inferior izquierda.',
+                'Púlsalo para abrir de inmediato la pantalla de edición en el panel en una pestaña nueva.',
+            ],
+            'notas' => [
+                'Este botón está protegido con directivas de seguridad (@auth) y es 100% invisible para visitantes anónimos o clientes.',
+            ],
+        ],
+        'lightbox-imagenes' => [
+            'grupo' => 'administracion', 'rutas' => ['tours.*', 'estours.*', 'enblogs.*', 'esblogs.*'], 'permiso' => 'contenido.gestionar', 'solo' => true, 'titulo' => 'Visor de Portadas en Popup (Lightbox)',
+            'resumen' => 'Inspección de fotografías en alta resolución directamente sobre las tablas de tours y blogs sin recargar la página.',
+            'pasos' => [
+                'Ubica la miniatura de portada en cualquier fila de la tabla de tours o blogs.',
+                'Pasa el cursor para ver el icono de zoom y haz clic sobre la miniatura.',
+                'Se abrirá un popup centrado con la foto ampliada, título del paquete y enlace al archivo original.',
+                'Cierra el popup pulsando la tecla Esc o haciendo clic fuera del modal.',
+            ],
+            'notas' => [
+                'Si mantienes presionada la tecla Ctrl (o Cmd) al hacer clic, la foto se abrirá en una nueva pestaña como enlace tradicional.',
+            ],
         ],
         'imagenes' => [
             'grupo' => 'administracion', 'rutas' => ['imagenes.*'], 'permiso' => 'contenido.gestionar', 'titulo' => 'Imágenes',
@@ -588,6 +669,91 @@ class Ayuda
                 ],
                 'tips_pro' => [
                     'Los pagos nunca se eliminan directamente: se anulan con motivo justificado para preservar la integridad contable.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('tours.*', 'estours.*')) {
+            $isEs = $request->routeIs('estours.*');
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Catálogo Web',
+                'badge' => $isEs ? 'Tours en Español' : 'Tours en Inglés',
+                'icono' => 'fa-map-marked-alt',
+                'titulo' => 'Gestión de Tours y Paquetes Turísticos',
+                'resumen' => 'Administración integral de itinerarios, tarifas de venta, portadas multimedia, categorías y vinculación multilingüe para el sitio web.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-plus', 'nombre' => '+ Nuevo Tour', 'desc' => 'Crea un paquete turístico con editor en 2 columnas, panel sticky lateral y selector visual de categorías.'],
+                    ['icono' => 'fa-search-plus', 'nombre' => 'Popup de Portada (Lightbox)', 'desc' => 'Haz clic en la foto de cualquier tour en la lista para verla en pantalla completa sin salir de la vista.'],
+                    ['icono' => 'fa-language', 'nombre' => 'Vinculación EN / ES', 'desc' => 'Enlaza el tour con su traducción al otro idioma para sincronizar la experiencia del viajero en la web.'],
+                    ['icono' => 'fa-external-link-alt', 'nombre' => 'Edición Rápida en la Web', 'desc' => 'Como administrador logueado, verás un botón flotante en la web pública para editar cualquier tour al instante.'],
+                    ['icono' => 'fa-tags', 'nombre' => 'Categorías', 'desc' => 'Gestiona las colecciones temáticas (Aventura, Lujo, Machu Picchu) desde el acceso superior.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Completa los datos generales (nombre, duración, precio por persona, recorrido y descripción corta).',
+                    '2. Redacta el itinerario día por día, inclusiones y exclusiones usando el editor de texto enriquecido.',
+                    '3. En el panel lateral, sube la foto de banner (Full HD) y la miniatura optimizada mediante la zona de carga.',
+                    '4. Asigna las categorías correspondientes y selecciona el tour equivalente en el otro idioma antes de guardar.',
+                ],
+                'tips_pro' => [
+                    'Sube siempre imágenes en formato horizontal y alta resolución (mínimo 1200x800 px) para que el banner luzca impecable en móviles y pantallas retina.',
+                    'Al hacer clic en la miniatura de la tabla, se abrirá un popup centrado para verificar la calidad de la foto sin recargar la página.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('enblogs.*', 'esblogs.*')) {
+            $isEs = $request->routeIs('esblogs.*');
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Blog Editorial',
+                'badge' => $isEs ? 'Blog en Español' : 'Blog en Inglés',
+                'icono' => 'fa-newspaper',
+                'titulo' => 'Gestión Editorial y Artículos de Blog',
+                'resumen' => 'Creación y curación de artículos de viaje, cultura y gastronomía peruana para captar prospectos internacionales y fortalecer el SEO.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-plus', 'nombre' => '+ Nuevo Artículo', 'desc' => 'Redacta un nuevo post con editor enriquecido, metadatos SEO y selección de tags.'],
+                    ['icono' => 'fa-search-plus', 'nombre' => 'Popup de Portada (Lightbox)', 'desc' => 'Inspecciona la foto de portada de cualquier artículo en un popup centrado desde el listado.'],
+                    ['icono' => 'fa-hashtag', 'nombre' => 'Etiquetas (Tags)', 'desc' => 'Clasifica los artículos por temática (#Traditions, #Gastronomy, #History) para facilitar la navegación.'],
+                    ['icono' => 'fa-language', 'nombre' => 'Conexión Bilingüe', 'desc' => 'Vincula cada artículo con su versión en el idioma opuesto.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Redacta el contenido principal estructurándolo con subtítulos (H2, H3) para una lectura ágil.',
+                    '2. Completa los campos SEO: palabras clave y descripción corta atractiva para el buscador de Google.',
+                    '3. Selecciona los tags relevantes y sube la imagen de portada.',
+                    '4. Guarda y verifica cómo luce usando el acceso de previsualización pública.',
+                ],
+                'tips_pro' => [
+                    'La vista pública calcula automáticamente el tiempo de lectura basándose en la cantidad de palabras del artículo.',
+                    'Los administradores pueden editar cualquier post directamente desde la web pública con el botón flotante inferior.',
+                ],
+            ];
+        }
+
+        if ($request->routeIs('categories.*', 'categorias.*', 'entags.*', 'estags.*')) {
+            $isTags = $request->routeIs('entags.*', 'estags.*');
+            $isEs = $request->routeIs('categorias.*', 'estags.*');
+            return [
+                'es_compleja' => true,
+                'modulo' => 'Taxonomías',
+                'badge' => $isTags ? ($isEs ? 'Tags ES' : 'Tags EN') : ($isEs ? 'Categorías ES' : 'Categorías EN'),
+                'icono' => $isTags ? 'fa-hashtag' : 'fa-tags',
+                'titulo' => $isTags ? 'Gestión de Etiquetas Temáticas (Tags)' : 'Gestión de Categorías de Tours',
+                'resumen' => 'Organización y clasificación del catálogo público. Define las colecciones temáticas y páginas de aterrizaje automáticas.',
+                'acciones_clave' => [
+                    ['icono' => 'fa-plus', 'nombre' => '+ Crear Nuevo', 'desc' => 'Registra una nueva taxonomía con generador automático de slug y previsualizador de chip.'],
+                    ['icono' => 'fa-chart-pie', 'nombre' => 'KPIs y Métricas', 'desc' => 'Supervisa en tiempo real cuántas categorías o tags tienen contenido asignado en la web.'],
+                    ['icono' => 'fa-link', 'nombre' => 'Slug Inteligente', 'desc' => 'Autogenera la URL canónica amigable y permite desbloquearla con candado si deseas personalizarla.'],
+                    ['icono' => 'fa-search', 'nombre' => 'Buscador Reactivo', 'desc' => 'Filtra al instante en la tabla por nombre o slug sin recargar la página.'],
+                ],
+                'flujo_recomendado' => [
+                    '1. Escribe el nombre deseado: el slug y la URL canónica se crearán en tiempo real.',
+                    '2. Observa la caja de previsualización en vivo para confirmar la apariencia del chip.',
+                    '3. Guarda y asigna la categoría o tag desde el editor de tours o blogs correspondiente.',
+                ],
+                'tips_pro' => [
+                    'Cada categoría y tag genera automáticamente una página pública con su colección filtrada de experiencias.',
+                    'Eliminar una categoría o tag no borra los tours o blogs vinculados; solo retira la asociación.',
                 ],
             ];
         }
