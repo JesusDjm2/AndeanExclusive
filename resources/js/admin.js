@@ -5,6 +5,7 @@ import { initProgramaForm } from './programa-form';
 import { initClienteCampos } from './cliente-campos';
 import { initTheme } from './theme';
 import { initPdfPreview } from './pdf-preview';
+import { initImagePreview } from './image-preview';
 import { initServicioAcciones } from './servicio-acciones';
 import { initAvisos } from './avisos';
 import { initAyuda } from './ayuda';
@@ -151,6 +152,7 @@ function initPrintButtons() {
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
     initPdfPreview(bootstrap);
+    initImagePreview(bootstrap);
     initServicioAcciones(bootstrap);
     initAvisos();
     initAyuda();

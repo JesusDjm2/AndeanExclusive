@@ -95,10 +95,17 @@
                                     data-tags="{{ strtolower($tagsNombres) }}">
                                     <td class="text-center text-muted small fw-semibold">{{ $index + 1 }}</td>
                                     <td>
-                                        <a href="{{ asset('img/full/' . $blog->imgFull) }}" target="_blank" title="Ver imagen completa">
-                                            <img src="{{ asset('img/thumb/' . $blog->imgThumb) }}"
-                                                alt="{{ $blog->nombre }}" class="ae-table-thumb"
-                                                onerror="this.src='{{ asset('img/no-image.jpg') }}'">
+                                        <a href="{{ asset('img/full/' . $blog->imgFull) }}" class="ae-thumb-btn"
+                                            data-ae-preview="{{ asset('img/full/' . $blog->imgFull) }}"
+                                            data-ae-title="{{ $blog->nombre }}"
+                                            data-ae-meta="Blog ES · /es/blog/{{ $blog->slug }}"
+                                            title="Clic para ver foto en tamaño grande">
+                                            <div class="ae-table-thumb-wrapper">
+                                                <img src="{{ asset('img/thumb/' . $blog->imgThumb) }}"
+                                                    alt="{{ $blog->nombre }}" class="ae-table-thumb"
+                                                    onerror="this.src='{{ asset('img/no-image.jpg') }}'">
+                                                <span class="ae-thumb-zoom-icon"><i class="fas fa-search-plus" aria-hidden="true"></i></span>
+                                            </div>
                                         </a>
                                     </td>
                                     <td class="ae-title-cell">
