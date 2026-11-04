@@ -250,7 +250,7 @@
     line-height: 1;
 
     &--soon { background: rgba($color-danger, 0.1); color: var(--ae-danger); }
-    &--near { background: var(--ae-chip); color: var(--ae-ink); }
+    &--near { background: var(--ae-gold-soft); color: var(--ae-gold-text); border: 1px solid var(--ae-gold-border); }
 }
 
 .trip__day {
@@ -296,7 +296,7 @@
     font-weight: 600;
 
     &--soon { background: rgba($color-danger, 0.12); color: var(--ae-danger); }
-    &--near { background: var(--ae-chip); color: var(--ae-ink); }
+    &--near { background: var(--ae-gold-soft); color: var(--ae-gold-text); border: 1px solid var(--ae-gold-border); }
     &--later { background: var(--ae-chip); color: $color-ink-soft; }
 }
 
@@ -323,8 +323,8 @@
     gap: 0.3rem;
 
     &.is-current {
-        .month-bars__fill { background: var(--ae-ink); }
-        .month-bars__label { color: var(--ae-ink); font-weight: 700; }
+        .month-bars__fill { background: var(--ae-gold); }
+        .month-bars__label { color: var(--ae-gold-text); font-weight: 700; }
     }
 }
 

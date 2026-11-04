@@ -107,11 +107,11 @@ $topbar-h: 4rem;
     &:hover { background: rgba(255, 255, 255, 0.06); }
 
     &.is-active {
-        background: rgba(255, 255, 255, 0.12);
-        box-shadow: inset 3px 0 0 #ffffff;
+        background: rgba(255, 255, 255, 0.10);
+        box-shadow: inset 3px 0 0 var(--ae-gold);
 
         .admin-nav__link { color: $white; font-weight: 600; }
-        .admin-nav__link i { color: #ffffff; }
+        .admin-nav__link i { color: var(--ae-gold); }
     }
 }
 
@@ -163,9 +163,9 @@ $topbar-h: 4rem;
     &:hover { border-color: rgba(255, 255, 255, 0.45); color: $white; }
 
     &.is-active {
-        border-color: #ffffff;
-        background: #ffffff;
-        color: $sidebar-bg;
+        border-color: var(--ae-gold);
+        background: var(--ae-gold);
+        color: #0f172a;
     }
 }
 
@@ -292,8 +292,9 @@ $topbar-h: 4rem;
     width: 2.2rem;
     height: 2.2rem;
     border-radius: 50%;
-    background: $color-accent;
-    color: $white;
+    background: #0f172a;
+    color: var(--ae-gold);
+    border: 1.5px solid var(--ae-gold-border);
     font-size: 0.85rem;
     font-weight: 700;
 }

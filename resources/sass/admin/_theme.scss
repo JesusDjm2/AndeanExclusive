@@ -27,7 +27,23 @@
     --ae-ink: #{$color-ink};
     --ae-ink-soft: #{$color-ink-soft};
     --ae-accent-text: #{$color-primary};
-    --ae-success: #{$color-success};
+    
+    // Tonos de acento de marca: Oro Champán Andino y Plomo Metálico (del logo)
+    --ae-gold: #b48c58;
+    --ae-gold-hover: #9c7542;
+    --ae-gold-soft: rgba(180, 140, 88, 0.12);
+    --ae-gold-border: rgba(180, 140, 88, 0.32);
+    --ae-gold-text: #8c642c;
+
+    --ae-plomo: #64748b;
+    --ae-plomo-soft: #f1f5f9;
+    --ae-plomo-border: #cbd5e1;
+    --ae-plomo-text: #334155;
+
+    --ae-interactive: #2563eb;
+    --ae-interactive-soft: rgba(37, 99, 235, 0.08);
+
+    --ae-success: #16a34a;
     --ae-warn: #b25e09;
     --ae-danger: #{$color-danger};
     --ae-info: #2563a8;
@@ -52,6 +68,22 @@
     --ae-ink: #f8fafc;
     --ae-ink-soft: #94a3b8;
     --ae-accent-text: #e2e8f0;
+    
+    // Tonos de acento de marca en modo oscuro
+    --ae-gold: #dfb77c;
+    --ae-gold-hover: #e8c695;
+    --ae-gold-soft: rgba(223, 183, 124, 0.16);
+    --ae-gold-border: rgba(223, 183, 124, 0.38);
+    --ae-gold-text: #e5c38e;
+
+    --ae-plomo: #94a3b8;
+    --ae-plomo-soft: #1e293b;
+    --ae-plomo-border: #334155;
+    --ae-plomo-text: #e2e8f0;
+
+    --ae-interactive: #60a5fa;
+    --ae-interactive-soft: rgba(96, 165, 250, 0.15);
+
     --ae-success: #4ade80;
     --ae-warn: #fbbf24;
     --ae-danger: #f87171;
