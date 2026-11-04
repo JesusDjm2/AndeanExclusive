@@ -107,20 +107,18 @@ $svc-info: #2563a8;
 }
 
 .svc-row {
-    padding: 0.75rem 0.85rem 0.6rem;
+    padding: 0.85rem 0.95rem 0.75rem;
     border: 1px solid var(--ae-border-soft);
     border-radius: 10px;
     background: var(--ae-surface-2);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 
-    & + & { margin-top: 0.6rem; }
+    & + & { margin-top: 0.85rem; }
 
     &__grid {
         display: grid;
-        grid-template-columns: 6.5rem 9rem minmax(10rem, 1fr) 11rem;
-        grid-template-areas:
-            "hora tipo proveedor proveedor"
-            "titulo titulo estado conf"
-            "acciones acciones acciones acciones";
+        grid-template-columns: 5.5rem 8.5rem minmax(10rem, 1fr) minmax(12rem, 1.4fr) auto;
+        grid-template-areas: "hora tipo proveedor titulo acciones";
         gap: 0.5rem 0.6rem;
         align-items: end;
     }
@@ -129,37 +127,89 @@ $svc-info: #2563a8;
     &__tipo { grid-area: tipo; }
     &__proveedor { grid-area: proveedor; }
     &__titulo { grid-area: titulo; }
-    &__estado { grid-area: estado; }
-    &__conf { grid-area: conf; }
 
     &__actions {
         grid-area: acciones;
         display: flex;
         justify-content: flex-end;
+        align-items: center;
         gap: 0.35rem;
     }
 
+    &__finance-grid {
+        display: grid;
+        grid-template-columns: 9rem 6.5rem 7.5rem 8.5rem 8.5rem 1fr;
+        gap: 0.5rem 0.6rem;
+        align-items: end;
+        margin-top: 0.65rem;
+        padding: 0.6rem 0.8rem;
+        background: var(--ae-surface);
+        border: 1px solid var(--ae-border-soft);
+        border-radius: 8px;
+    }
+
+    &__estadia-bar {
+        margin-top: 0.5rem;
+        font-size: 0.82rem;
+    }
+
     &__more { margin-top: 0.6rem; }
-    &__summary { color: $color-ink-soft; font-weight: 400; }
+    &__summary { color: var(--ae-plomo); font-weight: 400; }
 
-    .prog-label { margin-bottom: 0.2rem; }
+    .prog-label {
+        margin-bottom: 0.2rem;
+        font-size: 0.73rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        color: var(--ae-plomo);
+    }
 
-    @include media-breakpoint-up(xl) {
+    .svc-fin__col--estimado {
+        .prog-label {
+            color: var(--ae-gold);
+            font-weight: 700;
+        }
+        input {
+            font-weight: 600;
+            border-color: rgba(180, 140, 88, 0.4);
+            &:focus {
+                border-color: var(--ae-gold);
+                box-shadow: 0 0 0 0.2rem rgba(180, 140, 88, 0.15);
+            }
+        }
+    }
+
+    @include media-breakpoint-down(xl) {
         &__grid {
-            grid-template-columns: 6.5rem 9rem minmax(10rem, 1fr) minmax(12rem, 1.4fr) 9rem 9rem auto;
-            grid-template-areas: "hora tipo proveedor titulo estado conf acciones";
+            grid-template-columns: 5.5rem 8.5rem 1fr auto;
+            grid-template-areas:
+                "hora tipo proveedor acciones"
+                "titulo titulo titulo titulo";
+        }
+
+        &__finance-grid {
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 
     @include media-breakpoint-down(md) {
         &__grid {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr auto;
             grid-template-areas:
-                "hora tipo"
-                "proveedor proveedor"
-                "titulo titulo"
-                "estado conf"
-                "acciones acciones";
+                "hora tipo acciones"
+                "proveedor proveedor proveedor"
+                "titulo titulo titulo";
+        }
+
+        &__finance-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @include media-breakpoint-down(sm) {
+        &__finance-grid {
+            grid-template-columns: 1fr;
         }
     }
 }

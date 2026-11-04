@@ -777,10 +777,32 @@
                 <div class="pf-pricing">
                     <div class="pf-pricing__main">
                     <div class="prog-section">
-                        <div class="prog-section__header">
-                            <span class="prog-section__title">{{ $verCotizacion ? 'Costo por persona' : 'Precio de venta por persona' }}</span>
+                        <div class="prog-section__header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                            <div>
+                                <span class="prog-section__title">{{ $verCotizacion ? 'Costo y cotización por persona' : 'Precio de venta por persona' }}</span>
+                                <span class="prog-section__subtitle">Tarifa base por persona para el paquete; la ganancia (%) calcula el precio final de venta.</span>
+                            </div>
+                            @if ($verCotizacion)
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-btn-calcular-cotizacion
+                                    title="Suma los precios de todos los servicios del itinerario y el alojamiento por noche para calcular el costo por adulto automáticamente">
+                                    <i class="fas fa-calculator me-1" aria-hidden="true"></i> Calcular desde servicios e itinerario
+                                </button>
+                            </div>
+                            @endif
                         </div>
                         <div class="prog-section__body">
+                            {{-- Resumen inteligente en vivo de los servicios e itinerario --}}
+                            <div class="alert alert-light border py-2 px-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2" data-cotizacion-live-box style="font-size: 0.85rem;">
+                                <div>
+                                    <i class="fas fa-layer-group text-primary me-1" aria-hidden="true"></i>
+                                    <span data-cotizacion-live-text>Calculando balance de servicios...</span>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-muted">Costo servicios + hoteles:</span>
+                                    <strong class="text-dark fs-6" data-cotizacion-live-total>$0.00</strong> <small class="text-muted">/ persona</small>
+                                </div>
+                            </div>
                             <div class="row g-3">
                                 <div class="col-sm-4">
                                     <label for="pf-precio-adulto" class="prog-label">Adulto ($)</label>
