@@ -27,18 +27,26 @@ class RolePermissionSeeder extends Seeder
             Role::findOrCreate($name, $guard);
         }
 
-        // Asignación de roles por email oficial del equipo
-        $rolesPorEmail = [
-            'mirandadjmdjm@gmail.com' => 'administrador',
-            'operaciones@andeanexclusive.com' => 'operaciones',
-            'reservas@andeanexclusive.com' => 'reservas',
-            'contabilidad@andean.com' => 'contabilidad',
+        // Usuarios oficiales por área (se crean si no existen para garantizar acceso)
+        $usuariosPorArea = [
+            'mirandadjmdjm@gmail.com' => ['name' => 'David Miranda', 'rol' => 'administrador'],
+            'operaciones@andeanexclusive.com' => ['name' => 'María Fernanda (Operaciones)', 'rol' => 'operaciones'],
+            'reservas@andeanexclusive.com' => ['name' => 'Renato Quispe (Reservas)', 'rol' => 'reservas'],
+            'contabilidad@andean.com' => ['name' => 'Patricia Valdivia (Contabilidad)', 'rol' => 'contabilidad'],
         ];
 
-        foreach ($rolesPorEmail as $email => $rol) {
-            $user = User::where('email', $email)->first();
-            if ($user && ! $user->hasRole($rol)) {
-                $user->assignRole($rol);
+        foreach ($usuariosPorArea as $email => $datos) {
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'name' => $datos['name'],
+                    'password' => \Illuminate\Support\Facades\Hash::make('AndeanExclusive12!'),
+                    'email_verified_at' => now(),
+                ]
+            );
+
+            if (! $user->hasRole($datos['rol'])) {
+                $user->syncRoles([$datos['rol']]);
             }
         }
 
