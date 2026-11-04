@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('body-class', 'view-proveedor-create')
 @section('titulo', 'Crear Nuevo Proveedor')
 @section('contenido')
     <div class="container-fluid py-4">
@@ -173,23 +174,4 @@
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2/ckeditor.js"></script>
 
-    <style>
-        .bg-opacity-10 {
-            --bs-bg-opacity: 0.1;
-        }
-
-        .form-text {
-            font-size: 0.875rem;
-            color: #6c757d;
-            margin-top: 0.25rem;
-        }
-
-        .card {
-            border-radius: 0.75rem;
-        }
-
-        .btn {
-            border-radius: 0.5rem;
-        }
-    </style>
 @endsection

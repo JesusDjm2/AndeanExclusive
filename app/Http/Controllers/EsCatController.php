@@ -54,7 +54,8 @@ class EsCatController extends Controller
     {
         $categoria = EsCategoria::where('slug', $slug)->firstOrFail();
         $tours = $categoria->tours;
-        return view('admin.estours.categorias.show', compact('categoria', 'tours'));
+        $categorias = EsCategoria::all();
+        return view('admin.estours.categorias.show', compact('categoria', 'tours', 'categorias'));
     }
 
     public function destroy($id)

@@ -34,6 +34,8 @@
                             <tr>
                                 <th>No</th>
                                 <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Rol</th>
                                 <th class="text-end" style="min-width: 200px">Acciones</th>
                             </tr>
                         </thead>
@@ -42,6 +44,14 @@
                                 <tr>
                                     <td>{{ $user->id }}</td>
                                     <td class="fw-semibold">{{ $user->name }}</td>
+                                    <td class="small">{{ $user->email }}</td>
+                                    <td>
+                                        @forelse ($user->roles as $role)
+                                            <span class="badge bg-secondary">{{ $role->name }}</span>
+                                        @empty
+                                            <span class="text-muted small">Sin rol</span>
+                                        @endforelse
+                                    </td>
                                     <td class="text-end">
                                         <form action="{{ route('users.destroy', $user->id) }}" method="POST"
                                             class="d-inline-flex flex-wrap gap-1 justify-content-end">

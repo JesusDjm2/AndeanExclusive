@@ -1,0 +1,24 @@
+// Itinerario privado del cliente (programas/show) y formulario de datos de viajeros (programas/pasajeros-cliente).
+// Mismo sistema de marca que el sitio público (tokens) con solo las capas de Bootstrap que estas páginas usan.
+
+@import 'tokens';
+
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
+
+@import 'programa/itinerario';
+@import 'programa/pasajeros';

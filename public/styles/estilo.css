@@ -3987,8 +3987,7 @@ footer#footer .widget ul li {
 }
 
 footer#footer .widget ul li a {
-    color: #fff;
-    font-size: 14px;
+    color: rgba(248, 248, 248, 0.5);
 }
 
 footer#footer .widget ul li a:hover {

@@ -1,0 +1,58 @@
+<?php
+
+// UI copy for the footer pages (resources/views/pages). Long-form content lives in resources/data.
+return [
+    'home' => 'Home',
+    'cta' => [
+        'eyebrow' => 'Your journey starts here',
+        'title' => 'Ready to design your trip to Peru?',
+        'text' => 'Tell us how you like to travel and a Cusco-based travel designer will craft a private itinerary around you.',
+        'contact' => 'Contact a travel designer',
+        'whatsapp' => 'Chat on WhatsApp',
+        'whatsapp_text' => 'Hello! I would like to plan a trip to Peru.',
+    ],
+    'about' => [
+        'title' => 'About Us',
+        'eyebrow' => 'Get to know us',
+        'lead' => 'A Cusco-based team crafting private, tailor-made journeys across Peru.',
+        'intro_eyebrow' => 'Who we are',
+        'intro_title' => 'About Andean Exclusive',
+        'city_eyebrow' => 'Where we come from',
+        'city_title' => 'Our City',
+        'work_eyebrow' => 'Our signature',
+        'work_title' => 'How we work',
+        'mission' => 'Mission',
+        'vision' => 'Vision',
+        'values' => 'Our Values',
+        'team_eyebrow' => 'The people behind it',
+        'team_title' => 'Our Staff',
+        'highlights' => ['Based in Cusco', 'Private & tailor-made', 'With you before, during and after your trip'],
+        'img_city' => 'Cusco at night, Plaza de Armas',
+        'img_work' => 'Private picnic lunch in the Sacred Valley',
+    ],
+    'testimonials' => [
+        'title' => 'What Our Travellers Say',
+        'eyebrow' => 'Guest reviews',
+        'lead' => 'Original, unedited words from the travellers and partners who trusted us with their journey through Peru.',
+        'featured' => 'Featured review',
+        'more' => 'More reviews',
+        'tripadvisor' => 'Read more reviews on TripAdvisor',
+    ],
+    'faqs' => [
+        'title' => 'Frequently Asked Questions',
+        'eyebrow' => 'We\'ve got you covered',
+        'lead' => 'Visas, safety, health, money and more — everything you need to know before travelling to Peru.',
+        'help_title' => 'Still have questions?',
+        'help_text' => 'Our team in Cusco answers within 24 hours, in English or Spanish.',
+        'help_contact' => 'Send us a message',
+        'help_whatsapp' => 'WhatsApp',
+        'count' => ':count questions',
+    ],
+    'terms' => [
+        'title' => 'Terms & Conditions',
+        'eyebrow' => 'Please read carefully',
+        'lead' => 'The conditions that govern every journey booked with Andean Exclusive Tours.',
+        'toc' => 'Contents',
+        'back_to_top' => 'Back to top',
+    ],
+];

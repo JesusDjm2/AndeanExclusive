@@ -1,322 +1,347 @@
 @extends('layouts.app')
 @section('titulo', 'Proveedores')
 @section('title', 'Proveedores')
+
 @section('contenido')
-    <div class="container-fluid">
-        <nav aria-label="breadcrumb" class="mb-3">
+    <div class="container-fluid px-0 px-md-3">
+        {{-- Migas de pan --}}
+        <nav aria-label="breadcrumb" class="mb-2">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/home') }}">Inicio</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Proveedores</li>
             </ol>
         </nav>
 
-        <div class="row align-items-center ae-admin-page-header">
-            <div class="col-lg-8 text-start mb-2 mb-lg-0">
-                <h2 class="ae-admin-page-title">
-                    <i class="fas fa-fw fa-truck text-primary me-2"></i>
-                    Gestión de proveedores
-                </h2>
-                <small class="ae-admin-page-desc">Proveedores, contacto y categorías</small>
+        {{-- Encabezado con acciones inmediatas --}}
+        <div class="row align-items-center ae-admin-page-header mb-3">
+            <div class="col-12 col-md-7 text-start mb-2 mb-md-0">
+                <h1 class="ae-admin-page-title mb-0">
+                    <i class="fas fa-fw fa-handshake"></i>
+                    Gestión de Proveedores
+                </h1>
+                <small class="ae-admin-page-desc">Directorio de socios comerciales, contacto directo y categorías operativas.</small>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus-circle me-1"></i>
-                    Nuevo proveedor
+            <div class="col-12 col-md-5 text-md-end d-flex flex-wrap gap-2 justify-content-md-end">
+                <a href="{{ route('categoriasproveedor.index') }}" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-tags me-1"></i>
+                    Categorías
                 </a>
+                @can('proveedores.gestionar')
+                    <a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-plus-circle me-1"></i>
+                        Nuevo proveedor
+                    </a>
+                @endcan
             </div>
         </div>
 
-                    <!-- Tarjetas de resumen -->
-                    <div class="row mb-4">
-                        <div class="col-xl-3 col-md-6 mb-3">
-                            <div class="card bg-primary text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="text-white-50 mb-1">Total Proveedores</h6>
-                                            <h3 class="mb-0">{{ $proveedors->total() }}</h3>
-                                        </div>
-                                        <i class="fas fa-truck fa-3x opacity-50"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6 mb-3">
-                            <div class="card bg-success text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="text-white-50 mb-1">Categorías</h6>
-                                            <h3 class="mb-0">{{ $proveedors->groupBy('categoria_id')->count() }}</h3>
-                                        </div>
-                                        <i class="fas fa-tags fa-3x opacity-50"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6 mb-3">
-                            <div class="card bg-info text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="text-white-50 mb-1">Con Correo</h6>
-                                            <h3 class="mb-0">{{ $proveedors->whereNotNull('correo')->count() }}</h3>
-                                        </div>
-                                        <i class="fas fa-envelope fa-3x opacity-50"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-md-6 mb-3">
-                            <div class="card bg-warning text-white h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h6 class="text-white-50 mb-1">Con Teléfono</h6>
-                                            <h3 class="mb-0">{{ $proveedors->whereNotNull('telefono')->count() }}</h3>
-                                        </div>
-                                        <i class="fas fa-phone fa-3x opacity-50"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+        {{-- Alerta de éxito --}}
+        @if ($message = Session::get('success'))
+            <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                <i class="fas fa-check-circle me-2"></i>
+                {{ $message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        @endif
+
+        {{-- Barra de filtros y búsqueda inmediata (sin badges gigantes que estorben) --}}
+        <div class="card shadow-sm border-0 mb-3 ae-admin-filter-card">
+            <div class="card-body p-3">
+                <form method="GET" action="{{ route('proveedors.index') }}" class="row g-2 align-items-end">
+                    <div class="col-12 col-md-5">
+                        <label for="buscar-prov-q" class="form-label small text-muted mb-1 fw-semibold">
+                            <i class="fas fa-search me-1"></i> Buscar proveedor
+                        </label>
+                        <input type="search" name="q" id="buscar-prov-q" class="form-control form-control-sm"
+                            placeholder="Nombre, RUC, teléfono, correo o ciudad..."
+                            value="{{ request('q', $q ?? '') }}" maxlength="100">
                     </div>
 
-                    <!-- Alerta de éxito -->
-                    @if ($message = Session::get('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>
-                            {{ $message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    @endif
-
-                    <!-- Buscador -->
-                    <div class="card shadow mb-3 ae-admin-filter-card">
-                        <div class="card-body">
-                            <label class="form-label small text-muted mb-1">Buscar</label>
-                            <div class="input-group input-group-sm">
-                                <span class="input-group-text bg-white border-end-0">
-                                    <i class="fas fa-search text-muted"></i>
-                                </span>
-                                <input type="text" class="form-control border-start-0" id="buscarProveedor"
-                                    placeholder="Nombre, RUC, teléfono...">
-                            </div>
-                        </div>
+                    <div class="col-12 col-sm-6 col-md-4">
+                        <label for="filtro-categoria" class="form-label small text-muted mb-1 fw-semibold">
+                            <i class="fas fa-filter me-1"></i> Categoría / Tipo
+                        </label>
+                        <select name="categoria_id" id="filtro-categoria" class="form-select form-select-sm" data-autosubmit>
+                            <option value="">Todas las categorías ({{ $categorias->sum('proveedors_count') }})</option>
+                            @foreach ($categorias as $cat)
+                                <option value="{{ $cat->id }}" @selected((string) request('categoria_id', $categoriaId ?? '') === (string) $cat->id)>
+                                    {{ $cat->nombre }} ({{ $cat->proveedors_count }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
 
-                    <!-- Vista móvil: Tarjetas -->
-                    <div class="d-md-none">
-                        @forelse ($proveedors as $proveedor)
-                            <div class="card mb-3 shadow-sm">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h5 class="card-title mb-0">{{ $proveedor->nombre }}</h5>
-                                        <span class="badge bg-info">{{ $proveedor->categoria->nombre }}</span>
-                                    </div>
-
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-6">
-                                            <small class="text-muted d-block">RUC</small>
-                                            <span>{{ $proveedor->ruc }}</span>
-                                        </div>
-                                        <div class="col-6">
-                                            <small class="text-muted d-block">Teléfono</small>
-                                            <span>{{ $proveedor->telefono ?: '—' }}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-2">
-                                        <small class="text-muted d-block">Dirección</small>
-                                        <span>{{ $proveedor->direccion ?: '—' }}</span>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <small class="text-muted d-block">Correo</small>
-                                        <span>{{ $proveedor->correo ?: '—' }}</span>
-                                    </div>
-
-                                    <div class="d-flex justify-content-end gap-2">
-                                        <a href="{{ route('proveedors.show', $proveedor->id) }}"
-                                            class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('proveedors.edit', $proveedor->id) }}"
-                                            class="btn btn-sm btn-outline-success">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('proveedors.destroy', $proveedor->id) }}" method="POST"
-                                            class="d-inline">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('¿Eliminar este proveedor?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="alert alert-info">
-                                No hay proveedores registrados
-                            </div>
-                        @endforelse
-                    </div>
-
-                    <!-- Vista desktop: Tabla -->
-                    <div class="card shadow d-none d-md-block">
-                        <div class="card-header py-3 bg-white border-bottom">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="fw-bold text-secondary">
-                                    <i class="fas fa-list text-primary me-2"></i>
-                                    Listado de proveedores
-                                </span>
-                                <span class="badge bg-primary rounded-pill">{{ $proveedors->total() }} registros</span>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0 ae-admin-data-table" id="tablaProveedores">
-                                    <thead class="table-dark">
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Nombre</th>
-                                            <th>Categoría</th>
-                                            <th>RUC</th>
-                                            <th>Dirección</th>
-                                            <th>Teléfono</th>
-                                            <th>Correo</th>
-                                            <th class="text-center">Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($proveedors as $proveedor)
-                                            <tr>
-                                                <td>{{ ++$i }}</td>
-                                                <td>{{ $proveedor->nombre }}</td>
-                                                <td>
-                                                    <span class="badge bg-primary">
-                                                        {{ $proveedor->categoria->nombre }}
-                                                    </span>
-                                                </td>
-                                                <td>{{ $proveedor->ruc }}</td>
-                                                <td>{{ $proveedor->direccion ?: '—' }}</td>
-                                                <td>
-                                                    @if ($proveedor->telefono)
-                                                        <a href="tel:{{ $proveedor->telefono }}"
-                                                            class="text-decoration-none">
-                                                            {{ $proveedor->telefono }}
-                                                        </a>
-                                                    @else
-                                                        —
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($proveedor->correo)
-                                                        <a href="mailto:{{ $proveedor->correo }}"
-                                                            class="text-decoration-none">
-                                                            {{ $proveedor->correo }}
-                                                        </a>
-                                                    @else
-                                                        —
-                                                    @endif
-                                                </td>
-                                                <td class="text-center" style="width: 120px">
-                                                    <div class="btn-group" role="group">
-                                                        <a href="{{ route('proveedors.show', $proveedor->id) }}"
-                                                            class="btn btn-sm btn-outline-primary" title="Ver detalles">
-                                                            <i class="fa fa-fw fa-eye"></i>
-                                                        </a>
-                                                        <a href="{{ route('proveedors.edit', $proveedor->id) }}"
-                                                            class="btn btn-sm btn-outline-success" title="Editar">
-                                                            <i class="fa fa-fw fa-edit"></i>
-                                                        </a>
-                                                        <form action="{{ route('proveedors.destroy', $proveedor->id) }}"
-                                                            method="POST" class="d-inline">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit"
-                                                                class="btn btn-danger btn-sm btn-eliminar">
-                                                                <i class="fa fa-fw fa-trash" title="Borrar"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        @if ($proveedors->hasPages())
-                            <div class="card-footer bg-white">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="text-muted small">
-                                        Mostrando {{ $proveedors->firstItem() }} - {{ $proveedors->lastItem() }}
-                                        de {{ $proveedors->total() }}
-                                    </div>
-                                    <div>
-                                        {{ $proveedors->links() }}
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="col-12 col-sm-6 col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-sm btn-primary flex-fill">
+                            <i class="fas fa-filter me-1"></i> Filtrar
+                        </button>
+                        @if (request()->filled('q') || request()->filled('categoria_id'))
+                            <a href="{{ route('proveedors.index') }}" class="btn btn-sm btn-outline-secondary" title="Limpiar filtros">
+                                <i class="fas fa-times me-1"></i> Limpiar
+                            </a>
                         @endif
                     </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- Pestañas rápidas por categoría tipo pills (scroll horizontal en móvil) --}}
+        @if ($categorias->isNotEmpty())
+            <div class="d-flex align-items-center gap-1 overflow-auto pb-2 mb-3 text-nowrap" style="scrollbar-width: thin;">
+                <a href="{{ route('proveedors.index', array_filter(['q' => request('q')])) }}"
+                    class="btn btn-sm {{ !request('categoria_id') ? 'btn-primary' : 'btn-outline-secondary bg-white' }} rounded-pill py-1 px-3">
+                    Todos <span class="badge {{ !request('categoria_id') ? 'bg-white text-primary' : 'bg-secondary' }} rounded-pill ms-1">{{ $categorias->sum('proveedors_count') }}</span>
+                </a>
+                @foreach ($categorias as $cat)
+                    @if ($cat->proveedors_count > 0 || (string) request('categoria_id') === (string) $cat->id)
+                        <a href="{{ route('proveedors.index', array_filter(['categoria_id' => $cat->id, 'q' => request('q')])) }}"
+                            class="btn btn-sm {{ (string) request('categoria_id') === (string) $cat->id ? 'btn-primary' : 'btn-outline-secondary bg-white' }} rounded-pill py-1 px-3">
+                            {{ $cat->nombre }}
+                            <span class="badge {{ (string) request('categoria_id') === (string) $cat->id ? 'bg-white text-primary' : 'bg-secondary' }} rounded-pill ms-1">
+                                {{ $cat->proveedors_count }}
+                            </span>
+                        </a>
+                    @endif
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Estado vacío --}}
+        @if ($proveedors->isEmpty())
+            <div class="card shadow-sm border-0 text-center py-5 my-3">
+                <div class="card-body">
+                    <i class="fas fa-truck-loading fa-3x text-muted mb-3 opacity-50"></i>
+                    <h5 class="fw-bold text-secondary mb-1">No se encontraron proveedores</h5>
+                    <p class="text-muted small mb-3">No hay registros que coincidan con los filtros aplicados.</p>
+                    @if (request()->filled('q') || request()->filled('categoria_id'))
+                        <a href="{{ route('proveedors.index') }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-undo me-1"></i> Ver todos los proveedores
+                        </a>
+                    @else
+                        @can('proveedores.gestionar')
+                            <a href="{{ route('proveedors.create') }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1"></i> Registrar el primer proveedor
+                            </a>
+                        @endcan
+                    @endif
+                </div>
+            </div>
+        @else
+            {{-- Vista Móvil: Tarjetas ergonómicas con acciones directas --}}
+            <div class="d-md-none">
+                <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                    <span class="text-muted small fw-semibold">{{ $proveedors->total() }} proveedores encontrados</span>
+                </div>
+                @foreach ($proveedors as $proveedor)
+                    <div class="card mb-3 shadow-sm border-0 rounded-3">
+                        <div class="card-body p-3">
+                            <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                <div>
+                                    <h5 class="card-title fw-bold text-dark mb-0 fs-6">{{ $proveedor->nombre }}</h5>
+                                    @if ($proveedor->ruc)
+                                        <small class="text-muted font-monospace d-block">RUC: {{ $proveedor->ruc }}</small>
+                                    @endif
+                                </div>
+                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
+                                    {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
+                                </span>
+                            </div>
+
+                            @if ($proveedor->detalles)
+                                <p class="text-muted small mb-2 fst-italic">{{ \Illuminate\Support\Str::limit($proveedor->detalles, 100) }}</p>
+                            @endif
+
+                            @if ($proveedor->direccion)
+                                <div class="small text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt text-danger me-1"></i> {{ $proveedor->direccion }}
+                                </div>
+                            @endif
+
+                            {{-- Botones de contacto rápido móvil --}}
+                            <div class="d-flex flex-wrap gap-2 mb-3 pt-1 border-top">
+                                @if ($proveedor->telefono)
+                                    @php
+                                        $numLimpio = preg_replace('/[^0-9]/', '', $proveedor->telefono);
+                                    @endphp
+                                    <a href="tel:{{ $proveedor->telefono }}" class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-2" title="Llamar">
+                                        <i class="fas fa-phone-alt text-success me-1"></i> {{ $proveedor->telefono }}
+                                    </a>
+                                    @if (strlen($numLimpio) >= 9)
+                                        <a href="https://wa.me/{{ str_starts_with($numLimpio, '51') ? $numLimpio : '51' . $numLimpio }}"
+                                            target="_blank" rel="noopener noreferrer"
+                                            class="btn btn-sm btn-outline-success rounded-pill py-1 px-2" title="Enviar WhatsApp">
+                                            <i class="fab fa-whatsapp me-1"></i> WhatsApp
+                                        </a>
+                                    @endif
+                                @endif
+
+                                @if ($proveedor->correo)
+                                    <a href="mailto:{{ $proveedor->correo }}" class="btn btn-sm btn-outline-secondary rounded-pill py-1 px-2 text-truncate" style="max-width: 100%;" title="Escribir correo">
+                                        <i class="fas fa-envelope text-primary me-1"></i> {{ $proveedor->correo }}
+                                    </a>
+                                @endif
+                            </div>
+
+                            {{-- Acciones CRUD móvil --}}
+                            <div class="d-flex justify-content-end align-items-center gap-1 pt-2 border-top">
+                                <a href="{{ route('proveedors.show', $proveedor->id) }}"
+                                    class="btn btn-sm btn-outline-primary px-3" title="Ver ficha">
+                                    <i class="fas fa-eye me-1"></i> Ver
+                                </a>
+                                @can('proveedores.gestionar')
+                                    <a href="{{ route('proveedors.edit', $proveedor->id) }}"
+                                        class="btn btn-sm btn-outline-secondary px-3" title="Editar">
+                                        <i class="fas fa-edit me-1"></i> Editar
+                                    </a>
+                                    <form action="{{ route('proveedors.destroy', $proveedor->id) }}" method="POST" class="d-inline"
+                                        data-confirm="¿Deseas eliminar al proveedor «{{ $proveedor->nombre }}»? Esta acción no se puede deshacer."
+                                        data-confirm-title="Eliminar proveedor"
+                                        data-confirm-button="Sí, eliminar"
+                                        data-confirm-danger>
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger px-2" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endcan
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            {{-- Vista Desktop: Tabla moderna de nivel Senior --}}
+            <div class="card shadow-sm border-0 d-none d-md-block">
+                <div class="card-header bg-white border-bottom py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-secondary">
+                            <i class="fas fa-list text-primary me-2"></i>
+                            Listado de proveedores
+                        </span>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1">
+                            {{ $proveedors->total() }} registrados
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0 ae-admin-data-table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-3" style="width: 45px;">#</th>
+                                    <th>Proveedor</th>
+                                    <th>Categoría</th>
+                                    <th>RUC</th>
+                                    <th>Contacto</th>
+                                    <th>Dirección</th>
+                                    <th class="text-center pe-3" style="width: 140px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($proveedors as $proveedor)
+                                    <tr>
+                                        <td class="ps-3 text-muted small">{{ ++$i }}</td>
+                                        <td>
+                                            <a href="{{ route('proveedors.show', $proveedor->id) }}" class="fw-bold text-dark text-decoration-none">
+                                                {{ $proveedor->nombre }}
+                                            </a>
+                                            @if ($proveedor->detalles)
+                                                <small class="d-block text-muted text-truncate" style="max-width: 220px;" title="{{ $proveedor->detalles }}">
+                                                    {{ $proveedor->detalles }}
+                                                </small>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
+                                                {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
+                                            </span>
+                                        </td>
+                                        <td class="font-monospace small">
+                                            {{ $proveedor->ruc ?: '—' }}
+                                        </td>
+                                        <td>
+                                            @if ($proveedor->telefono)
+                                                @php
+                                                    $numLimpio = preg_replace('/[^0-9]/', '', $proveedor->telefono);
+                                                @endphp
+                                                <div class="d-flex align-items-center gap-1 small mb-1">
+                                                    <a href="tel:{{ $proveedor->telefono }}" class="text-decoration-none text-dark">
+                                                        <i class="fas fa-phone-alt text-muted me-1"></i>{{ $proveedor->telefono }}
+                                                    </a>
+                                                    @if (strlen($numLimpio) >= 9)
+                                                        <a href="https://wa.me/{{ str_starts_with($numLimpio, '51') ? $numLimpio : '51' . $numLimpio }}"
+                                                            target="_blank" rel="noopener noreferrer" class="text-success ms-1" title="WhatsApp">
+                                                            <i class="fab fa-whatsapp"></i>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                            @if ($proveedor->correo)
+                                                <div class="small">
+                                                    <a href="mailto:{{ $proveedor->correo }}" class="text-decoration-none text-muted" title="{{ $proveedor->correo }}">
+                                                        <i class="fas fa-envelope me-1"></i>{{ \Illuminate\Support\Str::limit($proveedor->correo, 24) }}
+                                                    </a>
+                                                </div>
+                                            @endif
+                                            @if (! $proveedor->telefono && ! $proveedor->correo)
+                                                <span class="text-muted small">—</span>
+                                            @endif
+                                        </td>
+                                        <td class="small text-muted" style="max-width: 200px;">
+                                            {{ $proveedor->direccion ?: '—' }}
+                                        </td>
+                                        <td class="text-center pe-3">
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ route('proveedors.show', $proveedor->id) }}"
+                                                    class="btn btn-sm btn-outline-primary" title="Ver ficha">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                @can('proveedores.gestionar')
+                                                    <a href="{{ route('proveedors.edit', $proveedor->id) }}"
+                                                        class="btn btn-sm btn-outline-secondary" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('proveedors.destroy', $proveedor->id) }}" method="POST" class="d-inline"
+                                                        data-confirm="¿Deseas eliminar al proveedor «{{ $proveedor->nombre }}»? Esta acción no se puede deshacer."
+                                                        data-confirm-title="Eliminar proveedor"
+                                                        data-confirm-button="Sí, eliminar"
+                                                        data-confirm-danger>
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                @endcan
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                @if ($proveedors->hasPages())
+                    <div class="card-footer bg-white border-top py-3">
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-2">
+                            <div class="text-muted small">
+                                Mostrando {{ $proveedors->firstItem() }} al {{ $proveedors->lastItem() }} de {{ $proveedors->total() }} proveedores
+                            </div>
+                            <div>
+                                {{ $proveedors->links('pagination::bootstrap-5') }}
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            </div>
+
+            @if ($proveedors->hasPages())
+                <div class="d-md-none mt-3">
+                    {{ $proveedors->links('pagination::bootstrap-5') }}
+                </div>
+            @endif
+        @endif
     </div>
 @endsection
-@push('scripts')
-    <script>
-        jQuery(function($) {
-            function sinTildes(texto) {
-                return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            }
-
-            $("#buscarProveedor").on("keyup", function() {
-                var busqueda = sinTildes($(this).val());
-
-                $("#tablaProveedores tbody tr").each(function() {
-                    var texto = sinTildes($(this).text());
-                    $(this).toggle(texto.indexOf(busqueda) > -1);
-                });
-
-                $(".d-md-none .card").each(function() {
-                    var texto = sinTildes($(this).text());
-                    $(this).toggle(texto.indexOf(busqueda) > -1);
-                });
-            });
-
-            $(".btn-eliminar").on("click", function(e) {
-                e.preventDefault();
-                var form = $(this).closest("form");
-
-                Swal.fire({
-                    title: "¿Eliminar proveedor?",
-                    text: "No podrás revertir esto",
-                    icon: "warning",
-                    showCancelButton: true,
-                    confirmButtonColor: "#dc3545",
-                    cancelButtonColor: "#6c757d",
-                    confirmButtonText: "Sí, eliminar",
-                    cancelButtonText: "Cancelar"
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        form.submit();
-                    }
-                });
-            });
-        });
-
-        @if (session('success'))
-            document.addEventListener('DOMContentLoaded', function() {
-                Swal.fire({
-                    icon: "success",
-                    title: @json(session('success')),
-                    showConfirmButton: false,
-                    timer: 3000
-                });
-            });
-        @endif
-    </script>
-@endpush

@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('body-class', 'view-imagenes-create')
 @section('titulo', 'Subir nueva imagen o imagenes')
 @section('contenido')
     <div class="row">
@@ -8,15 +9,15 @@
             </div>
         @endif
         <div class="col-12">
-            <h4 class="float-left">Subir imagen nueva:</h4>
-            <a href="{{ route('imagenes.index') }}" class="btn btn-primary float-right">Volver</a>
+            <h4 class="float-start">Subir imagen nueva:</h4>
+            <a href="{{ route('imagenes.index') }}" class="btn btn-primary float-end">Volver</a>
         </div>
         <div class="col-12">
             <form method="POST" action="{{ route('imagenes.store') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="form-group">
+                <div class="mb-3">
                     <label for="img">Seleccionar imágenes:</label>
-                    <input type="file" name="img[]" id="img" class="form-control" multiple>
+                    <input type="file" name="img[]" id="img" class="form-control" accept=".jpg,.jpeg,.png,.webp,.gif" multiple>
                 </div>
                 <div class="image-preview">
                 </div>
@@ -24,18 +25,6 @@
             </form>
         </div>
     </div>
-    <style>
-        .image-preview {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .image-preview img {
-            max-width: 100%;
-            object-fit: cover;
-        }
-    </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const imgInput = document.getElementById('img');

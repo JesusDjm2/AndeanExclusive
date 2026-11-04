@@ -1,0 +1,127 @@
+// Acceso al panel (layouts/auth.blade.php): foto a la izquierda, formulario a la derecha.
+
+.auth {
+    min-height: 100vh;
+    background: var(--ae-surface);
+}
+
+.auth-shell {
+    display: grid;
+    min-height: 100vh;
+
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+}
+
+.auth-visual {
+    position: relative;
+    display: none;
+    overflow: hidden;
+    background: var(--ae-inverse);
+
+    @include media-breakpoint-up(lg) { display: block; }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(0deg, rgba(23, 36, 42, 0.85) 0%, rgba(23, 36, 42, 0.15) 60%);
+    }
+}
+
+.auth-visual__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.auth-visual__content {
+    position: absolute;
+    left: 3rem;
+    bottom: 3rem;
+    z-index: 1;
+    color: $white;
+}
+
+.auth-visual__logo {
+    width: 190px;
+    height: auto;
+    margin-bottom: 0.75rem;
+}
+
+.auth-visual__quote {
+    margin: 0;
+    font-family: $font-display;
+    font-size: 1.6rem;
+    color: $color-primary-light;
+}
+
+.auth-panel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2.5rem 1.25rem;
+    background: var(--ae-bg);
+
+    @include media-breakpoint-up(lg) { background: var(--ae-surface); }
+}
+
+.auth-panel__inner {
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-panel__logo {
+    display: inline-block;
+    margin-bottom: 2rem;
+
+    img { width: 170px; height: auto; }
+
+    @include media-breakpoint-up(lg) { display: none; }
+}
+
+.auth-panel__title {
+    margin-bottom: 0.35rem;
+    color: $color-ink;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.auth-panel__lead {
+    margin-bottom: 1.75rem;
+    color: $color-ink-soft;
+}
+
+.auth-form .input-group-text {
+    background: var(--ae-hover);
+    color: $color-ink-soft;
+}
+
+.auth-panel__back {
+    margin: 2rem 0 0;
+    font-size: 0.85rem;
+
+    a { color: $color-ink-soft; text-decoration: none; }
+    a:hover { color: var(--ae-accent-text); }
+}
+
+// Vistas de auth heredadas (verificar, confirmar) que traen grilla de página completa:
+// dentro del panel angosto se apilan a una columna.
+.auth-panel {
+    .container { padding: 0; }
+    .card { border: 0; background: none; }
+    .card-header { padding: 0 0 0.75rem; background: none; font-size: 1.35rem; font-weight: 700; }
+    .card-body { padding: 0; }
+
+    [class*="col-md-"] {
+        flex: 0 0 100%;
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .text-md-end { text-align: left !important; }
+}

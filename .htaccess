@@ -1,13 +1,17 @@
-<IfModule mod_rewrite.c>
-# That was ONLY to protect you from 500 errors
-# if your server did not have mod_rewrite enabled
-
+# Redirige todo el tráfico al directorio /public
 RewriteEngine On
-# RewriteBase /
-# NOT needed unless you're using mod_alias to redirect
 
-RewriteCond %{REQUEST_URI} !/public
-RewriteRule ^(.*)$ public/$1 [L]
-# Direct all requests to /public folder
+# Asegúrate de forzar HTTPS si ya tienes SSL
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Redirige todas las peticiones al public/
+RewriteCond %{REQUEST_URI} !^/public/
+RewriteRule ^(.*)$ public/$1 [L,QSA]
+
+# php -- BEGIN cPanel-generated handler, do not edit
+# Set the “ea-php83” package as the default “PHP” programming language.
+<IfModule mime_module>
+  AddHandler application/x-httpd-ea-php83 .php .php8 .phtml
 </IfModule>
+# php -- END cPanel-generated handler, do not edit

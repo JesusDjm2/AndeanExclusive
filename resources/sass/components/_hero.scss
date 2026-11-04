@@ -1,0 +1,262 @@
+.hero {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    // Top clearance for the fixed header: ensures content is centered and
+    // title does not slide under the header.
+    padding-top: calc(var(--header-h) + var(--space-sm));
+    padding-bottom: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: var(--color-white);
+    overflow: hidden;
+    background-color: var(--color-ink);
+}
+
+.hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+
+    picture {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    img, video, picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    // Oversized so the parallax translateY never exposes the container's
+    // fallback background, regardless of scroll progress.
+    img[data-parallax], picture img[data-parallax] {
+        height: 130%;
+        top: -15%;
+        position: relative;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        // Barely-there tint: the photo is the protagonist and legibility is
+        // carried by the %hero-text-shadow halos, so this stays light.
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0.2) 0%, rgba(24, 34, 41, 0.05) 45%, rgba(24, 34, 41, 0.38) 100%);
+    }
+}
+
+.hero__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    margin-block: auto;
+    padding-inline: var(--space-md);
+    text-align: center;
+}
+
+// Legibility over photos of any brightness: a strong halo shadow behind the
+// text itself (not just a page-wide gradient), so title/eyebrow stay
+// readable no matter what's behind them — no background panel needed.
+%hero-text-shadow {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85), 0 6px 24px rgba(0, 0, 0, 0.65), 0 0 48px rgba(0, 0, 0, 0.45);
+}
+
+.hero__title {
+    @extend %hero-text-shadow;
+    color: var(--color-white);
+    font-size: clamp(2.25rem, 1.6rem + 3vw, 4.25rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 20ch;
+    margin-inline: auto;
+    margin-bottom: 0;
+}
+
+// Tablet/phone: the title + search form otherwise push the hero past one
+// viewport and the photo disappears into the cover crop — scale the type and
+// tighten the form so the image stays the protagonist.
+@media (max-width: 991.98px) {
+    .hero {
+        padding-top: calc(var(--header-h) + 0.65rem);
+        padding-bottom: 0.65rem;
+    }
+
+    .hero__content {
+        padding-inline: var(--space-sm);
+    }
+
+    .hero__title {
+        font-size: clamp(1.4rem, 1.15rem + 1.6vw, 2.2rem);
+        max-width: 28ch;
+        line-height: 1.15;
+        text-wrap: balance;
+    }
+
+    .hero__divider {
+        height: 3px;
+        width: 3.5rem;
+        margin-block: 0.35rem;
+    }
+
+    .hero__subtitle {
+        font-size: 0.88rem;
+        line-height: 1.35;
+        margin-bottom: 0.45rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero {
+        padding-top: calc(var(--header-h) + 0.5rem);
+        padding-bottom: 0.5rem;
+    }
+
+    .hero__content {
+        padding-inline: 0.75rem;
+    }
+
+    .hero__title {
+        font-size: clamp(1.2rem, 1rem + 1.2vw, 1.55rem);
+    }
+
+    .hero__divider {
+        margin-block: 0.25rem;
+    }
+
+    .hero__subtitle {
+        font-size: 0.82rem;
+        margin-bottom: 0.35rem;
+    }
+}
+
+.hero__divider {
+    width: 4.5rem;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-pill);
+    margin: var(--space-sm) auto;
+    box-shadow: 0 0 16px rgba(9, 204, 189, 0.7);
+}
+
+.hero__eyebrow {
+    @extend %hero-text-shadow;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-white);
+    display: block;
+    margin-bottom: var(--space-sm);
+}
+
+.hero__subtitle {
+    @extend %hero-text-shadow;
+    font-size: 1.15rem;
+    max-width: 46ch;
+    margin-inline: auto;
+    color: rgba(255, 255, 255, 0.92);
+    margin-bottom: var(--space-md);
+}
+
+.hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+}
+
+// Small full-bleed strip used for secondary/interior pages
+.page-banner {
+    position: relative;
+    min-height: 50vh;
+    padding-top: var(--header-h);
+    display: flex;
+    align-items: center;
+    color: var(--color-white);
+    background-color: var(--color-ink);
+    overflow: hidden;
+
+    picture {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        pointer-events: none;
+    }
+
+    img,
+    picture img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    // Oversized so the parallax translateY never exposes the container's
+    // fallback background, same strategy as the hero.
+    img[data-parallax],
+    picture img[data-parallax] {
+        height: 130%;
+        top: -15%;
+    }
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0.25) 0%, rgba(24, 34, 41, 0.8) 100%);
+        z-index: 1;
+    }
+
+    .page-banner__content {
+        position: relative;
+        z-index: 2;
+        max-width: var(--container-max);
+        margin-inline: auto;
+        padding: var(--space-xl) var(--space-md);
+        width: 100%;
+        text-align: center;
+    }
+}
+
+.page-banner--tall {
+    min-height: 62vh;
+}
+
+.page-banner__title {
+    @extend %hero-text-shadow;
+    color: var(--color-white);
+    font-size: clamp(2.25rem, 1.7rem + 2.2vw, 3.75rem);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 0;
+}
+
+.page-banner__divider {
+    width: 4.5rem;
+    height: 4px;
+    background: var(--color-primary);
+    border-radius: var(--radius-pill);
+    margin: var(--space-sm) auto;
+    box-shadow: 0 0 16px rgba(9, 204, 189, 0.7);
+}
+
+.page-banner__eyebrow {
+    @extend %hero-text-shadow;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--color-white);
+    display: block;
+}
+

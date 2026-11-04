@@ -15,9 +15,11 @@
                     {{ $totalPaxs === 1 ? 'pasajero' : 'pasajeros' }}</small>
             </div>
             <div class="col-lg-4 text-center mb-2 mb-lg-0">
-                <a href="{{ route('paxs.create') }}" class="btn btn-sm btn-primary">
+                @can('programas.gestionar')
+<a href="{{ route('paxs.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-plus-circle me-1"></i> Crear nuevo Pax
                 </a>
+@endcan
             </div>
             <div class="col-lg-4 text-lg-end">
                 <a href="{{ route('home') }}" class="btn btn-danger btn-sm">
@@ -39,7 +41,7 @@
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
                     <input type="search" id="buscadorPaxs" class="form-control border-start-0"
-                        placeholder="Nombre, pasaporte (archivo) o nacionalidad…" autocomplete="off"
+                        placeholder="Nombre, n.º de pasaporte o nacionalidad…" autocomplete="off"
                         aria-label="Filtrar pasajeros por nombre, pasaporte o nacionalidad">
                 </div>
                 <small class="text-muted d-block mt-2" id="paxContadorFiltro"></small>
@@ -63,14 +65,8 @@
                     @php
                         $programa = optional($grupo->first())->programa;
                         $codigo = optional($programa)->codigo ?? '';
-                        $agentesPrograma = collect();
-                        if ($programa) {
-                            $agentesPrograma = $programa->agentes;
-                            $resp = $programa->agenteResponsable;
-                            if ($resp && !$agentesPrograma->pluck('id')->contains($resp->id)) {
-                                $agentesPrograma = $agentesPrograma->prepend($resp);
-                            }
-                        }
+                        // Los agentes viven en agente_programa (la columna programas.agente_id ya no existe).
+                        $agentesPrograma = $programa ? $programa->agentes : collect();
                     @endphp
                     <div class="card shadow-sm mb-3 pax-grupo-programa" data-pax-grupo>
                         <div
@@ -123,26 +119,9 @@
                                 <tbody>
                                     @foreach ($grupo as $pax)
                                         @php
-                                            $pasPath = $pax->pasaporte;
-                                            $pasBase = $pasPath ? basename($pasPath) : '';
-                                            if ($pasPath) {
-                                                if (
-                                                    \Illuminate\Support\Str::startsWith($pasPath, [
-                                                        'http://',
-                                                        'https://',
-                                                    ])
-                                                ) {
-                                                    $pasUrl = $pasPath;
-                                                } elseif (\Illuminate\Support\Str::startsWith($pasPath, 'img/')) {
-                                                    $pasUrl = asset($pasPath);
-                                                } else {
-                                                    $pasUrl = asset('storage/' . ltrim($pasPath, '/'));
-                                                }
-                                            } else {
-                                                $pasUrl = null;
-                                            }
+                                            $pasUrl = $pax->pasaporte_archivo && auth()->user()->can('pasaportes.ver') ? route('paxs.pasaporte', $pax) : null;
                                             $searchRaw =
-                                                $pax->nombre . ' ' . $pasBase . ' ' . ($pax->nacionalidad ?? '');
+                                                $pax->nombre . ' ' . ($pax->pasaportePara(auth()->user()) ?? '') . ' ' . ($pax->nacionalidad ?? '');
                                             $searchNorm = mb_strtolower(
                                                 preg_replace('/\s+/u', ' ', trim($searchRaw)),
                                                 'UTF-8',
@@ -157,14 +136,11 @@
                                                 <span class="small">{{ $pax->alimentacion ?: '—' }}</span>
                                             </td>
                                             <td>
+                                                <span class="small">{{ $pax->pasaportePara(auth()->user()) ?: '—' }}</span>
                                                 @if ($pasUrl)
-                                                    <a href="{{ $pasUrl }}" target="_blank" rel="noopener"
-                                                        class="small text-break d-inline-block" style="max-width: 12rem"
-                                                        title="{{ $pasBase }}">
-                                                        <i class="fas fa-file-alt me-1"></i>{{ Str::limit($pasBase, 28) }}
+                                                    <a href="{{ $pasUrl }}" target="_blank" rel="noopener" class="small ms-1" title="Ver pasaporte escaneado">
+                                                        <i class="fas fa-file-alt" aria-hidden="true"></i><span class="visually-hidden">Ver pasaporte escaneado</span>
                                                     </a>
-                                                @else
-                                                    <span class="text-muted small">—</span>
                                                 @endif
                                             </td>
                                             <td>
@@ -177,9 +153,12 @@
                                             <td class="text-center">
                                                 <a class="btn btn-info btn-sm" href="{{ route('paxs.show', $pax) }}"
                                                     title="Ver"><i class="fas fa-eye"></i></a>
-                                                <a class="btn btn-warning btn-sm" href="{{ route('paxs.edit', $pax) }}"
+                                                @can('programas.gestionar')
+<a class="btn btn-warning btn-sm" href="{{ route('paxs.edit', $pax) }}"
                                                     title="Editar"><i class="fas fa-edit"></i></a>
-                                                <form action="{{ route('paxs.destroy', $pax) }}" method="POST"
+@endcan
+                                                @can('programas.gestionar')
+<form action="{{ route('paxs.destroy', $pax) }}" method="POST"
                                                     class="d-inline">
                                                     @csrf @method('DELETE')
                                                     <button class="btn btn-danger btn-sm" type="submit"
@@ -187,6 +166,7 @@
                                                         <i class="fas fa-trash-alt"></i>
                                                     </button>
                                                 </form>
+@endcan
                                             </td>
                                         </tr>
                                     @endforeach

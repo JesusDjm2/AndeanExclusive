@@ -8,11 +8,32 @@ use Illuminate\Http\Request;
 
 class ProveedorController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $proveedors = Proveedor::paginate();
-        return view('proveedor.index', compact('proveedors'))
-            ->with('i', (request()->input('page', 1) - 1) * $proveedors->perPage());
+        $categoriaId = $request->input('categoria_id');
+        $q = trim((string) $request->input('q'));
+
+        $proveedors = Proveedor::query()
+            ->with('categoria')
+            ->when($categoriaId, fn ($query) => $query->where('categoria_id', $categoriaId))
+            ->when($q !== '', function ($query) use ($q) {
+                $wildcard = '%' . addcslashes($q, '%_\\') . '%';
+                $query->where(function ($sub) use ($wildcard) {
+                    $sub->where('nombre', 'like', $wildcard)
+                        ->orWhere('ruc', 'like', $wildcard)
+                        ->orWhere('telefono', 'like', $wildcard)
+                        ->orWhere('correo', 'like', $wildcard)
+                        ->orWhere('direccion', 'like', $wildcard);
+                });
+            })
+            ->orderBy('nombre')
+            ->paginate(25)
+            ->withQueryString();
+
+        $categorias = Categoria::withCount('proveedors')->orderBy('nombre')->get();
+
+        return view('proveedor.index', compact('proveedors', 'categorias', 'categoriaId', 'q'))
+            ->with('i', ($proveedors->currentPage() - 1) * $proveedors->perPage());
     }
 
     public function create()
@@ -29,12 +50,12 @@ class ProveedorController extends Controller
         $proveedor = Proveedor::create($request->all());
 
         return redirect()->route('proveedors.index')
-            ->with('success', 'Proveedor creado exitosamante.');
+            ->with('success', 'Proveedor creado exitosamente.');
     }
 
     public function show($id)
     {
-        $proveedor = Proveedor::find($id);
+        $proveedor = Proveedor::with('categoria')->findOrFail($id);
         return view('proveedor.show', compact('proveedor'));
     }
 
@@ -46,10 +67,9 @@ class ProveedorController extends Controller
 
     public function update(Request $request, $id)
     {
-        /* request()->validate(Proveedor::$rules);
+        request()->validate(Proveedor::$rules);
 
-        $proveedor->update($request->all()); */
-        $proveedor = Proveedor::find($id);
+        $proveedor = Proveedor::findOrFail($id);
         $proveedor->nombre = $request->get('nombre');
         $proveedor->categoria_id = $request->get('categoria_id');
         $proveedor->direccion = $request->get('direccion');
@@ -58,14 +78,17 @@ class ProveedorController extends Controller
         $proveedor->correo = $request->get('correo');
         $proveedor->detalles = $request->get('detalles');
         $proveedor->save();
+
         return redirect()->route('proveedors.index')
-            ->with('success', 'Proveedor actualizado exitosamente');
+            ->with('success', 'Proveedor actualizado exitosamente.');
     }
 
     public function destroy($id)
     {
-        $proveedor = Proveedor::find($id)->delete();
+        $proveedor = Proveedor::findOrFail($id);
+        $proveedor->delete();
+
         return redirect()->route('proveedors.index')
-            ->with('success', 'Proveedor borrado exitosamente');
+            ->with('success', 'Proveedor eliminado exitosamente.');
     }
 }

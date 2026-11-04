@@ -1,10 +1,50 @@
 @extends('layouts.general-es')
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'testimonios', 'og_image' => '/img/testimonials.jpg'])
+    <title>Find what our customer says about Andean Exclusive Tours</title>
+    <meta name="keywords" content="Experiences in Perú, opinions, Lima, Cusco, Exclusive, luxury, testimonials" />
+    <meta property="og:description" content="opinions from customer of Andean Exclusive." />
+    <meta property="og:url" content="https://www.andeanexclusive.com/testimonios">
+    <meta property="og:title" content="Find what our customer says about Andean Exclusive Tours">
+    <meta property="og:type" content="webside">
+    <meta property="og:image" content="https://www.andeanexclusive.com/img/testimonials.jpg" />
+    <meta name="author" content="Web Masters DJM2" />
+    <link rel="canonical" href="https://www.andeanexclusive.com/testimonios" />
 @endsection
 @section('contenido')
     <div class="wrapper">
-        @include('layouts.partials.header-public-es', ['enRoute' => 'testimonials'])
+        <header id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="header-wrapper">
+                            <div class="site-branding">
+                                <a href="index-castellano" rel="home" class="logo-text-link"><img
+                                        src="img/andean-exclusive-logo.png" id="logo"></a>
+                            </div>
+                            <nav class="main-nav">
+                                <ul class="one-page-menu">
+                                    @include('layouts.menu-castellano')
+                                    <li id="display">
+                                        <a href="{{ route('testimonials') }}">
+                                            <button type="button" class="btn botondjm">English</button>
+                                        </a>
+                                    </li>
+                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
+                                            target="_blank">+51 979 721 194</a></li>
+                                    <li id="display2">
+                                        <a href="{{ route('testimonials') }}">
+                                            <button type="button" class="btn botondjm">English</button>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <a href="javascript:;" id="mobile-menu"><span></span></a>
+                                <a href="javascript:;" id="close-menu"></a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">

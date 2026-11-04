@@ -1,22 +1,14 @@
 @extends('layouts.general-en')
 @section('metas')
-    @php
-        $siteBase = rtrim(config('seo.site_url'), '/');
-    @endphp
-    @include('layouts.seo-head', [
-        'locale' => 'en',
-        'title' => $tour->nombre . ' | ' . $tour->dias . ' days | ' . config('seo.brand'),
-        'description' => \Illuminate\Support\Str::limit(strip_tags($tour->descripcionCorta), 165),
-        'canonical' => $siteBase . '/en/' . $tour->slug,
-        'keywords' => $tour->keywords,
-        'og_image' => $tour->imgThumb,
-        'og_type' => 'article',
-    ])
-    @if ($estour)
-        <link rel="alternate" hreflang="es" href="{{ $siteBase . '/' . $estour->slug }}">
-        <link rel="alternate" hreflang="en" href="{{ $siteBase . '/en/' . $tour->slug }}">
-        <link rel="alternate" hreflang="x-default" href="{{ $siteBase . '/en/' . $tour->slug }}">
-    @endif
+    <title>{{ $tour->nombre }} - {{$tour->dias}} days</title>
+    <meta name="keywords" content="{{ $tour->keywords }}" />
+    <meta name="description" content="{{ $tour->descripcionCorta }}" />
+    <meta property="og:url" content="https://www.andeanexclusive.com/{{ $tour->slug }}">
+    <meta property="og:title" content="{{ $tour->nombre }}">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="{{ asset($tour->imgThumb) }}" />
+    <meta name="author" content="Web Masters DJM2" />
+    <link rel="canonical" href="https://www.andeanexclusive.com/{{ $tour->slug }}" />
 @endsection
 @section('contenido')
 @auth
@@ -69,7 +61,7 @@
             </div>
         </header>
         <div class="fullscreen-section">
-            <img src="{{ asset($tour->imgFull) }}" alt="{{ $tour->nombre }}" class="fullscreen-img" loading="eager" decoding="async">
+            <img src="{{ asset($tour->imgFull) }}" alt="{{ $tour->nombre }}" class="fullscreen-img">
             <div class="content-overlay">
                 <h1>{{ $tour->nombre }}</h1>
                 <p><i class="fa fa-map-marker"></i> {{ $tour->recorrido }}</p>
@@ -107,7 +99,7 @@
                             <i class="fa fa-map-marker"></i> {{ $tour->recorrido }}
                         </p>
                     </div>
-                    <div class="contenidoInicial rich-html-content" style="margin-top: 2em">
+                    <div class="contenidoInicial" style="margin-top: 2em">
                         {!! $tour->presentacion !!}
                     </div>
                     <div id="separador"></div>
@@ -119,7 +111,7 @@
                         <button class="tab-button" data-tab="tab4"><i class="fa fa-exclamation"></i> Important</button>
                     </div>
 
-                    <div class="tab-content rich-html-content">
+                    <div class="tab-content">
                         <div id="tab1" class="tab-pane active">
                             {!! $tour->itinerario !!}
                         </div>
@@ -175,7 +167,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4 tour-sidebar-booking">
+            <div class="col-lg-4" style="padding: 2em;position: sticky;top:3em">
                 <div>
                     <div class="card">
                         <div class="text-center">
@@ -201,47 +193,47 @@
     </div>
     <div class="container">
         <div class="row relacionados">
-            <div class="col-12 mb-3">
+            <div class="col-lg-12">
                 <h2>Popular tours</h2>
-            </div>
-            @foreach ($tours as $relatedTour)
-                <div class="col-lg-4 col-md-6 mb-4">
-                    <div class="card h-100">
-                        <a href="{{ route('tour.show', $relatedTour->slug) }}">
-                            <img class="card-img-top" src="{{ asset($relatedTour->imgThumb) }}" alt="{{ $relatedTour->nombre }}"
-                                loading="lazy" decoding="async">
-                        </a>
-                        <div class="card-body d-flex flex-column">
-                            <h5>{{ $relatedTour->nombre }}</h5>
-                            <div class="linea"></div>
-                            <div class="recorrido">
-                                <i class="fa fa-map-marker"></i>&nbsp;
-                                <span>{{ $relatedTour->recorrido }}</span>
-                            </div>
-                            <p class="card-text flex-grow-1">{{ $relatedTour->descripcionCorta }}</p>
-                            <div class="cuerpo row no-gutters">
-                                <div class="col-sm-6">
-                                    <p><i class="fa fa-usd"></i> {{ $relatedTour->precio }}.00</p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <p class="right"><i class="fa fa-clock-o"></i> {{ $relatedTour->dias }} days</p>
-                                </div>
-                            </div>
-                            <div class="categorias">
-                                @foreach ($relatedTour->categorias as $categoria)
-                                    <a href="{{ route('category.show', $categoria->slug) }}">{{ $categoria->nombre }}</a>
-                                    @if (!$loop->last)
-                                        -&nbsp;
-                                    @endif
-                                @endforeach
-                            </div>
-                            <a href="{{ route('tour.show', $relatedTour->slug) }}" class="boton2023 mt-2">
-                                Read more
+                @foreach ($tours as $tour)
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <a href="{{ route('tour.show', $tour->slug) }}">
+                                <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
+                                    loading="lazy">
                             </a>
+                            <div class="card-body">
+                                <h5>{{ $tour->nombre }}</h5>
+                                <div class="linea"></div>
+                                <div class="recorrido">
+                                    <i class="fa fa-map-marker"></i>&nbsp;
+                                    <span>{{ $tour->recorrido }}</span>
+                                </div>
+                                <p class="card-text">{{ $tour->descripcionCorta }}</p>
+                                <div class="cuerpo">
+                                    <div class="col-sm-6">
+                                        <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <p class="right"><i class="fa fa-clock-o"></i> {{ $tour->dias }} days</p>
+                                    </div>
+                                </div>
+                                <div class="categorias">
+                                    @foreach ($tour->categorias as $categoria)
+                                        <a href="">{{ $categoria->nombre }}</a>
+                                        @if (!$loop->last)
+                                            -&nbsp;
+                                        @endif
+                                    @endforeach
+                                </div>
+                                <a href="{{ route('tour.show', $tour->slug) }}" class="boton2023">
+                                    Read more
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
         </div>
     </div>
 @endsection

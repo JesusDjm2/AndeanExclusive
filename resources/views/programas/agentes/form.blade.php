@@ -27,7 +27,7 @@
 
 <div class="mb-3">
     <label for="foto" class="form-label">Foto</label>
-    <input type="file" name="foto" id="foto" class="form-control">
+    <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" name="foto" id="foto" class="form-control">
 
     @if (!empty($agente->foto))
         <div class="mt-2">

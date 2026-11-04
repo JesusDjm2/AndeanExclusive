@@ -1,0 +1,405 @@
+// Listado de programas (resources/views/programas/index.blade.php).
+// Escritorio: fila en grilla de 7 columnas. Tablet: 2 líneas. Móvil: tarjeta.
+
+// ---- Barra de herramientas: pestañas + filtros -----------------------------------
+
+.prog-toolbar {
+    margin-bottom: 1rem;
+    overflow: hidden;
+}
+
+.prog-tabs {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0 0.75rem;
+    border-bottom: 1px solid $card-border-color;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+}
+
+.prog-tabs__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.85rem 0.75rem;
+    border-bottom: 2px solid transparent;
+    color: $color-ink-soft;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+
+    &:hover { color: $color-ink; }
+
+    &.is-active {
+        border-bottom-color: $color-accent;
+        color: $color-ink;
+
+        .prog-tabs__count { background: $color-accent; color: $white; }
+    }
+}
+
+.prog-tabs__count {
+    min-width: 1.5rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: $border-radius-pill;
+    background: var(--ae-chip);
+    color: $color-ink-soft;
+    font-size: 0.72rem;
+    text-align: center;
+}
+
+.prog-filters {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.9rem 1rem;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: minmax(0, 1fr) 140px 150px 160px auto;
+        align-items: center;
+    }
+}
+
+.prog-filters__search {
+    position: relative;
+
+    i {
+        position: absolute;
+        top: 50%;
+        left: 0.85rem;
+        transform: translateY(-50%);
+        color: $color-ink-soft;
+        pointer-events: none;
+    }
+
+    .form-control { padding-left: 2.4rem; }
+}
+
+.prog-filters__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    .btn-link { text-decoration: none; }
+}
+
+.prog-results {
+    margin: 0 0 0.5rem;
+    color: $color-ink-soft;
+    font-size: 0.82rem;
+}
+
+// ---- Lista ---------------------------------------------------------------------
+
+.prog-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.prog-item {
+    margin-bottom: 0.6rem;
+    border: 1px solid $card-border-color;
+    border-radius: $border-radius-lg;
+    background: var(--ae-surface);
+    transition: box-shadow 0.15s ease, border-color 0.15s ease;
+
+    &:hover { border-color: var(--ae-border-strong); }
+    &:has(.collapse.show) { box-shadow: 0 6px 20px rgba(23, 36, 42, 0.08); }
+}
+
+.prog-row {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 2.4fr) minmax(0, 4.6fr) auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 0.85rem 1rem;
+
+    // Tablet y móvil: fecha · nombre · acciones arriba; datos en una segunda línea.
+    @include media-breakpoint-down(xl) {
+        grid-template-columns: 3.4rem minmax(0, 1fr) auto;
+        row-gap: 0.75rem;
+    }
+
+    @include media-breakpoint-down(md) {
+        grid-template-columns: 3rem minmax(0, 1fr) auto;
+        column-gap: 0.75rem;
+        padding: 0.85rem;
+    }
+}
+
+// Escritorio: las 4 celdas comparten la fila (cuatro columnas iguales dentro de su tramo).
+.prog-row__cells {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: center;
+
+    @include media-breakpoint-down(xl) {
+        grid-column: 2 / -1;
+        grid-row: 2;
+        grid-template-columns: repeat(4, minmax(0, auto));
+        justify-content: start;
+        column-gap: 2rem;
+    }
+
+    @include media-breakpoint-down(md) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.75rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid $card-border-color;
+    }
+}
+
+.prog-row__date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: $border-radius;
+    background: var(--ae-hover);
+    color: $color-ink;
+    line-height: 1.05;
+
+    @include media-breakpoint-down(md) { width: 3rem; height: 3rem; }
+
+    &--soon { background: rgba($color-danger, 0.1); color: var(--ae-danger); }
+    &--next { background: rgba($color-accent, 0.1); color: var(--ae-accent-text); }
+    &--live { background: rgba($color-success, 0.12); color: var(--ae-success); }
+    &--done { color: $color-ink-soft; }
+    &--none { color: $color-ink-soft; font-size: 1.1rem; }
+}
+
+.prog-row__day {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.prog-row__month {
+    font-size: 0.62rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.prog-row__name {
+    margin: 0 0 0.2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+
+    a {
+        color: $color-ink;
+        text-decoration: none;
+
+        &:hover { color: var(--ae-accent-text); }
+    }
+}
+
+.prog-row__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2rem 0.85rem;
+    margin: 0;
+    color: $color-ink-soft;
+    font-size: 0.8rem;
+
+    i { margin-right: 0.25rem; color: rgba($color-accent, 0.7); }
+}
+
+.prog-row__cell {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.prog-row__label {
+    color: $color-ink-soft;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.prog-row__value {
+    color: $color-ink;
+    font-size: 0.9rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.prog-row__sub {
+    color: $color-ink-soft;
+    font-size: 0.75rem;
+}
+
+.prog-row__total .prog-row__value {
+    font-variant-numeric: tabular-nums;
+}
+
+.prog-badge {
+    align-self: flex-start;
+    padding: 0.2rem 0.55rem;
+    border-radius: $border-radius-pill;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+
+    &--soon { background: rgba($color-danger, 0.12); color: var(--ae-danger); }
+    &--next { background: rgba($color-accent, 0.12); color: var(--ae-accent-text); }
+    &--live { background: rgba($color-success, 0.14); color: var(--ae-success); }
+    &--done { background: var(--ae-chip); color: $color-ink-soft; }
+    &--none { background: rgba(#b25e09, 0.1); color: var(--ae-warn); }
+}
+
+.prog-row__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    // Tablet/móvil: siempre arriba a la derecha, junto al nombre.
+    @include media-breakpoint-down(xl) {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+    }
+}
+
+.prog-row__toggle {
+    i { transition: transform 0.2s ease; }
+    &:not(.collapsed) i { transform: rotate(180deg); }
+}
+
+// Botón ⋮ con área táctil de 38px.
+.prog-row__kebab {
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid $card-border-color;
+    background: var(--ae-surface);
+
+    &:hover,
+    &[aria-expanded="true"] { background: var(--ae-hover); }
+}
+
+.prog-row__actions .dropdown-menu {
+    min-width: 14rem;
+
+    form { margin: 0; }
+
+    .dropdown-item {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding-block: 0.5rem;
+
+        small { width: 100%; padding-left: 1.75rem; }
+    }
+}
+
+// ---- Detalle desplegable ------------------------------------------------------------
+
+.prog-detail {
+    display: grid;
+    gap: 1.25rem;
+    padding: 1rem 1.25rem 1.25rem;
+    border-top: 1px dashed $card-border-color;
+    background: var(--ae-surface-2);
+    border-radius: 0 0 $border-radius-lg $border-radius-lg;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @include media-breakpoint-up(xl) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.prog-detail__title {
+    margin-bottom: 0.6rem;
+    color: $color-ink;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+
+    i { margin-right: 0.35rem; color: var(--ae-accent-text); }
+}
+
+.prog-detail__line {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.55rem;
+    font-size: 0.86rem;
+
+    strong { color: $color-ink; }
+    span { color: $color-ink-soft; }
+}
+
+.prog-detail__empty {
+    margin: 0;
+    color: $color-ink-soft;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.prog-detail__contact {
+    margin: 0.75rem 0 0;
+    color: $color-ink-soft;
+    font-size: 0.85rem;
+
+    i { margin-right: 0.3rem; color: var(--ae-accent-text); }
+}
+
+.prog-budget {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.3rem 1rem;
+    margin: 0;
+    font-size: 0.86rem;
+
+    dt { color: $color-ink-soft; font-weight: 400; }
+    dd { margin: 0; color: $color-ink; text-align: right; font-variant-numeric: tabular-nums; }
+
+    .prog-budget__sep { padding-top: 0.35rem; border-top: 1px solid $card-border-color; }
+
+    .prog-budget__total {
+        padding-top: 0.35rem;
+        border-top: 1px solid $card-border-color;
+        color: $color-ink;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+}
+
+.prog-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.25rem;
+
+    .pagination { flex-wrap: wrap; }
+}
+
+// Estado comercial bajo la fase del viaje.
+.pf-status-text {
+    margin-top: 0.2rem;
+    font-weight: 600;
+
+    &--cotizacion { color: var(--ae-warn); }
+    &--confirmado { color: var(--ae-success); }
+    &--cancelado { color: $color-ink-soft; text-decoration: line-through; }
+}
+
+// Filtro con búsqueda + un selector (listado de clientes).
+.prog-filters--simple {
+    @include media-breakpoint-up(md) {
+        grid-template-columns: minmax(0, 1fr) 200px auto;
+    }
+}

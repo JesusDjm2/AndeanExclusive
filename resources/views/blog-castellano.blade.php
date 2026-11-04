@@ -1,107 +1,70 @@
-@extends('layouts.general-es')
+@php
+    $locale = 'es';
+    $altRoute = 'blog-en';
+@endphp
+@extends('layouts.public')
+
 @section('metas')
     @include('layouts.seo-head', [
         'locale' => 'es',
         'page' => 'blog',
+        'title' => 'Blog de Turismo en el Perú | ' . config('seo.brand'),
+        'description' => 'Descubre crónicas de viaje, guías culturales y recomendaciones exclusivas de Cusco, Machu Picchu y el Perú de la mano de Andean Exclusive Tours.',
         'canonical' => route('blog-es', [], true),
-        'og_image' => '/img/blog-hiking-peru.jpg',
+        'og_image' => $lastBlog ? $lastBlog->thumbUrl() : '/img/blog-hiking-peru.jpg',
     ])
 @endsection
+
 @section('contenido')
-    <div class="wrapper">
-        @include('layouts.partials.header-public-es', ['enRoute' => 'blog-en'])
-        <section class="section-content no-padding">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <article class="blog-item blog-single">
-                            <div class="entry-excerpt">
-                                @if ($lastBlog)
-                                <div data-vc-full-width="true" data-vc-full-width-init="false" data-onepage-title="Home"
-                                    data-onepage-slug="home"
-                                    class="vc_row wpb_row vc_row-fluid vc_row-has-fill vc_row-o-full-height vc_row-o-columns-middle vc_row-o-content-middle vc_row-flex"
-                                    style="background: url('{{ asset($lastBlog->imgFull) }}') !important; margin-bottom: 0px; background-position: center !important; background-repeat: no-repeat !important; background-size: cover !important;">
-                                    <div class="wpb_column vc_column_container vc_col-sm-12">
-                                        <div class="vc_column-inner vc_custom_1461317698190">
-                                            <div class="wpb_wrapper">
-                                                <div class='carousel-headings '>
-                                                    <div class='swiper-container'>
-                                                        <div class='swiper-wrapper'>
-                                                            <div class='swiper-slide'>
-                                                                <div class='cover-text ph5 text-light text-center pvb0'>
-                                                                    <h1>Blog de turismo en el Perú</h1>
-                                                                    <p>Destacado: <a
-                                                                            href="{{ route('esblog.show', $lastBlog->slug) }}"
-                                                                            target="_blank" rel="noopener">{{ $lastBlog->nombre }}</a>
-                                                                    </p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @else
-                                <div class="vc_row wpb_row vc_row-fluid vc_row-has-fill py-5"
-                                    style="background: linear-gradient(135deg,#1e3a5f 0%,#0c8178 100%); margin-bottom: 0;">
-                                    <div class="wpb_column vc_column_container vc_col-sm-12">
-                                        <div class="vc_column-inner text-center text-white py-4">
-                                            <h1 class="text-white">Blog de turismo en el Perú</h1>
-                                            <p class="mb-0">Próximamente publicaremos artículos. Vuelva pronto o visite la versión en <a href="{{ route('blog-en') }}" class="text-white" style="text-decoration: underline;">inglés</a>.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endif
-                                <div class="vc_row-full-width vc_clearfix"></div>
-                                <div data-vc-full-width="true" data-vc-full-width-init="false"
-                                    data-vc-stretch-content="true" data-onepage-title="Gallery"
-                                    data-onepage-slug="our-gallery"
-                                    class="vc_row wpb_row vc_row-fluid vc_custom_1461248454146 vc_row-no-padding">
-                                    <div class="wpb_column vc_column_container vc_col-sm-12">
-                                        <div class="vc_column-inner" style="padding-top: 0px">
-                                            <div class="wpb_wrapper">
-                                                <div class='travel-grid ' data-columns='3' data-col-class='.col-sm-4'>
-                                                    <div class='grid-container'>
-                                                        @foreach ($blogs as $blog)
-                                                            <div class='masonry-item col-xs-12 col-sm-4 ftr-europe ftr-our-gallery'
-                                                                style='padding: 0px;'>
-                                                                <div class='travel-grid-item'>
-                                                                    <img src='{{ asset($blog->imgThumb) }}'
-                                                                        class="attachment-post-grid-m size-post-grid-m"
-                                                                        alt="{{ $blog->nombre }}" loading="lazy" />
-                                                                    <div class='entry-hover'>
-                                                                        <div class='info'>
-                                                                            <a
-                                                                                href="{{ route('esblog.show', $blog->slug) }}">
-                                                                                <h2>{{ $blog->nombre }}</h2>
-                                                                            </a>
-                                                                            <div class="entry-cat">
-                                                                                <a>{{ $blog->descripcionCorta }}
-                                                                                </a>
-                                                                            </div> <br>
-                                                                            <div class="readmore text-center">
-                                                                                <a id="botonblog"
-                                                                                    href="{{ route('esblog.show', $blog->slug) }}">Leer artículo</a>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="vc_row-full-width vc_clearfix"></div>
-                            </div>
-                        </article>
-                    </div>
-                </div>
+    @if ($lastBlog)
+        <section class="page-banner page-banner--tall">
+            <picture>
+                <source media="(max-width: 768px)" srcset="{{ $lastBlog->mobileHeroUrl() }}">
+                <img src="{{ $lastBlog->fullUrl() }}" alt="{{ $lastBlog->nombre }}" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+            </picture>
+            <div class="page-banner__content">
+                <h1 class="page-banner__title">Blog de Turismo en el Perú</h1>
+                <div class="page-banner__divider"></div>
+                <span class="page-banner__eyebrow">El diario de Andean Exclusive</span>
+                <p class="mt-sm">
+                    <a href="{{ route('esblog.show', $lastBlog->slug) }}" class="btn-brand btn-brand--outline btn-brand--sm">
+                        <span>Destacado: {{ Str::limit($lastBlog->nombre, 38) }}</span>
+                    </a>
+                </p>
             </div>
         </section>
-    </div>
+    @else
+        <section class="section section--dark">
+            <div class="site-container text-center">
+                <h1 class="section-title">Blog de Turismo en el Perú</h1>
+                <p class="section-lead">
+                    Próximamente publicaremos artículos. Vuelva pronto o visite la versión en
+                    <a href="{{ route('blog-en') }}" class="text-accent">inglés</a>.
+                </p>
+            </div>
+        </section>
+    @endif
+
+    @if ($blogs->count())
+        <section class="photo-wall" data-reveal-stagger aria-label="Artículos de viaje en el Perú">
+            @foreach ($blogs as $blog)
+                <a href="{{ route('esblog.show', $blog->slug) }}" class="photo-tile">
+                    <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy" decoding="async" class="photo-tile__img">
+                    <div class="photo-tile__body">
+                        <span class="photo-tile__meta">
+                            @if ($blog->created_at)
+                                {{ $blog->created_at->format('d/m/Y') }} &bull;
+                            @endif
+                            {{ $blog->readingTime('es') }}
+                        </span>
+                        <h2 class="photo-tile__title">{{ $blog->nombre }}</h2>
+                        <div class="photo-tile__reveal">
+                            <p class="photo-tile__excerpt">{{ $blog->descripcionCorta }}</p>
+                            <span class="photo-tile__cta">Leer artículo <i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>
+                        </div>
+                    </div>
+                </a>
+            @endforeach
+        </section>
+    @endif
 @endsection

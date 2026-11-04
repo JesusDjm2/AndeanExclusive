@@ -35,10 +35,17 @@ class SitemapController extends Controller
             }
         }
 
-        $staticEs = ['inicio', 'experiencias', 'alrededor-de-peru', 'caminatas', 'blog-es', 'nosotros', 'testimonios', 'preguntas-frecuentes'];
+        $staticEs = ['inicio', 'experiencias', 'alrededor-de-peru', 'caminatas', 'blog-es', 'nosotros', 'testimonios', 'preguntas-frecuentes', 'terminos'];
         foreach ($staticEs as $name) {
             if (Route::has($name)) {
                 $add(route($name, [], true), null, 'weekly', $name === 'inicio' ? '1.0' : '0.9');
+            }
+        }
+
+        $adventures = ['tour-atv', 'tour-rafting', 'tour-choquequirao', 'tour-islas-palomino', 'tour-laguna-humantay', 'vinicunca-tour'];
+        foreach ($adventures as $name) {
+            if (Route::has($name)) {
+                $add(route($name, [], true), null, 'monthly', '0.7');
             }
         }
 

@@ -1,0 +1,49 @@
+// Small, deliberately limited utility layer — not a Tailwind reimplementation.
+// Use component classes for anything structural; these are for one-off spacing
+// / alignment tweaks only. Never redefine a Bootstrap class name here
+// (.container-*, .text-center, .mx-auto, .visually-hidden, .mt-0...): Bootstrap
+// already ships those and a second definition is what makes styles collide.
+
+// Site-wide content width (header, sections, footer).
+.site-container {
+    width: 100%;
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+}
+
+.text-accent { color: var(--color-accent); }
+.text-primary-brand { color: var(--color-primary); }
+.text-muted-soft { color: var(--color-ink-soft); }
+
+// Spacing on the design-token scale (Bootstrap's numeric .mt-0…5 stay as-is).
+@each $name, $value in (
+    '2xs': var(--space-2xs),
+    'xs': var(--space-xs),
+    'sm': var(--space-sm),
+    'md': var(--space-md),
+    'lg': var(--space-lg),
+    'xl': var(--space-xl)
+) {
+    .mt-#{$name} { margin-top: #{$value} !important; }
+    .mb-#{$name} { margin-bottom: #{$value} !important; }
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+// Caps never exceed the parent (min(..., 100%)), so they can't undo .img-fluid
+// or push a phone layout wider than the screen.
+.max-w-prose { max-width: min(68ch, 100%); }
+.max-w-sm { max-width: min(320px, 100%); }
+.max-w-md { max-width: min(480px, 100%); }
+.max-w-lg { max-width: min(720px, 100%); }

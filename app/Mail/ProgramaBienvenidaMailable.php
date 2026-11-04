@@ -27,9 +27,10 @@ class ProgramaBienvenidaMailable extends Mailable
         $fromName = config('mail.from.name', config('app.name', 'Andean Exclusive'));
         $isEn = $this->programa->lang === 'en';
 
-        $subject = $isEn
-            ? 'Welcome to Peru — Your travel program (' . $this->programa->nombre . ')'
-            : 'Bienvenido al Perú — Su programa de viaje: ' . $this->programa->nombre;
+        // El asunto distingue la etapa: propuesta (cotización) o programa confirmado.
+        $subject = $this->programa->estado === 'cotizacion'
+            ? ($isEn ? 'Your travel proposal: ' : 'Su propuesta de viaje: ') . $this->programa->nombre . ' (' . $this->programa->codigo . ')'
+            : ($isEn ? 'Your confirmed trip to Peru: ' : 'Su viaje al Perú confirmado: ') . $this->programa->nombre . ' (' . $this->programa->codigo . ')';
 
         return new Envelope(
             from: new Address((string) config('mail.from.address'), $fromName),

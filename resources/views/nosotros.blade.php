@@ -1,10 +1,55 @@
 @extends('layouts.general-es')
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'nosotros', 'og_image' => '/img/cusco-de-noche.jpg', 'og_type' => 'article'])
+    <title>Conoce más sobre Andean Exclusive Tours. </title>
+    <meta name="keywords"
+        content="Cusco tours,Cusco de Lujo, Agencia de Viajes Perú, Peru viajes, Tours en Perú, Tours en Cusco, Agencia de Viajes Cusco." />
+    <meta name="description"
+        content="Agencia de viajes de lujo en Cusco - Perú. ✅ Disfrute de la magia de de esta increible tierra.">
+    <meta property="og:url" content="https://www.andeanexclusive.com/nosotros" />
+    <meta property="og:title" content="Conóce más sobre nuestra agencia de viajes: Andean Exclusive Tours.">
+    <meta property="og:type" content="webside">
+    <meta property="og:image" content="https://www.andeanexclusive.com/img/cusco-de-noche.jpg" />
+    <meta name="author" content="Web Masters DJM2" />
+    <link rel="canonical" href="https://www.andeanexclusive.com/nosotros" />
 @endsection
 @section('contenido')
     <div class="wrapper">
-        @include('layouts.partials.header-public-es', ['enRoute' => 'about'])
+        <header id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="header-wrapper">
+                            <div class="site-branding">
+                                <a href="/" rel="home" class="logo-text-link">
+                                    <div class="logo2"></div>
+                                </a>
+                            </div>
+                            <nav class="main-nav">
+                                <ul class="one-page-menu">
+                                    @include('layouts.menu-castellano')
+                                    <li id="display" class="menu-has-children">
+                                        <a href={{ route('about') }}>
+                                            <button type="button" class="btn botondjm">English</button>
+                                        </a>
+                                    </li>
+                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
+                                            target="_blank">+51 979 721 194</a></li>
+                                    <li id="display2" class="menu-has-children">
+                                        <a href={{ route('about') }}>
+                                            <button type="button" class="btn botondjm">English</button>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <a href="javascript:;" id="mobile-menu"><span></span></a>
+                                <a href="javascript:;" id="close-menu"></a>
+                            </nav>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </header>
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">

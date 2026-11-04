@@ -1,0 +1,141 @@
+// Global contact popup. Sits above the WhatsApp float and the gallery
+// lightbox; the dialog animates in with a rise + scale on a blurred backdrop.
+.contact-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--duration-base) var(--ease-premium),
+        visibility 0s var(--duration-base);
+
+    &.is-open {
+        visibility: visible;
+        opacity: 1;
+        transition: opacity var(--duration-base) var(--ease-premium);
+    }
+
+    @media (max-width: 575.98px) {
+        padding: var(--space-sm);
+        align-items: flex-end;
+    }
+}
+
+.contact-modal__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(24, 34, 41, 0.78);
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+}
+
+.contact-modal__dialog {
+    position: relative;
+    width: 100%;
+    max-width: 33rem;
+    max-height: min(88vh, 46rem);
+    overflow-y: auto;
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(26px) scale(0.96);
+    transition: transform var(--duration-base) var(--ease-premium);
+
+    .is-open & {
+        transform: translateY(0) scale(1);
+    }
+
+    // The modal supplies the card chrome; the embedded form blends in.
+    .booking-form {
+        background: none;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 0;
+    }
+
+    .booking-form__title { display: none; }
+
+    @media (max-width: 575.98px) {
+        max-height: 92vh;
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        transform: translateY(100%);
+
+        .is-open & {
+            transform: translateY(0);
+        }
+    }
+}
+
+.contact-modal__close {
+    position: absolute;
+    top: var(--space-2xs);
+    right: var(--space-2xs);
+    z-index: 1;
+    width: 2.6rem;
+    height: 2.6rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--color-ink-soft);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background var(--duration-fast), color var(--duration-fast);
+
+    &:hover {
+        background: var(--color-sand-deep);
+        color: var(--color-ink);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+.contact-modal__header {
+    padding: var(--space-md) var(--space-md) 0;
+    text-align: center;
+
+    .section-eyebrow {
+        margin-bottom: 0;
+        font-size: 1.3rem;
+    }
+}
+
+.contact-modal__title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: var(--space-3xs);
+}
+
+.contact-modal__note {
+    color: var(--color-ink-soft);
+    font-size: 0.9rem;
+    margin-bottom: 0;
+}
+
+.contact-modal__body {
+    padding: var(--space-md);
+
+    .alert {
+        font-size: 0.9rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .contact-modal,
+    .contact-modal__dialog {
+        transition: none;
+        transform: none;
+    }
+}

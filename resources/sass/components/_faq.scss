@@ -1,0 +1,81 @@
+// Native <details>/<summary> accordion — accessible and dependency-free,
+// replaces the Bootstrap 4 card/collapse markup used previously.
+
+.faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.faq-item {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+
+    &[open] {
+        box-shadow: var(--shadow-sm);
+    }
+
+    &[open] .faq-question__icon {
+        transform: rotate(45deg);
+    }
+}
+
+.faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-md);
+    cursor: pointer;
+    font-weight: 700;
+    color: var(--color-ink);
+    list-style: none;
+
+    &::-webkit-details-marker {
+        display: none;
+    }
+}
+
+.faq-question__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-sand);
+    color: var(--color-primary);
+    font-size: 1rem;
+    transition: transform var(--duration-base) var(--ease-premium);
+}
+
+.faq-answer {
+    padding: 0 var(--space-md) var(--space-md);
+    color: var(--color-ink-soft);
+
+    p { margin-bottom: 1em; }
+    h4 { font-size: 1rem; margin-block: 0.75em 0.5em; }
+    ul { padding-left: 1.25em; margin-bottom: 1em; }
+    li { margin-bottom: 0.4em; }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 1em;
+        font-size: 0.9rem;
+    }
+
+    th, td {
+        border: 1px solid var(--color-border);
+        padding: 0.5em 0.75em;
+        text-align: left;
+    }
+
+    thead {
+        background: var(--color-ink);
+        color: var(--color-white);
+    }
+}

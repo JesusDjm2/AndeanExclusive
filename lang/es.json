@@ -1,0 +1,16 @@
+{
+    "Name": "Nombre",
+    "Email Address": "Correo electrónico",
+    "Password": "Contraseña",
+    "Confirm Password": "Confirmar contraseña",
+    "Register": "Registrar",
+    "Reset Password": "Restablecer contraseña",
+    "Send Password Reset Link": "Enviar enlace para restablecer",
+    "Forbidden": "Sin permiso",
+    "Not Found": "No encontrado",
+    "Unauthorized": "No autorizado",
+    "Page Expired": "La página expiró",
+    "Too Many Requests": "Demasiados intentos",
+    "Server Error": "Error del servidor",
+    "Service Unavailable": "Servicio no disponible"
+}

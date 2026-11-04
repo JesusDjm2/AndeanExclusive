@@ -22,11 +22,13 @@
                                 </small>
                             </div>
 
-                            <div class="float-right">
-                                <a href="{{ route('categoriasproveedor.create') }}"
-                                    class="btn btn-primary btn-sm float-right" data-placement="left">
+                            <div class="float-end">
+                                @can('proveedores.gestionar')
+<a href="{{ route('categoriasproveedor.create') }}"
+                                    class="btn btn-primary btn-sm float-end" data-placement="left">
                                     {{ __('Crear nuevo') }}
                                 </a>
+@endcan
                             </div>
                         </div>
                     </div>
@@ -56,7 +58,8 @@
                                             </td>
 
                                             <td>
-                                                <form action="{{ route('categoriasproveedor.destroy', $categoria->id) }}"
+                                                @can('proveedores.gestionar')
+<form action="{{ route('categoriasproveedor.destroy', $categoria->id) }}"
                                                     method="POST">
                                                     {{-- <a class="btn btn-sm btn-primary "
                                                         href="{{ route('categoriasproveedor.show', $categoria->id) }}"><i
@@ -69,6 +72,7 @@
                                                     <button type="submit" class="btn btn-danger btn-sm"><i
                                                             class="fa fa-fw fa-trash"></i> Delete</button>
                                                 </form>
+@endcan
                                             </td>
                                         </tr>
                                     @endforeach

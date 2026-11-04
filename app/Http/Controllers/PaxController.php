@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Agente;
 use App\Models\Programa;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use App\Support\PassportFiles;
 
 class PaxController extends Controller
 {
@@ -16,7 +16,6 @@ class PaxController extends Controller
         $paxs = Pax::query()
             ->with([
                 'programa.agentes',
-                'programa.agenteResponsable',
                 'programa.anio',
                 'programa.mes',
             ])
@@ -35,33 +34,41 @@ class PaxController extends Controller
 
     public function create()
     {
-        $programas = Programa::all();
-        $agentes   = Agente::all();
+        return view('paxs.form', ['pax' => new Pax()] + $this->catalogos());
+    }
 
-        return view('paxs.create', compact('programas', 'agentes'));
+    /** Campos del pasajero (mismas reglas que el formulario de programas). */
+    private function validar(Request $request): array
+    {
+        $validated = $request->validate(ProgramaController::reglasPax('') + [
+            'programa_id' => 'required|exists:programas,id',
+            'agentes' => 'array',
+            'agentes.*' => 'exists:agentes,id',
+        ]);
+        unset($validated['pasaporte_archivo'], $validated['agentes']);
+
+        return $validated;
+    }
+
+    private function catalogos(): array
+    {
+        return [
+            'programas' => Programa::orderByDesc('inicio')->get(['id', 'codigo', 'nombre']),
+            'agentes' => Agente::orderBy('nombre')->get(),
+        ];
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nombre'       => 'required|string|max:255',
-            'edad'         => 'required|integer',
-            'pasaporte'    => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'nacionalidad' => 'required|string|max:255',
-            'alimentacion' => 'required|string|max:255',
-            'programa_id'  => 'required|exists:programas,id',
-            'agentes'      => 'array',
-        ]);
-
-        if ($request->hasFile('pasaporte')) {
-            $validated['pasaporte'] = $request->file('pasaporte')
-                ->store('pasaportes', 'public');
+        $validated = $this->validar($request);
+        if ($request->hasFile('pasaporte_archivo')) {
+            $validated['pasaporte_archivo'] = PassportFiles::store($request->file('pasaporte_archivo'));
         }
 
         $pax = Pax::create($validated);
-        $pax->agentes()->sync($request->agentes);
+        $pax->agentes()->sync($request->input('agentes', []));
 
-        return redirect()->route('paxs.index')->with('success', 'Pax creado correctamente.');
+        return redirect()->route('paxs.edit', $pax)->with('success', 'Pasajero creado.');
     }
 
     public function show(Pax $pax)
@@ -72,48 +79,51 @@ class PaxController extends Controller
 
     public function edit(Pax $pax)
     {
-        $programas = Programa::all();
-        $agentes   = Agente::all();
+        $pax->load('agentes', 'programa');
 
-        return view('paxs.edit', compact('pax', 'programas', 'agentes'));
+        return view('paxs.form', ['pax' => $pax] + $this->catalogos());
     }
 
     public function update(Request $request, Pax $pax)
     {
-        $validated = $request->validate([
-            'nombre'       => 'required|string|max:255',
-            'edad'         => 'required|integer',
-            'pasaporte'    => 'nullable|file|mimes:pdf,jpg,jpeg,png',
-            'nacionalidad' => 'required|string|max:255',
-            'alimentacion' => 'required|string|max:255',
-            'programa_id'  => 'required|exists:programas,id',
-            'agentes'      => 'array',
-        ]);
-
-        if ($request->hasFile('pasaporte')) {
-            if ($pax->pasaporte) {
-                Storage::disk('public')->delete($pax->pasaporte);
-            }
-
-            $validated['pasaporte'] = $request->file('pasaporte')
-                ->store('pasaportes', 'public');
+        $validated = $this->validar($request);
+        if ($request->hasFile('pasaporte_archivo')) {
+            PassportFiles::delete($pax->pasaporte_archivo);
+            $validated['pasaporte_archivo'] = PassportFiles::store($request->file('pasaporte_archivo'));
         }
 
         $pax->update($validated);
-        $pax->agentes()->sync($request->agentes);
+        $pax->agentes()->sync($request->input('agentes', []));
 
-        return redirect()->route('paxs.index')->with('success', 'Pax actualizado correctamente.');
+        return redirect()->route('paxs.edit', $pax)->with('success', 'Cambios guardados.');
     }
 
     public function destroy(Pax $pax)
     {
-        if ($pax->pasaporte) {
-            Storage::disk('public')->delete($pax->pasaporte);
-        }
+        PassportFiles::delete($pax->pasaporte_archivo);
 
         $pax->agentes()->detach();
         $pax->delete();
 
         return redirect()->route('paxs.index')->with('success', 'Pax eliminado.');
+    }
+
+    /**
+     * Pasaporte del pasajero, solo para usuarios del panel (los archivos ya no son públicos).
+     */
+    public function pasaporte(Pax $pax)
+    {
+        abort_unless(request()->user()?->can('pasaportes.ver'), 403, 'Los pasaportes los consultan Operaciones y Reservas.');
+
+        $path = PassportFiles::absolutePath($pax->pasaporte_archivo);
+        abort_if(! $path, 404);
+        \App\Support\Bitacora::anotar('consultó el pasaporte de', $pax);
+
+        $response = response()->file($path, ['X-Content-Type-Options' => 'nosniff']);
+        // BinaryFileResponse se marca "public" por defecto: un pasaporte nunca debe quedar en cachés compartidas.
+        $response->setPrivate();
+        $response->headers->addCacheControlDirective('no-store');
+
+        return $response;
     }
 }

@@ -1,101 +1,138 @@
-@extends('layouts.general-es')
+@php
+    $locale = 'es';
+    $catSlugLower = Str::slug($categoria->nombre ?? $categoria->slug ?? '');
+    $categoryHeroMap = [
+        'tours-exclusivos' => 'img/Machu-Picchu-exclusive.jpg',
+        'exclusive-tours' => 'img/Machu-Picchu-exclusive.jpg',
+        'alrededor-de-peru' => 'img/tours/valle-sagrado.jpg',
+        'around-peru' => 'img/tours/valle-sagrado.jpg',
+        'caminatas-y-aventuras' => 'img/tours/rainbow-mountain-vinicunca.jpg',
+        'adventure-tours' => 'img/tours/rainbow-mountain-vinicunca.jpg',
+        'hiking' => 'img/tours/Choquequirao-tour-4-days-trekking.jpg',
+        'machu-picchu' => 'img/Machu-Picchu-exclusive.jpg',
+        'tours-populares' => 'img/chincheros.jpg',
+    ];
+    $categoryHeroMobileMap = [
+        'tours-exclusivos' => 'img/responsive/Machu-Picchu-exclusive-mobile.webp',
+        'exclusive-tours' => 'img/responsive/Machu-Picchu-exclusive-mobile.webp',
+        'alrededor-de-peru' => 'img/responsive/valle-sagrado-mobile.webp',
+        'around-peru' => 'img/responsive/valle-sagrado-mobile.webp',
+        'caminatas-y-aventuras' => 'img/responsive/rainbow-mountain-vinicunca-mobile.webp',
+        'adventure-tours' => 'img/responsive/rainbow-mountain-vinicunca-mobile.webp',
+        'hiking' => 'img/responsive/Choquequirao-tour-4-days-trekking-mobile.webp',
+        'machu-picchu' => 'img/responsive/Machu-Picchu-exclusive-mobile.webp',
+        'tours-populares' => 'img/responsive/chincheros-mobile.webp',
+    ];
+    $catHeroImg = $categoryHeroMap[$catSlugLower]
+        ?? (!empty($tours->first()?->imgFull) ? $tours->first()->imgFull : 'img/Machu-Picchu-exclusive.jpg');
+    $catHeroMobile = $categoryHeroMobileMap[$catSlugLower] ?? null;
+@endphp
+@extends('layouts.public')
+
 @section('metas')
-    <title>{{ $categoria->nombre }}</title>
-    <meta name="keywords" content="Listado de tour con la categoria: {{ $categoria->nombre }}" />
-    <meta name="description" content="Listado de tour con la categoria: {{ $categoria->nombre }}" />
-    <meta property="og:url" content="https://www.andeanexclusive.com">
-    <meta property="og:title" content="{{ $categoria->nombre }}">
-    <meta property="og:type" content="article">
-    <meta property="og:image" content="" />
-    <meta name="author" content="Web Masters DJM2" />
-    <link rel="canonical" href="https://www.andeanexclusive.com" />
+    @include('layouts.seo-head', [
+        'locale' => 'es',
+        'title' => 'Tours de ' . $categoria->nombre . ' | ' . config('seo.brand'),
+        'description' => 'Descubre tours de ' . $categoria->nombre . ' en Perú con Andean Exclusive Tours. Experiencias privadas y de lujo hechas a medida.',
+        'canonical' => route('categoria.show', $categoria->slug, true),
+        'og_image' => asset($catHeroImg),
+    ])
 @endsection
+
 @section('contenido')
-    <div class="wrapper">
-        <header id="header">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="header-wrapper">
-                            <div class="site-branding">
-                                <a href="{{ route('index') }}" rel="home" class="logo-text-link">
-                                    <img src="{{ asset('img/andean-exclusive-logo.png') }}" id="logo"
-                                        alt="Logo Andean Exclusive Tours">
-                                </a>
-                            </div>
-                            <nav class="main-nav">
-                                <ul class="one-page-menu">
-                                    @include('layouts.menu-castellano')
-                                    <li id="display">
-                                        <a href="{{ route('inicio') }}">
-                                            <button type="button" class="botondjm">
-                                                <i class="fa fa-language"></i> Español
-                                            </button>
-                                        </a>
-                                    </li>
-                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
-                                            target="_blank">+51 979 721 194</a></li>
-                                    <li id="display2">
-                                        <a href="{{ route('inicio') }}">
-                                            <button type="button" class="botondjm">Español</button>
-                                        </a>
-                                    </li>
-                                </ul>
-                                <a href="javascript:;" id="mobile-menu"><span></span></a>
-                                <a href="javascript:;" id="close-menu"></a>
-                            </nav>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <div class="blogContenedor">
-            <img src="{{ asset('img/full/Huayna-Picchu-Machu-Picchu.webp') }}" class="fullscreen-img">
-            <div class="content-overlay">
-                <h1>Categoria: {{ $categoria->nombre }}</h1>
+    <section class="page-banner page-banner--tall">
+        <picture>
+            @if ($catHeroMobile)
+                <source media="(max-width: 768px)" srcset="{{ asset($catHeroMobile) }}" type="image/webp">
+            @endif
+            <img src="{{ asset($catHeroImg) }}" alt="{{ $categoria->nombre }}" data-parallax="10" loading="eager" fetchpriority="high" decoding="async">
+        </picture>
+        <div class="page-banner__content">
+            <span class="page-banner__eyebrow">Colección Especializada</span>
+            <h1 class="page-banner__title">{{ $categoria->nombre }}</h1>
+            <div class="page-banner__divider"></div>
+            <p class="hero__subtitle">
+                Itinerarios privados y de lujo creados para que descubras lo mejor de Perú con total comodidad, guías certificados y atención exclusiva.
+            </p>
+            <div class="hero__actions mt-md">
+                <button type="button" class="btn-brand btn-brand--primary" data-contact-open>
+                    <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                    <span>Diseñar viaje a medida</span>
+                </button>
+                <a href="#tours-categoria" class="btn-brand btn-brand--outline">
+                    <span>Ver itinerarios</span>
+                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
-    </div>
-    <div class="container relacionados" style="margin-top:2em; margin-bottom:2em">
-        <div class="row">
-            @foreach ($tours as $tour)
-                <div class="col-lg-4 col-md-6">
-                    <div class="card h-100">
-                        <a href="{{ route('estour.show', $tour->slug) }}">
-                            <img class="card-img-top" src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}"
-                                loading="lazy" decoding="async">
+    </section>
+
+    @include('layouts.partials.collection-trust-strip', ['locale' => 'es'])
+
+    <section class="section section--sand" id="tours-categoria" data-collection-container>
+        <div class="site-container">
+            @if (isset($categorias) && $categorias->count() > 1)
+                <nav class="collection-nav-pills" aria-label="Otras categorías de viaje">
+                    @foreach ($categorias as $catItem)
+                        <a href="{{ route('categoria.show', $catItem->slug) }}"
+                           class="collection-nav-pill {{ $catItem->id === $categoria->id ? 'is-active' : '' }}">
+                            <i class="fa fa-tag" aria-hidden="true"></i>
+                            <span>{{ $catItem->nombre }}</span>
                         </a>
-                        <div class="card-body">
-                            <h5>{{ $tour->nombre }}</h5>
-                            <div class="linea"></div>
-                            <div class="recorrido">
-                                <i class="fa fa-map-marker"></i>&nbsp;
-                                <span>{{ $tour->recorrido }}</span>
-                            </div>
-                            <p class="card-text flex-grow-1">{{ $tour->descripcionCorta }}</p>
-                            <div class="cuerpo row no-gutters mx-0 w-100">
-                                <div class="col-6">
-                                    <p><i class="fa fa-usd"></i> {{ $tour->precio }}.00</p>
-                                </div>
-                                <div class="col-6 text-right">
-                                    <p><i class="fa fa-clock-o"></i> {{ $tour->dias }} días</p>
-                                </div>
-                            </div>
-                            <div class="categorias">
-                                @foreach ($tour->categorias as $cat)
-                                    <a href="{{ route('categoria.show', $cat->slug) }}">{{ $cat->nombre }}</a>
-                                    @if (!$loop->last)
-                                        -&nbsp;
-                                    @endif
-                                @endforeach
-                            </div>
-                            <a href="{{ route('estour.show', $tour->slug) }}" class="boton2023 mt-auto">
-                                Ver más
-                            </a>
-                        </div>
+                    @endforeach
+                </nav>
+            @endif
+
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Tours Seleccionados</span>
+                <h2 class="section-title">Experiencias en {{ $categoria->nombre }}</h2>
+                <p class="section-lead">
+                    Selecciona tu itinerario favorito o solicita una adaptación personalizada a tus fechas y ritmo preferido.
+                </p>
+            </div>
+
+            @if ($tours->count())
+                @include('layouts.partials.collection-controls', [
+                    'locale' => 'es',
+                    'totalTours' => $tours->count(),
+                ])
+
+                <div class="grid-auto" data-reveal-stagger>
+                    @foreach ($tours as $tour)
+                        @include('layouts.partials.public-tour-card', [
+                            'tour' => $tour,
+                            'tourRoute' => 'estour.show',
+                            'categoryRoute' => 'categoria.show',
+                            'locale' => 'es',
+                        ])
+                    @endforeach
+                </div>
+            @else
+                <div class="collection-empty">
+                    <div class="collection-empty__icon" aria-hidden="true">
+                        <i class="fa fa-map-o"></i>
+                    </div>
+                    <h3 class="collection-empty__title">Próximamente más experiencias en {{ $categoria->nombre }}</h3>
+                    <p class="collection-empty__desc">
+                        Estamos preparando nuevas propuestas exclusivas para esta categoría. Mientras tanto, puedes explorar nuestras experiencias más solicitadas o pedir un viaje 100% a medida.
+                    </p>
+                    <div class="collection-empty__actions">
+                        <button type="button" class="btn-brand btn-brand--primary" data-contact-open>
+                            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+                            <span>Diseñar viaje a medida</span>
+                        </button>
+                        <a href="{{ route('experiencias') }}" class="btn-brand btn-brand--ghost">
+                            <span>Ver todas las experiencias</span>
+                            <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                        </a>
                     </div>
                 </div>
-            @endforeach
+            @endif
         </div>
-    </div>
+    </section>
+
+    @include('layouts.partials.collection-bottom-cta', [
+        'locale' => 'es',
+        'categoryName' => $categoria->nombre,
+    ])
 @endsection

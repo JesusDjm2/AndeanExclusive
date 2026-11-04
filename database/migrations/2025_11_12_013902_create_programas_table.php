@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('lang')->nullable();
             $table->string('precioAdulto')->nullable();
             $table->string('precioChild')->nullable();
+            $table->decimal('porcentaje_ganancia', 8, 2)->nullable();
             $table->text('presentacion')->nullable();
             $table->foreignId('agente_id')->nullable()->constrained('agentes') ->nullOnDelete();
             $table->timestamps();

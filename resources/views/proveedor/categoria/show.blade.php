@@ -12,13 +12,13 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header">
-                        <div class="float-left">
+                        <div class="float-start">
                             <span class="card-title">Show Categoria</span>
                         </div>
-                        <div class="float-right">
+                        <div class="float-end">
                             <a class="btn btn-primary" href="{{ route('cateogriasproveedor.index') }}"> Back</a>
                         </div>
-                        <div class="card-body" style="background: #fff; margin:1em">
+                        <div class="card-body m-3">
                             <table class="table table-hover" id="andean">
                                 <thead class="thead">
                                     <tr>
@@ -49,7 +49,7 @@
 
                     <div class="card-body">
 
-                       {{--  <div class="form-group">
+                       {{--  <div class="mb-3">
                             <strong>Nombre:</strong>
                             @foreach ($categorias as $categoria)
                                 @if (Str::contains($categoria->nombre, 'Transporte'))

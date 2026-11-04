@@ -23,11 +23,11 @@
     $canonical = $canonical ?? $canonicalDefault;
     $ogType = $og_type ?? ($cfg['og_type'] ?? 'website');
     $metaKeywords = $keywords ?? ($cfg['keywords'] ?? null);
-    $robots = $robots ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+    $robots = config('seo.indexar') ? ($robots ?? 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1') : 'noindex, nofollow';
     $twitter = $twitter_handle ?? '@AndeanExclusive';
 @endphp
 <title>{{ $metaTitle }}</title>
-<meta name="description" content="{{ Str::limit(strip_tags($metaDesc), 320, '') }}">
+<meta name="description" content="{{ Str::limit(trim(strip_tags($metaDesc)), 157) }}">
 @if (! empty($metaKeywords))
     <meta name="keywords" content="{{ Str::limit($metaKeywords, 255, '') }}">
 @endif

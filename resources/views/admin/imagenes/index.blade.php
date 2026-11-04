@@ -1,4 +1,5 @@
 @extends('layouts.app')
+@section('body-class', 'view-imagenes')
 @section('titulo', 'Banco de imágenes')
 @section('contenido')
     <div class="container-fluid">
@@ -11,9 +12,11 @@
                 <small class="ae-admin-page-desc">Gestión y visualización de imágenes del sistema</small>
             </div>
             <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('imagenes.create') }}" class="btn btn-sm btn-primary">
+                @can('contenido.gestionar')
+<a href="{{ route('imagenes.create') }}" class="btn btn-sm btn-primary">
                     <i class="fas fa-upload me-1"></i> Subir nueva imagen
                 </a>
+@endcan
             </div>
         </div>
 
@@ -128,7 +131,8 @@
                                                 class="btn btn-outline-success" title="Ver imagen completa">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="/imagenes/{{ $imagen->id }}/edit" class="btn btn-outline-info"
+                                            @can('contenido.gestionar')
+<a href="/imagenes/{{ $imagen->id }}/edit" class="btn btn-outline-info"
                                                 title="Editar información">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -141,6 +145,7 @@
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+@endcan
                                         </div>
                                     </td>
                                 </tr>
@@ -164,73 +169,6 @@
         </div>
     </div>
 
-    <style>
-        .image-preview-container {
-            position: relative;
-            display: inline-block;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .image-preview-container:hover {
-            transform: scale(1.05);
-        }
-
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: opacity 0.3s;
-            border-radius: 0.375rem;
-        }
-
-        .image-preview-container:hover .image-overlay {
-            opacity: 1;
-        }
-
-        .image-overlay i {
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .url-container {
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .url-container:hover {
-            background-color: #f8f9fa;
-        }
-
-        .url-container:hover .copiar-badge {
-            display: block !important;
-        }
-
-        .empty-state {
-            opacity: 0.7;
-        }
-
-        .fila-imagen {
-            transition: all 0.3s ease;
-        }
-
-        .fila-imagen.hidden {
-            display: none;
-        }
-
-        .highlight {
-            background-color: rgba(255, 255, 0, 0.1);
-        }
-    </style>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

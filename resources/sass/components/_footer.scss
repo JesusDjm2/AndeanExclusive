@@ -1,0 +1,310 @@
+.site-footer {
+    background: var(--color-ink);
+    color: rgba(255, 255, 255, 0.75);
+    padding-top: var(--space-2xl);
+
+    @media (max-width: 767.98px) {
+        padding-top: var(--space-xl);
+    }
+}
+
+.site-footer__grid {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+    display: grid;
+    gap: var(--space-lg) var(--space-md);
+    grid-template-columns: 1fr;
+    padding-bottom: var(--space-xl);
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 1100px) {
+        grid-template-columns: 1.5fr 0.9fr 1.2fr 1fr;
+    }
+}
+
+.site-footer__brand {
+    @media (max-width: 767.98px) {
+        grid-column: 1 / -1;
+    }
+}
+
+.site-footer__logo {
+    display: inline-block;
+    margin-bottom: var(--space-sm);
+
+    img {
+        height: 52px;
+        width: auto;
+    }
+}
+
+.site-footer__desc {
+    max-width: 36ch;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: var(--space-md);
+}
+
+.site-footer__brand .site-footer__social {
+    margin-top: 0;
+}
+
+.site-footer__title {
+    color: var(--color-white);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--space-sm);
+
+    &::after {
+        content: '';
+        display: block;
+        width: 2.5rem;
+        height: 2px;
+        background: var(--color-accent);
+        margin-top: 0.5rem;
+    }
+}
+
+.site-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+
+    a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--color-accent-light);
+        }
+    }
+}
+
+.site-footer__contact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.95rem;
+
+    a {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+
+        &:hover { color: var(--color-accent-light); }
+    }
+
+    i {
+        width: 1.25rem;
+        color: var(--color-accent-light);
+        margin-right: 0.4rem;
+    }
+}
+
+.site-footer__hint {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.65);
+    margin-bottom: var(--space-sm);
+}
+
+.site-footer__social {
+    display: flex;
+    gap: 0.75rem;
+
+    a {
+        width: 42px;
+        height: 42px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        color: var(--color-white);
+        text-decoration: none;
+        transition: background var(--duration-fast) var(--ease-premium), border-color var(--duration-fast) var(--ease-premium);
+
+        &:hover {
+            background: var(--color-accent);
+            border-color: var(--color-accent);
+        }
+
+        // Each network highlights in its own brand color on hover.
+        &[aria-label="Facebook"]:hover { background: #1877f2; border-color: #1877f2; }
+        &[aria-label="Twitter"]:hover { background: #1da1f2; border-color: #1da1f2; }
+        &[aria-label="TripAdvisor"]:hover { background: #00af87; border-color: #00af87; }
+        &[aria-label="Instagram"]:hover {
+            background: radial-gradient(circle at 30% 110%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+            border-color: transparent;
+        }
+        &[aria-label="Pinterest"]:hover { background: #e60023; border-color: #e60023; }
+    }
+}
+
+.site-footer__bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding-block: var(--space-sm);
+    font-size: 0.85rem;
+}
+
+.site-footer__bottom-inner {
+    max-width: var(--container-max);
+    margin-inline: auto;
+    padding-inline: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    text-align: center;
+
+    @media (min-width: 768px) {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+    }
+
+    a {
+        color: rgba(255, 255, 255, 0.75);
+        transition: color var(--duration-fast);
+
+        &:hover {
+            color: var(--color-white);
+        }
+    }
+}
+
+.site-footer__login-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.6) !important;
+    font-size: 0.78rem;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+    transition: all var(--duration-fast) var(--ease-premium);
+
+    i {
+        font-size: 0.75rem;
+        opacity: 0.75;
+        transition: opacity var(--duration-fast), transform var(--duration-fast);
+    }
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.25);
+        color: var(--color-white) !important;
+
+        i {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 2px;
+    }
+}
+
+// WhatsApp floating action button
+.wa-float {
+    position: fixed;
+    right: var(--space-sm);
+    bottom: var(--space-sm);
+    z-index: 1200;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #25d366;
+    color: var(--color-white) !important;
+    font-size: 1.6rem;
+    box-shadow: var(--shadow-md);
+    text-decoration: none !important;
+    transition: transform var(--duration-fast) var(--ease-premium);
+
+    i {
+        text-decoration: none !important;
+    }
+
+    &:hover,
+    &:focus,
+    &:active,
+    &:visited {
+        transform: scale(1.08);
+        color: var(--color-white) !important;
+        text-decoration: none !important;
+    }
+}
+
+// Floating "back to top" — stacked above the WhatsApp button. Hidden until
+// the page is scrolled; shown via .is-visible (resources/js/back-to-top.js).
+.to-top {
+    position: fixed;
+    right: calc(var(--space-sm) + 6px);
+    bottom: calc(var(--space-sm) + 58px + var(--space-2xs));
+    z-index: 1199;
+    width: 46px;
+    height: 46px;
+    border: none;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-ink);
+    color: var(--color-white);
+    font-size: 1rem;
+    box-shadow: var(--shadow-md);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(14px);
+    transition: opacity var(--duration-base) var(--ease-premium),
+        transform var(--duration-base) var(--ease-premium),
+        visibility var(--duration-base) step-end,
+        background var(--duration-fast),
+        color var(--duration-fast);
+
+    &.is-visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        transition: opacity var(--duration-base) var(--ease-premium),
+            transform var(--duration-base) var(--ease-premium),
+            visibility 0s,
+            background var(--duration-fast),
+            color var(--duration-fast);
+    }
+
+    &:hover {
+        background: var(--color-primary);
+        color: var(--color-ink);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .to-top {
+        transition: opacity 0.01s, visibility 0.01s;
+        transform: none;
+    }
+}

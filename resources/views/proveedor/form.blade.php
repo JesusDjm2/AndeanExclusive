@@ -7,7 +7,7 @@
             @method('PUT')
         @endisset
         <div class="row">
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="nombre">Nombre</label>
                 <input type="text" name="nombre" id="nombre" value="{{ old('nombre', $proveedor->nombre ?? '') }}"
                     class="form-control form-control-sm @error('nombre') is-invalid @enderror" placeholder="Nombre">
@@ -16,7 +16,7 @@
                 @enderror
             </div>
 
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="categoria_id">Categoría</label>
                 <select name="categoria_id" id="categoria_id"
                     class="form-control form-control-sm @error('categoria_id') is-invalid @enderror">
@@ -33,7 +33,7 @@
                 @enderror
             </div>
 
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="direccion">Dirección</label>
                 <input type="text" name="direccion" id="direccion"
                     value="{{ old('direccion', $proveedor->direccion ?? '') }}"
@@ -44,7 +44,7 @@
                 @enderror
             </div>
 
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="ruc">RUC</label>
                 <input type="text" name="ruc" id="ruc" value="{{ old('ruc', $proveedor->ruc ?? '') }}"
                     class="form-control form-control-sm @error('ruc') is-invalid @enderror" placeholder="RUC">
@@ -53,7 +53,7 @@
                 @enderror
             </div>
 
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="telefono">Teléfono</label>
                 <input type="text" name="telefono" id="telefono"
                     value="{{ old('telefono', $proveedor->telefono ?? '') }}"
@@ -63,7 +63,7 @@
                 @enderror
             </div>
 
-            <div class="form-group col-lg-6 mb-3">
+            <div class="mb-3 col-lg-6 mb-3">
                 <label for="correo">Correo</label>
                 <input type="email" name="correo" id="correo"
                     value="{{ old('correo', $proveedor->correo ?? '') }}"
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <div class="form-group mb-3">
+        <div class="mb-3 mb-3">
             <label for="detalles">Detalles</label>
             <textarea name="detalles"  rows="4"
                 class="form-control ckeditor form-control-sm @error('detalles') is-invalid @enderror"

@@ -1,8 +1,49 @@
-// Fonts
-@import url('https://fonts.bunny.net/css?family=Nunito');
+// Design tokens (colors, type, spacing, radii, shadows + Bootstrap variable overrides)
+@import 'tokens';
 
-// Variables
-@import 'variables';
+// Bootstrap: only the layers the public views use (grid, forms, alerts,
+// tables, utilities). Buttons, cards, navs, modals, carousels, etc. are our
+// own components below, so Bootstrap's versions are not compiled in.
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/variables-dark';
+@import 'bootstrap/scss/maps';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/utilities';
+@import 'bootstrap/scss/root';
+@import 'bootstrap/scss/reboot';
+@import 'bootstrap/scss/type';
+@import 'bootstrap/scss/images';
+@import 'bootstrap/scss/containers';
+@import 'bootstrap/scss/grid';
+@import 'bootstrap/scss/tables';
+@import 'bootstrap/scss/forms';
+@import 'bootstrap/scss/transitions';
+@import 'bootstrap/scss/alert';
+@import 'bootstrap/scss/helpers';
+@import 'bootstrap/scss/utilities/api';
 
-// Bootstrap
-@import 'bootstrap/scss/bootstrap';
+// Base element styles
+@import 'base';
+
+// Component layer
+@import 'components/sections';
+@import 'components/hero';
+@import 'components/header';
+@import 'components/footer';
+@import 'components/buttons';
+@import 'components/cards';
+@import 'components/forms';
+@import 'components/faq';
+@import 'components/legal-prose';
+@import 'components/blog-mosaic';
+@import 'components/blog-carousel';
+@import 'components/gallery-modal';
+@import 'components/contact-modal';
+@import 'components/article';
+@import 'components/tour-detail';
+@import 'components/collections';
+@import 'components/pages';
+
+// Small utility layer
+@import 'utilities';

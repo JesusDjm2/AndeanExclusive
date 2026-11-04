@@ -1,532 +1,261 @@
-@extends('layouts.general-es')
+@php
+    $locale = 'es';
+    $altRoute = 'index';
+@endphp
+@extends('layouts.public')
+
 @section('metas')
     @include('layouts.seo-head', ['locale' => 'es', 'page' => 'home', 'og_image' => '/img/machupicchu.png'])
 @endsection
-@section('contenido')
-    <div class="wrapper">
-        @include('layouts.partials.header-public-es', ['enRoute' => 'index'])
-        <section class="section-content no-padding">
-            <div class="container">
-                <div class="row">
-                    <div class="col-sm-12">
-                        <article class="blog-item blog-single">
-                            <div class="entry-excerpt">
-                                <div data-vc-full-width="true" data-vc-full-width-init="false" data-onepage-title="Home"
-                                    data-onepage-slug="home"
-                                    class="vc_row wpb_row vc_row-fluid fondoindex vc_row-has-fill vc_row-o-full-height vc_row-o-columns-middle vc_row-o-content-middle vc_row-flex">
-                                    <div class="wpb_column vc_column_container vc_col-sm-12">
-                                        <div class="vc_column-inner vc_custom_1461317698190">
-                                            <div class="wpb_wrapper">
-                                                <div class='carousel-headings '>
-                                                    <h2 class="text-center" style="color: #fff">¡Reserve ahora!</h2>
-                                                    <p class="text-center" style="color: #fff; font-weight: 800">Consulte
-                                                        disponibilidad para las fechas de su viaje al Perú.</p>
-                                                    @if (session()->has('flash'))
-                                                        <center>
-                                                            <div class="alert alert-success" id="alerta"
-                                                                style="width: 60%;">
-                                                                {{ session()->get('flash') }}<button type="button"
-                                                                    onclick="bye()" style="float: right;">X</button>
-                                                            </div>
-                                                        </center>
-                                                    @endif
-                                                    <form class="form ae-hero-booking-form" action="{{ route('book-castellano') }}" method="post">
-                                                        @csrf
-                                                        <div class="col-lg-12">
-                                                            <div class="col-lg-2">
-                                                                <input class="form-control" type="text" name="da"
-                                                                    placeholder="Llegada" onclick="ocultarError();"
-                                                                    onfocus="(this.type='date')"
-                                                                    onblur="(this.type='text')">
-                                                            </div>
-                                                            <div class="col-lg-2">
-                                                                <input class="form-control" type="text" name="do"
-                                                                    placeholder="Salida" onclick="ocultarError();"
-                                                                    onfocus="(this.type='date')"
-                                                                    onblur="(this.type='text')">
-                                                            </div>
-                                                            <div class="col-lg-2">
-                                                                <input type="number" class="form-control" id="adults"
-                                                                    placeholder="Adultos" required name="adultos" min="1">
-                                                            </div>
-                                                            <div class="col-lg-2">
-                                                                <input type="number" class="form-control" id="children"
-                                                                    placeholder="Niños" name="child" min="0">
-                                                            </div>
-                                                            <div class="col-lg-2">
-                                                                <input type="email" class="form-control" id="email"
-                                                                    placeholder="correo@ejemplo.com" required name="email">
-                                                            </div>
-                                                            <div class="col-lg-2">
-                                                                {{-- <textarea class="form-control" id="mensaje" name="mensaje" rows="3" style="height: 20px"></textarea> --}}
-                                                                <input type="textarea" class="form-control"
-                                                                    id="text" name="mensaje" placeholder="Mensaje">
-                                                            </div><br>
-                                                        </div>
-                                                        <div class="col-lg-12" style="padding-top: 10px">
-                                                            <div class="col-lg-4"></div>
-                                                            <div class="col-lg-4">
-                                                                <input id="botonindex2" type="submit" name="submit"
-                                                                    value="Enviar" />
-                                                            </div>
-                                                            <div class="col-lg-4"></div>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="vc_row-full-width vc_clearfix"></div>
-                                <div class="container" style="padding-top: 3em; padding-bottom:5em">
-                                    <div class="row">
-                                        <div class="col-lg-12" style="padding-bottom: 3em">
-                                            <div class='heading  text-center '>
-                                                <h3>Más solicitados</h3>
-                                                <div class='seperator'></div>
-                                                <div class='desc'>
-                                                    <p class="text-center">Los mejores tours y paquetes de viaje en el Perú.
-                                                        <br />Experiencias de lujo y exclusivas para usted.
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>  
-                                        @foreach ($tours as $tour)
-                                            <div class="col-lg-6">
-                                                <div class='swiper-slide'>
-                                                    <div class='travel-item'>
-                                                        <div class='entry-img'>
-                                                            <a href='{{ route('estour.show', $tour->slug) }}' class='entry-link'>
-                                                                <img src="{{ asset($tour->imgThumb) }}"
-                                                                    class="attachment-post-grid-s size-post-grid-s"
-                                                                    alt="{{ $tour->nombre }}" loading="lazy" style="height: 245px!important"/>
-                                                            </a>
-                                                        </div>
-                                                        <div class='entry-info'>
-                                                            <div class='readmore'>
-                                                                <h3>{{$tour->nombre}}</h3>
-                                                                <h5 class="justify">
-                                                                    {{$tour->descripcionCorta}}
-                                                                </h5>
-                                                                <div
-                                                                    style="width: 100%; padding-top:18px; padding-bottom:40px">
-                                                                    <span style="float: left"><i
-                                                                            class="fa fa-clock-o"></i>
-                                                                        {{$tour->dias}} {{ $tour->dias == 1 ? 'día' : 'días' }}</span>
-                                                                    <span style="float: right"><i
-                                                                            class="fa fa-usd"></i>
-                                                                        {{$tour->precio}}.00</span>
-                                                                </div>
-                                                                <a href="{{ route('estour.show', $tour->slug) }}" class='button'>Más
-                                                                    información</a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-    <div class="contenedor">
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/Belmond-hotel-Nazarenas.webp') }}" alt="Hotel Belmond Nazarenas, Cusco" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Cusco</h3>
-                <p class="card-p">Belmond Hotel Nazarenas</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/Belmond-Hotel-Sol-y-Luna.webp') }}" alt="Hotel Sol y Luna, Valle Sagrado" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Sacred Valley</h3>
-                <p class="card-p">Sol & Luna Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/Belmond-sanctuary-lodge-peru.webp') }}" alt="Belmond Sanctuary Lodge, Machu Picchu" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Machu Picchu</h3>
-                <p class="card-p">Santuary Lodge Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="contenedor">
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/Miraflores-park-hotel-peru.webp') }}" alt="Hotel Miraflores Park, Lima" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Lima</h3>
-                <p class="card-p">Miraflores Park Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/Hotel-titilaka-puno.webp') }}" alt="Hotel Titilaka, Puno" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Puno</h3>
-                <p class="card-p">Titilaka Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/inkaterra-reserva-amazonica.webp') }}" alt="Inkaterra Reserva Amazónica" loading="lazy">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Puerto Maldonado</h3>
-                <p class="card-p">Reserva Amazonas Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-    </div>
-    <div class="contenedor">
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/junior-suite-hotel-b-lima.webp') }}" alt="Hotel B Lima">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Lima</h3>
-                <p class="card-p">B Hotel</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/per_cusco-casa-cartagena.webp') }}" alt="Casa Cartagena, Cusco">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Cusco</h3>
-                <p class="card-p">Casa Cartagena</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-        <div class="cardAndean">
-            <img src="{{ asset('img/index/hotelsdotcom-hacienda-inkaterra.webp') }}" alt="Casona Inkaterra, Valle Sagrado">
-            <div class="card-contentido">
-                <h3 class="card-titulo"><span class="fa fa-map-marker spanHotel"></span> Sacred Valley</h3>
-                <p class="card-p">Casona Inkaterra</p>
-                <p class="starts">
-                    <i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i
-                        class="fa fa-star"></i><i class="fa fa-star"></i>
-                </p>
-            </div>
-        </div>
-    </div>
 
-    <section style="margin-top: 3em">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 col-md-8 col-lg-6 mx-auto text-center">
-                    <div class='heading' style="padding-bottom: 2em">
-                        <h1 style="font-family: 'Dancing Script', cursive;">Destinos populares en el Perú</h1>
-                        <div class='seperator'></div>
-                    </div>
-                </div>
-                <div class="row espacio">
-                    @foreach ($tours2 as $tour)
-                    <div class="col-md-4 mb-3">
-                        <div class="card" style="padding-bottom: 35px">
-                            <a href='{{ route('estour.show', $tour->slug) }}'>
-                                <img class="img-fluid" alt="{{$tour->nombre}}"
-                                    src="{{ asset($tour->imgThumb) }}" loading="lazy" style="width:100%;height:200px;object-fit:cover">
-                            </a>
-                            <div class="card-body">
-                                <div class='entry-info'>
-                                    <h4>{{$tour->nombre}}</h4>
-                                    <p>{{$tour->descripcionCorta}}</p>
-                                    <div style="width: 100%; padding-top:5px; padding-bottom:42px">
-                                        <span style="float: left"><i class="fa fa-clock-o"></i>
-                                            {{$tour->dias}} {{ $tour->dias == 1 ? 'día' : 'días' }}</span>
-                                        <span style="float: right"><i class="fa fa-dollar"></i>
-                                            {{$tour->precio}}.00</span>
-                                    </div>
-                                    <a href='{{ route('estour.show', $tour->slug) }}' id='botonnuevo'>Ver
-                                        más</a>
-                                </div>
+@section('contenido')
+    <section class="hero">
+        <div class="hero__media" data-parallax-container>
+            <picture>
+                <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/machupicchu-mobile.webp') }}" type="image/webp">
+                <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" decoding="async" data-parallax="12" data-breathe>
+            </picture>
+        </div>
+        <div class="hero__content">
+            <h1 class="hero__title">Tours de lujo en Perú, hechos exclusivamente para ti</h1>
+            <div class="hero__divider"></div>
+            <p class="hero__subtitle">
+                Disfruta de los mejores tours, viajes y paquetes vacacionales en Perú — las experiencias más
+                exclusivas y de lujo, hechas a tu medida.
+            </p>
+            @include('layouts.partials.form-consulta-rapida', ['locale' => 'es'])
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="site-container">
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Seleccionados para ti</span>
+                <h2 class="section-title">Más Solicitados</h2>
+                <p class="section-lead">Los mejores tours y paquetes de viaje en el Perú. Experiencias de lujo y exclusivas para usted.</p>
+            </div>
+            <div class="grid-auto" data-reveal-stagger>
+                @foreach ($tours as $tour)
+                    <a href="{{ route('estour.show', $tour->slug) }}" class="card-tour">
+                        <div class="card-tour__media">
+                            <img src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}" loading="lazy">
+                        </div>
+                        <div class="card-tour__body">
+                            <h3 class="card-tour__title">{{ $tour->nombre }}</h3>
+                            <p class="card-tour__excerpt">{{ $tour->descripcionCorta }}</p>
+                            <div class="flex-between mt-xs">
+                                <span class="card-tour__meta"><i class="fa fa-clock-o"></i> {{ $tour->dias }} {{ $tour->dias == 1 ? 'día' : 'días' }}</span>
+                                <span class="card-tour__meta"><i class="fa fa-usd"></i> {{ $tour->precio }}.00</span>
                             </div>
                         </div>
-                    </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="section section--sand section--hotels">
+        <div class="site-container">
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Dónde te hospedarás</span>
+                <h2 class="section-title">Los Hoteles Más Prestigiosos del Perú</h2>
+                <p class="section-lead">No siempre son los hoteles que más reservamos, sino los que marcan el estándar de la hospitalidad de lujo en el país. De íconos coloniales de Belmond en Cusco a eco-lodges escondidos en la Amazonía, cada nombre de esta lista es sinónimo de excelencia peruana, y el referente contra el que diseñamos cada itinerario.</p>
+            </div>
+        </div>
+        @php
+            $hotels = [
+                ['img' => 'img/hotels/belmond-nazarenas-2.jpg', 'place' => 'Cusco', 'name' => 'Belmond Hotel Nazarenas', 'desc' => 'Un convento colonial del siglo XVI convertido en un santuario de suites, a pasos de la Plaza de Armas de Cusco.',
+                    'gallery' => ['img/hotels/belmond-nazarenas-2.jpg', 'img/hotels/belmond-nazarenas-3.jpg', 'img/hotels/belmond-nazarenas-1.jpg', 'img/hotels/belmond-nazarenas-4.jpg', 'img/hotels/belmond-nazarenas-5.jpg']],
+                ['img' => 'img/hotels/sol-y-luna-1.jpg', 'place' => 'Valle Sagrado', 'name' => 'Sol & Luna Hotel', 'desc' => 'Casitas de techo de paja rodeadas de jardines, en pleno corazón del Valle Sagrado.',
+                    'gallery' => ['img/hotels/sol-y-luna-1.jpg', 'img/hotels/sol-y-luna-2.jpg', 'img/hotels/sol-y-luna-4.jpg', 'img/hotels/sol-y-luna-5.jpg', 'img/hotels/sol-y-luna-3.jpg']],
+                ['img' => 'img/hotels/sanctuary-lodge-1.jpg', 'place' => 'Machu Picchu', 'name' => 'Sanctuary Lodge Hotel', 'desc' => 'El único hotel a la entrada de Machu Picchu, con acceso privilegiado a la ciudadela al amanecer.',
+                    'gallery' => ['img/hotels/sanctuary-lodge-1.jpg', 'img/hotels/sanctuary-lodge-2.jpg', 'img/hotels/sanctuary-lodge-3.jpg', 'img/hotels/sanctuary-lodge-4.jpg', 'img/hotels/sanctuary-lodge-5.jpg']],
+                ['img' => 'img/hotels/miraflores-park-5.jpg', 'place' => 'Lima', 'name' => 'Miraflores Park Hotel', 'desc' => 'Una torre frente al mar sobre el Malecón de Lima, con vistas panorámicas a la ciudad y al Pacífico.',
+                    'gallery' => ['img/hotels/miraflores-park-5.jpg', 'img/hotels/miraflores-park-1.jpg', 'img/hotels/miraflores-park-2.jpg', 'img/hotels/miraflores-park-3.jpg', 'img/hotels/miraflores-park-4.jpg']],
+                ['img' => 'img/hotels/titilaka-1.jpg', 'place' => 'Puno', 'name' => 'Titilaka Hotel', 'desc' => 'Un lodge de suites en su propia península privada sobre el lago Titicaca, el lago navegable más alto del mundo.',
+                    'gallery' => ['img/hotels/titilaka-1.jpg', 'img/hotels/titilaka-2.jpg', 'img/hotels/titilaka-3.jpg', 'img/hotels/titilaka-4.jpg']],
+                ['img' => 'img/hotels/reserva-amazonica-1.jpg', 'place' => 'Puerto Maldonado', 'name' => 'Reserva Amazonas Hotel', 'desc' => 'Un eco-lodge carbono neutral, en el corazón de una reserva privada de 17.000 hectáreas en la Amazonía.',
+                    'gallery' => ['img/hotels/reserva-amazonica-1.jpg', 'img/hotels/reserva-amazonica-2.jpg', 'img/hotels/reserva-amazonica-3.jpg', 'img/hotels/reserva-amazonica-4.jpg']],
+                ['img' => 'img/hotels/hotel-b-1.jpg', 'place' => 'Lima', 'name' => 'B Hotel', 'desc' => 'La única dirección Relais & Châteaux de Lima, una mansión Belle Époque convertida en hotel boutique de arte en Barranco.',
+                    'gallery' => ['img/hotels/hotel-b-1.jpg', 'img/hotels/hotel-b-2.jpg', 'img/hotels/hotel-b-3.jpg', 'img/hotels/hotel-b-4.jpg', 'img/hotels/hotel-b-5.jpg']],
+                ['img' => 'img/hotels/casa-cartagena-1.jpg', 'place' => 'Cusco', 'name' => 'Casa Cartagena', 'desc' => 'Una mansión colonial del siglo XVI en el centro histórico de Cusco, reinventada como hotel boutique y spa cinco estrellas.',
+                    'gallery' => ['img/hotels/casa-cartagena-1.jpg', 'img/hotels/casa-cartagena-2.jpg', 'img/hotels/casa-cartagena-3.jpg', 'img/hotels/casa-cartagena-4.jpg', 'img/hotels/casa-cartagena-5.jpg']],
+                ['img' => 'img/hotels/casona-inkaterra-1.jpg', 'place' => 'Valle Sagrado', 'name' => 'Casona Inkaterra', 'desc' => 'Una hacienda contemporánea sobre 100 acres del Valle Sagrado, enmarcada por los Andes.',
+                    'gallery' => ['img/hotels/casona-inkaterra-1.jpg', 'img/hotels/casona-inkaterra-2.jpg', 'img/hotels/casona-inkaterra-3.jpg']],
+            ];
+        @endphp
+        @include('layouts.partials.hotel-wall', [
+            'hotels' => $hotels,
+            'labels' => [
+                'cta' => 'Ver fotos', 'open' => 'Ver galería de fotos', 'close' => 'Cerrar galería',
+                'prev' => 'Foto anterior', 'next' => 'Foto siguiente', 'dialog' => 'Galería de fotos del hotel',
+            ],
+        ])
+    </section>
+
+    <section class="section">
+        <div class="site-container">
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Explora Perú</span>
+                <h2 class="section-title">Destinos Populares</h2>
+            </div>
+            <div class="grid-auto" data-reveal-stagger>
+                @foreach ($tours2 as $tour)
+                    <a href="{{ route('estour.show', $tour->slug) }}" class="card-tour">
+                        <div class="card-tour__media">
+                            <img src="{{ asset($tour->imgThumb) }}" alt="{{ $tour->nombre }}" loading="lazy">
+                        </div>
+                        <div class="card-tour__body">
+                            <h3 class="card-tour__title">{{ $tour->nombre }}</h3>
+                            <p class="card-tour__excerpt">{{ $tour->descripcionCorta }}</p>
+                            <div class="flex-between mt-xs">
+                                <span class="card-tour__meta"><i class="fa fa-clock-o"></i> {{ $tour->dias }} {{ $tour->dias == 1 ? 'día' : 'días' }}</span>
+                                <span class="card-tour__meta"><i class="fa fa-usd"></i> {{ $tour->precio }}.00</span>
+                            </div>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </section>
+
+    <section class="section--tight section--sand">
+        <div class="site-container">
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Confían en nosotros</span>
+                <h2 class="section-title section-title--sm">Nuestros Aliados</h2>
+            </div>
+            <div class="partner-logos" data-reveal>
+                <img src="{{ asset('img/logos/aatc.webp') }}" loading="lazy" alt="AATC Cusco">
+                <img src="{{ asset('img/logos/marca_peru.webp') }}" loading="lazy" alt="Marca Perú">
+                <img src="{{ asset('img/logos/regenera2.webp') }}" loading="lazy" alt="Regenera Cusco Perú">
+                <img src="{{ asset('img/logos/tripadvisor.webp') }}" loading="lazy" alt="TripAdvisor">
+                <img src="{{ asset('img/logos/PeruRail.webp') }}" loading="lazy" alt="PeruRail">
+            </div>
+        </div>
+    </section>
+
+    @if ($blogs->count())
+        <section class="section section--blog">
+            <div class="site-container">
+                <div class="section-header">
+                    <span class="section-eyebrow font-display">Desde el blog</span>
+                    <h2 class="section-title">Últimos Artículos</h2>
+                    <p class="section-lead">Historias, consejos e inspiración para tu viaje por el Perú.</p>
+                </div>
+            </div>
+            <div class="blog-rail" data-reveal data-blog-rail>
+                <div class="blog-rail__track" tabindex="0" aria-label="Últimos artículos">
+                    @foreach ($blogs as $blog)
+                        <a href="{{ route('esblog.show', $blog->slug) }}" class="blog-card">
+                            <div class="blog-card__media">
+                                <img src="{{ $blog->thumbUrl() }}" alt="{{ $blog->nombre }}" loading="lazy">
+                            </div>
+                            <div class="blog-card__body">
+                                @if ($blog->created_at)
+                                    <span class="blog-card__date">{{ $blog->created_at->format('d/m/Y') }}</span>
+                                @endif
+                                <h3 class="blog-card__title">{{ $blog->nombre }}</h3>
+                                <span class="blog-card__more">Leer artículo <i class="fa fa-long-arrow-right" aria-hidden="true"></i></span>
+                            </div>
+                        </a>
                     @endforeach
                 </div>
+                <button type="button" class="blog-rail__nav blog-rail__nav--prev" data-rail-prev aria-label="Artículos anteriores"><i class="fa fa-angle-left" aria-hidden="true"></i></button>
+                <button type="button" class="blog-rail__nav blog-rail__nav--next" data-rail-next aria-label="Artículos siguientes"><i class="fa fa-angle-right" aria-hidden="true"></i></button>
+            </div>
+        </section>
+    @endif
+
+    <section class="section section--reviews">
+        <span class="reviews-mark" data-float aria-hidden="true">&rdquo;</span>
+        <div class="site-container">
+            <div class="section-header">
+                <span class="section-eyebrow font-display">Lo que dicen los viajeros</span>
+                <h2 class="section-title">Opiniones de Viajeros</h2>
+                <p class="section-lead">Nos importa su experiencia. Trabajamos cada día para ofrecer un servicio impecable, cercano y a la altura de un viaje de lujo por el Perú.</p>
+            </div>
+            <div class="reviews-grid" data-reveal-stagger>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"En nombre de todo el equipo de Blue Parallel, quiero agradecerles muchísimo por el excelente trabajo durante los últimos 12 años. Ha sido un verdadero placer trabajar con ustedes."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">EB</span>
+                        <span class="card-review__who">
+                            <strong>Emmanuel Burgio</strong>
+                            <small>Presidente, Blue Parallel Inc.</small>
+                        </span>
+                    </figcaption>
+                </figure>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"Gracias por el delicioso almuerzo. Disfrutamos mucho la visita a tejidos y a los cuyes. ¡Tú y tu madre son gemelas! Gracias y hasta la próxima."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">FA</span>
+                        <span class="card-review__who">
+                            <strong>Familia Anderson</strong>
+                            <small>Viaje familiar</small>
+                        </span>
+                    </figcaption>
+                </figure>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"Ha sido un placer trabajar junto al equipo de Andean Exclusive, les agradezco mucho su profesionalismo, paciencia, apoyo y dedicación."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">AR</span>
+                        <span class="card-review__who">
+                            <strong>Travel Planner, Aracari</strong>
+                            <small>Agencia aliada</small>
+                        </span>
+                    </figcaption>
+                </figure>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"Estuvimos muy satisfechas con nuestro tour. Carmen y su equipo son creativos y atentos, los guías fueron de primer nivel y la atención fue personalizada. Disfrutamos mucho los detalles y sorpresas especiales, como el almuerzo campestre en medio de la campiña. Nos trataron como realeza en todo momento."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">GS</span>
+                        <span class="card-review__who">
+                            <strong>Grace, Susan &amp; Nancy</strong>
+                            <small>Clientas</small>
+                        </span>
+                    </figcaption>
+                </figure>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"Nuestro tiempo en Perú fue increíble y de alguna manera nos marcará para siempre. Veronica, Freddie, Lucio y Mario fueron tan sobresalientes que es difícil compararlos con otros."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">ER</span>
+                        <span class="card-review__who">
+                            <strong>Erna</strong>
+                            <small>Viajera</small>
+                        </span>
+                    </figcaption>
+                </figure>
+                <figure class="card-review">
+                    <span class="card-review__mark" aria-hidden="true">&ldquo;</span>
+                    <div class="card-review__stars" aria-label="Calificado con 5 de 5"><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i><i class="fa fa-star"></i></div>
+                    <blockquote class="card-review__quote"><p>"Nuestro viaje fue un verdadero éxito y los viajeros se llevaron recuerdos inolvidables del Perú. Usted fue la arquitecta del viaje y me alegré de comprobar que sus estándares siguen tan altos como siempre."</p></blockquote>
+                    <figcaption class="card-review__byline">
+                        <span class="card-review__avatar" aria-hidden="true">JD</span>
+                        <span class="card-review__who">
+                            <strong>Jean-Louis Doss</strong>
+                            <small>Cliente de siempre</small>
+                        </span>
+                    </figcaption>
+                </figure>
+            </div>
+        </div>
+            <div class="reviews__cta" data-reveal>
+                <span class="section-eyebrow font-display">&iquest;Lista para tu propia historia?</span>
+                <h3 class="reviews__cta-title">Comienza a planificar tu viaje al Per&uacute;</h3>
+                <p class="reviews__cta-note">Cu&eacute;ntanos tus fechas e ideas &mdash; respondemos en menos de un d&iacute;a h&aacute;bil.</p>
+                <button type="button" class="btn-brand btn-brand--primary" data-contact-open>Planificar mi viaje</button>
             </div>
         </div>
     </section>
-
-    <div class="vc_row-full-width vc_clearfix"></div>
-    <div class="row text-center">
-        <div class='heading  text-center'>
-            <h3>Nuestros aliados</h3>
-            <div id="separadordjm"></div>
-        </div id="separadordjm">
-    </div>
-
-    <div class="row text-center" id="divdjm">
-        <div class="col-lg-1"></div>
-        <div class="col-lg-2">
-            <img src="{{ asset('img/logos/aatc.webp') }}" loading="lazy" id="filtro" alt="AATC Cusco">
-        </div>
-        <div class="col-lg-2">
-            <img src="{{ asset('img/logos/marca_peru.webp') }}" loading="lazy" id="filtro" alt="Marca Perú">
-        </div>
-        <div class="col-lg-2">
-            <img src="{{ asset('img/logos/regenera2.webp') }}" loading="lazy" id="filtro" alt="Regenera Cusco Perú">
-        </div>
-        <div class="col-lg-2">
-            <img src="{{ asset('img/logos/tripadvisor.webp') }}" loading="lazy" id="filtro" alt="TripAdvisor">
-        </div>
-        <div class="col-lg-2">
-            <img src="{{ asset('img/logos/PeruRail.webp') }}" loading="lazy" id="filtro" alt="PeruRail">
-        </div>
-        <div class="col-lg-1"></div>
-    </div>
-    <div class="contenedorBlogs row">
-        @foreach ($blogs as $blog)
-            <div class="imagen col-lg-3">
-                <img src="{{ asset('img/thumb/' . $blog->imgThumb) }}" alt="{{ $blog->nombre }}" loading="lazy">
-                <div class="cardBlog">
-                    <h3>{{ $blog->nombre }}</h3>
-                    <p>{{ $blog->descripcionCorta }} </p>
-                    <div class="btn-container">
-                        <a href="{{ route('esblog.show', $blog->slug) }}" target="_blank" rel="noopener" class="btn">Leer artículo</a>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    </div>
-
-    <div data-vc-full-width="true" data-vc-full-width-init="false"
-        class="vc_row wpb_row vc_row-fluid vc_custom_1461246190555 vc_row-has-fill">
-        <div class='heading  text-center '>
-            <h3 style="color:#fff">Opiniones de viajeros</h3>
-            <div class='desc'>
-                <p style="color: #fff" class="text-center">Nos importa su experiencia. Trabajamos cada día para ofrecer un servicio
-                    <br />impecable, cercano y a la altura de un viaje de lujo por el Perú.
-                </p>
-            </div>
-            <div class='seperator' style='background-color:#9499bb;'></div>
-        </div>
-        <div class="wpb_column vc_column_container vc_col-sm-1">
-            <div class="vc_column-inner ">
-                <div class="wpb_wrapper"></div>
-            </div>
-        </div>
-        <div class="wpb_column vc_column_container vc_col-sm-10">
-            <div class="vc_column-inner ">
-                <div class="wpb_wrapper">
-                    <div class='carousel-testimonials text-light'>
-                        <div class='swiper-container'>
-                            <div class='swiper-wrapper' style="height: auto;">
-                                <div class='swiper-slide'>
-                                    <div class='testimonial'>
-                                        <div class='stars'><i class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i>
-                                        </div>
-                                        <div class='tcontent'>“On behalf of all Blue Parallel team, I
-                                            would like to thank you a million for all the hard and
-                                            excellent work over the past 12 years . It has been a real
-                                            pleasure to work with you and we always felt that we could
-                                            count on you regardless of the day / time and regardless of
-                                            how challenging the request was. We will miss you a lot as
-                                            we almost felt you were part of our day -to day team. We
-                                            wish you the best of luck, and we hope that our paths will
-                                            again cross in the future. ”</div>
-                                        <br>
-                                        <strong>Emmanuel Burgio - President Blue Parallel. Inc.</strong>
-                                    </div>
-                                </div>
-                                <div class='swiper-slide'>
-                                    <div class='testimonial'>
-                                        <div class='stars'><i class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i>
-                                        </div>
-                                        <div class='tcontent'>“Hello Carmen:
-                                            <br> Thank you for our delicious lunch with you. We enjoyed
-                                            it very much and also our weaving visit and guinea pig !!
-                                            You and your mother are twins!! I just wanted to confirm we
-                                            leave lake titilaka hotel with octavio tomorrow at 07.00am.
-                                            Thank you and until next time”
-                                        </div>
-                                        <br>
-                                        <strong>The Anderson Family</strong>
-                                    </div>
-                                </div>
-                                <div class='swiper-slide'>
-                                    <div class='testimonial'>
-                                        <div class='stars'><i class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i><i class='fa fa-star'></i><i
-                                                class='fa fa-star'></i>
-                                        </div>
-                                        <div class='tcontent'>“Dear Carmen, Marleny, Luisa and Raquel:
-                                            <br> I hope you are good I just wanted to tell you from the
-                                            date my load left as a Travel Planner in Aracari. Keep in
-                                            touch with the company and I hope we can find again in the
-                                            future It has been a pleasure working together with Andean
-                                            Exclusive team and I thank you very much for your
-                                            professionalism, patience, support and dedication. I leave
-                                            my contact information”
-                                        </div>
-                                        <br>
-                                        <strong>Travel Planner in Aracari</strong>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class='swiper-pagination'></div>
-                        <div class='swiper-button-prev'></div>
-                        <div class='swiper-button-next'></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="wpb_column vc_column_container vc_col-sm-1">
-            <div class="vc_column-inner ">
-                <div class="wpb_wrapper"></div>
-            </div>
-        </div>
-    </div>
-    <div class="vc_row-full-width vc_clearfix"></div>
-    </div>
-    </article>
-    </div>
-    <div class="row" id="bookindex">
-        <div class="col-lg-2"></div>
-        <div class="col-lg-8">
-            <div id="separador"></div>
-            <div id="separador"></div>
-            <div class='heading  text-center '>
-                <h3>Cómo contactarnos</h3>
-                <div class='seperator'></div>
-                <div class='desc'>
-                    <p class="text-center">Escríbanos y planifique su viaje al Perú con nuestro equipo.</p>
-                </div>
-            </div>
-            <!-----Booking---------->
-            <div class="form text-center">
-                <h4 style="padding-top: 13px">Solicitud de reserva</h4>
-                <form action="{{ route('bookindex2castellano') }}" method="post" role="form" class="book1">
-                    @csrf
-                    <div class="form-row">
-                        <br>
-                        <div class="col-lg-12">
-                            <span class="form-label">Nombre:</span>
-                            <input type="text" name="nombre" required class="form-control" data-rule="minlen:4"
-                                data-msg="Ingrese al menos 4 caracteres" />
-                        </div>
-                        <div class="col-lg-6 mt-3">
-                            <span class="form-label">Correo electrónico:</span>
-                            <input type="email" class="form-control" required name="email" id="email"
-                                data-rule="email" data-msg="Ingrese un correo válido" />
-                            <div class="validation"></div>
-                        </div>
-                        <div class="col-lg-6 mt-3">
-                            <span class="form-label">Teléfono:</span>
-                            <input type="text" class="form-control" required name="telefono" id="telefono"
-                                data-rule="minlen:4" />
-                            <div class="validation"></div>
-                        </div>                        
-                    </div>
-                    <div class="col-lg-12">
-                        <span class="form-label">Mensaje:</span>
-                        <textarea class="form-control" name="mensaje" id="mensaje" rows="5" data-rule="required"
-                            data-msg="Escriba su consulta"></textarea>
-                        <div class="validation"></div>
-                    </div><br><br>
-                    <div class="col-lg-12 mx-auto text-center">
-                        <p id="checkmark" style="color:#fff;display: none; text-align:center; transition: opacity 0.5s ease">
-                            ¡Respuesta correcta! &#10004;</p>
-                        <div id="captcha" style="opacity: 1; transition: opacity 0.5s ease; padding-top:1em">
-                            <span for="suma" style="float:initial">Resuelva la suma antes de enviar:</span><br>
-                            <span id="num1" style="float: initial"></span> <i style="color:#fff">+</i> <span id="num2" style="float: initial"></span> 
-                            <i style="color: #fff">=</i>
-                            <span style="float: initial">
-                                <input type="number" id="respuesta" name="respuesta" required style="width: 120px; color:#000">
-                            </span>
-                            <span style="float: initial">
-                                <button type="button" id="verificar"
-                                    style="background:#fff; color:#000;border:1px solid grey">Verificar</button>
-                            </span>
-                            <input type="hidden" id="valorCorrecto" name="valorCorrecto">
-                        </div>
-                    </div>
-                    <input id="botondjm2" type="submit" name="submit" value="Enviar" disabled />
-                    <br>
-                </form>
-
-                <script>
-                    var intentos = 0;
-            
-                    function generarSumaAleatoria() {
-                        var num1 = Math.floor(Math.random() * 12) + 3;
-                        var num2 = Math.floor(Math.random() * (15 - num1)) + num1;
-                        var suma = num1 + num2;
-                        var num1Elemento = document.getElementById("num1");
-                        var num2Elemento = document.getElementById("num2");
-                        num1Elemento.textContent = num1;
-                        num2Elemento.textContent = num2;
-                        var valorCorrecto = document.getElementById("valorCorrecto");
-                        valorCorrecto.value = suma;
-                    }
-                    window.onload = generarSumaAleatoria;
-                    document.getElementById("verificar").addEventListener("click", function() {
-                        var respuestaUsuario = parseInt(document.getElementById("respuesta").value);
-                        var valorCorrecto = parseInt(document.getElementById("valorCorrecto").value);
-            
-                        if (respuestaUsuario === valorCorrecto) {
-                            var captchaDiv = document.getElementById("captcha");
-                            captchaDiv.style.opacity = "0";
-                            setTimeout(function() {
-                                captchaDiv.style.display = "none";
-                            }, 500);
-                            document.getElementById("botondjm2").disabled = false;
-                            document.getElementById('checkmark').style.display = 'block';
-                            setTimeout(function() {
-                                document.getElementById('checkmark').style.display =
-                                    'none';
-                            }, 1200);
-                        } else {
-                            intentos++;
-                            if (intentos === 3) {
-                                alert("Has fallado 3 veces. Se te redirigirá a la página de error.");
-                                window.location.href = "404";
-                            } else {
-                                alert("Respuesta incorrecta. Intento " + intentos + " de 3. Por favor, verifica tu respuesta.");
-                                generarSumaAleatoria();
-                            }
-                        }
-                    });
-                </script>
-            </div>
-        </div>
-        <div class="col-lg-2"></div>
-    </div>
-    </section>
-    </div>
 @endsection

@@ -1,0 +1,493 @@
+// Dashboard (resources/views/home.blade.php).
+
+.dash-hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.dash-hero__date {
+    margin-bottom: 0.2rem;
+    color: var(--ae-accent-text);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dash-hero__title {
+    margin-bottom: 0.2rem;
+    color: $color-ink;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    font-weight: 700;
+}
+
+.dash-hero__lead {
+    margin: 0;
+    color: $color-ink-soft;
+}
+
+.dash-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    @include media-breakpoint-down(sm) {
+        width: 100%;
+
+        .btn { flex: 1 1 0; }
+    }
+}
+
+// ---- KPIs -----------------------------------------------------------------------
+
+.dash-kpis {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+
+    @include media-breakpoint-up(xl) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    @include media-breakpoint-down(sm) {
+        gap: 0.6rem;
+    }
+}
+
+.kpi {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1.1rem 1.2rem;
+    border: 1px solid $card-border-color;
+    border-radius: $border-radius-lg;
+    background: var(--ae-surface);
+
+    p { margin: 0; }
+
+    // Móvil: 2 columnas compactas, sin icono, para ver los 4 indicadores de un vistazo.
+    @include media-breakpoint-down(sm) {
+        padding: 0.8rem 0.9rem;
+
+        .kpi__icon { display: none; }
+        .kpi__value { font-size: 1.55rem; }
+    }
+}
+
+.kpi__icon {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: $border-radius;
+    background: rgba($color-accent, 0.1);
+    color: var(--ae-accent-text);
+    font-size: 1.1rem;
+
+    &--live {
+        background: rgba($color-success, 0.12);
+        color: var(--ae-success);
+    }
+}
+
+.kpi__label {
+    color: $color-ink-soft;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.kpi__value {
+    color: $color-ink;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+}
+
+.kpi__meta {
+    color: $color-ink-soft;
+    font-size: 0.78rem;
+}
+
+// ---- Grid -----------------------------------------------------------------------
+
+.dash-grid {
+    display: grid;
+    gap: 1.25rem;
+
+    @include media-breakpoint-up(xl) {
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        align-items: start;
+    }
+}
+
+.dash-grid__side {
+    display: grid;
+    gap: 1.25rem;
+
+    // En tablet las dos tarjetas laterales van lado a lado bajo la lista.
+    @include media-breakpoint-between(md, xl) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        align-items: start;
+    }
+}
+
+.dash-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.9rem 1.2rem;
+    background: var(--ae-surface);
+
+    .btn-link {
+        padding: 0;
+        font-weight: 600;
+        text-decoration: none;
+    }
+}
+
+.dash-card__title {
+    margin: 0;
+    color: $color-ink;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+// ---- Viajes -----------------------------------------------------------------------
+
+.dash-ongoing {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid $card-border-color;
+    background: rgba($color-success, 0.05);
+}
+
+.dash-ongoing__label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-bottom: 0.5rem;
+    color: var(--ae-success);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dash-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: $color-success;
+    box-shadow: 0 0 0 0 rgba($color-success, 0.5);
+    animation: dash-pulse 2s infinite;
+
+    @media (prefers-reduced-motion: reduce) { animation: none; }
+}
+
+@keyframes dash-pulse {
+    70% { box-shadow: 0 0 0 8px rgba($color-success, 0); }
+    100% { box-shadow: 0 0 0 0 rgba($color-success, 0); }
+}
+
+.dash-ongoing__item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding: 0.35rem 0;
+    color: $color-ink;
+    text-decoration: none;
+
+    span { color: $color-ink-soft; font-size: 0.85rem; }
+    &:hover strong { color: var(--ae-accent-text); }
+}
+
+.trip-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.trip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.2rem;
+    border-top: 1px solid $card-border-color;
+
+    &:first-child { border-top: 0; }
+    &:hover { background: var(--ae-surface-2); }
+
+    @include media-breakpoint-down(md) {
+        grid-template-columns: auto minmax(0, 1fr);
+
+        .trip__side {
+            grid-column: 1 / -1;
+            justify-content: flex-start;
+        }
+    }
+}
+
+.trip__when {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: $border-radius;
+    background: var(--ae-hover);
+    color: $color-ink;
+    line-height: 1;
+
+    &--soon { background: rgba($color-danger, 0.1); color: var(--ae-danger); }
+    &--near { background: rgba($color-accent, 0.1); color: var(--ae-accent-text); }
+}
+
+.trip__day {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.trip__month {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.trip__name {
+    margin: 0 0 0.2rem;
+    overflow: hidden;
+    color: $color-ink;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.trip__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    color: $color-ink-soft;
+    font-size: 0.82rem;
+
+    i { margin-right: 0.2rem; color: rgba($color-accent, 0.7); }
+}
+
+.trip__side {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+}
+
+.trip__badge {
+    font-weight: 600;
+
+    &--soon { background: rgba($color-danger, 0.12); color: var(--ae-danger); }
+    &--near { background: rgba($color-accent, 0.12); color: var(--ae-accent-text); }
+    &--later { background: var(--ae-chip); color: $color-ink-soft; }
+}
+
+.trip__actions {
+    display: flex;
+    gap: 0.3rem;
+}
+
+// ---- Gráfico de barras por mes (CSS puro) -------------------------------------------
+
+.month-bars {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.month-bars__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+
+    &.is-current {
+        .month-bars__fill { background: $color-accent; }
+        .month-bars__label { color: var(--ae-accent-text); font-weight: 700; }
+    }
+}
+
+.month-bars__value {
+    color: $color-ink-soft;
+    font-size: 0.68rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.month-bars__bar {
+    display: flex;
+    align-items: flex-end;
+    width: 100%;
+    height: 7rem;
+    border-radius: 4px;
+    background: var(--ae-hover);
+}
+
+.month-bars__fill {
+    display: block;
+    width: 100%;
+    border-radius: 4px;
+    background: rgba($color-accent, 0.45);
+}
+
+// Alturas en pasos de 5 % (data-fill), sin estilos en línea.
+@for $i from 0 through 20 {
+    .month-bars__fill[data-fill="#{$i * 5}"] { height: #{$i * 5%}; }
+}
+
+.month-bars__label {
+    color: $color-ink-soft;
+    font-size: 0.62rem;
+    text-transform: uppercase;
+}
+
+// ---- Salud del contenido ---------------------------------------------------------------
+
+.content-health {
+    display: grid;
+    gap: 1rem;
+
+    @include media-breakpoint-up(md) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.content-health__item {
+    padding: 1rem;
+    border-radius: $border-radius;
+    background: var(--ae-surface-2);
+
+    p { margin: 0; }
+}
+
+.content-health__label {
+    color: $color-ink-soft;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.content-health__value {
+    margin: 0.2rem 0 0.4rem !important;
+    color: $color-ink;
+    font-size: 1.35rem;
+    font-weight: 700;
+
+    small { color: $color-ink-soft; font-size: 0.75rem; }
+}
+
+.content-health__warn {
+    color: var(--ae-warn);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover { text-decoration: underline; }
+}
+
+.content-health__ok {
+    color: var(--ae-success);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.content-health__links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+
+    a { text-decoration: none; }
+}
+
+.content-health__recent {
+    margin-top: 0.4rem !important;
+    color: $color-ink;
+    font-size: 0.88rem;
+
+    i { width: 1rem; margin-right: 0.3rem; color: var(--ae-accent-text); }
+    small { display: block; margin-left: 1.3rem; color: $color-ink-soft; }
+}
+
+// ---- Cobros por gestionar --------------------------------------------------------------
+
+.cobro-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cobro-list__item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1.2rem;
+    border-top: 1px solid $card-border-color;
+
+    &:first-child { border-top: 0; }
+}
+
+.cobro-list__link {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    text-decoration: none;
+
+    &:hover .cobro-list__name { color: var(--ae-accent-text); }
+}
+
+.cobro-list__name {
+    overflow: hidden;
+    color: $color-ink;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cobro-list__due {
+    color: $color-ink-soft;
+    font-size: 0.78rem;
+
+    &.is-overdue { color: var(--ae-danger); font-weight: 700; }
+}
+
+.cobro-list__amount {
+    color: $color-ink;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.cobro-list__total {
+    margin: 0;
+    padding: 0.75rem 1.2rem;
+    border-top: 1px solid $card-border-color;
+    background: var(--ae-surface-2);
+    color: $color-ink-soft;
+    font-size: 0.85rem;
+
+    strong { color: $color-ink; }
+}

@@ -1,10 +1,57 @@
 @extends('layouts.general-es')
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'es', 'page' => 'preguntas', 'og_image' => '/img/faqs.jpg', 'og_type' => 'article'])
+    <title>Preguntas frecuentes para viajar a Perú</title>
+    <meta name="keywords"
+        content="como viajar a Perú 2022, viajar a perú, Peru tours, Machu Picchu luxury, ¿Cómo viajar a Perú?, que se necesita para viajar a Peru" />
+    <meta name="description" content="La respuesta a las preguntas más frecuentes para viajar a Perú." />
+    <meta property="og:url" content="https://www.andeanexclusive.com/preguntas-frecuentes">
+    <meta property="og:title" content="Preguntas Frecuentes al viajar a Perú">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://andeanexclusive.com/img/faqs.jpg" />
+    <meta name="author" content="Web Masters DJM2" />
+    <link rel="canonical" href="https://www.andeanexclusive.com/preguntas-frecuentes" />
 @endsection
 @section('contenido')
     <div class="wrapper">
-        @include('layouts.partials.header-public-es', ['enRoute' => 'faqs'])
+        <header id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="header-wrapper">
+                            <div class="site-branding">
+                                <a href="/" rel="home" class="logo-text-link">
+                                    <img src="img/andean-exclusive-logo.png" id="logo">
+                                </a>
+                            </div>
+                            <nav class="main-nav">
+                                <ul class="one-page-menu">
+                                    @include('layouts.menu-castellano')
+                                    <li id="display" class="menu-has-children">
+                                        <a>
+                                            <button type="button" class="botondjm">Language <i
+                                                    class="fa fa-chevron-down"></i></button>
+                                        </a>
+                                        <ul>
+                                            <li><a>Español</a></li>
+                                            <li><a href="faqs">Ingles</a></li>
+                                        </ul>
+                                    </li>
+                                    <li id="wasanum" class='menu-item'><a href='https://bit.ly/3kYXpXr'
+                                            target="_blank">+51 979 721 194</a></li>
+                                    <li id="display2" class="menu-has-children">
+                                        <a href="faqs">Es</a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a>En</a>
+                                    </li>
+                                </ul>
+                                <a href="javascript:;" id="mobile-menu"><span></span></a>
+                                <a href="javascript:;" id="close-menu"></a>
+                            </nav>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </header>
         <section class="section-content no-padding">
             <div class="container">
                 <div class="row">

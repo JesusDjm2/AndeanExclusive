@@ -1,0 +1,57 @@
+// Estilos propios de vistas del panel, movidos desde <style> en la vista.
+// Acotados con la clase del <body> (@section('body-class')) para no afectar otras páginas.
+
+// resources/views/proveedor/create.blade.php
+.view-proveedor-create {
+    .bg-opacity-10 {
+        --bs-bg-opacity: 0.1;
+    }
+
+    .form-text {
+        font-size: 0.875rem;
+        color: var(--ae-ink-soft);
+        margin-top: 0.25rem;
+    }
+
+    .card {
+        border-radius: 0.75rem;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+    }
+}
+
+// resources/views/proveedor/show.blade.php
+.view-proveedor-show {
+    .table th {
+        border-top: none;
+        font-weight: 600;
+        color: var(--ae-ink);
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .card {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        border: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+    .badge {
+        font-size: 0.9em;
+        padding: 0.4em 0.8em;
+    }
+
+    code {
+        background: var(--ae-surface-2);
+        padding: 0.2rem 0.4rem;
+        border-radius: 0.25rem;
+        color: #e83e8c;
+    }
+}

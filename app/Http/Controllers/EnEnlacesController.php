@@ -13,7 +13,7 @@ class EnEnlacesController extends Controller
     {
         $tours = Tour::latest()->take(4)->get();
         $tours2 = Tour::whereNotIn('id', $tours->pluck('id'))->latest()->get();
-        $blogs = Enblog::latest()->take(4)->get();
+        $blogs = Enblog::latest()->take(10)->get();
 
         return view('index', compact('blogs', 'tours', 'tours2'));
     }
@@ -57,22 +57,22 @@ class EnEnlacesController extends Controller
 
     public function about()
     {
-        return view('about');
+        return view('pages.about', ['locale' => 'en']);
     }
 
     public function testimonials()
     {
-        return view('testimonials');
+        return view('pages.testimonials', ['locale' => 'en']);
     }
 
     public function terms()
     {
-        return view('terms-conditions-aet');
+        return view('pages.terms', ['locale' => 'en']);
     }
 
     public function faqs()
     {
-        return view('faqs');
+        return view('pages.faqs', ['locale' => 'en']);
     }
 
     // Tours en español
@@ -80,7 +80,7 @@ class EnEnlacesController extends Controller
     {
         $tours = Estour::latest()->take(4)->get();
         $tours2 = Estour::whereNotIn('id', $tours->pluck('id'))->latest()->get();
-        $blogs = Esblog::latest()->take(4)->get();
+        $blogs = Esblog::latest()->take(10)->get();
 
         return view('index-castellano', compact('blogs', 'tours', 'tours2'));
     }
@@ -164,16 +164,21 @@ class EnEnlacesController extends Controller
 
     public function preguntas()
     {
-        return view('preguntas-frecuentes');
+        return view('pages.faqs', ['locale' => 'es']);
     }
 
     public function nosotros()
     {
-        return view('nosotros');
+        return view('pages.about', ['locale' => 'es']);
     }
 
     public function testimonios()
     {
-        return view('testimonios');
+        return view('pages.testimonials', ['locale' => 'es']);
+    }
+
+    public function terminos()
+    {
+        return view('pages.terms', ['locale' => 'es']);
     }
 }

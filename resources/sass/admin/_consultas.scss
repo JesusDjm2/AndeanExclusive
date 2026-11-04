@@ -1,0 +1,93 @@
+// Consultas de posibles clientes: listado y ficha
+
+.svc-tarifas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 0.75rem;
+}
+
+.estadia-listas {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.75rem 0 0;
+    color: var(--ae-ink-soft);
+    font-size: 0.85rem;
+}
+
+.consulta-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.consulta-item {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1.3fr) minmax(0, 1.6fr) minmax(0, 0.8fr) auto;
+    gap: 0.5rem 1rem;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--ae-border);
+
+    &:last-child {
+        border-bottom: 0;
+    }
+
+    small {
+        display: block;
+        color: var(--ae-ink-soft);
+        font-size: 0.78rem;
+    }
+
+    @media (max-width: 767.98px) {
+        grid-template-columns: minmax(0, 1fr) auto;
+
+        &__cuando,
+        &__viaje,
+        &__a-cargo {
+            grid-column: 1 / -1;
+        }
+    }
+}
+
+.consulta-item__nombre {
+    font-weight: 600;
+}
+
+.consulta-ficha {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0 1.25rem;
+    align-items: start;
+
+    @media (min-width: 992px) {
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    }
+}
+
+.consulta-datos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    gap: 0.75rem 1rem;
+    margin-bottom: 1rem;
+
+    dt {
+        color: var(--ae-ink-soft);
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    dd {
+        margin: 0;
+    }
+}
+
+.consulta-mensaje {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--ae-hover);
+    white-space: pre-line;
+}

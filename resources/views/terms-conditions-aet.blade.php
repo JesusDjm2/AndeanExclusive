@@ -1,8 +1,8 @@
 @extends('layouts.general-en')
 @section('metas')
-    @include('layouts.seo-head', ['locale' => 'en', 'page' => 'terms'])
-@endsection
+    <title>Terms & Conditions "Andean Exclusive Tours"</title>
 @section('contenido')
+@endsection
 <div class="wrapper">
     <header id="header">
         <div class="container">

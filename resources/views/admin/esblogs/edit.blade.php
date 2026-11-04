@@ -43,8 +43,10 @@
 
                             <div class="col-lg-6 mt-3">
                                 <label for="imgThumb">Imagen (thumbnail):</label>
-                                <input type="file" id="imgThumb" name="imgThumb" class="form-control form-control-sm"
-                                    accept="image/*" {{ isset($item) ? '' : 'required' }}>
+                                <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgThumb" name="imgThumb" class="form-control form-control-sm" {{ isset($item) ? '' : 'required' }}>
+                                @error('imgThumb')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                                 @if (isset($item) && $item->imgThumb)
                                     <img src="{{ asset( $item->imgThumb) }}"
                                         style="max-width: 100%; height: auto; margin-top: 0.5em;" id="imgThumbPreview">
@@ -53,8 +55,10 @@
 
                             <div class="col-lg-6 mt-3">
                                 <label for="imgFull">Imagen (completa):</label>
-                                <input type="file" id="imgFull" name="imgFull" class="form-control form-control-sm"
-                                    accept="image/*" {{ isset($item) ? '' : 'required' }}>
+                                <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgFull" name="imgFull" class="form-control form-control-sm" {{ isset($item) ? '' : 'required' }}>
+                                @error('imgFull')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
                                 @if (isset($item) && $item->imgFull)
                                     <img src="{{ asset( $item->imgFull) }}"
                                         style="max-width: 100%; height: auto; margin-top: 0.5em;" id="imgFullPreview">
@@ -116,7 +120,7 @@
                                 <button type="submit"
                                     class="btn btn-primary btn-sm">{{ isset($item) ? 'Actualizar Blog' : 'Crear Blog' }}</button>
                                 <a href="{{ route('esblogs.index') }}"
-                                    class="btn btn-danger btn-sm float-right">Cancelar</a>
+                                    class="btn btn-danger btn-sm float-end">Cancelar</a>
                             </div>
 
                         </div>
