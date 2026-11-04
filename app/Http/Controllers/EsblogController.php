@@ -13,9 +13,9 @@ class EsblogController extends Controller
 {
     public function index()
     {
-        /* $blogs = Esblog::all(); */
-        $blogs = Esblog::with('blog')->get();
-        return view('admin.esblogs.index', compact('blogs'));
+        $blogs = Esblog::with(['tags', 'blog'])->latest()->get();
+        $tags = Estag::orderBy('nombre')->get();
+        return view('admin.esblogs.index', compact('blogs', 'tags'));
     }
     public function create()
     {
@@ -73,8 +73,8 @@ class EsblogController extends Controller
     public function edit($id)
     {
         $item = Esblog::findOrFail($id);
-        $enblogs = Enblog::where('id', '!=', $item->relacionado_id)->get();
-        $tags = Estag::pluck('nombre', 'id');;
+        $enblogs = Enblog::all();
+        $tags = Estag::pluck('nombre', 'id');
 
         return view('admin.esblogs.edit', compact('item', 'enblogs', 'tags'));
     }

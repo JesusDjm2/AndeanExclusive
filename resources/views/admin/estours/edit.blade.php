@@ -1,236 +1,484 @@
 @extends('layouts.app')
+@section('titulo', 'Editar Tour ES: ' . $tour->nombre)
+
 @push('head')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ckeditor/4.9.2/ckeditor.js"></script>
 @endpush
-@section('titulo', 'Editar Tour en español')
+
 @section('contenido')
-    <div class="row">
-        <div class="col-lg-12">
-            @if (session('status'))
-                <div class="text-success">
-                    <div class="alert alert-danger" role="alert">
-                        {{ session('status') }}
+    <div class="container-fluid ae-content-workspace">
+        {{-- Header Senior --}}
+        <div class="ae-admin-page-header d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1 small">
+                        <li class="breadcrumb-item"><a href="{{ route('estours.index') }}" class="text-decoration-none">Tours en Español</a></li>
+                        <li class="breadcrumb-item active text-truncate" style="max-width: 280px;" aria-current="page">{{ $tour->nombre }}</li>
+                    </ol>
+                </nav>
+                <h1 class="ae-admin-page-title">
+                    <i class="fas fa-edit" aria-hidden="true"></i>
+                    Editar Tour: {{ $tour->nombre }}
+                </h1>
+                <small class="ae-admin-page-desc">Actualiza el itinerario, precios, imágenes y vinculación con la versión en inglés.</small>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <a href="{{ url($tour->slug) }}" target="_blank" rel="noopener" class="btn btn-outline-info">
+                    <i class="fas fa-external-link-alt me-1"></i> Ver en sitio web
+                </a>
+                <a href="{{ route('estours.index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Volver al listado
+                </a>
+            </div>
+        </div>
+
+        {{-- Errores de Validación Generales --}}
+        @if ($errors->any())
+            <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle fa-lg me-3"></i>
+                    <div>
+                        <strong class="d-block">Por favor corrige los errores señalados en el formulario:</strong>
+                        <ul class="mb-0 small ps-3 mt-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 </div>
-            @endif
-        </div>
-        <div class="col-12 mt-2">
-            <div class="row" style="padding: 1em; border-radius: 10px;">
-                <div class="col-lg-6 float-start">
-                    <h3>Editar Tour en español</h3>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        @endif
+
+        <form action="{{ route('estours.update', $tour->id) }}" method="POST" enctype="multipart/form-data" id="tourForm">
+            @csrf
+            @method('PUT')
+            <div class="row g-4">
+                {{-- Columna Principal: Contenido Extenso (8 cols) --}}
+                <div class="col-lg-8">
+                    {{-- 1. Información Principal --}}
+                    <div class="ae-form-card mb-4">
+                        <div class="ae-form-card-header">
+                            <h2 class="ae-form-card-title">
+                                <i class="fas fa-info-circle"></i> Información Principal
+                            </h2>
+                            <span class="ae-form-card-subtitle">Título y recorrido del paquete</span>
+                        </div>
+                        <div class="ae-form-card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label for="nombre" class="form-label">
+                                        Nombre del Tour <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="nombre" name="nombre"
+                                        class="form-control form-control-lg @error('nombre') is-invalid @enderror"
+                                        value="{{ old('nombre', $tour->nombre) }}" required>
+                                    @error('nombre')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-12">
+                                    <label for="recorrido" class="form-label">
+                                        Recorrido / Ruta <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" id="recorrido" name="recorrido"
+                                        class="form-control @error('recorrido') is-invalid @enderror"
+                                        value="{{ old('recorrido', $tour->recorrido) }}" required>
+                                    @error('recorrido')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 2. Contenido Editorial con Pestañas --}}
+                    <div class="ae-form-card mb-4">
+                        <div class="ae-form-card-header">
+                            <h2 class="ae-form-card-title">
+                                <i class="fas fa-file-alt"></i> Contenido y Experiencia
+                            </h2>
+                            <span class="ae-form-card-subtitle">Itinerario y detalles para el viajero</span>
+                        </div>
+                        <div class="ae-form-card-body">
+                            <ul class="nav nav-tabs ae-content-tabs" id="tourContentTabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="tab-presentacion-btn" data-bs-toggle="tab"
+                                        data-bs-target="#tab-presentacion" type="button" role="tab">
+                                        <i class="fas fa-align-left"></i> Presentación
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-itinerario-btn" data-bs-toggle="tab"
+                                        data-bs-target="#tab-itinerario" type="button" role="tab">
+                                        <i class="fas fa-route"></i> Itinerario Detallado
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-incluye-btn" data-bs-toggle="tab"
+                                        data-bs-target="#tab-incluye" type="button" role="tab">
+                                        <i class="fas fa-check-circle"></i> Qué Incluye
+                                    </button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="tab-importante-btn" data-bs-toggle="tab"
+                                        data-bs-target="#tab-importante" type="button" role="tab">
+                                        <i class="fas fa-clipboard-list"></i> Importante / Notas
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div class="tab-content pt-2" id="tourContentTabsContent">
+                                {{-- Presentación --}}
+                                <div class="tab-pane fade show active" id="tab-presentacion" role="tabpanel">
+                                    <label class="form-label small text-muted mb-2">Introducción y experiencia que vivirá el pasajero:</label>
+                                    <textarea class="ckeditor form-control" name="presentacion" id="presentacion" rows="6">{{ old('presentacion', $tour->presentacion) }}</textarea>
+                                    @error('presentacion')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Itinerario --}}
+                                <div class="tab-pane fade" id="tab-itinerario" role="tabpanel">
+                                    <label class="form-label small text-muted mb-2">Plan día por día (Día 1, Día 2, etc.):</label>
+                                    <textarea class="ckeditor form-control" name="itinerario" id="itinerario" rows="8">{{ old('itinerario', $tour->itinerario) }}</textarea>
+                                    @error('itinerario')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Incluye --}}
+                                <div class="tab-pane fade" id="tab-incluye" role="tabpanel">
+                                    <label class="form-label small text-muted mb-2">Servicios, traslados, guiados y alojamientos incluidos:</label>
+                                    <textarea class="ckeditor form-control" name="incluye" id="incluye" rows="6">{{ old('incluye', $tour->incluye) }}</textarea>
+                                    @error('incluye')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Importante --}}
+                                <div class="tab-pane fade" id="tab-importante" role="tabpanel">
+                                    <label class="form-label small text-muted mb-2">Recomendaciones, altitud, qué llevar y advertencias:</label>
+                                    <textarea class="ckeditor form-control" name="importante" id="importante" rows="6">{{ old('importante', $tour->importante) }}</textarea>
+                                    @error('importante')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. Mapa Interactivo --}}
+                    <div class="ae-form-card mb-4">
+                        <div class="ae-form-card-header">
+                            <h2 class="ae-form-card-title">
+                                <i class="fas fa-map"></i> Mapa o Código Embed
+                            </h2>
+                            <span class="ae-form-card-subtitle">Iframe de Google MyMaps o mapa interactivo (opcional)</span>
+                        </div>
+                        <div class="ae-form-card-body">
+                            <textarea name="mapa" id="mapa" class="form-control font-monospace small" rows="3"
+                                placeholder='<iframe src="https://www.google.com/maps/d/embed?mid=..." width="100%" height="450"></iframe>'>{{ old('mapa', $tour->mapa) }}</textarea>
+                            <small class="text-muted d-block mt-1">Pega el código HTML del iframe o la URL del mapa compartido.</small>
+                            @error('mapa')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-6">
-                    <a href="{{ route('estours.index') }}" class="btn btn-primary float-end">Volver</a>
+
+                {{-- Columna Lateral: Logística, Imágenes, Categorías y SEO (4 cols) --}}
+                <div class="col-lg-4">
+                    <div class="ae-sticky-sidebar">
+                        {{-- 1. Tarjeta de Publicación --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header bg-success-subtle">
+                                <h2 class="ae-form-card-title text-success">
+                                    <i class="fas fa-paper-plane"></i> Actualización
+                                </h2>
+                                <span class="badge bg-success text-white">ES #{{ $tour->id }}</span>
+                            </div>
+                            <div class="ae-form-card-body">
+                                <button type="submit" class="btn btn-success text-white w-100 py-2 mb-2 shadow-sm">
+                                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                                </button>
+                                <a href="{{ route('estours.index') }}" class="btn btn-outline-secondary w-100">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </div>
+
+                        {{-- 2. Vinculación con Tour en Inglés (Hreflang) --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header">
+                                <h2 class="ae-form-card-title">
+                                    <i class="fas fa-globe-americas"></i> Tour en Inglés
+                                </h2>
+                                <span class="ae-form-card-subtitle">Homólogo EN</span>
+                            </div>
+                            <div class="ae-form-card-body">
+                                <label for="relacionado_id" class="form-label small">
+                                    Selecciona el tour en inglés equivalente <span class="text-danger">*</span>
+                                </label>
+                                <select id="relacionado_id" name="relacionado_id"
+                                    class="form-select @error('relacionado_id') is-invalid @enderror" required>
+                                    <option value="">-- Seleccionar Tour EN --</option>
+                                    @foreach ($entours as $entour)
+                                        <option value="{{ $entour->id }}" @selected(old('relacionado_id', $tour->relacionado_id) == $entour->id)>
+                                            {{ $entour->nombre }} ({{ $entour->dias }}d)
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted d-block mt-1">Permite a los usuarios cambiar de idioma en el sitio web automáticamente.</small>
+                                @error('relacionado_id')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- 3. Duración y Precio --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header">
+                                <h2 class="ae-form-card-title">
+                                    <i class="fas fa-coins"></i> Tarifas & Duración
+                                </h2>
+                            </div>
+                            <div class="ae-form-card-body">
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label for="dias" class="form-label">Días <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                            <input type="number" id="dias" name="dias" min="1" max="99"
+                                                class="form-control @error('dias') is-invalid @enderror"
+                                                value="{{ old('dias', $tour->dias) }}" required>
+                                        </div>
+                                        @error('dias')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="precio" class="form-label">Precio Base <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" step="0.01" id="precio" name="precio" min="0"
+                                                class="form-control @error('precio') is-invalid @enderror"
+                                                value="{{ old('precio', $tour->precio) }}" required>
+                                        </div>
+                                        @error('precio')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 4. Categorías --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header">
+                                <h2 class="ae-form-card-title">
+                                    <i class="fas fa-tags"></i> Categorías
+                                </h2>
+                                <span class="ae-form-card-subtitle">Selecciona una o más</span>
+                            </div>
+                            <div class="ae-form-card-body">
+                                @php
+                                    $selectedCategories = old('categorias', $tour->categorias->pluck('id')->all());
+                                @endphp
+                                <div class="ae-chips-selector">
+                                    @foreach ($categorias as $id => $nombre)
+                                        <div class="ae-chip-checkbox">
+                                            <input type="checkbox" id="cat_{{ $id }}" name="categorias[]"
+                                                value="{{ $id }}" @checked(is_array($selectedCategories) && in_array($id, $selectedCategories))>
+                                            <label for="cat_{{ $id }}">{{ $nombre }}</label>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @error('categorias')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- 5. Imágenes Multimedia --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header">
+                                <h2 class="ae-form-card-title">
+                                    <i class="fas fa-images"></i> Imágenes del Tour
+                                </h2>
+                            </div>
+                            <div class="ae-form-card-body">
+                                {{-- Thumbnail --}}
+                                <div class="mb-3">
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Miniatura / Tarjeta</span>
+                                        <small class="badge bg-light text-muted border">420 x 280 px</small>
+                                    </label>
+                                    <div class="ae-image-uploader {{ $tour->imgThumb ? 'has-image' : '' }}" id="uploaderThumb">
+                                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgThumb" name="imgThumb">
+                                        <div class="ae-upload-placeholder {{ $tour->imgThumb ? 'd-none' : '' }}" id="placeholderThumb">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <span>Subir miniatura</span>
+                                            <small>Clic para seleccionar archivo</small>
+                                        </div>
+                                        <div class="ae-image-preview-wrapper {{ $tour->imgThumb ? '' : 'd-none' }}" id="previewThumbWrapper">
+                                            <img src="{{ $tour->imgThumb ? asset($tour->imgThumb) : '#' }}" id="imgThumbPreview" alt="Miniatura actual">
+                                            <div class="ae-image-overlay">
+                                                <i class="fas fa-sync-alt"></i> Reemplazar imagen
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Deja vacío para conservar la imagen actual.</small>
+                                    @error('imgThumb')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Cover Full --}}
+                                <div>
+                                    <label class="form-label d-flex justify-content-between align-items-center">
+                                        <span>Portada / Cabecera</span>
+                                        <small class="badge bg-light text-muted border">1920 x 1080 px</small>
+                                    </label>
+                                    <div class="ae-image-uploader {{ $tour->imgFull ? 'has-image' : '' }}" id="uploaderFull">
+                                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgFull" name="imgFull">
+                                        <div class="ae-upload-placeholder {{ $tour->imgFull ? 'd-none' : '' }}" id="placeholderFull">
+                                            <i class="fas fa-image"></i>
+                                            <span>Subir portada</span>
+                                            <small>Clic para seleccionar archivo</small>
+                                        </div>
+                                        <div class="ae-image-preview-wrapper {{ $tour->imgFull ? '' : 'd-none' }}" id="previewFullWrapper">
+                                            <img src="{{ $tour->imgFull ? asset($tour->imgFull) : '#' }}" id="imgFullPreview" alt="Portada actual">
+                                            <div class="ae-image-overlay">
+                                                <i class="fas fa-sync-alt"></i> Reemplazar imagen
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small class="text-muted d-block mt-1">Deja vacío para conservar la imagen actual.</small>
+                                    @error('imgFull')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- 6. SEO & Metadatos --}}
+                        <div class="ae-form-card mb-3">
+                            <div class="ae-form-card-header">
+                                <h2 class="ae-form-card-title">
+                                    <i class="fas fa-search-dollar"></i> SEO & Enlace
+                                </h2>
+                            </div>
+                            <div class="ae-form-card-body">
+                                {{-- Slug con bloqueo --}}
+                                <div class="mb-3">
+                                    <label for="slug" class="form-label d-flex justify-content-between">
+                                        <span>URL Amigable (Slug) <span class="text-danger">*</span></span>
+                                        <small class="text-muted">Ruta única</small>
+                                    </label>
+                                    <div class="input-group ae-slug-group">
+                                        <span class="input-group-text">/</span>
+                                        <input type="text" id="slug" name="slug"
+                                            class="form-control font-monospace small @error('slug') is-invalid @enderror"
+                                            value="{{ old('slug', $tour->slug) }}" required>
+                                    </div>
+                                    @error('slug')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Descripción Corta --}}
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label for="descripcionCorta" class="form-label mb-0">Descripción Corta</label>
+                                        <small class="text-muted"><span id="charCountDesc">0</span> / 255 car.</small>
+                                    </div>
+                                    <textarea id="descripcionCorta" name="descripcionCorta" maxlength="255" rows="3"
+                                        class="form-control @error('descripcionCorta') is-invalid @enderror"
+                                        required>{{ old('descripcionCorta', $tour->descripcionCorta) }}</textarea>
+                                    @error('descripcionCorta')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                {{-- Keywords --}}
+                                <div>
+                                    <label for="keywords" class="form-label">Palabras Clave (SEO)</label>
+                                    <input type="text" id="keywords" name="keywords"
+                                        class="form-control @error('keywords') is-invalid @enderror"
+                                        value="{{ old('keywords', $tour->keywords) }}" required>
+                                    <small class="text-muted">Separadas por comas (,)</small>
+                                    @error('keywords')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <form action="{{ route('estours.update', $tour->id) }}" method="post" enctype="multipart/form-data"
-                class="bg-light">
-                @csrf
-                @method('PUT')
-                <div class="row">
-                    <div class="col-lg-5 mt-3">
-                        <label for="nombre" class="form-label">Nombre del Tour:</label>
-                        <input type="text" id="nombre" name="nombre" class="form-control" required
-                            value="{{ $tour->nombre }}">
-                        @error('nombre')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-4 mt-3">
-                        <label for="recorrido" class="form-label">Recorrido:</label>
-                        <input type="text" id="recorrido" name="recorrido" class="form-control" required
-                            value="{{ $tour->recorrido }}">
-                        @error('recorrido')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-2 mt-3">
-                        <label for="precio" class="form-label">Precio:</label>
-                        <input type="text" id="precio" name="precio" class="form-control" required
-                            value="{{ $tour->precio }}">
-                        @error('precio')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-1 mt-3">
-                        <label for="dias" class="form-label">Días:</label>
-                        <input type="number" id="dias" name="dias" class="form-control" required
-                            value="{{ $tour->dias }}">
-                        @error('dias')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-lg-12 mt-3">
-                        <label for="relacionado_id">Relación de Tour en inglés:</label>
-                        <select name="relacionado_id" id="relacionado_id" class="form-control" required>
-                            <option value="">Seleccione un Tour en inglés</option>
-                            @foreach ($entours as $entour)
-                                <option value="{{ $entour->id }}"
-                                    {{ $entour->id == $tour->relacionado_id ? 'selected' : '' }}>{{ $entour->nombre }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('relacionado_id')
-                            <div class="text-danger">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-lg-12 mt-3">
-                        <label for="descripcionCorta" class="form-label">Descripción corta: <small
-                                class="text-success">(Max. 25
-                                palabras)</small></label>
-                        <input type="text" id="descripcionCorta" name="descripcionCorta" class="form-control" required
-                            maxlength="255" value="{{ $tour->descripcionCorta }}">
-                        @error('descripcionCorta')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-3 mt-3">
-                        <label for="imgThumb" class="form-label">Imagen Thumb: <small
-                                class="text-success">(420x280)</small></label>
-                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgThumb" name="imgThumb" class="form-control">
-                        @error('imgThumb')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                        <img id="imgThumbPreview" src="{{ asset($tour->imgThumb) }}"
-                            style="max-width: 100%; margin-top: 10px; width: 100%; object-fit: cover">
-                    </div>
-                    <div class="col-lg-3 mt-3">
-                        <label for="imgFull" class="form-label">Imagen Full: <small
-                                class="text-success">(1920x1080)</small></label>
-                        <input type="file" accept=".jpg,.jpeg,.png,.webp,.gif" id="imgFull" name="imgFull" class="form-control">
-                        @error('imgFull')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                        <img id="imgFullPreview" src="{{ asset($tour->imgFull) }}"
-                            style="max-width: 100%; margin-top: 10px; width: 100%; object-fit: cover">
-                    </div>
-                    <div class="col-lg-6 mt-3">
-                        <label for="mapa" class="form-label">Mapa del tour:</label>
-                        <textarea class="ckeditor form-control" name="mapa" id="mapa"><{{ $tour->mapa }}</textarea>
-                    </div>
-                    <div class="col-lg-12 mt-3">
-                        <label for="presentacion" class="form-label">Contenido Inicial:</label>
-                        <textarea class="ckeditor form-control" name="presentacion" id="presentacion" value="{{ old('presentacion') }}">{{ $tour->presentacion }}</textarea>
-                        @error('presentacion')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-12 mt-3">
-                        <label for="itinerario" class="form-label">Itinerario:</label>
-                        <textarea class="ckeditor form-control" name="itinerario" id="itinerario">{{ $tour->itinerario }}</textarea>
-                        @error('itinerario')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <script type="text/javascript">
-                        document.addEventListener("DOMContentLoaded", function() {
-                            const itinerarioValue = {!! json_encode($tour->itinerario) !!};
-                            CKEDITOR.instances['itinerario'].setData(itinerarioValue);
-                        });
-                    </script>
-                    <div class="col-lg-6 mt-3">
-                        <label for="incluye" class="form-label">Incluye:</label>
-                        <textarea class="ckeditor form-control" name="incluye" id="incluye">{{ $tour->incluye }}</textarea>
-                        @error('incluye')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-6 mt-3">
-                        <label for="importante" class="form-label">Importante: <small>Solo listas</small></label>
-                        <textarea class="ckeditor form-control" name="importante" id="importante">{{ $tour->importante }}</textarea>
-                        @error('importante')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-12 mt-3">
-                        <label for="categorias">Categorías:</label><br>
-                        <div class="checkbox-inline">
-                            @foreach ($categorias as $id => $nombre)
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="checkbox" id="categoria{{ $id }}"
-                                        name="categorias[]" value="{{ $id }}"
-                                        @if ($tour->categorias->contains($id)) checked @endif>
-                                    <label class="form-check-label" for="categoria{{ $id }}">{{ $nombre }}</label>
-                                </div>
-                            @endforeach
-                        </div>
-                        @error('categorias')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <div class="col-lg-12 mt-3">
-                        <label for="keywords" class="form-label">Keywords: <small class="text-success">(Separar cada
-                                palabra/frase por una coma)</small></label>
-                        <input type="text" id="keywords" name="keywords" class="form-control" required
-                            value="{{ old('keywords', $tour->keywords) }}">
-                        @error('keywords')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <div class="col-lg-12 mt-3">
-                        <label for="slug" class="form-label">Slug:</label>
-                        <input type="text" id="slug" name="slug" class="form-control" required
-                            value="{{ old('slug', $tour->slug) }}">
-                        @error('slug')
-                            <div class="alert alert-danger mt-2">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    
-                    <script>
-                        const slugInput = document.getElementById('slug');
-                        slugInput.addEventListener('input', function() {
-                            const originalValue = this.value;
-                            const slugValue = originalValue.replace(/\s/g, '-');
-                            this.value = slugValue;
-                        });
-                    </script>
-                    
-                    
-
-                    <!-- Resto de los campos de edición -->
-
-                </div>
-                <button class="btn btn-primary mt-4" type="submit">Guardar cambios</button>
-                <a href="{{ route('estours.index') }}" class="btn btn-secondary mt-4 float-end">Cancelar</a>
-            </form>
-        </div>
+        </form>
     </div>
-    <script type="text/javascript">
-        CKEDITOR.replace('.ckeditor', {
-            extraPlugins: 'youtube',
-            toolbar: [
-                ['Youtube']
-            ]
-        });
-    </script>
-    <script>
-        function showPreview(input, previewElement) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
+@endsection
 
-                reader.onload = function(e) {
-                    previewElement.src = e.target.result;
-                    previewElement.style.display = 'block';
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof CKEDITOR !== 'undefined') {
+                const editorOptions = {
+                    height: 240,
+                    toolbar: [
+                        { name: 'document', items: ['Source'] },
+                        { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike', '-', 'RemoveFormat'] },
+                        { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Blockquote'] },
+                        { name: 'links', items: ['Link', 'Unlink'] },
+                        { name: 'insert', items: ['Table', 'HorizontalRule'] },
+                        { name: 'styles', items: ['Format', 'FontSize'] },
+                        { name: 'colors', items: ['TextColor', 'BGColor'] },
+                        { name: 'tools', items: ['Maximize'] }
+                    ]
                 };
 
-                reader.readAsDataURL(input.files[0]);
+                ['presentacion', 'itinerario', 'incluye', 'importante'].forEach(id => {
+                    if (document.getElementById(id)) {
+                        CKEDITOR.replace(id, editorOptions);
+                    }
+                });
             }
-        }
 
-        document.getElementById('imgThumb').addEventListener('change', function() {
-            showPreview(this, document.getElementById('imgThumbPreview'));
-        });
+            const descInput = document.getElementById('descripcionCorta');
+            const charCount = document.getElementById('charCountDesc');
+            if (descInput && charCount) {
+                const updateCount = () => { charCount.textContent = descInput.value.length; };
+                descInput.addEventListener('input', updateCount);
+                updateCount();
+            }
 
-        document.getElementById('imgFull').addEventListener('change', function() {
-            showPreview(this, document.getElementById('imgFullPreview'));
-        });
+            function setupPreview(inputId, wrapperId, imgId, placeholderId, uploaderId) {
+                const input = document.getElementById(inputId);
+                const wrapper = document.getElementById(wrapperId);
+                const img = document.getElementById(imgId);
+                const placeholder = document.getElementById(placeholderId);
+                const uploader = document.getElementById(uploaderId);
 
-        document.getElementById('mapa').addEventListener('change', function() {
-            showPreview(this, document.getElementById('mapaPreview'));
+                if (!input) return;
+
+                input.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            img.src = e.target.result;
+                            wrapper.classList.remove('d-none');
+                            if (placeholder) placeholder.classList.add('d-none');
+                            uploader.classList.add('has-image');
+                        };
+                        reader.readAsDataURL(this.files[0]);
+                    }
+                });
+            }
+
+            setupPreview('imgThumb', 'previewThumbWrapper', 'imgThumbPreview', 'placeholderThumb', 'uploaderThumb');
+            setupPreview('imgFull', 'previewFullWrapper', 'imgFullPreview', 'placeholderFull', 'uploaderFull');
         });
     </script>
-
-@endsection
+@endpush
