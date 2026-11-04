@@ -40,6 +40,12 @@
 @endsection
 
 @section('contenido')
+    @auth
+        <a href="{{ route('categorias.edit', $categoria->id) }}" class="tour-admin-edit" target="_blank" title="Editar esta categoría en el panel">
+            <i class="fa fa-pencil" aria-hidden="true"></i> Editar categoría
+        </a>
+    @endauth
+
     <section class="page-banner page-banner--tall">
         <picture>
             @if ($catHeroMobile)

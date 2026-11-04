@@ -40,6 +40,12 @@
 @endpush
 
 @section('contenido')
+    @auth
+        <a href="{{ route('enblogs.edit', $blog->id) }}" class="tour-admin-edit" target="_blank" title="Edit this post in admin panel">
+            <i class="fa fa-pencil" aria-hidden="true"></i> Edit post
+        </a>
+    @endauth
+
     <section class="page-banner page-banner--tall">
         <picture>
             <source media="(max-width: 768px)" srcset="{{ $blog->mobileHeroUrl() }}">

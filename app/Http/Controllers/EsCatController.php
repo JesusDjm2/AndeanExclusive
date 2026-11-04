@@ -4,52 +4,69 @@ namespace App\Http\Controllers;
 
 use App\Models\EsCategoria;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class EsCatController extends Controller
 {
     public function index()
     {
-        $categorias = EsCategoria::all();
+        $categorias = EsCategoria::withCount('tours')->orderBy('nombre')->get();
         return view('admin.estours.categorias.index', compact('categorias'));
     }
+
     public function create()
     {
         return view('admin.estours.categorias.create');
     }
+
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
+        $request->merge([
+            'slug' => Str::slug($request->slug ?: $request->nombre)
         ]);
 
-        $categoria = new EsCategoria();
-        $categoria->nombre = $validatedData['nombre'];
-        $categoria->slug = $validatedData['slug'];
-        $categoria->save();
+        $validatedData = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:escategorias,slug',
+        ], [
+            'nombre.required' => 'El nombre de la categoría es obligatorio.',
+            'slug.unique' => 'Este slug ya está en uso por otra categoría.',
+        ]);
+
+        $categoria = EsCategoria::create($validatedData);
 
         return redirect()->route('categorias.index')
-            ->with('success', 'Categoría creada exitosamente.');
+            ->with('success', 'Categoría "' . $categoria->nombre . '" creada exitosamente.');
     }
-
 
     public function edit($id)
     {
-        $categoria = EsCategoria::findOrFail($id);
+        $categoria = EsCategoria::withCount('tours')->findOrFail($id);
         return view('admin.estours.categorias.edit', compact('categoria'));
     }
 
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'nombre' => 'required|string|max:255',
-            'slug' => 'required|string|max:255',
+        $categoria = EsCategoria::findOrFail($id);
+
+        $request->merge([
+            'slug' => Str::slug($request->slug ?: $request->nombre)
         ]);
 
-        $registro = EsCategoria::findOrFail($id);
-        $registro->update($validatedData);
-        return redirect()->route('categorias.index')->with('success', '¡Categoria actualizada exitosamente!');
+        $validatedData = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:escategorias,slug,' . $categoria->id,
+        ], [
+            'nombre.required' => 'El nombre de la categoría es obligatorio.',
+            'slug.unique' => 'Este slug ya está en uso por otra categoría.',
+        ]);
+
+        $categoria->update($validatedData);
+
+        return redirect()->route('categorias.index')
+            ->with('success', '¡Categoría "' . $categoria->nombre . '" actualizada exitosamente!');
     }
+
     public function show($slug)
     {
         $categoria = EsCategoria::where('slug', $slug)->firstOrFail();
@@ -60,8 +77,12 @@ class EsCatController extends Controller
 
     public function destroy($id)
     {
-        $registro = EsCategoria::findOrFail($id);
-        $registro->delete();
-        return redirect()->route('categorias.index')->with('success', '¡Categoria eliminada exitosamente!');
+        $categoria = EsCategoria::findOrFail($id);
+        $nombre = $categoria->nombre;
+        $categoria->tours()->detach();
+        $categoria->delete();
+
+        return redirect()->route('categorias.index')
+            ->with('success', '¡Categoría "' . $nombre . '" eliminada exitosamente!');
     }
 }
