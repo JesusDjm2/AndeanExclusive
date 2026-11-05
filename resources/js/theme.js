@@ -1,28 +1,27 @@
-// Tema del panel: 'light' | 'dark' | 'auto' (sigue al sistema operativo). Se guarda por navegador en localStorage.
-// El tema inicial lo aplica un script mínimo en el <head> (layouts/app.blade.php) antes de pintar, para evitar el destello.
+// Tema del panel: exclusivamente 'light' o 'dark'. Se guarda en localStorage.
+// El script en el <head> (layouts/app.blade.php) aplica data-bs-theme antes de pintar para evitar destellos.
 
 const STORAGE_KEY = 'ae-theme';
-const media = window.matchMedia('(prefers-color-scheme: dark)');
-const ICONS = { light: 'fa-sun', dark: 'fa-moon', auto: 'fa-adjust' };
+const ICONS = { light: 'fa-sun', dark: 'fa-moon' };
 
 const stored = () => {
     try {
-        return localStorage.getItem(STORAGE_KEY) || 'auto';
+        const val = localStorage.getItem(STORAGE_KEY);
+        return val === 'light' ? 'light' : 'dark';
     } catch {
-        return 'auto';
+        return 'dark';
     }
 };
 
-const resolve = (theme) => (theme === 'auto' ? (media.matches ? 'dark' : 'light') : theme);
-
 function apply(theme, animate = false) {
     const root = document.documentElement;
+    const finalTheme = theme === 'light' ? 'light' : 'dark';
     if (animate) {
         root.classList.add('ae-theme-switching');
         window.setTimeout(() => root.classList.remove('ae-theme-switching'), 300);
     }
-    root.setAttribute('data-bs-theme', resolve(theme));
-    syncControls(theme);
+    root.setAttribute('data-bs-theme', finalTheme);
+    syncControls(finalTheme);
 }
 
 function syncControls(theme) {
@@ -32,27 +31,35 @@ function syncControls(theme) {
         item.setAttribute('aria-pressed', String(active));
     });
     document.querySelectorAll('[data-theme-icon]').forEach((icon) => {
-        icon.className = `fas ${ICONS[theme] ?? ICONS.auto}`;
+        icon.className = `fas ${ICONS[theme] ?? 'fa-moon'}`;
     });
 }
 
 export function initTheme() {
-    syncControls(stored());
+    const currentTheme = stored();
+    apply(currentTheme, false);
 
     document.addEventListener('click', (event) => {
         const item = event.target.closest('[data-theme-value]');
-        if (!item) return;
-        const theme = item.dataset.themeValue;
-        try {
-            localStorage.setItem(STORAGE_KEY, theme);
-        } catch {
-            // Sin almacenamiento (modo privado): el cambio vale para esta página.
+        if (item) {
+            const theme = item.dataset.themeValue === 'light' ? 'light' : 'dark';
+            try {
+                localStorage.setItem(STORAGE_KEY, theme);
+            } catch {
+                // Modo privado
+            }
+            apply(theme, true);
+            return;
         }
-        apply(theme, true);
-    });
 
-    // En modo "Sistema", seguir los cambios del sistema operativo en vivo.
-    media.addEventListener('change', () => {
-        if (stored() === 'auto') apply('auto', true);
+        // Toggle directo si se hace clic en un botón con data-theme-toggle
+        const toggleBtn = event.target.closest('[data-theme-toggle]');
+        if (toggleBtn) {
+            const nextTheme = stored() === 'dark' ? 'light' : 'dark';
+            try {
+                localStorage.setItem(STORAGE_KEY, nextTheme);
+            } catch {}
+            apply(nextTheme, true);
+        }
     });
 }

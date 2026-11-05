@@ -204,10 +204,40 @@
     .text-success { color: var(--ae-success) !important; }
     .text-danger { color: var(--ae-danger) !important; }
     .text-warning { color: var(--ae-warn) !important; }
-    .alert-success { --bs-alert-bg: rgba(74, 222, 128, 0.12); --bs-alert-color: var(--ae-success); --bs-alert-border-color: transparent; }
-    .alert-danger { --bs-alert-bg: rgba(248, 113, 113, 0.12); --bs-alert-color: var(--ae-danger); --bs-alert-border-color: transparent; }
-    .alert-warning { --bs-alert-bg: rgba(251, 191, 36, 0.12); --bs-alert-color: var(--ae-warn); --bs-alert-border-color: transparent; }
-    .alert-info { --bs-alert-bg: rgba(96, 165, 250, 0.12); --bs-alert-color: var(--ae-info); --bs-alert-border-color: transparent; }
+    // Alertas Bootstrap en tema oscuro: alto contraste y texto siempre visible
+    .alert {
+        border-width: 1px !important;
+        color: #f8fafc !important;
+
+        &.alert-success {
+            background-color: rgba(74, 222, 128, 0.16) !important;
+            color: #86efac !important;
+            border-color: rgba(74, 222, 128, 0.4) !important;
+            strong, b, span, p, i { color: inherit !important; }
+            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        }
+        &.alert-danger {
+            background-color: rgba(248, 113, 113, 0.16) !important;
+            color: #fca5a5 !important;
+            border-color: rgba(248, 113, 113, 0.4) !important;
+            strong, b, span, p, i { color: inherit !important; }
+            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        }
+        &.alert-warning {
+            background-color: rgba(251, 191, 36, 0.16) !important;
+            color: #fde047 !important;
+            border-color: rgba(251, 191, 36, 0.4) !important;
+            strong, b, span, p, i { color: inherit !important; }
+            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        }
+        &.alert-info {
+            background-color: rgba(96, 165, 250, 0.16) !important;
+            color: #93c5fd !important;
+            border-color: rgba(96, 165, 250, 0.4) !important;
+            strong, b, span, p, i { color: inherit !important; }
+            .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+        }
+    }
 
     // Badges en modo oscuro: colores vivos y texto de alto contraste garantizado
     .badge {
@@ -312,11 +342,87 @@
         }
     }
 
-    // Editor CKEditor 4 y SweetAlert2 no tienen tema oscuro: se enmarcan para que no "brillen" sobre el fondo.
+    // Editor CKEditor 4
     .cke { border-color: var(--ae-border) !important; border-radius: $border-radius; overflow: hidden; }
-    .swal2-popup { background: var(--ae-surface); color: var(--ae-ink); }
-    .swal2-title,
-    .swal2-html-container { color: var(--ae-ink); }
+
+    // SweetAlert2 (Modales, Confirmaciones y Toasts de copiado) en MODO OSCURO
+    .swal2-container {
+        .swal2-popup {
+            background-color: #1e293b !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155 !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
+
+            .swal2-title {
+                color: #f8fafc !important;
+                font-weight: 700 !important;
+            }
+
+            .swal2-html-container,
+            .swal2-content {
+                color: #cbd5e1 !important;
+            }
+
+            .swal2-icon.swal2-success {
+                border-color: #86efac !important;
+                color: #86efac !important;
+                .swal2-success-ring {
+                    border-color: rgba(134, 239, 172, 0.3) !important;
+                }
+                [class^="swal2-success-line"] {
+                    background-color: #86efac !important;
+                }
+            }
+
+            .swal2-icon.swal2-info {
+                border-color: #93c5fd !important;
+                color: #93c5fd !important;
+            }
+
+            .swal2-icon.swal2-warning {
+                border-color: #fde047 !important;
+                color: #fde047 !important;
+            }
+
+            .swal2-icon.swal2-error {
+                border-color: #fca5a5 !important;
+                color: #fca5a5 !important;
+            }
+
+            .swal2-timer-progress-bar {
+                background-color: #d4af37 !important;
+            }
+
+            // Notificación flotante de copiado (Toast en modo oscuro)
+            &.swal2-toast {
+                background-color: #0f172a !important;
+                color: #f8fafc !important;
+                border: 1px solid #334155 !important;
+                box-shadow: 0 12px 28px rgba(0, 0, 0, 0.75) !important;
+
+                .swal2-title {
+                    color: #f8fafc !important;
+                    font-size: 0.95rem !important;
+                    font-weight: 600 !important;
+                }
+
+                .swal2-icon.swal2-success {
+                    border-color: #86efac !important;
+                    color: #86efac !important;
+                    [class^="swal2-success-line"] {
+                        background-color: #86efac !important;
+                    }
+                }
+            }
+
+            .swal2-close {
+                color: #94a3b8 !important;
+                &:hover {
+                    color: #ffffff !important;
+                }
+            }
+        }
+    }
 
     img.ae-invert-dark { filter: invert(1) hue-rotate(180deg); }
 
@@ -374,3 +480,35 @@
     &[aria-expanded="true"] { color: var(--ae-accent-text); border-color: var(--ae-border-strong); }
     &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 }
+
+// SweetAlert2 por defecto (Tema Claro)
+.swal2-container {
+    .swal2-popup {
+        font-family: inherit !important;
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border: 1px solid #e2e8f0 !important;
+
+        .swal2-title {
+            color: #0f172a !important;
+        }
+
+        .swal2-html-container {
+            color: #334155 !important;
+        }
+
+        &.swal2-toast {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.15) !important;
+
+            .swal2-title {
+                color: #0f172a !important;
+                font-size: 0.95rem !important;
+                font-weight: 600 !important;
+            }
+        }
+    }
+}
+

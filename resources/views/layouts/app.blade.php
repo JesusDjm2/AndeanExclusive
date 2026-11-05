@@ -21,7 +21,7 @@
     <meta name="robots" content="noindex, nofollow">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     {{-- Tema claro/oscuro antes de pintar (evita el destello); el selector está en resources/js/theme.js --}}
-    <script>(function(){try{var t=localStorage.getItem('ae-theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.setAttribute('data-bs-theme',d?'dark':'light');}catch(e){}})();</script>
+    <script>(function(){try{var t=localStorage.getItem('ae-theme');var d=t==='light'?'light':'dark';document.documentElement.setAttribute('data-bs-theme',d);}catch(e){}})();</script>
     <title>@hasSection('titulo')@yield('titulo') · @endif Panel Andean Exclusive</title>
     <link rel="icon" type="image/png" href="{{ asset('img/logoico.png') }}">
 
@@ -86,14 +86,13 @@
                     @endif
 
                     <div class="dropdown theme-toggle">
-                        <button class="theme-toggle__btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Tema de color" title="Tema de color">
-                            <i class="fas fa-adjust" data-theme-icon aria-hidden="true"></i>
+                        <button class="theme-toggle__btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Cambiar tema de color" title="Cambiar tema">
+                            <i class="fas fa-moon" data-theme-icon aria-hidden="true"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                            <li><h3 class="dropdown-header">Tema</h3></li>
-                            <li><button type="button" class="dropdown-item" data-theme-value="light"><i class="fas fa-sun me-2" aria-hidden="true"></i>Claro</button></li>
-                            <li><button type="button" class="dropdown-item" data-theme-value="dark"><i class="fas fa-moon me-2" aria-hidden="true"></i>Oscuro</button></li>
-                            <li><button type="button" class="dropdown-item" data-theme-value="auto"><i class="fas fa-adjust me-2" aria-hidden="true"></i>Sistema</button></li>
+                            <li><h3 class="dropdown-header">Tema del Panel</h3></li>
+                            <li><button type="button" class="dropdown-item" data-theme-value="light"><i class="fas fa-sun me-2 text-warning" aria-hidden="true"></i>Claro</button></li>
+                            <li><button type="button" class="dropdown-item" data-theme-value="dark"><i class="fas fa-moon me-2 text-primary" aria-hidden="true"></i>Oscuro</button></li>
                         </ul>
                     </div>
 
