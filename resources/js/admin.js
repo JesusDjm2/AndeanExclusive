@@ -11,6 +11,7 @@ import { initAyuda } from './ayuda';
 import { initTarifas } from './tarifas';
 import { initPasswordToggle } from './password-toggle';
 import { initProgramaHover } from './programa-hover';
+import { initAuthVideo } from './auth-video';
 
 window.bootstrap = bootstrap;
 
@@ -166,4 +167,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initAutoSubmit();
     initProgramaForm();
     initClienteCampos();
+    initAuthVideo();
 });
