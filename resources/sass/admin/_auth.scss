@@ -427,7 +427,7 @@
 }
 
 // --------------------------------------------------------------------------
-// 4. Controles Discretos del Video Flotante
+// 4. Controles Discretos del Video Flotante (Bajo Demanda)
 // --------------------------------------------------------------------------
 .auth-video-controls {
     position: fixed;
@@ -435,35 +435,91 @@
     right: 1.5rem;
     z-index: 20;
     display: flex;
+    align-items: center;
     gap: 0.5rem;
+}
+
+.auth-video-playback-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.auth-video-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.48rem 1.05rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.78);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(212, 175, 55, 0.45);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+
+    i {
+        color: #d4af37;
+        font-size: 0.8rem;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    &:hover {
+        background: rgba(15, 23, 42, 0.92);
+        border-color: #d4af37;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(212, 175, 55, 0.25);
+
+        i {
+            color: #ffd700;
+            transform: scale(1.15);
+        }
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
 }
 
 .auth-video-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: rgba(15, 23, 42, 0.65);
+    background: rgba(15, 23, 42, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.22);
+    border: 1px solid rgba(212, 175, 55, 0.4);
     color: rgba(255, 255, 255, 0.88);
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 
+    i {
+        color: #d4af37;
+    }
+
     &:hover {
-        background: rgba(8, 145, 178, 0.9);
+        background: rgba(15, 23, 42, 0.95);
+        border-color: #d4af37;
         color: #ffffff;
-        border-color: rgba(255, 255, 255, 0.5);
         transform: scale(1.08);
-        box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+
+        i {
+            color: #ffd700;
+        }
     }
 
     &:focus-visible {
-        outline: 2px solid #06b6d4;
+        outline: 2px solid #d4af37;
         outline-offset: 2px;
     }
 }

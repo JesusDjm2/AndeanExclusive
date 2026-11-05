@@ -1,5 +1,6 @@
 /**
  * Andean Exclusive Tours - Background Video Controller for Authentication
+ * Carga bajo demanda (on-demand) para garantizar acceso instantáneo (0ms de retraso) al login.
  * Video Oficial: https://www.youtube.com/watch?v=ARdGg1ivACM
  * Segmento Cinemático: 2:20 (140s) al 3:50 (230s) en bucle continuo
  */
@@ -7,7 +8,15 @@
 export function initAuthVideo() {
     const videoWrap = document.getElementById('auth-video-wrap');
     const playerEl = document.getElementById('auth-yt-player');
-    if (!videoWrap || !playerEl) return;
+    const activateBtn = document.getElementById('auth-video-activate');
+    const playbackGroup = document.getElementById('auth-video-playback-group');
+    const toggleBtn = document.getElementById('auth-video-toggle');
+    const toggleIcon = document.getElementById('auth-video-icon');
+    const audioBtn = document.getElementById('auth-audio-toggle');
+    const audioIcon = document.getElementById('auth-audio-icon');
+    const closeBtn = document.getElementById('auth-video-close');
+
+    if (!videoWrap || !playerEl || !activateBtn) return;
 
     // Respetar preferencias de accesibilidad de movimiento reducido
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -21,6 +30,8 @@ export function initAuthVideo() {
     let isPlaying = true;
     let isMuted = true;
     let loopInterval = null;
+    let isScriptLoaded = false;
+    let isLoading = false;
 
     function onPlayerReady(event) {
         player = event.target;
@@ -32,15 +43,13 @@ export function initAuthVideo() {
             console.debug('Auth video autoplay ready', e);
         }
 
-        // Transición cinematográfica suave del fondo
         setTimeout(() => {
             document.body.classList.add('video-active');
-            if (typeof window.aeDismissPreloader === 'function') {
-                window.aeDismissPreloader();
-            }
-        }, 600);
+            isLoading = false;
+            if (activateBtn) activateBtn.classList.add('d-none');
+            if (playbackGroup) playbackGroup.classList.remove('d-none');
+        }, 500);
 
-        // Bucle exacto: si alcanza 3:50 (230s), rebobina a 2:20 (140s) sin cortes
         if (loopInterval) clearInterval(loopInterval);
         loopInterval = setInterval(() => {
             if (player && typeof player.getCurrentTime === 'function' && isPlaying) {
@@ -61,10 +70,13 @@ export function initAuthVideo() {
             }
         } else if (event.data === window.YT.PlayerState.PLAYING) {
             document.body.classList.add('video-active');
+            isLoading = false;
+            if (activateBtn) activateBtn.classList.add('d-none');
+            if (playbackGroup) playbackGroup.classList.remove('d-none');
         }
     }
 
-    function setupPlayer() {
+    function createPlayer() {
         if (!window.YT || !window.YT.Player) return;
         try {
             player = new window.YT.Player('auth-yt-player', {
@@ -93,23 +105,73 @@ export function initAuthVideo() {
             });
         } catch (err) {
             console.debug('Error instantiating YouTube Player', err);
+            isLoading = false;
+            resetActivateButton();
         }
     }
 
-    // Inicializar cuando el script de la API de YouTube esté listo
-    if (window.YT && window.YT.Player) {
-        setupPlayer();
-    } else {
-        const prevCallback = window.onYouTubeIframeAPIReady;
-        window.onYouTubeIframeAPIReady = function() {
-            if (typeof prevCallback === 'function') prevCallback();
-            setupPlayer();
-        };
+    function resetActivateButton() {
+        const icon = document.getElementById('auth-video-play-icon');
+        const text = document.getElementById('auth-video-play-text');
+        if (icon) icon.className = 'fas fa-play me-1';
+        if (text) text.textContent = 'Video de fondo';
     }
 
-    // Botón Pausar / Reanudar Video
-    const toggleBtn = document.getElementById('auth-video-toggle');
-    const toggleIcon = document.getElementById('auth-video-icon');
+    function loadYouTubeApiAndPlay() {
+        if (isLoading) return;
+        isLoading = true;
+
+        const icon = document.getElementById('auth-video-play-icon');
+        const text = document.getElementById('auth-video-play-text');
+        if (icon) icon.className = 'fas fa-spinner fa-spin me-1';
+        if (text) text.textContent = 'Cargando video...';
+
+        if (window.YT && window.YT.Player) {
+            if (player) {
+                player.seekTo(START_SEC);
+                player.playVideo();
+                document.body.classList.add('video-active');
+                if (activateBtn) activateBtn.classList.add('d-none');
+                if (playbackGroup) playbackGroup.classList.remove('d-none');
+                isLoading = false;
+            } else {
+                createPlayer();
+            }
+            return;
+        }
+
+        if (!isScriptLoaded) {
+            isScriptLoaded = true;
+            const prevCallback = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = function() {
+                if (typeof prevCallback === 'function') prevCallback();
+                createPlayer();
+            };
+
+            const tag = document.createElement('script');
+            tag.src = 'https://www.youtube.com/iframe_api';
+            tag.async = true;
+            document.head.appendChild(tag);
+        }
+    }
+
+    function returnToPhoto() {
+        if (player && typeof player.pauseVideo === 'function') {
+            player.pauseVideo();
+        }
+        document.body.classList.remove('video-active');
+        if (playbackGroup) playbackGroup.classList.add('d-none');
+        if (activateBtn) {
+            activateBtn.classList.remove('d-none');
+            resetActivateButton();
+        }
+        isPlaying = false;
+        if (toggleIcon) toggleIcon.className = 'fas fa-play';
+        if (toggleBtn) toggleBtn.setAttribute('title', 'Reanudar video');
+    }
+
+    activateBtn.addEventListener('click', loadYouTubeApiAndPlay);
+
     if (toggleBtn && toggleIcon) {
         toggleBtn.addEventListener('click', () => {
             if (!player || typeof player.pauseVideo !== 'function') return;
@@ -127,9 +189,6 @@ export function initAuthVideo() {
         });
     }
 
-    // Botón Silenciar / Activar Audio
-    const audioBtn = document.getElementById('auth-audio-toggle');
-    const audioIcon = document.getElementById('auth-audio-icon');
     if (audioBtn && audioIcon) {
         audioBtn.addEventListener('click', () => {
             if (!player || typeof player.isMuted !== 'function') return;
@@ -146,5 +205,9 @@ export function initAuthVideo() {
                 audioBtn.setAttribute('title', 'Activar audio');
             }
         });
+    }
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', returnToPhoto);
     }
 }
