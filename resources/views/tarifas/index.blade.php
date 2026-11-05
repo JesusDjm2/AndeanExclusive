@@ -8,7 +8,7 @@
     <div class="ae-admin-page-header d-flex flex-wrap align-items-end justify-content-between gap-3">
         <div>
             <h1 class="ae-admin-page-title"><i class="fas fa-fw fa-tags"></i> Tarifario</h1>
-            <small class="ae-admin-page-desc">Lo que cobra cada hotel y proveedor por temporada. El sistema lo sugiere al cotizar y al reservar.</small>
+            <small class="ae-admin-page-desc">Catálogo de tarifas fijas estándar y por temporada para hoteles y proveedores. Sugiere costos al cotizar.</small>
         </div>
         @if ($canEdit)
             <a href="{{ route('tarifas.create') }}" class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> Nueva tarifa</a>
@@ -25,7 +25,7 @@
     @endforeach
 
     <nav class="prog-tabs" aria-label="Vigencia">
-        @foreach (['vigentes' => 'Vigentes y futuras', 'vencidas' => 'Vencidas', 'todas' => 'Todas'] as $clave => $etiqueta)
+        @foreach (['vigentes' => 'Vigentes y fijas', 'fijas' => 'Tarifas fijas (Todo el año)', 'vencidas' => 'Temporadas vencidas', 'todas' => 'Todas'] as $clave => $etiqueta)
             <a href="{{ route('tarifas.index', array_filter(['vista' => $clave, 'q' => request('q')])) }}" class="prog-tabs__tab {{ $vista === $clave ? 'is-active' : '' }}" @if ($vista === $clave) aria-current="page" @endif>{{ $etiqueta }}</a>
         @endforeach
     </nav>
@@ -46,13 +46,30 @@
         @else
             <div class="table-responsive">
                 <table class="table ae-admin-data-table mb-0">
-                    <thead><tr><th>Hotel o proveedor</th><th>Qué cobra</th><th>Temporada</th><th class="text-end">Precio</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
+                    <thead><tr><th>Hotel o proveedor</th><th>Servicio / Concepto</th><th>Vigencia / Temporada</th><th class="text-end">Precio</th><th><span class="visually-hidden">Acciones</span></th></tr></thead>
                     <tbody>
                         @foreach ($tarifas as $tarifa)
                             <tr>
-                                <td class="fw-semibold">{{ $tarifa->de_quien }}</td>
-                                <td>{{ $tarifa->que }}@if ($tarifa->notas)<small class="d-block text-muted">{{ $tarifa->notas }}</small>@endif</td>
-                                <td class="text-nowrap">{{ $tarifa->desde->format('d/m/Y') }} – {{ $tarifa->hasta->format('d/m/Y') }}</td>
+                                <td class="fw-semibold">
+                                    {{ $tarifa->de_quien }}
+                                    @if ($tarifa->proveedor_id)
+                                        <a href="{{ route('proveedors.show', $tarifa->proveedor_id) }}" class="ms-1 text-muted small" title="Ver ficha del proveedor"><i class="fas fa-external-link-alt"></i></a>
+                                    @endif
+                                </td>
+                                <td>
+                                    <span class="fw-medium">{{ $tarifa->que }}</span>
+                                    @if ($tarifa->unidad_detalle)
+                                        <span class="badge bg-secondary-subtle text-secondary border ms-1">{{ $tarifa->unidad_detalle }}</span>
+                                    @endif
+                                    @if ($tarifa->notas)<small class="d-block text-muted">{{ $tarifa->notas }}</small>@endif
+                                </td>
+                                <td class="text-nowrap">
+                                    @if ($tarifa->es_fija || (! $tarifa->desde && ! $tarifa->hasta))
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="fas fa-infinity me-1"></i> Fija todo el año</span>
+                                    @else
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle">{{ $tarifa->desde?->format('d/m/Y') }} – {{ $tarifa->hasta?->format('d/m/Y') }}</span>
+                                    @endif
+                                </td>
                                 <td class="text-end text-nowrap"><strong>{{ \App\Models\Servicio::formatoMonto((float) $tarifa->precio, $tarifa->moneda) }}</strong> <small class="text-muted">{{ \App\Models\Tarifa::POR[$tarifa->por] ?? '' }}</small></td>
                                 <td class="text-end text-nowrap">
                                     @if ($canEdit)

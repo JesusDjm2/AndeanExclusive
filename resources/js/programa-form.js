@@ -425,6 +425,113 @@ function initBudget(root) {
         set('deposito', money(total * depositoPct / 100));
     };
 
+    // --- Cotizador Dinámico desde Costos de Proveedores ---
+    const cotizadorCard = root.querySelector('[data-cotizador-card]');
+    if (cotizadorCard) {
+        let margenSeleccionado = 25;
+
+        const calcularCostosItinerario = () => {
+            const tc = parseFloat(root.querySelector('[name="tipo_cambio"]')?.value) || 3.75;
+
+            // 1. Hoteles / Estadías
+            let costoHoteles = 0;
+            root.querySelectorAll('[data-estadia-item]').forEach((fila) => {
+                const reservado = fila.querySelector('[data-estadia-reservado]')?.checked;
+                if (reservado) return;
+                const costoNoche = parseFloat(fila.querySelector('[data-estadia-costo]')?.value) || 0;
+                const cant = parseInt(fila.querySelector('[data-estadia-cantidad]')?.value, 10) || 1;
+                const ing = fila.querySelector('[data-estadia-ingreso]')?.value;
+                const sal = fila.querySelector('[data-estadia-salida]')?.value;
+                let noches = 0;
+                if (ing && sal) {
+                    const diff = Math.round((new Date(sal + 'T00:00:00') - new Date(ing + 'T00:00:00')) / 86400000);
+                    noches = Math.max(0, diff);
+                }
+                const moneda = fila.querySelector('[data-estadia-moneda]')?.value || 'USD';
+                let totalEstadia = costoNoche * cant * noches;
+                if (moneda === 'PEN') totalEstadia /= tc;
+                costoHoteles += totalEstadia;
+            });
+
+            // Pasajeros pagantes
+            const pagantes = Math.max(1, (parseInt(root.querySelector('[data-res-adultos]')?.textContent, 10) || 0) + (parseInt(root.querySelector('[data-res-ninos]')?.textContent, 10) || 0) || 1);
+
+            // 2. Servicios del Itinerario
+            let costoServicios = 0;
+            root.querySelectorAll('[data-svc-item]').forEach((svc) => {
+                const est = parseFloat(svc.querySelector('[id$="-estimado"]')?.value) || 0;
+                const real = parseFloat(svc.querySelector('[id$="-costo"]')?.value);
+                const costoVal = (!isNaN(real) && real > 0) ? real : est;
+                if (!costoVal || costoVal <= 0) return;
+
+                const por = svc.querySelector('[id$="-por"]')?.value || 'grupo';
+                const moneda = svc.querySelector('[id$="-moneda"]')?.value || 'USD';
+                let importe = costoVal * (por === 'persona' ? pagantes : 1);
+                if (moneda === 'PEN') importe /= tc;
+                costoServicios += importe;
+            });
+
+            const costoTotal = costoHoteles + costoServicios;
+            const costoPorPax = costoTotal / pagantes;
+
+            const elHoteles = cotizadorCard.querySelector('[data-calc-hoteles]');
+            const elServicios = cotizadorCard.querySelector('[data-calc-servicios]');
+            const elTotal = cotizadorCard.querySelector('[data-calc-total]');
+            const elPorPax = cotizadorCard.querySelector('[data-calc-por-pax]');
+
+            if (elHoteles) elHoteles.textContent = `US$ ${costoHoteles.toFixed(2)}`;
+            if (elServicios) elServicios.textContent = `US$ ${costoServicios.toFixed(2)}`;
+            if (elTotal) elTotal.textContent = `US$ ${costoTotal.toFixed(2)}`;
+            if (elPorPax) elPorPax.textContent = `US$ ${costoPorPax.toFixed(2)}`;
+
+            return { costoHoteles, costoServicios, costoTotal, costoPorPax, pagantes };
+        };
+
+        // Botones de margen rápido
+        cotizadorCard.querySelectorAll('[data-calc-margen]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                cotizadorCard.querySelectorAll('[data-calc-margen]').forEach((b) => {
+                    b.classList.remove('active', 'btn-outline-primary', 'fw-bold');
+                    b.classList.add('btn-outline-secondary');
+                });
+                btn.classList.add('active', 'btn-outline-primary', 'fw-bold');
+                btn.classList.remove('btn-outline-secondary');
+                margenSeleccionado = parseFloat(btn.dataset.calcMargen) || 25;
+            });
+        });
+
+        // Botón Sincronizar
+        cotizadorCard.querySelector('[data-cotizador-sync]')?.addEventListener('click', calcularCostosItinerario);
+
+        // Botón Aplicar al Precio de Venta
+        cotizadorCard.querySelector('[data-calc-aplicar]')?.addEventListener('click', () => {
+            const { costoPorPax } = calcularCostosItinerario();
+            const inputAdulto = root.querySelector('[data-precio-adulto]');
+            const inputNino = root.querySelector('[data-precio-nino]');
+            const inputGanancia = root.querySelector('[data-ganancia]');
+
+            if (inputAdulto) {
+                inputAdulto.value = costoPorPax.toFixed(2);
+                inputAdulto.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (inputNino) {
+                inputNino.value = (costoPorPax * 0.7).toFixed(2);
+                inputNino.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            if (inputGanancia) {
+                inputGanancia.value = margenSeleccionado;
+                inputGanancia.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            const info = cotizadorCard.querySelector('[data-calc-info]');
+            if (info) {
+                info.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check me-1"></i> Costo base fijado ($${costoPorPax.toFixed(2)}) + ${margenSeleccionado}% margen aplicado.</span>`;
+            }
+        });
+
+        setTimeout(calcularCostosItinerario, 400);
+    }
+
     root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles]').forEach((input) => {
         input.addEventListener('input', compute);
     });

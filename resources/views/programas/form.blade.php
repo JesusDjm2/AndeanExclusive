@@ -776,6 +776,60 @@
             <section class="tab-pane fade {{ $initialTab === 'precios' ? 'show active' : '' }}" id="pf-precios" role="tabpanel" aria-labelledby="pf-tab-precios">
                 <div class="pf-pricing">
                     <div class="pf-pricing__main">
+
+                    {{-- Cotizador Dinámico: Costo Neto + Margen de Agencia --}}
+                    @if ($verCotizacion)
+                    <div class="prog-section border border-primary-subtle shadow-sm mb-4" data-cotizador-card>
+                        <div class="prog-section__header bg-light py-2 px-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <span class="prog-section__title text-primary fw-bold">
+                                    <i class="fas fa-calculator me-1"></i> Cotizador Inteligente: Costos de Proveedores + Margen
+                                </span>
+                                <small class="d-block text-muted">Suma en vivo los costos netos de los hoteles y servicios del itinerario para calcular tu precio de venta óptimo.</small>
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary" data-cotizador-sync title="Recalcular costos del itinerario">
+                                <i class="fas fa-sync-alt me-1"></i> Actualizar Costos
+                            </button>
+                        </div>
+                        <div class="prog-section__body py-3">
+                            <div class="row g-3 text-center text-sm-start">
+                                <div class="col-6 col-md-3">
+                                    <span class="small text-muted d-block"><i class="fas fa-hotel me-1 text-secondary"></i> Costo Hoteles:</span>
+                                    <strong class="fs-6 text-dark" data-calc-hoteles>US$ 0.00</strong>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="small text-muted d-block"><i class="fas fa-route me-1 text-secondary"></i> Costo Servicios:</span>
+                                    <strong class="fs-6 text-dark" data-calc-servicios>US$ 0.00</strong>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="small text-muted d-block"><i class="fas fa-money-bill-wave me-1 text-secondary"></i> Costo Neto Total:</span>
+                                    <strong class="fs-6 text-dark" data-calc-total>US$ 0.00</strong>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <span class="small text-muted d-block"><i class="fas fa-user-tag me-1 text-primary"></i> Costo Neto / Pasajero:</span>
+                                    <strong class="fs-6 text-primary" data-calc-por-pax>US$ 0.00</strong>
+                                </div>
+                            </div>
+
+                            <div class="mt-3 pt-3 border-top d-flex flex-wrap gap-2 align-items-center">
+                                <span class="small fw-semibold text-muted me-1"><i class="fas fa-percentage me-1"></i> Margen sugerido:</span>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-calc-margen="15">15%</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-calc-margen="20">20%</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2 active fw-bold" data-calc-margen="25">25% (Recomendado)</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-calc-margen="30">30%</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" data-calc-margen="35">35%</button>
+
+                                <button type="button" class="btn btn-sm btn-success ms-auto py-1 px-3" data-calc-aplicar>
+                                    <i class="fas fa-check-circle me-1"></i> Aplicar al Precio de Venta
+                                </button>
+                            </div>
+                            <div class="mt-2 text-end">
+                                <small class="text-muted" data-calc-info>Al pulsar aplicar, asigna el costo neto base por persona y aplica el % de ganancia comercial.</small>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="prog-section">
                         <div class="prog-section__header">
                             <span class="prog-section__title">{{ $verCotizacion ? 'Costo por persona' : 'Precio de venta por persona' }}</span>

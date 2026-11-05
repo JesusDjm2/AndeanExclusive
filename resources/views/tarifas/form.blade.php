@@ -5,11 +5,13 @@
 @php
     $tipo = old('tipo', $tarifa->proveedor_id ? 'proveedor' : 'habitacion');
     $input = fn (string $campo, $defecto = null) => old($campo, $defecto ?? $tarifa->{$campo});
+    $esFija = old('es_fija', $tarifa->exists ? (bool)$tarifa->es_fija : true);
+    $urlVolver = ($retorno === 'proveedor' && $tarifa->proveedor_id) ? route('proveedors.show', $tarifa->proveedor_id) : route('tarifas.index');
 @endphp
 
 @section('contenido')
     <div class="ae-admin-page-header">
-        <a href="{{ route('tarifas.index') }}" class="pf-header__back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Tarifario</a>
+        <a href="{{ $urlVolver }}" class="pf-header__back"><i class="fas fa-arrow-left" aria-hidden="true"></i> {{ ($retorno === 'proveedor' && $tarifa->proveedor_id) ? 'Volver al proveedor' : 'Tarifario' }}</a>
         <h1 class="ae-admin-page-title"><i class="fas fa-fw fa-tags"></i> {{ $tarifa->exists ? 'Editar tarifa' : 'Nueva tarifa' }}</h1>
     </div>
 
@@ -18,6 +20,10 @@
         @if ($tarifa->exists)
             @method('PUT')
         @endif
+        @if ($retorno)
+            <input type="hidden" name="retorno" value="{{ $retorno }}">
+        @endif
+
         <div class="prog-section__body">
             <div class="pf-segmented mb-3" role="radiogroup" aria-label="Tipo de tarifa">
                 <label><input type="radio" name="tipo" value="habitacion" @checked($tipo === 'habitacion') data-tarifa-tipo> <span>Habitación de hotel</span></label>
@@ -52,21 +58,33 @@
                     @error('proveedor_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-md-7" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
-                    <label for="t-con" class="prog-label">Qué cobra <span class="required">*</span></label>
-                    <input id="t-con" type="text" name="concepto" value="{{ $input('concepto') }}" maxlength="255" placeholder="Ej. Traslado aeropuerto → hotel" class="form-control @error('concepto') is-invalid @enderror">
+                    <label for="t-con" class="prog-label">Servicio / Concepto <span class="required">*</span></label>
+                    <input id="t-con" type="text" name="concepto" value="{{ $input('concepto') }}" maxlength="255" placeholder="Ej. Traslado aeropuerto → hotel, Día completo, Almuerzo buffet…" class="form-control @error('concepto') is-invalid @enderror">
                     @error('concepto')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="col-sm-6 col-md-3">
-                    <label for="t-desde" class="prog-label">Desde <span class="required">*</span></label>
-                    <input id="t-desde" type="date" name="desde" value="{{ old('desde', $tarifa->desde?->toDateString()) }}" required class="form-control @error('desde') is-invalid @enderror">
+                {{-- Vigencia: Fija vs Temporada --}}
+                <div class="col-12">
+                    <div class="form-check form-switch p-2 bg-light rounded border">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="t-es-fija" name="es_fija" value="1" @checked($esFija) data-tarifa-fija-toggle>
+                        <label class="form-check-label fw-bold text-dark cursor-pointer" for="t-es-fija">
+                            <i class="fas fa-infinity text-primary me-1"></i> Tarifa fija estándar (Aplica todo el año / Sin fechas de temporada)
+                        </label>
+                        <small class="d-block text-muted ms-4">Desmarca esta opción si es una tarifa que solo aplica en ciertas fechas del año (temporada alta, feriados, etc.).</small>
+                    </div>
+                </div>
+
+                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija) style="display:none;" @endif>
+                    <label for="t-desde" class="prog-label">Desde</label>
+                    <input id="t-desde" type="date" name="desde" value="{{ old('desde', $tarifa->desde?->toDateString()) }}" class="form-control @error('desde') is-invalid @enderror" data-tarifa-desde>
                     @error('desde')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-sm-6 col-md-3">
-                    <label for="t-hasta" class="prog-label">Hasta <span class="required">*</span></label>
-                    <input id="t-hasta" type="date" name="hasta" value="{{ old('hasta', $tarifa->hasta?->toDateString()) }}" required class="form-control @error('hasta') is-invalid @enderror">
+                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija) style="display:none;" @endif>
+                    <label for="t-hasta" class="prog-label">Hasta</label>
+                    <input id="t-hasta" type="date" name="hasta" value="{{ old('hasta', $tarifa->hasta?->toDateString()) }}" class="form-control @error('hasta') is-invalid @enderror" data-tarifa-hasta>
                     @error('hasta')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
+
                 <div class="col-sm-4 col-md-2">
                     <label for="t-moneda" class="prog-label">Moneda</label>
                     <select id="t-moneda" name="moneda" class="form-select">
@@ -81,23 +99,28 @@
                     @error('precio')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
                 <div class="col-sm-4 col-md-2" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
-                    <label for="t-por" class="prog-label">Se cobra</label>
+                    <label for="t-por" class="prog-label">Modalidad de cobro</label>
                     <select id="t-por" name="por" class="form-select">
                         @foreach (['grupo', 'persona'] as $clave)
                             <option value="{{ $clave }}" @selected($input('por') === $clave)>{{ ucfirst(\App\Models\Tarifa::POR[$clave]) }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-12">
-                    <label for="t-notas" class="prog-label">Notas</label>
-                    <input id="t-notas" type="text" name="notas" value="{{ $input('notas') }}" maxlength="255" placeholder="Temporada alta, incluye desayuno…" class="form-control">
+
+                <div class="col-md-6" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
+                    <label for="t-unidad" class="prog-label">Detalle de unidad / servicio (opcional)</label>
+                    <input id="t-unidad" type="text" name="unidad_detalle" value="{{ $input('unidad_detalle') }}" maxlength="100" placeholder="Ej. Van H1 (1-6 pax), Bilingüe, Solo ida…" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label for="t-notas" class="prog-label">Notas internas</label>
+                    <input id="t-notas" type="text" name="notas" value="{{ $input('notas') }}" maxlength="255" placeholder="Incluye refrigerio, aplica con 48h de anticipación…" class="form-control">
                 </div>
             </div>
 
-            <p class="prog-input-hint mt-3">Una habitación se cobra por noche. Para temporadas distintas, crea una tarifa por cada temporada.</p>
+            <p class="prog-input-hint mt-3">Las tarifas fijas se usan por defecto todo el año al cotizar. Si defines temporadas, el sistema priorizará la tarifa específica para la fecha del viaje.</p>
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary"><i class="fas fa-save" aria-hidden="true"></i> Guardar tarifa</button>
-                <a href="{{ route('tarifas.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                <a href="{{ $urlVolver }}" class="btn btn-outline-secondary">Cancelar</a>
             </div>
         </div>
     </form>

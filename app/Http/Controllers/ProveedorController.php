@@ -55,7 +55,7 @@ class ProveedorController extends Controller
 
     public function show($id)
     {
-        $proveedor = Proveedor::with('categoria')->findOrFail($id);
+        $proveedor = Proveedor::with(['categoria', 'tarifas'])->findOrFail($id);
         return view('proveedor.show', compact('proveedor'));
     }
 
