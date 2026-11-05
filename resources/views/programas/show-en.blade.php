@@ -100,7 +100,7 @@
                                     </div>
                                     <div class="metric-content">
                                         <span class="metric-label">Total Price</span>
-                                        <span class="metric-value">${{ number_format($totalGeneral, 0) }},00</span>
+                                        <span class="metric-value">{{ ($programa->moneda ?? 'USD') === 'PEN' ? 'S/ ' : '$ ' }}{{ number_format($totalGeneral, 2) }}</span>
                                     </div>
                                 </div>
                             @endif

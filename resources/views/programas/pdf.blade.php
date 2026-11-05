@@ -39,7 +39,8 @@
     ];
     $plural = fn (int $n, string $uno, string $varios) => $n . ' ' . ($n === 1 ? $t[$uno] : $t[$varios]);
     $fecha = fn ($c, string $es = 'D [de] MMMM [de] YYYY', string $en = 'MMMM D, YYYY') => $c ? \Carbon\Carbon::parse($c)->locale($locale)->isoFormat($isEn ? $en : $es) : '—';
-    $usd = fn ($n) => 'US$ ' . number_format((float) $n, 2);
+    $simbolo = ($programa->moneda ?? 'USD') === 'PEN' ? 'S/ ' : 'US$ ';
+    $usd = fn ($n) => $simbolo . number_format((float) $n, 2);
 
     $estadoDoc = match ($programa->estado) {
         'confirmado' => ['confirmed', '#2f8f5b'],

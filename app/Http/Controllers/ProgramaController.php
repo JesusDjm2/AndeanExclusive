@@ -171,7 +171,7 @@ class ProgramaController extends Controller
 
     public function create()
     {
-        $programa = new Programa(['estado' => 'cotizacion', 'lang' => 'es']);
+        $programa = new Programa(['estado' => 'cotizacion', 'lang' => 'es', 'moneda' => 'USD', 'tipo_cambio' => Programa::TIPO_CAMBIO_DEFECTO]);
         $programa->cliente_id = request()->integer('cliente_id') ?: null;
 
         // Viene de «Crear cotización» en una consulta: ya trae lo que el cliente pidió.
@@ -369,6 +369,7 @@ class ProgramaController extends Controller
             'inicio' => 'nullable|required_if:estado,confirmado|required_with:fin|date',
             'fin' => 'nullable|required_if:estado,confirmado|required_with:inicio|date|after_or_equal:inicio',
             'lang' => 'nullable|in:es,en',
+            'moneda' => 'nullable|in:USD,PEN',
             'llegada_vuelo' => 'nullable|string|max:40',
             'llegada_at' => 'nullable|date',
             'salida_vuelo' => 'nullable|string|max:40',
@@ -476,6 +477,7 @@ class ProgramaController extends Controller
             'inicio' => $request->inicio,
             'fin' => $request->fin,
             'lang' => $request->lang,
+            'moneda' => $request->input('moneda', 'USD'),
             'llegada_vuelo' => $request->llegada_vuelo,
             'llegada_at' => $request->llegada_at,
             'salida_vuelo' => $request->salida_vuelo,

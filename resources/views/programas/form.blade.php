@@ -236,7 +236,7 @@
                                     @unless ($isEdit) placeholder="Automático: {{ $siguienteCodigo }}" @endunless>
                                 @error('codigo')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="col-sm-6 col-lg-4">
+                            <div class="col-sm-6 col-lg-3">
                                 <label for="pf-estado" class="prog-label">Estado</label>
                                 <select id="pf-estado" name="estado" class="form-select @error('estado') is-invalid @enderror">
                                     @foreach ($estados as $value => $label)
@@ -245,7 +245,7 @@
                                 </select>
                                 @error('estado')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="col-sm-6 col-lg-4">
+                            <div class="col-sm-6 col-lg-3">
                                 <label for="pf-lang" class="prog-label">Idioma del itinerario</label>
                                 <select id="pf-lang" name="lang" class="form-select @error('lang') is-invalid @enderror">
                                     @foreach ($idiomas as $value => $label)
@@ -253,6 +253,20 @@
                                     @endforeach
                                 </select>
                                 @error('lang')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-moneda" class="prog-label"><i class="fas fa-coins text-warning me-1"></i> Moneda cotización</label>
+                                <select id="pf-moneda" name="moneda" class="form-select @error('moneda') is-invalid @enderror" data-programa-moneda>
+                                    <option value="USD" @selected(old('moneda', $programa->moneda ?? 'USD') === 'USD')>Dólares (US$ / USD)</option>
+                                    <option value="PEN" @selected(old('moneda', $programa->moneda ?? 'USD') === 'PEN')>Soles (S/. / PEN)</option>
+                                </select>
+                                @error('moneda')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-tc" class="prog-label"><i class="fas fa-exchange-alt text-primary me-1"></i> Tipo de cambio (S/)</label>
+                                <input id="pf-tc" type="number" name="tipo_cambio" value="{{ old('tipo_cambio', $programa->tipo_cambio ?: \App\Models\Programa::TIPO_CAMBIO_DEFECTO) }}" step="0.001" min="0.5"
+                                    placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control @error('tipo_cambio') is-invalid @enderror" data-tipo-cambio>
+                                @error('tipo_cambio')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <label for="pf-inicio" class="prog-label">Inicio</label>
@@ -854,7 +868,7 @@
 
                                 <div class="row g-3 align-items-center">
                                     <div class="col-sm-4">
-                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Costo Base Adulto ($ USD)</label>
+                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Precio Venta Adulto (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $verCotizacion ? old('precioAdulto', $programa->precioAdulto) : ($programa->exists ? $programa->presupuesto()['ventaAdulto'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg fw-bold @error('precioAdulto') is-invalid @enderror" data-precio-adulto>
                                         @error('precioAdulto')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -869,7 +883,7 @@
                                         @error('porcentaje_ganancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
                                     <div class="col-sm-4">
-                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Costo Niño 5–11 ($ USD)</label>
+                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Precio Venta Niño 5–11 (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $verCotizacion ? old('precioChild', $programa->precioChild) : ($programa->exists ? $programa->presupuesto()['ventaNino'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg @error('precioChild') is-invalid @enderror" data-precio-nino>
                                         @error('precioChild')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -886,7 +900,7 @@
                                         <div class="d-flex align-items-baseline gap-2">
                                             <span class="text-muted fw-bold">Precio de Venta al Pasajero:</span>
                                             <span class="fs-3 fw-bold text-success" data-precio-venta-sugerido>$0.00</span>
-                                            <small class="text-muted">USD por persona</small>
+                                            <small class="text-muted" data-currency-name>{{ $programa->moneda ?? 'USD' }} por persona</small>
                                         </div>
                                     </div>
                                     <div class="d-flex gap-2">
@@ -928,10 +942,9 @@
                                     @error('habitaciones_individuales')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="col-sm-4">
-                                    <label for="pf-tc" class="prog-label">Tipo de cambio (S/ por US$)</label>
-                                    <input id="pf-tc" type="number" name="tipo_cambio" value="{{ old('tipo_cambio', $programa->tipo_cambio) }}" step="0.001" min="0.5"
-                                        placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control @error('tipo_cambio') is-invalid @enderror">
-                                    @error('tipo_cambio')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    <label for="pf-tc-2" class="prog-label">Tipo de cambio (S/ por US$)</label>
+                                    <input id="pf-tc-2" type="number" value="{{ old('tipo_cambio', $programa->tipo_cambio ?: \App\Models\Programa::TIPO_CAMBIO_DEFECTO) }}" step="0.001" min="0.5"
+                                        placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control" data-tipo-cambio-sync>
                                 </div>
                             </div>
                             <p class="prog-input-hint mt-3 mb-0">El suplemento es precio de venta (no se le suma la ganancia). El tipo de cambio convierte a dólares los costos en soles.</p>

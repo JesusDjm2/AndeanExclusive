@@ -398,6 +398,7 @@
             $subtotalAdultos = $totalAdultos * $precioAdulto;
             $subtotalNinos = $totalNinos * $precioChild;
             $totalGeneral = $subtotalAdultos + $subtotalNinos;
+            $simbolo = ($programa->moneda ?? 'USD') === 'PEN' ? 'S/ ' : '$ ';
         @endphp
         <h2>Pricing</h2>
         <table class="data">
@@ -408,13 +409,13 @@
                 <th>Estimated total</th>
             </tr>
             <tr>
-                <td>{{ $precioAdulto > 0 ? '$' . number_format($precioAdulto, 2) : '—' }}</td>
-                <td>{{ $precioChild > 0 ? '$' . number_format($precioChild, 2) : '—' }}</td>
+                <td>{{ $precioAdulto > 0 ? $simbolo . number_format($precioAdulto, 2) : '—' }}</td>
+                <td>{{ $precioChild > 0 ? $simbolo . number_format($precioChild, 2) : '—' }}</td>
                 <td>
                     <span class="muted">{{ $totalAdultos }} adults · {{ $totalNinos }} children ·
                         {{ $totalInfantes }} infants</span>
                 </td>
-                <td class="highlight-cell">{{ $totalGeneral > 0 ? '$' . number_format($totalGeneral, 2) : '—' }}</td>
+                <td class="highlight-cell">{{ $totalGeneral > 0 ? $simbolo . number_format($totalGeneral, 2) : '—' }}</td>
             </tr>
         </table>
     @endif

@@ -71,6 +71,7 @@
     $faltanDatos = $programa->paxs->isEmpty() || $programa->paxs->contains(fn ($p) => blank($p->pasaporte) || ! $p->fecha_nacimiento);
     $paises = \App\Support\Paises::enIdioma($locale);
     $telefono = fn (?string $n) => preg_replace('/[^0-9+]/', '', (string) $n);
+    $simbolo = ($programa->moneda ?? 'USD') === 'PEN' ? 'S/' : 'US$';
 
     $siteUrl = rtrim(config('seo.site_url'), '/');
     $description = \Illuminate\Support\Str::limit(strip_tags((string) $programa->presentacion), 160);
@@ -140,7 +141,7 @@
                     @if ($presupuesto['total'] > 0)
                         <li class="itin-facts__item itin-facts__item--price">
                             <i class="fa fa-tag" aria-hidden="true"></i>
-                            <span><small>{{ $t['total'] }}</small><strong>US$ {{ number_format($presupuesto['total'], 2) }}</strong></span>
+                            <span><small>{{ $t['total'] }}</small><strong>{{ $simbolo }} {{ number_format($presupuesto['total'], 2) }}</strong></span>
                         </li>
                     @endif
                 </ul>
@@ -232,7 +233,7 @@
                             @if ($presupuesto['total'] > 0)
                                 <div class="itin-summary__total">
                                     <dt>{{ $t['total'] }}</dt>
-                                    <dd>US$ {{ number_format($presupuesto['total'], 2) }}
+                                    <dd>{{ $simbolo }} {{ number_format($presupuesto['total'], 2) }}
                                         @can('cotizacion.ver')
                                             @if ($presupuesto['pctGanancia'] > 0)
                                                 <small>{{ str_replace(':pct', number_format($presupuesto['pctGanancia'], 2), $t['markup']) }}</small>

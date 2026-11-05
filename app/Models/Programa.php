@@ -48,6 +48,7 @@ class Programa extends Model
         'inicio',
         'fin',
         'lang',
+        'moneda',
         'precioAdulto',
         'precioChild',
         'porcentaje_ganancia',
@@ -65,6 +66,11 @@ class Programa extends Model
         'anio_id',
         'mes_id',
     ];
+
+    public function simboloMoneda(): string
+    {
+        return Servicio::MONEDAS[$this->moneda ?: 'USD'] ?? '$';
+    }
 
     protected function presentacion(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
