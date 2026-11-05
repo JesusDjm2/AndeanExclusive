@@ -112,34 +112,63 @@
     --bs-emphasis-color: #ffffff;
 
     // Reasignación de utilidades Bootstrap en modo oscuro para evitar textos negros o apagados
+    --bs-primary: #93c5fd;
+    --bs-primary-rgb: 147, 197, 253;
+    --bs-primary-text-emphasis: #93c5fd;
+    --bs-primary-bg-subtle: rgba(96, 165, 250, 0.22);
+    --bs-primary-border-subtle: rgba(96, 165, 250, 0.45);
+
     --bs-dark: #f8fafc;
     --bs-dark-rgb: 248, 250, 252;
     --bs-dark-text-emphasis: #f8fafc;
+
     --bs-secondary: #cbd5e1;
     --bs-secondary-rgb: 203, 213, 225;
     --bs-secondary-color: #cbd5e1;
     --bs-secondary-text-emphasis: #e2e8f0;
     --bs-secondary-bg-subtle: rgba(148, 163, 184, 0.22);
+    --bs-secondary-border-subtle: rgba(148, 163, 184, 0.35);
+
     --bs-light: #1e293b;
     --bs-light-rgb: 30, 41, 59;
     --bs-light-bg-subtle: #1e293b;
     --bs-light-text-emphasis: #f1f5f9;
-    --bs-primary-bg-subtle: rgba(96, 165, 250, 0.22);
-    --bs-primary-text-emphasis: #93c5fd;
+
+    --bs-success: #86efac;
+    --bs-success-rgb: 134, 239, 172;
     --bs-success-bg-subtle: rgba(74, 222, 128, 0.22);
     --bs-success-text-emphasis: #86efac;
+    --bs-success-border-subtle: rgba(74, 222, 128, 0.45);
+
+    --bs-info: #7dd3fc;
+    --bs-info-rgb: 125, 211, 252;
     --bs-info-bg-subtle: rgba(56, 189, 248, 0.22);
     --bs-info-text-emphasis: #7dd3fc;
+    --bs-info-border-subtle: rgba(56, 189, 248, 0.45);
+
+    --bs-warning: #fde047;
+    --bs-warning-rgb: 253, 224, 71;
     --bs-warning-bg-subtle: rgba(251, 191, 36, 0.22);
     --bs-warning-text-emphasis: #fde047;
+    --bs-warning-border-subtle: rgba(251, 191, 36, 0.45);
+
+    --bs-danger: #fca5a5;
+    --bs-danger-rgb: 252, 165, 165;
     --bs-danger-bg-subtle: rgba(248, 113, 113, 0.22);
     --bs-danger-text-emphasis: #fca5a5;
+    --bs-danger-border-subtle: rgba(248, 113, 113, 0.45);
 
     // Textos de utilidad con contraste absoluto en modo oscuro
-    .text-dark { color: #f8fafc !important; }
+    .text-primary { color: #93c5fd !important; }
     .text-secondary { color: #cbd5e1 !important; }
     .text-secondary-emphasis { color: #e2e8f0 !important; }
+    .text-dark { color: #f8fafc !important; }
+    .text-dark-emphasis { color: #f8fafc !important; }
     .text-muted { color: #94a3b8 !important; }
+    .text-info { color: #7dd3fc !important; }
+    .text-success { color: #86efac !important; }
+    .text-warning { color: #fde047 !important; }
+    .text-danger { color: #fca5a5 !important; }
     .bg-light { background-color: #1e293b !important; color: #f1f5f9 !important; }
     .bg-light-subtle { background-color: #1e293b !important; }
     .bg-secondary-subtle { background-color: rgba(148, 163, 184, 0.22) !important; color: #e2e8f0 !important; }
@@ -225,14 +254,31 @@
             color: #f1f5f9 !important;
             border: 1px solid #334155 !important;
         }
-        &.text-secondary,
-        &.text-muted,
-        &.text-dark {
-            color: #f1f5f9 !important;
-        }
+        &.text-primary { color: #93c5fd !important; }
+        &.text-secondary { color: #e2e8f0 !important; }
+        &.text-info { color: #7dd3fc !important; }
+        &.text-success { color: #86efac !important; }
+        &.text-warning { color: #fde047 !important; }
+        &.text-danger { color: #fca5a5 !important; }
+        &.text-muted { color: #cbd5e1 !important; }
+        &.text-dark { color: #f8fafc !important; }
         i {
             color: inherit !important;
         }
+    }
+
+    .border-primary-subtle { border-color: rgba(96, 165, 250, 0.45) !important; }
+    .border-secondary-subtle { border-color: rgba(148, 163, 184, 0.35) !important; }
+    .border-success-subtle { border-color: rgba(74, 222, 128, 0.45) !important; }
+    .border-info-subtle { border-color: rgba(56, 189, 248, 0.45) !important; }
+    .border-warning-subtle { border-color: rgba(251, 191, 36, 0.45) !important; }
+    .border-danger-subtle { border-color: rgba(248, 113, 113, 0.45) !important; }
+
+    .table-light {
+        --bs-table-bg: var(--ae-surface-2) !important;
+        --bs-table-color: #f8fafc !important;
+        background-color: var(--ae-surface-2) !important;
+        color: #f8fafc !important;
     }
 
     // Tablas en modo oscuro: encabezados, celdas y textos tenues
