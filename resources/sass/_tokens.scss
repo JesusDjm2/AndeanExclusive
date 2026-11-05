@@ -1,23 +1,23 @@
 // Design tokens — Andean Exclusive
-// Brand palette matching the official luxury logo (public/img/andean-exclusive-logo.png):
-// Deep obsidian charcoal (#0f172a), refined metallic slate (#1e293b / #334155 / #64748b),
-// crisp neutral light surfaces (#ffffff, #f8fafc) and slate borders (#e2e8f0, #cbd5e1).
+// Brand palette as given by the client: #333333 (ink/text) + #09ccbd (primary
+// teal/turquoise). Everything else here is a tint/shade derived from those
+// two colors plus neutral greys — no invented third brand hue.
 
 // ---- Color ----------------------------------------------------------
-$color-primary: #0f172a;
-$color-primary-dark: #020617;
-$color-primary-light: #1e293b;
-$color-accent: #1e293b;
-$color-accent-dark: #0f172a;
-$color-accent-light: #475569;
-$color-ink: #0f172a;
-$color-ink-soft: #64748b;
-$color-sand: #f8fafc;
-$color-sand-deep: #f1f5f9;
+$color-primary: #09ccbd;
+$color-primary-dark: #078f84;
+$color-primary-light: #4fe0d4;
+$color-accent: #078f84;
+$color-accent-dark: #056a61;
+$color-accent-light: #4fe0d4;
+$color-ink: #333333;
+$color-ink-soft: #666666;
+$color-sand: #f2fbfa;
+$color-sand-deep: #e2f5f3;
 $color-white: #ffffff;
-$color-border: #e2e8f0;
-$color-success: #16a34a;
-$color-danger: #dc2626;
+$color-border: #dbe8e7;
+$color-success: #2f8f5b;
+$color-danger: #c2422f;
 
 // ---- Typography -------------------------------------------------------
 $font-body: 'Source Sans Pro', 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -89,7 +89,7 @@ $container-max-widths: (
     --shadow-sm: 0 1px 2px rgba(51, 51, 51, 0.06), 0 1px 1px rgba(51, 51, 51, 0.04);
     --shadow-md: 0 8px 24px rgba(51, 51, 51, 0.10), 0 2px 8px rgba(51, 51, 51, 0.06);
     --shadow-lg: 0 24px 56px rgba(51, 51, 51, 0.16), 0 8px 20px rgba(51, 51, 51, 0.08);
-    --shadow-accent: 0 10px 30px rgba(15, 23, 42, 0.15);
+    --shadow-accent: 0 10px 30px rgba(7, 143, 132, 0.25);
 
     --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
     --duration-fast: 0.2s;

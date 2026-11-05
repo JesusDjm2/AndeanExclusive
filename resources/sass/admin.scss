@@ -4,11 +4,27 @@
 
 @import 'tokens';
 
-// Paleta de lujo acorde al logo oficial (public/img/andean-exclusive-logo.png):
-// Se eliminan los tonos verdes/turquesas por tonos obsidian/carbón, pizarra y superficies neutras limpias.
-$primary: $color-primary;
-$link-color: $color-primary;
-$link-hover-color: $color-primary-light;
+// Paleta ejecutiva de lujo para el Dashboard Administrativo:
+// Se conservan los tonos obsidian/carbón, pizarra y superficies neutras limpias (#0f172a / #1e293b / #334155).
+$admin-primary: #0f172a;
+$admin-primary-dark: #020617;
+$admin-primary-light: #1e293b;
+
+$color-primary: $admin-primary;
+$color-primary-dark: $admin-primary-dark;
+$color-primary-light: $admin-primary-light;
+$color-accent: #1e293b;
+$color-accent-dark: #0f172a;
+$color-accent-light: #475569;
+$color-ink: #0f172a;
+$color-ink-soft: #64748b;
+$color-sand: #f8fafc;
+$color-sand-deep: #f1f5f9;
+$color-border: #e2e8f0;
+
+$primary: $admin-primary;
+$link-color: $admin-primary;
+$link-hover-color: $admin-primary-light;
 $body-bg: #f8fafc;
 $font-size-base: 0.95rem;
 // Bordes y superficies vía tokens: cambian con el tema sin recompilar.
@@ -18,7 +34,7 @@ $card-bg: var(--ae-surface);
 $table-cell-padding-y: 0.7rem;
 $table-cell-padding-x: 0.85rem;
 $input-border-color: var(--ae-input-border);
-$input-focus-border-color: $color-primary;
+$input-focus-border-color: $admin-primary;
 $btn-font-weight: 600;
 $enable-shadows: false;
 
