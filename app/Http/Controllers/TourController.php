@@ -12,9 +12,10 @@ class TourController extends Controller
 {
     public function index()
     {
-        $tours = Tour::all();
+        $tours = Tour::with(['categorias', 'estour'])->get();
         $totalTours = Tour::count();
-        return view('admin.tours.index', compact('tours', 'totalTours'));
+        $categorias = TourCategory::orderBy('nombre')->get();
+        return view('admin.tours.index', compact('tours', 'totalTours', 'categorias'));
     }
 
     public function create()

@@ -47,6 +47,12 @@ use Illuminate\Support\Facades\Route;
 
 // Sin registro público: los usuarios los crea un administrador (Usuarios → Nuevo, UserController@create).
 Auth::routes(['register' => false]);
+Route::get('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect()->route('login');
+})->name('logout.get');
 // Máx. 5 intentos de acceso por minuto (protección contra fuerza bruta).
 Route::middleware(['web', 'panel.es', 'throttle:5,1'])->post('/login', [UserController::class, 'login'])->name('login.submit');
 

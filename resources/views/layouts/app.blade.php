@@ -154,6 +154,7 @@
     <script src="{{ asset('admin/vendor/jquery/jquery.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
     @include('admin.partials.pdf-preview-modal')
+    @include('admin.partials.image-preview-modal')
     @stack('vendor')
     @stack('scripts')
 </body>

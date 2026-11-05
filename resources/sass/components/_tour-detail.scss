@@ -769,6 +769,17 @@ $day-badge: 3.25rem;
     @extend .btn-brand;
     @extend .btn-brand--accent;
     @extend .btn-brand--sm;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
 }
 
 // ---- "What to bring" checklist (adventures) ---------------------------------

@@ -55,6 +55,12 @@
 @endpush
 
 @section('contenido')
+    @auth
+        <a href="{{ route('entags.edit', $tag->id) }}" class="tour-admin-edit" target="_blank" title="Edit this tag in admin panel">
+            <i class="fa fa-pencil" aria-hidden="true"></i> Edit tag
+        </a>
+    @endauth
+
     <section class="page-banner page-banner--tall">
         <picture>
             <source media="(max-width: 768px)" srcset="{{ $mobileHero }}">

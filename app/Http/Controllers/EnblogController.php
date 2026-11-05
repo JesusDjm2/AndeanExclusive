@@ -12,8 +12,9 @@ class EnblogController extends Controller
 {
     public function index()
     {
-        $blogs = Enblog::all();
-        return view('admin.enblogs.index', compact('blogs'));
+        $blogs = Enblog::with(['tags', 'esblog'])->latest()->get();
+        $tags = Entag::orderBy('nombre')->get();
+        return view('admin.enblogs.index', compact('blogs', 'tags'));
     }
     public function create()
     {

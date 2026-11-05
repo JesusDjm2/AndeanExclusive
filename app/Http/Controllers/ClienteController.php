@@ -12,6 +12,13 @@ class ClienteController extends Controller
 {
     public function index(Request $request)
     {
+        $stats = [
+            'total' => Cliente::count(),
+            'directos' => Cliente::where('tipo', 'directo')->count(),
+            'agencias' => Cliente::where('tipo', 'agencia')->count(),
+            'con_viajes' => Cliente::has('programas')->count(),
+        ];
+
         $clientes = Cliente::query()
             ->withCount('programas')
             ->withMax('programas', 'inicio')
@@ -27,7 +34,11 @@ class ClienteController extends Controller
             ->paginate(20)
             ->withQueryString();
 
-        return view('clientes.index', ['clientes' => $clientes, 'tipos' => Cliente::TIPOS]);
+        return view('clientes.index', [
+            'clientes' => $clientes,
+            'tipos' => Cliente::TIPOS,
+            'stats' => $stats,
+        ]);
     }
 
     public function create()

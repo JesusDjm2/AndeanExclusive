@@ -30,6 +30,14 @@ class ProgramaSeeder extends Seeder
     /**
      * Llena el sistema con itinerarios, cotizaciones y reservas de lujo 100% realistas
      * con marcas peruanas reconocidas, clientes de alta gama, servicios y operaciones completas.
+     * Cubre todas las etapas del ciclo de vida del programa:
+     * - Cotización (Borrador comercial)
+     * - Confirmado con reservas por solicitar / solicitadas (Bandeja de Reservas)
+     * - Solicitud de pago a contabilidad (Cuentas por pagar)
+     * - En curso hoy (Hoja de Operaciones activa)
+     * - Finalizado con facturas pendientes (Liquidación de proveedores)
+     * - CERRADO Y AUDITADO (Fin del ciclo en Contabilidad con margen real verificado)
+     * - Plantillas reutilizables
      */
     public function run(): void
     {
@@ -80,7 +88,7 @@ class ProgramaSeeder extends Seeder
         // Definición de programas de lujo auténticos
         // -------------------------------------------------------------
         $programasDef = [
-            // 1. EN CURSO HOY (Día 3 de viaje)
+            // 1. EN CURSO HOY (Día 3 de viaje - Experiencia Hiram Bingham & Machu Picchu)
             [
                 'codigo' => 'AET-2026-0101',
                 'nombre' => 'The Ultimate Peru Experience: Lima Gourmet, Andes & Belmond Hiram Bingham 8D/7N',
@@ -145,7 +153,7 @@ class ProgramaSeeder extends Seeder
                 ],
                 'itinerario' => [
                     ['dia' => 0, 'titulo' => 'Llegada a Cusco, Traslado Privado & Aclimatación', 'desc' => 'Recepción VIP en sala de llegadas del aeropuerto Alejandro Velasco Astete con letrero de Andean Exclusive. Traslado privado en van Mercedes-Benz al Belmond Hotel Monasterio. Té de muña y mate de coca de bienvenida en el claustro colonial.'],
-                    ['dia' => 1, 'titulo' => 'Cusco Imperial & Muros Megalíticos de Sacsayhuamán', 'desc' => 'Visita privada con arqueólogo oficial de AGOTUR: Templo del Sol Qorikancha, Plaza de Armas y fortaleza ceremonial de Sacsayhuamán. Almuerzo degustación en Chicha por Gastón Acurio.'],
+                    ['dia' => 1, 'titulo' => 'Cusco Imperial & Muros Megalíticos de Sacsayhuamán', 'desc' => 'Visita privada con arqueólogo oficial: Templo del Sol Qorikancha, Plaza de Armas y fortaleza ceremonial de Sacsayhuamán. Almuerzo degustación en Chicha por Gastón Acurio.'],
                     ['dia' => 2, 'titulo' => 'Tesoros del Valle Sagrado: Moray, Maras & Hacienda Huayoccari', 'desc' => 'Descenso al Valle Sagrado. Visita a las terrazas circulares de Moray y salineras ancestrales de Maras. Almuerzo campestre privado maridado con visita a la colección virreinal de la familia Lambarri en Hacienda Huayoccari.'],
                     ['dia' => 3, 'titulo' => 'Tren Belmond Hiram Bingham hacia Machu Picchu & Atardecer', 'desc' => 'Abordaje del exclusivo tren Belmond Hiram Bingham. Brunch gourmet y cocteles a base de pisco mientras se desciende por el cañón del Vilcanota. Check-in en Belmond Sanctuary Lodge junto a la ciudadela inca.'],
                     ['dia' => 4, 'titulo' => 'Amanecer en la Llaqta de Machu Picchu & Retorno', 'desc' => 'Ingreso preferente a primera hora a la Llaqta (Circuito 2 Panorámico) guiado por arqueólogo privado. Almuerzo en Tinkuy Restaurant y retorno vespertino en tren Hiram Bingham con cena gastronómica a bordo.'],
@@ -155,13 +163,15 @@ class ProgramaSeeder extends Seeder
                 ],
                 'servicios' => [
                     ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Cusco → Belmond Hotel Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TRANS-1001', 'estado' => 'confirmado'],
-                    ['dia' => 1, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Arqueólogo Oficial Privado Cusco Imperial & Sacsayhuamán', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'costo' => 140.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GUIA-2001', 'estado' => 'confirmado'],
+                    ['dia' => 1, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Visita Histórica Privada Qorikancha & Catedral de Cusco', 'prov' => 'Lic. Lucía Morales Benavides (Historiadora Virreinal)', 'costo' => 120.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GUIA-2001', 'estado' => 'confirmado'],
                     ['dia' => 1, 'hora' => '13:00', 'tipo' => 'comida', 'titulo' => 'Almuerzo Degustación en Chicha por Gastón Acurio', 'prov' => 'Chicha por Gastón Acurio - Cusco', 'costo' => 240.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'CF-REST-3001', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '08:30', 'tipo' => 'tour', 'titulo' => 'Excursión Privada Valle Sagrado en Mercedes Sprinter VIP', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 210.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TRANS-1002', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '09:30', 'tipo' => 'guia', 'titulo' => 'Guía Especialista Valle Sagrado & Comunidades Textiles', 'prov' => 'Lic. Carmen Rosa Ttito Condori (Guía Valle Sagrado)', 'costo' => 140.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GUIA-2003', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '13:00', 'tipo' => 'comida', 'titulo' => 'Almuerzo Privado Maridado en Hacienda Huayoccari', 'prov' => 'Hacienda Huayoccari Restaurant & Private Museum', 'costo' => 85.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'CF-REST-3002', 'estado' => 'confirmado'],
                     ['dia' => 3, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-98124', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '13:30', 'tipo' => 'comida', 'titulo' => 'Almuerzo Buffet Gourmet en Tinkuy Sanctuary Lodge', 'prov' => 'Tinkuy Restaurant at Belmond Sanctuary Lodge', 'costo' => 55.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-REST-501', 'estado' => 'confirmado'],
                     ['dia' => 4, 'hora' => '06:30', 'tipo' => 'entrada', 'titulo' => 'Boleto Oficial Llaqta Machu Picchu Circuito 2 Clásico', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-849102', 'estado' => 'confirmado'],
-                    ['dia' => 4, 'hora' => '07:00', 'tipo' => 'guia', 'titulo' => 'Guía Especialista Privado en Machu Picchu', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GUIA-2002', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '07:00', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Privado Arqueológico en Machu Picchu', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GUIA-2002', 'estado' => 'confirmado'],
                     ['dia' => 4, 'hora' => '17:50', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Machu Picchu → Poroy (Cena)', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-98125', 'estado' => 'confirmado'],
                     ['dia' => 7, 'hora' => '13:00', 'tipo' => 'traslado', 'titulo' => 'Traslado Belmond Monasterio → Aeropuerto Cusco', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TRANS-1003', 'estado' => 'confirmado'],
                 ],
@@ -171,7 +181,7 @@ class ProgramaSeeder extends Seeder
                 ],
             ],
 
-            // 2. EN CURSO HOY (Día 2 de viaje - Familia Suiza)
+            // 2. EN CURSO HOY (Día 2 de viaje - Familia Suiza en Tambo del Inka)
             [
                 'codigo' => 'AET-2026-0102',
                 'nombre' => 'Imperio Incaico de Lujo: Cusco, Valle Sagrado & Machu Picchu 6D/5N',
@@ -221,10 +231,12 @@ class ProgramaSeeder extends Seeder
                 ],
                 'servicios' => [
                     ['dia' => 0, 'hora' => '11:45', 'tipo' => 'traslado', 'titulo' => 'Traslado Aeropuerto Cusco → Tambo del Inka Urubamba', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 65.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TR-201', 'estado' => 'confirmado'],
-                    ['dia' => 1, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Bilingüe Día Completo Pisac & Valle Sagrado', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'costo' => 140.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GU-202', 'estado' => 'confirmado'],
+                    ['dia' => 1, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Bilingüe Día Completo Pisac & Valle Sagrado', 'prov' => 'Lic. Carmen Rosa Ttito Condori (Guía Valle Sagrado)', 'costo' => 140.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GU-202', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '06:50', 'tipo' => 'tren', 'titulo' => 'Tren Vistadome Observatory Urubamba → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 185.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-VO-55102', 'estado' => 'confirmado'],
-                    ['dia' => 2, 'hora' => '10:30', 'tipo' => 'entrada', 'titulo' => 'Entrada Llaqta Machu Picchu Circuito 2 (3 Pax)', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-77192', 'estado' => 'confirmado'],
-                    ['dia' => 2, 'hora' => '16:12', 'tipo' => 'tren', 'titulo' => 'Tren Vistadome Observatory Machu Picchu → Ollantaytambo', 'prov' => 'PeruRail S.A.', 'costo' => 185.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-VO-55103', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '09:30', 'tipo' => 'traslado', 'titulo' => 'Bus Oficial Consettur Aguas Calientes ↔ Llaqta Machu Picchu', 'prov' => 'Consettur Machu Picchu S.A.C.', 'costo' => 24.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'BUS-CON-4819', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '10:30', 'tipo' => 'entrada', 'titulo' => 'Entrada Llaqta Machu Picchu Circuito 2 Clásico (3 Pax)', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-77401', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '10:45', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Privado en Machu Picchu', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GU-203', 'estado' => 'confirmado'],
+                    ['dia' => 5, 'hora' => '13:00', 'tipo' => 'traslado', 'titulo' => 'Traslado Privado JW Marriott → Aeropuerto Cusco', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TR-204', 'estado' => 'confirmado'],
                 ],
                 'pagos' => [
                     ['tipo' => 'deposito', 'monto' => 6300.00, 'dias_antes' => 90, 'metodo' => 'tarjeta', 'ref' => 'VISA-CH-99201'],
@@ -232,7 +244,7 @@ class ProgramaSeeder extends Seeder
                 ],
             ],
 
-            // 3. INICIA EN 3 DÍAS (Operaciones próximas - A&K Australia)
+            // 3. INICIA EN 3 DÍAS (Operaciones próximas - A&K Australia con saldo por cobrar)
             [
                 'codigo' => 'AET-2026-0103',
                 'nombre' => 'Sinfonía Andina: Tesoros del Cusco, Lago Titicaca & Titilaka 10D/9N',
@@ -270,12 +282,12 @@ class ProgramaSeeder extends Seeder
                 ],
                 'itinerario' => [
                     ['dia' => 0, 'titulo' => 'Llegada a Cusco & Bienvenida Imperial', 'desc' => 'Recepción y check-in en JW Marriott.'],
-                    ['dia' => 1, 'titulo' => 'Cusco Esencial & Sacsayhuamán', 'desc' => 'Visita privada guiada.'],
+                    ['dia' => 1, 'titulo' => 'Cusco Esencial & Sacsayhuamán', 'desc' => 'Visita privada guiada con historiador colonial.'],
                     ['dia' => 2, 'titulo' => 'Valle Sagrado & Tren a Aguas Calientes', 'desc' => 'Ollantaytambo e ingreso a Inkaterra Pueblo Hotel.'],
                     ['dia' => 3, 'titulo' => 'Machu Picchu Ciudadela & Jardines de Orquídeas', 'desc' => 'Visita con arqueólogo privado.'],
                     ['dia' => 4, 'titulo' => 'Retorno a Cusco en Tren Panorámico', 'desc' => 'Tarde libre en el centro histórico.'],
                     ['dia' => 5, 'titulo' => 'Ruta del Sol Privada: De Cusco al Lago Titicaca', 'desc' => 'Viaje terrestre privado cruzando la cordillera hacia Puno. Paradas en la Capilla Sixtina de América (Andahuaylillas), Templo de Viracocha (Raqchi) y Paso de La Raya (4,335 msnm). Llegada a Titilaka Relais & Châteaux.'],
-                    ['dia' => 6, 'titulo' => 'Islas Flotantes de los Uros & Comunidad de Taquile', 'desc' => 'Embarcación privada rápida de Titilaka por el Lago Titicaca.'],
+                    ['dia' => 6, 'titulo' => 'Islas Flotantes de los Uros & Comunidad de Taquile', 'desc' => 'Embarcación privada rápida de Titilaka por el Lago Titicaca con guía local colegiada.'],
                     ['dia' => 7, 'titulo' => 'Chullpas de Sillustani & Atardecer en la Península', 'desc' => 'Necrópolis preinca frente a la laguna de Umayo.'],
                     ['dia' => 8, 'titulo' => 'Día de Navegación en Kayak & Gastronomía Relais & Châteaux', 'desc' => 'Día de descanso y conexión con la naturaleza.'],
                     ['dia' => 9, 'titulo' => 'Traslado al Aeropuerto de Juliaca & Vuelo a Lima', 'desc' => 'Traslado privado al aeropuerto de Juliaca para retorno a Lima.'],
@@ -284,15 +296,16 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 0, 'hora' => '10:30', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Cusco → JW Marriott', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TR-301', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '11:15', 'tipo' => 'tren', 'titulo' => 'Tren Inca Rail The 360° Ollantaytambo → Machu Picchu', 'prov' => 'Inca Rail S.A.C.', 'costo' => 145.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-IR-48190', 'estado' => 'confirmado'],
                     ['dia' => 3, 'hora' => '07:00', 'tipo' => 'entrada', 'titulo' => 'Boleto Machu Picchu Circuito 2 Clásico (2 Pax)', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-99410', 'estado' => 'confirmado'],
-                    ['dia' => 5, 'hora' => '08:00', 'tipo' => 'traslado', 'titulo' => 'Ruta del Sol Privada Cusco → Titilaka Puno (Van Sprinter)', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 380.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TR-305', 'estado' => 'confirmado'],
+                    ['dia' => 5, 'hora' => '08:00', 'tipo' => 'traslado', 'titulo' => 'Bus Guiado Primera Clase Ruta del Sol Cusco ↔ Puno con Almuerzo', 'prov' => 'Turismo Mer S.R.L. (Ruta del Sol Cusco - Puno)', 'costo' => 65.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-MER-8819', 'estado' => 'confirmado'],
+                    ['dia' => 6, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Guía Privado Día Completo Islas Uros & Taquile en Lancha Veloz', 'prov' => 'Lic. Sonia Mamani Choque (Guía Lago Titicaca)', 'costo' => 120.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TIT-551', 'estado' => 'confirmado'],
                 ],
                 'pagos' => [
                     ['tipo' => 'deposito', 'monto' => 6800.00, 'dias_antes' => 75, 'metodo' => 'transferencia', 'ref' => 'SWIFT-ANZ-48190'],
-                    // Saldo pendiente para probar el módulo de cobranzas
+                    // Saldo pendiente para reflejar cuentas por cobrar activas
                 ],
             ],
 
-            // 4. INICIA EN 5 DÍAS (Luna de Miel - Londres)
+            // 4. INICIA EN 5 DÍAS (Luna de Miel - Servicios en POR SOLICITAR, SOLICITADO y PAGO SOLICITADO)
             [
                 'codigo' => 'AET-2026-0104',
                 'nombre' => 'Luna de Miel en los Andes: Suites de Ensueño & Atardecer en Vilcanota 6D/5N',
@@ -336,9 +349,17 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 5, 'titulo' => 'Despedida de los Andes', 'desc' => 'Traslado al aeropuerto.'],
                 ],
                 'servicios' => [
+                    // Confirmado con orden enviada
                     ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto → Belmond Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-TR-401', 'estado' => 'confirmado'],
-                    ['dia' => 2, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-98501', 'estado' => 'confirmado'],
-                    ['dia' => 3, 'hora' => '06:30', 'tipo' => 'entrada', 'titulo' => 'Boletos Llaqta Machu Picchu Circuito 2 (2 Pax)', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-88390', 'estado' => 'confirmado'],
+                    // Solicitado con PAGO SOLICITADO a Contabilidad (para probar la bandeja de pagos solicitados)
+                    ['dia' => 2, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'solicitado', 'pago_solicitado' => true],
+                    // En estado 'solicitado' (esperando confirmación del hotel/restaurante)
+                    ['dia' => 2, 'hora' => '13:30', 'tipo' => 'comida', 'titulo' => 'Almuerzo Buffet Gourmet en Tinkuy Sanctuary Lodge', 'prov' => 'Tinkuy Restaurant at Belmond Sanctuary Lodge', 'costo' => 55.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'solicitado'],
+                    // En estado 'por_solicitar' (para que el equipo de Reservas pueda probar emitir órdenes)
+                    ['dia' => 3, 'hora' => '06:00', 'tipo' => 'traslado', 'titulo' => 'Bus Oficial Consettur Aguas Calientes ↔ Llaqta Machu Picchu', 'prov' => 'Consettur Machu Picchu S.A.C.', 'costo' => 24.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 3, 'hora' => '06:30', 'tipo' => 'entrada', 'titulo' => 'Boletos Llaqta Machu Picchu Circuito 2 (2 Pax)', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 3, 'hora' => '07:00', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Privado Arqueológico en Machu Picchu', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'solicitado'],
+                    ['dia' => 4, 'hora' => '20:00', 'tipo' => 'comida', 'titulo' => 'Cena Gourmet de Tapas Andinas & Selección de Vinos de Altura', 'prov' => 'CICCIOLINA Tapas Bar & Restaurant', 'costo' => 75.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'CF-CIC-901', 'estado' => 'confirmado'],
                 ],
                 'pagos' => [
                     ['tipo' => 'deposito', 'monto' => 4800.00, 'dias_antes' => 90, 'metodo' => 'tarjeta', 'ref' => 'BARCLAY-UK-7729'],
@@ -346,7 +367,7 @@ class ProgramaSeeder extends Seeder
                 ],
             ],
 
-            // 5. COTIZACIÓN ABIERTA (Virtuoso USA - Verificación comercial)
+            // 5. COTIZACIÓN ABIERTA (Virtuoso USA - En etapa comercial)
             [
                 'codigo' => 'AET-2026-0105',
                 'nombre' => 'Amazonia Mística & Machu Picchu Sanctuary Lodge 9D/8N',
@@ -364,88 +385,86 @@ class ProgramaSeeder extends Seeder
                 'cliente' => [
                     'tipo' => 'agencia',
                     'nombre' => 'Sarah Jenkins',
-                    'empresa' => 'Virtuoso Luxury Travel USA',
+                    'empresa' => 'Virtuoso Travel Specialists NYC',
                     'email' => 'sjenkins@virtuosotravel.com',
-                    'telefono' => '+1 212 555 0195',
+                    'telefono' => '+1 212 555 0199',
                     'pais' => 'US',
                     'idioma' => 'en',
                     'origen' => 'agencia',
-                    'notas' => 'Propuesta en evaluación por el cliente final. Desean combinar crucero amazónico con estancia en Belmond Sanctuary Lodge.',
+                    'notas' => 'Cotización solicitada por agencia Virtuoso. Cliente VIP exige Belmond Sanctuary Lodge y cena en Central.',
                 ],
-                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'Belmond Hotel Monasterio', 'Belmond Sanctuary Lodge'],
+                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'Belmond Sanctuary Lodge', 'Belmond Hotel Monasterio'],
                 'habitaciones' => [
                     ['hotel' => 'Miraflores Park, A Belmond Hotel', 'tipo' => 'Ocean View Deluxe Junior Suite', 'noches' => 2, 'costo_noche' => 520.00],
-                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 4, 'costo_noche' => 650.00],
                     ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Mountain View Deluxe Room', 'noches' => 2, 'costo_noche' => 1650.00],
+                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 4, 'costo_noche' => 650.00],
                 ],
                 'paxes' => [
-                    ['nombre' => 'Robert Miller', 'fecha_nacimiento' => '1968-08-11', 'sexo' => 'M', 'pais' => 'US', 'pasaporte' => 'US98102381', 'pasaporte_vencimiento' => '2030-01-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'James Miller', 'emergencia_telefono' => '+1 212 555 1100'],
-                    ['nombre' => 'Susan Miller', 'fecha_nacimiento' => '1970-04-25', 'sexo' => 'F', 'pais' => 'US', 'pasaporte' => 'US98102382', 'pasaporte_vencimiento' => '2030-01-20', 'dieta' => 'pescetariana', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'James Miller', 'emergencia_telefono' => '+1 212 555 1100'],
+                    ['nombre' => 'David Vance', 'fecha_nacimiento' => '1968-05-12', 'sexo' => 'M', 'pais' => 'US', 'pasaporte' => null, 'pasaporte_vencimiento' => null, 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => null, 'emergencia_telefono' => null],
+                    ['nombre' => 'Susan Vance', 'fecha_nacimiento' => '1971-08-20', 'sexo' => 'F', 'pais' => 'US', 'pasaporte' => null, 'pasaporte_vencimiento' => null, 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => null, 'emergencia_telefono' => null],
                 ],
                 'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Arribo a Lima & Vista al Pacífico en Miraflores Park', 'desc' => 'Traslado privado desde Aeropuerto Jorge Chávez al hotel.'],
-                    ['dia' => 1, 'titulo' => 'Lima Gastronómica & Menú Degustación en Central', 'desc' => 'Tour de arquitectura de Barranco y cena en Central.'],
-                    ['dia' => 2, 'titulo' => 'Vuelo a Cusco & Aclimatación en Monasterio', 'desc' => 'Llegada a la capital incaica.'],
+                    ['dia' => 0, 'titulo' => 'Llegada a Lima & Registro en Miraflores Park', 'desc' => 'Recepción ejecutiva y noche frente al Pacífico.'],
+                    ['dia' => 1, 'titulo' => 'Lima Gastronómica & Cena en Central Restaurante', 'desc' => 'Experiencia Alturas Mater de Virgilio Martínez.'],
+                    ['dia' => 2, 'titulo' => 'Vuelo a Cusco & Aclimatación en Monasterio', 'desc' => 'Vuelo matutino y relax en patio virreinal.'],
                 ],
                 'servicios' => [
-                    ['dia' => 0, 'hora' => '18:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Lima → Miraflores Park', 'prov' => 'Lima Premium Chauffeur & Transfers', 'costo' => 55.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'pendiente'],
-                    ['dia' => 1, 'hora' => '19:30', 'tipo' => 'comida', 'titulo' => 'Cena Degustación en Central Restaurante (Mater)', 'prov' => 'Central Restaurante (Virgilio Martínez & Pía León)', 'costo' => 1250.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'solicitado'],
+                    ['dia' => 0, 'hora' => '18:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Lima → Miraflores Park', 'prov' => 'Lima Premium Chauffeur & Transfers', 'costo' => 55.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 1, 'hora' => '19:30', 'tipo' => 'comida', 'titulo' => 'Cena Degustación en Central Restaurante (Mater)', 'prov' => 'Central Restaurante (Virgilio Martínez & Pía León)', 'costo' => 1250.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'por_solicitar'],
                 ],
                 'pagos' => [],
             ],
 
-            // 6. PROGRAMAS REALES DISTRIBUIDOS A LO LARGO DEL AÑO (Meses 1 a 10 cerrados con éxito)
+            // 6. COTIZACIÓN NUEVA (Lord Alistair & Lady Claire Hamilton - Escocia)
             [
-                'codigo' => 'AET-2026-0010',
-                'nombre' => 'Año Nuevo Andino & Machu Picchu Mágico 6D/5N',
-                'estado' => 'confirmado',
-                'cerrado' => true,
+                'codigo' => 'AET-2026-0107',
+                'nombre' => 'Aniversario de Plata: Perú Imperial, Belmond Palacio Nazarenas & Hiram Bingham 9D/8N',
+                'estado' => 'cotizacion',
                 'plantilla' => false,
-                'inicio' => '2026-01-12',
-                'fin' => '2026-01-17',
-                'lang' => 'es',
-                'precioAdulto' => '4600.00',
+                'inicio' => $hoy->copy()->addMonths(3)->toDateString(),
+                'fin' => $hoy->copy()->addMonths(3)->addDays(9)->toDateString(),
+                'lang' => 'en',
+                'precioAdulto' => '7200.00',
                 'precioChild' => '0.00',
-                'porcentaje_ganancia' => '21.00',
+                'porcentaje_ganancia' => '22.00',
                 'tipo_cambio' => '3.750',
                 'suplemento_individual' => '0.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => [
-                    'tipo' => 'agencia', 'nombre' => 'Javier de la Serna', 'empresa' => 'Viajes El Corte Inglés - Alta Gama',
-                    'email' => 'jserna@viajeseci.es', 'telefono' => '+34 91 400 9000', 'pais' => 'ES', 'idioma' => 'es', 'origen' => 'agencia',
+                    'tipo' => 'directo',
+                    'nombre' => 'Lord Alistair Hamilton',
+                    'empresa' => 'Scott Holdings UK',
+                    'email' => 'alistair.hamilton@scottholdings.co.uk',
+                    'telefono' => '+44 20 7946 0812',
+                    'pais' => 'GB',
+                    'idioma' => 'en',
+                    'origen' => 'web',
+                    'notas' => 'Cliente VIP de Reino Unido. Interesado en servicio exclusivo con tren Hiram Bingham y Belmond Palacio Nazarenas.',
                 ],
-                'hoteles' => ['Belmond Hotel Monasterio', 'Belmond Sanctuary Lodge'],
+                'hoteles' => ['Belmond Palacio Nazarenas', 'Belmond Sanctuary Lodge'],
                 'habitaciones' => [
-                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 3, 'costo_noche' => 650.00],
-                    ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Standard Patio King Room', 'noches' => 2, 'costo_noche' => 1350.00],
+                    ['hotel' => 'Belmond Palacio Nazarenas', 'tipo' => 'Junior Suite Nazarenas con Oxígeno', 'noches' => 5, 'costo_noche' => 850.00],
+                    ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Mountain View Deluxe Room', 'noches' => 2, 'costo_noche' => 1650.00],
                 ],
                 'paxes' => [
-                    ['nombre' => 'Ignacio Gómez-Acebo', 'fecha_nacimiento' => '1962-04-12', 'sexo' => 'M', 'pais' => 'ES', 'pasaporte' => 'ESP48291039', 'pasaporte_vencimiento' => '2029-05-10', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Marta Gómez', 'emergencia_telefono' => '+34 600 123 456'],
-                    ['nombre' => 'Marta Serrano de Gómez', 'fecha_nacimiento' => '1965-08-25', 'sexo' => 'F', 'pais' => 'ES', 'pasaporte' => 'ESP48291040', 'pasaporte_vencimiento' => '2029-05-10', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Marta Gómez', 'emergencia_telefono' => '+34 600 123 456'],
+                    ['nombre' => 'Lord Alistair Hamilton', 'fecha_nacimiento' => '1961-07-19', 'sexo' => 'M', 'pais' => 'GB', 'pasaporte' => null, 'pasaporte_vencimiento' => null, 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => null, 'emergencia_telefono' => null],
+                    ['nombre' => 'Lady Claire Hamilton', 'fecha_nacimiento' => '1964-12-02', 'sexo' => 'F', 'pais' => 'GB', 'pasaporte' => null, 'pasaporte_vencimiento' => null, 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => null, 'emergencia_telefono' => null],
                 ],
                 'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Llegada a Cusco & Bienvenida', 'desc' => 'Traslado y alojamiento en Monasterio.'],
-                    ['dia' => 1, 'titulo' => 'Valle Sagrado & Pisac', 'desc' => 'Excursión arqueológica.'],
-                    ['dia' => 2, 'titulo' => 'Tren Hiram Bingham a Machu Picchu', 'desc' => 'Subida en tren de lujo.'],
-                    ['dia' => 3, 'titulo' => 'Llaqta Machu Picchu Privado', 'desc' => 'Visita con arqueólogo.'],
-                    ['dia' => 4, 'titulo' => 'Cusco Histórico & Cena Chicha', 'desc' => 'Recorrido colonial.'],
-                    ['dia' => 5, 'titulo' => 'Despedida', 'desc' => 'Traslado al aeropuerto.'],
+                    ['dia' => 0, 'titulo' => 'Llegada a Cusco & Bienvenida en Palacio Nazarenas', 'desc' => 'Traslado y check-in.'],
                 ],
                 'servicios' => [
-                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto → Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-011', 'estado' => 'confirmado'],
-                    ['dia' => 2, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-012', 'estado' => 'confirmado'],
+                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto → Palacio Nazarenas', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'por_solicitar'],
                 ],
-                'pagos' => [
-                    ['tipo' => 'deposito', 'monto' => 4600.00, 'dias_antes' => 60, 'metodo' => 'transferencia', 'ref' => 'BBVA-ES-0101'],
-                    ['tipo' => 'saldo', 'monto' => 4600.00, 'dias_antes' => 30, 'metodo' => 'transferencia', 'ref' => 'BBVA-ES-0102'],
-                ],
+                'pagos' => [],
             ],
 
+            // 7. FINALIZADO CON CUENTAS POR PAGAR PENDIENTES (Semana Santa en Colca - Jean-Paul Bernard)
             [
                 'codigo' => 'AET-2026-0040',
                 'nombre' => 'Semana Santa en Cusco & Cañón del Colca 8D/7N',
                 'estado' => 'confirmado',
-                'cerrado' => true,
+                'cerrado' => false,
                 'plantilla' => false,
                 'inicio' => '2026-04-06',
                 'fin' => '2026-04-13',
@@ -457,8 +476,14 @@ class ProgramaSeeder extends Seeder
                 'suplemento_individual' => '0.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => [
-                    'tipo' => 'directo', 'nombre' => 'Jean-Paul & Monique Bernard', 'empresa' => null,
-                    'email' => 'jp.bernard@lyon-avocats.fr', 'telefono' => '+33 4 72 00 11 22', 'pais' => 'FR', 'idioma' => 'en', 'origen' => 'web',
+                    'tipo' => 'directo',
+                    'nombre' => 'Jean-Paul & Monique Bernard',
+                    'empresa' => null,
+                    'email' => 'jp.bernard@lyon-avocats.fr',
+                    'telefono' => '+33 4 72 00 11 22',
+                    'pais' => 'FR',
+                    'idioma' => 'en',
+                    'origen' => 'web',
                 ],
                 'hoteles' => ['Colca Lodge Spa & Hot Springs', 'JW Marriott El Convento Cusco'],
                 'habitaciones' => [
@@ -473,13 +498,79 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 0, 'titulo' => 'Llegada a Arequipa & Ruta al Cañón del Colca', 'desc' => 'Traslado y registro en Colca Lodge.'],
                     ['dia' => 1, 'titulo' => 'Cruz del Cóndor & Termas Privadas', 'desc' => 'Vuelo de los cóndores.'],
                 ],
-                'servicios' => [],
+                'servicios' => [
+                    // Servicios confirmados pero con pendiente_pago => true para que aparezcan en Cuentas por pagar VENCIDAS
+                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado Privado Aeropuerto Arequipa → Colca Lodge', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 180.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-COL-01', 'estado' => 'confirmado', 'pendiente_pago' => true],
+                    ['dia' => 1, 'hora' => '07:00', 'tipo' => 'entrada', 'titulo' => 'Boleto Turístico del Cañón del Colca (AUTOCOLCA)', 'prov' => 'AUTOCOLCA (Boleto Cañón del Colca)', 'costo' => 70.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'AUTO-7819', 'estado' => 'confirmado', 'pendiente_pago' => true],
+                ],
                 'pagos' => [
                     ['tipo' => 'deposito', 'monto' => 5400.00, 'dias_antes' => 60, 'metodo' => 'tarjeta', 'ref' => 'BNP-FR-0401'],
                     ['tipo' => 'saldo', 'monto' => 5400.00, 'dias_antes' => 30, 'metodo' => 'tarjeta', 'ref' => 'BNP-FR-0402'],
                 ],
             ],
 
+            // 8. PROGRAMA 100% CERRADO Y AUDITADO (El ejemplo de cómo termina la gestión en Contabilidad)
+            [
+                'codigo' => 'AET-2026-0080',
+                'nombre' => 'Perú Gastronómico & Arqueológico de Lujo 8D/7N',
+                'estado' => 'confirmado',
+                'cerrado' => true,
+                'plantilla' => false,
+                'inicio' => '2026-08-10',
+                'fin' => '2026-08-17',
+                'lang' => 'en',
+                'precioAdulto' => '5900.00',
+                'precioChild' => '0.00',
+                'porcentaje_ganancia' => '24.15',
+                'tipo_cambio' => '3.750',
+                'suplemento_individual' => '0.00',
+                'habitaciones_individuales' => 0,
+                'cliente' => [
+                    'tipo' => 'directo',
+                    'nombre' => 'Thomas Becker',
+                    'empresa' => 'Becker Holding GmbH',
+                    'email' => 't.becker@becker-holding.de',
+                    'telefono' => '+49 89 3810 4420',
+                    'pais' => 'DE',
+                    'idioma' => 'en',
+                    'origen' => 'web',
+                    'notas' => 'Viajero gourmet de Alemania. 100% liquidado y auditado con margen neto cerrado.',
+                ],
+                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'Tambo del Inka, a Luxury Collection Resort & Spa', 'Belmond Hotel Monasterio'],
+                'habitaciones' => [
+                    ['hotel' => 'Miraflores Park, A Belmond Hotel', 'tipo' => 'Ocean View Deluxe Junior Suite', 'noches' => 2, 'costo_noche' => 520.00],
+                    ['hotel' => 'Tambo del Inka, a Luxury Collection Resort & Spa', 'tipo' => 'Deluxe King con Balcón al Río Vilcanota', 'noches' => 3, 'costo_noche' => 480.00],
+                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 2, 'costo_noche' => 650.00],
+                ],
+                'paxes' => [
+                    ['nombre' => 'Thomas Becker', 'fecha_nacimiento' => '1970-11-05', 'sexo' => 'M', 'pais' => 'DE', 'pasaporte' => 'DEU66391028', 'pasaporte_vencimiento' => '2031-01-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Brigitte Becker', 'emergencia_telefono' => '+49 89 3810 4000'],
+                    ['nombre' => 'Brigitte Becker', 'fecha_nacimiento' => '1973-04-18', 'sexo' => 'F', 'pais' => 'DE', 'pasaporte' => 'DEU66391029', 'pasaporte_vencimiento' => '2031-01-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Brigitte Becker', 'emergencia_telefono' => '+49 89 3810 4000'],
+                ],
+                'itinerario' => [
+                    ['dia' => 0, 'titulo' => 'Llegada a Lima & Miraflores Park', 'desc' => 'Recepción y traslado.'],
+                    ['dia' => 1, 'titulo' => 'Cena en Central Restaurante (Mater)', 'desc' => 'Menú degustación 14 pasos.'],
+                    ['dia' => 2, 'titulo' => 'Cusco Imperial & Monasterio', 'desc' => 'Arribo a la capital inca.'],
+                    ['dia' => 3, 'titulo' => 'Valle Sagrado & Almuerzo en Huayoccari', 'desc' => 'Maras y Moray.'],
+                    ['dia' => 4, 'titulo' => 'Machu Picchu en Hiram Bingham', 'desc' => 'Visita con arqueólogo privado.'],
+                    ['dia' => 7, 'titulo' => 'Retorno a Lima & Vuelo Internacional', 'desc' => 'Fin del viaje.'],
+                ],
+                'servicios' => [
+                    ['dia' => 0, 'hora' => '18:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Lima → Miraflores Park', 'prov' => 'Lima Premium Chauffeur & Transfers', 'costo' => 55.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-LIM-01', 'estado' => 'confirmado'],
+                    ['dia' => 1, 'hora' => '19:30', 'tipo' => 'comida', 'titulo' => 'Experiencia Alturas Mater en Central Restaurante', 'prov' => 'Central Restaurante (Virgilio Martínez & Pía León)', 'costo' => 1250.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'CF-MATER-01', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto Cusco → Belmond Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-CUZ-02', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '09:00', 'tipo' => 'guia', 'titulo' => 'Guía Especialista Valle Sagrado & Comunidades', 'prov' => 'Lic. Carmen Rosa Ttito Condori (Guía Valle Sagrado)', 'costo' => 140.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GU-03', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '13:00', 'tipo' => 'comida', 'titulo' => 'Almuerzo Campestre en Hacienda Huayoccari', 'prov' => 'Hacienda Huayoccari Restaurant & Private Museum', 'costo' => 85.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'CF-HUA-03', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy ↔ Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-8810', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '10:30', 'tipo' => 'entrada', 'titulo' => 'Boleto Oficial Llaqta Machu Picchu Circuito 2', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => 'DDC-MP-8819', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '11:00', 'tipo' => 'guia', 'titulo' => 'Guía Arqueológico Privado en Machu Picchu', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-GU-04', 'estado' => 'confirmado'],
+                ],
+                'pagos' => [
+                    ['tipo' => 'deposito', 'monto' => 5900.00, 'dias_antes' => 60, 'metodo' => 'transferencia', 'ref' => 'DB-DE-0801'],
+                    ['tipo' => 'saldo', 'monto' => 5900.00, 'dias_antes' => 30, 'metodo' => 'transferencia', 'ref' => 'DB-DE-0802'],
+                ],
+            ],
+
+            // 9. PROGRAMA 100% CERRADO Y AUDITADO (Inti Raymi VIP en Sacsayhuamán)
             [
                 'codigo' => 'AET-2026-0060',
                 'nombre' => 'Fiesta del Sol: Inti Raymi VIP en Sacsayhuamán & Belmond 7D/6N',
@@ -496,8 +587,14 @@ class ProgramaSeeder extends Seeder
                 'suplemento_individual' => '0.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => [
-                    'tipo' => 'directo', 'nombre' => 'Marcus & Valerie Sterling', 'empresa' => null,
-                    'email' => 'marcus.sterling@sterling-pe.com', 'telefono' => '+1 415 555 0188', 'pais' => 'US', 'idioma' => 'en', 'origen' => 'recomendacion',
+                    'tipo' => 'directo',
+                    'nombre' => 'Marcus & Valerie Sterling',
+                    'empresa' => null,
+                    'email' => 'marcus.sterling@sterling-pe.com',
+                    'telefono' => '+1 415 555 0188',
+                    'pais' => 'US',
+                    'idioma' => 'en',
+                    'origen' => 'recomendacion',
                 ],
                 'hoteles' => ['Belmond Hotel Monasterio'],
                 'habitaciones' => [
@@ -511,192 +608,118 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 0, 'titulo' => 'Llegada a Cusco para las Fiestas Jubilares', 'desc' => 'Recepción y suite en Monasterio.'],
                     ['dia' => 3, 'titulo' => 'Inti Raymi: Asientos VIP Tribuna Naranja en Sacsayhuamán', 'desc' => 'Ceremonia ancestral del dios Sol.'],
                 ],
-                'servicios' => [],
+                'servicios' => [
+                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto → Belmond Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-INTI-01', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '08:30', 'tipo' => 'guia', 'titulo' => 'Guía Arqueólogo Privado en Inti Raymi Sacsayhuamán', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 180.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => 'CF-INTI-02', 'estado' => 'confirmado'],
+                ],
                 'pagos' => [
                     ['tipo' => 'deposito', 'monto' => 6800.00, 'dias_antes' => 90, 'metodo' => 'transferencia', 'ref' => 'CHASE-US-0601'],
                     ['tipo' => 'saldo', 'monto' => 6800.00, 'dias_antes' => 45, 'metodo' => 'transferencia', 'ref' => 'CHASE-US-0602'],
                 ],
             ],
 
+            // 10. CANCELADO (Ejemplo de control de cancelaciones)
             [
-                'codigo' => 'AET-2026-0080',
-                'nombre' => 'Perú Gastronómico & Arqueológico de Lujo 8D/7N',
-                'estado' => 'confirmado',
-                'cerrado' => true,
+                'codigo' => 'AET-2026-0035',
+                'nombre' => 'Expedición Privada Salkantay Trek & Glamping 5D/4N',
+                'estado' => 'cancelado',
                 'plantilla' => false,
-                'inicio' => '2026-08-10',
-                'fin' => '2026-08-17',
-                'lang' => 'en',
-                'precioAdulto' => '5900.00',
+                'inicio' => '2026-03-15',
+                'fin' => '2026-03-19',
+                'lang' => 'es',
+                'precioAdulto' => '2800.00',
                 'precioChild' => '0.00',
                 'porcentaje_ganancia' => '20.00',
                 'tipo_cambio' => '3.750',
                 'suplemento_individual' => '0.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => [
-                    'tipo' => 'directo', 'nombre' => 'Thomas Becker', 'empresa' => null,
-                    'email' => 't.becker@becker-holding.de', 'telefono' => '+49 89 3810 4420', 'pais' => 'DE', 'idioma' => 'en', 'origen' => 'web',
-                ],
-                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'Tambo del Inka, a Luxury Collection Resort & Spa', 'Belmond Hotel Monasterio'],
-                'habitaciones' => [
-                    ['hotel' => 'Miraflores Park, A Belmond Hotel', 'tipo' => 'Ocean View Deluxe Junior Suite', 'noches' => 2, 'costo_noche' => 520.00],
-                    ['hotel' => 'Tambo del Inka, a Luxury Collection Resort & Spa', 'tipo' => 'Deluxe King con Balcón al Río Vilcanota', 'noches' => 3, 'costo_noche' => 480.00],
-                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 2, 'costo_noche' => 650.00],
-                ],
-                'paxes' => [
-                    ['nombre' => 'Thomas Becker', 'fecha_nacimiento' => '1970-11-05', 'sexo' => 'M', 'pais' => 'DE', 'pasaporte' => 'DEU66391028', 'pasaporte_vencimiento' => '2031-01-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Brigitte Becker', 'emergencia_telefono' => '+49 89 3810 4000'],
-                    ['nombre' => 'Brigitte Becker', 'fecha_nacimiento' => '1973-04-18', 'sexo' => 'F', 'pais' => 'DE', 'pasaporte' => 'DEU66391029', 'pasaporte_vencimiento' => '2031-01-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'Brigitte Becker', 'emergencia_telefono' => '+49 89 3810 4000'],
-                ],
-                'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Llegada a Lima & Miraflores Park', 'desc' => 'Recepción y traslado.'],
-                    ['dia' => 1, 'titulo' => 'Cena en Central Restaurante (Mater)', 'desc' => 'Menú degustación 14 pasos.'],
-                ],
-                'servicios' => [],
-                'pagos' => [
-                    ['tipo' => 'deposito', 'monto' => 5900.00, 'dias_antes' => 60, 'metodo' => 'transferencia', 'ref' => 'DB-DE-0801'],
-                    ['tipo' => 'saldo', 'monto' => 5900.00, 'dias_antes' => 30, 'metodo' => 'transferencia', 'ref' => 'DB-DE-0802'],
-                ],
-            ],
-
-            [
-                'codigo' => 'AET-2026-0106',
-                'nombre' => 'Navidad & Fin de Año en los Andes: Belmond Monasterio & Sanctuary Lodge 8D/7N',
-                'estado' => 'confirmado',
-                'cerrado' => false,
-                'plantilla' => false,
-                'inicio' => '2026-12-23',
-                'fin' => '2026-12-30',
-                'lang' => 'en',
-                'precioAdulto' => '7400.00',
-                'precioChild' => '0.00',
-                'porcentaje_ganancia' => '22.00',
-                'tipo_cambio' => '3.750',
-                'suplemento_individual' => '0.00',
-                'habitaciones_individuales' => 0,
-                'cliente' => [
-                    'tipo' => 'agencia', 'nombre' => 'Edward Hastings', 'empresa' => 'Scott Dunn Luxury Holidays UK',
-                    'email' => 'ehastings@scottdunn.co.uk', 'telefono' => '+44 20 8682 5000', 'pais' => 'GB', 'idioma' => 'en', 'origen' => 'agencia',
-                ],
-                'hoteles' => ['Belmond Hotel Monasterio', 'Belmond Sanctuary Lodge'],
-                'habitaciones' => [
-                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Junior Suite Colonial', 'noches' => 5, 'costo_noche' => 950.00],
-                    ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Mountain View Deluxe Room', 'noches' => 2, 'costo_noche' => 1650.00],
-                ],
-                'paxes' => [
-                    ['nombre' => 'Lord Alistair Hamilton', 'fecha_nacimiento' => '1961-07-19', 'sexo' => 'M', 'pais' => 'GB', 'pasaporte' => 'GBR88291039', 'pasaporte_vencimiento' => '2030-08-14', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'James Hamilton', 'emergencia_telefono' => '+44 20 7946 9900'],
-                    ['nombre' => 'Lady Claire Hamilton', 'fecha_nacimiento' => '1964-12-02', 'sexo' => 'F', 'pais' => 'GB', 'pasaporte' => 'GBR88291040', 'pasaporte_vencimiento' => '2030-08-14', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => 'James Hamilton', 'emergencia_telefono' => '+44 20 7946 9900'],
-                ],
-                'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Navidad Andina en Belmond Hotel Monasterio', 'desc' => 'Concierto de villancicos coloniales en la capilla barroca.'],
-                    ['dia' => 3, 'titulo' => 'Machu Picchu en Belmond Hiram Bingham', 'desc' => 'Celebración a bordo del tren de lujo.'],
-                ],
-                'servicios' => [],
-                'pagos' => [
-                    ['tipo' => 'deposito', 'monto' => 7400.00, 'dias_antes' => 90, 'metodo' => 'transferencia', 'ref' => 'BARCLAYS-UK-1201'],
-                ],
-            ],
-
-            [
-                'codigo' => 'AET-2026-0035',
-                'nombre' => 'Expedición Privada Salkantay Trek & Glamping 5D/4N',
-                'estado' => 'cancelado',
-                'cerrado' => false,
-                'plantilla' => false,
-                'inicio' => '2026-03-15',
-                'fin' => '2026-03-19',
-                'lang' => 'es',
-                'precioAdulto' => '3200.00',
-                'precioChild' => '0.00',
-                'porcentaje_ganancia' => '18.00',
-                'tipo_cambio' => '3.750',
-                'suplemento_individual' => '0.00',
-                'habitaciones_individuales' => 0,
-                'cliente' => [
-                    'tipo' => 'directo', 'nombre' => 'Eduardo Cisneros', 'empresa' => null,
-                    'email' => 'eduardo@cisneros-arquitectura.com', 'telefono' => '+1 305 555 0122', 'pais' => 'US', 'idioma' => 'es', 'origen' => 'web',
-                    'notas' => 'Cancelado a solicitud del cliente por esguince de rodilla previo al viaje. Se reembolsó según política de cancelación.',
+                    'tipo' => 'directo',
+                    'nombre' => 'Eduardo Cisneros',
+                    'empresa' => null,
+                    'email' => 'eduardo.cisneros@techlatam.com',
+                    'telefono' => '+1 305 555 4910',
+                    'pais' => 'US',
+                    'idioma' => 'es',
+                    'origen' => 'web',
+                    'notas' => 'Cancelado por el cliente por motivos de salud antes del primer pago.',
                 ],
                 'hoteles' => [],
                 'habitaciones' => [],
                 'paxes' => [
-                    ['nombre' => 'Eduardo Cisneros', 'fecha_nacimiento' => '1980-05-10', 'sexo' => 'M', 'pais' => 'US', 'pasaporte' => 'USA99201948', 'pasaporte_vencimiento' => '2028-11-20', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => 'Esguince de rodilla', 'emergencia_nombre' => 'Patricia Cisneros', 'emergencia_telefono' => '+1 305 555 9900'],
+                    ['nombre' => 'Eduardo Cisneros', 'fecha_nacimiento' => '1985-09-12', 'sexo' => 'M', 'pais' => 'US', 'pasaporte' => 'US49201948', 'pasaporte_vencimiento' => '2030-01-10', 'dieta' => 'ninguna', 'alergias' => null, 'condiciones_medicas' => null, 'emergencia_nombre' => null, 'emergencia_telefono' => null],
                 ],
                 'itinerario' => [],
                 'servicios' => [],
                 'pagos' => [],
             ],
 
-            // 6. PLANTILLA REUTILIZABLE 1
+            // 11. PLANTILLA 1: Machu Picchu & Valle Sagrado Exclusivo 5D/4N
             [
                 'codigo' => 'PLANT-001',
                 'nombre' => '[Plantilla] Machu Picchu & Valle Sagrado Exclusivo 5D/4N',
                 'estado' => 'cotizacion',
                 'plantilla' => true,
                 'inicio' => $hoy->copy()->addMonths(1)->toDateString(),
-                'fin' => $hoy->copy()->addMonths(1)->addDays(4)->toDateString(),
+                'fin' => $hoy->copy()->addMonths(1)->addDays(5)->toDateString(),
                 'lang' => 'en',
-                'precioAdulto' => '3600.00',
+                'precioAdulto' => '3950.00',
                 'precioChild' => '0.00',
                 'porcentaje_ganancia' => '20.00',
                 'tipo_cambio' => '3.750',
-                'suplemento_individual' => '650.00',
+                'suplemento_individual' => '450.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => null,
-                'hoteles' => ['Tambo del Inka, a Luxury Collection Resort & Spa', 'Belmond Hotel Monasterio'],
+                'hoteles' => ['Belmond Hotel Monasterio', 'Tambo del Inka, a Luxury Collection Resort & Spa', 'Belmond Sanctuary Lodge'],
                 'habitaciones' => [
-                    ['hotel' => 'Tambo del Inka, a Luxury Collection Resort & Spa', 'tipo' => 'Deluxe King con Balcón al Río Vilcanota', 'noches' => 2, 'costo_noche' => 480.00],
                     ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 2, 'costo_noche' => 650.00],
+                    ['hotel' => 'Tambo del Inka, a Luxury Collection Resort & Spa', 'tipo' => 'Deluxe King con Balcón al Río Vilcanota', 'noches' => 1, 'costo_noche' => 480.00],
+                    ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Mountain View Deluxe Room', 'noches' => 1, 'costo_noche' => 1650.00],
                 ],
                 'paxes' => [],
                 'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Llegada a Cusco & Descenso al Valle Sagrado', 'desc' => 'Traslado privado desde el aeropuerto de Cusco directo al hotel Tambo del Inka en Urubamba.'],
-                    ['dia' => 1, 'titulo' => 'Maras, Moray & Almuerzo en Casona Colonial', 'desc' => 'Visita a las terrazas de Moray y salineras de Maras.'],
-                    ['dia' => 2, 'titulo' => 'Tren Panorámico a Machu Picchu & Ciudadela Inca', 'desc' => 'Viaje en tren y visita guiada privada por el circuito principal.'],
-                    ['dia' => 3, 'titulo' => 'Cusco Imperial & Sacsayhuamán', 'desc' => 'Recorrido por templos incas y palacios coloniales de Cusco.'],
-                    ['dia' => 4, 'titulo' => 'Despedida & Traslado al Aeropuerto', 'desc' => 'Traslado de salida hacia el aeropuerto Alejandro Velasco Astete.'],
+                    ['dia' => 0, 'titulo' => 'Llegada a Cusco, Traslado Privado & Monasterio', 'desc' => 'Recepción y check-in.'],
+                    ['dia' => 1, 'titulo' => 'Cusco Imperial & Sacsayhuamán', 'desc' => 'Visita arqueológica privada.'],
+                    ['dia' => 2, 'titulo' => 'Valle Sagrado, Maras Moray & Tambo del Inka', 'desc' => 'Pernocte en Urubamba.'],
+                    ['dia' => 3, 'titulo' => 'Tren Hiram Bingham a Machu Picchu & Sanctuary Lodge', 'desc' => 'Día de ensueño.'],
+                    ['dia' => 4, 'titulo' => 'Amanecer en Machu Picchu & Retorno a Cusco', 'desc' => 'Cierre del paquete.'],
                 ],
                 'servicios' => [
-                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado Aeropuerto Cusco → Valle Sagrado', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 65.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'pendiente'],
-                    ['dia' => 2, 'hora' => '07:00', 'tipo' => 'tren', 'titulo' => 'Tren Vistadome Observatory a Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 185.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'pendiente'],
-                    ['dia' => 2, 'hora' => '10:00', 'tipo' => 'entrada', 'titulo' => 'Entrada Llaqta Machu Picchu Circuito 2', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'pendiente'],
-                    ['dia' => 2, 'hora' => '10:00', 'tipo' => 'guia', 'titulo' => 'Guía Oficial Privado Machu Picchu', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'pendiente'],
+                    ['dia' => 0, 'hora' => '10:00', 'tipo' => 'traslado', 'titulo' => 'Traslado VIP Aeropuerto → Monasterio', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'costo' => 45.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 3, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 4, 'hora' => '06:30', 'tipo' => 'entrada', 'titulo' => 'Boleto Llaqta Machu Picchu Circuito 2', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'costo' => 152.00, 'moneda' => 'PEN', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'por_solicitar'],
+                    ['dia' => 4, 'hora' => '07:00', 'tipo' => 'guia', 'titulo' => 'Guía Arqueológico Privado Machu Picchu', 'prov' => 'Lic. Juan Carlos Huamán Quispe (Guía Arqueológico)', 'costo' => 160.00, 'moneda' => 'USD', 'por' => 'grupo', 'confirmacion' => null, 'estado' => 'por_solicitar'],
                 ],
                 'pagos' => [],
             ],
 
-            // 7. PLANTILLA REUTILIZABLE 2
+            // 12. PLANTILLA 2: Gran Travesía Andina (Lima, Cusco & Titilaka 10D/9N)
             [
                 'codigo' => 'PLANT-002',
                 'nombre' => '[Plantilla] Gran Travesía Andina: Lima Gourmet, Cusco & Titicaca 10D/9N',
                 'estado' => 'cotizacion',
                 'plantilla' => true,
                 'inicio' => $hoy->copy()->addMonths(2)->toDateString(),
-                'fin' => $hoy->copy()->addMonths(2)->addDays(9)->toDateString(),
-                'lang' => 'es',
-                'precioAdulto' => '7200.00',
+                'fin' => $hoy->copy()->addMonths(2)->addDays(10)->toDateString(),
+                'lang' => 'en',
+                'precioAdulto' => '7800.00',
                 'precioChild' => '0.00',
-                'porcentaje_ganancia' => '20.00',
+                'porcentaje_ganancia' => '22.00',
                 'tipo_cambio' => '3.750',
-                'suplemento_individual' => '1100.00',
+                'suplemento_individual' => '850.00',
                 'habitaciones_individuales' => 0,
                 'cliente' => null,
-                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'JW Marriott El Convento Cusco', 'Titilaka - Relais & Châteaux'],
+                'hoteles' => ['Miraflores Park, A Belmond Hotel', 'Belmond Hotel Monasterio', 'Titilaka - Relais & Châteaux'],
                 'habitaciones' => [
                     ['hotel' => 'Miraflores Park, A Belmond Hotel', 'tipo' => 'Ocean View Deluxe Junior Suite', 'noches' => 2, 'costo_noche' => 520.00],
-                    ['hotel' => 'JW Marriott El Convento Cusco', 'tipo' => 'Classic King con Oxigenación Controlada', 'noches' => 4, 'costo_noche' => 420.00],
+                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 4, 'costo_noche' => 650.00],
                     ['hotel' => 'Titilaka - Relais & Châteaux', 'tipo' => 'Corner King Suite Lago Titicaca', 'noches' => 3, 'costo_noche' => 980.00],
                 ],
                 'paxes' => [],
                 'itinerario' => [
-                    ['dia' => 0, 'titulo' => 'Llegada a Lima & Vista al Océano Pacífico', 'desc' => 'Traslado privado al hotel Miraflores Park.'],
-                    ['dia' => 1, 'titulo' => 'Experiencia Culinaria Central & Centro Histórico', 'desc' => 'Recorrido colonial y cena en el mejor restaurante del mundo.'],
-                    ['dia' => 2, 'titulo' => 'Vuelo a Cusco & Tarde de Aclimatación', 'desc' => 'Llegada al JW Marriott El Convento.'],
-                    ['dia' => 3, 'titulo' => 'Valle Sagrado de los Incas & Ollantaytambo', 'desc' => 'Andenes incas y textilería tradicional.'],
-                    ['dia' => 4, 'titulo' => 'Machu Picchu en Tren Panorámico', 'desc' => 'Visita con arqueólogo privado.'],
-                    ['dia' => 5, 'titulo' => 'Ruta del Sol hacia el Lago Titicaca', 'desc' => 'Viaje terrestre privado cruzando el Altiplano.'],
-                    ['dia' => 6, 'titulo' => 'Navegación Exclusiva por el Lago Titicaca & Taquile', 'desc' => 'Lancha rápida privada y gastronomía lacustre.'],
-                    ['dia' => 7, 'titulo' => 'Sillustani & Tarde Relais & Châteaux', 'desc' => 'Descanso en Titilaka.'],
-                    ['dia' => 8, 'titulo' => 'Retorno a Lima & Vuelo Internacional', 'desc' => 'Traslado a Juliaca y vuelo de salida.'],
+                    ['dia' => 0, 'titulo' => 'Llegada a Lima & Miraflores Park', 'desc' => 'Bienvenida.'],
+                    ['dia' => 2, 'titulo' => 'Cusco Imperial & Monasterio', 'desc' => 'Arribo a Cusco.'],
+                    ['dia' => 5, 'titulo' => 'Ruta del Sol hacia Lago Titicaca', 'desc' => 'Cruce de cordillera.'],
                 ],
                 'servicios' => [],
                 'pagos' => [],
@@ -708,16 +731,32 @@ class ProgramaSeeder extends Seeder
         // -------------------------------------------------------------
         foreach ($programasDef as $def) {
             $clienteId = null;
+
+            // Crear cliente si no es plantilla
             if (! empty($def['cliente'])) {
-                $cliente = Cliente::create($def['cliente']);
+                $cDef = $def['cliente'];
+                $cliente = Cliente::firstOrCreate(
+                    ['email' => $cDef['email']],
+                    [
+                        'tipo' => $cDef['tipo'],
+                        'nombre' => $cDef['nombre'],
+                        'empresa' => $cDef['empresa'],
+                        'telefono' => $cDef['telefono'],
+                        'pais' => $cDef['pais'],
+                        'idioma' => $cDef['idioma'],
+                        'origen' => $cDef['origen'],
+                        'notas' => $cDef['notas'] ?? null,
+                    ]
+                );
                 $clienteId = $cliente->id;
             }
 
             $inicio = Carbon::parse($def['inicio']);
             $fin = Carbon::parse($def['fin']);
-            $mes = $meses->get($inicio->month);
-            $anio = $anios->get($inicio->year);
+            $anio = $anios->get($inicio->year) ?? Anio::firstOrCreate(['anio' => $inicio->year]);
+            $mes = $meses->get($inicio->month) ?? Mes::firstOrCreate(['numero' => $inicio->month], ['nombre' => $inicio->locale('es')->monthName]);
 
+            $cerrado = ! empty($def['cerrado']);
             $programa = Programa::withoutGlobalScope('sin_plantillas')->create([
                 'codigo' => $def['codigo'],
                 'nombre' => $def['nombre'],
@@ -739,8 +778,8 @@ class ProgramaSeeder extends Seeder
                 'salida_at' => $def['salida_at'] ?? null,
                 'confirmado_at' => $def['estado'] === 'confirmado' ? $inicio->copy()->subDays(65) : null,
                 'itinerario_visto_at' => $def['estado'] === 'confirmado' ? $inicio->copy()->subDays(66) : null,
-                'cerrado_at' => ! empty($def['cerrado']) ? $fin->copy()->addDay() : null,
-                'cerrado_por' => ! empty($def['cerrado']) ? $usuarioAdmin?->id : null,
+                'cerrado_at' => $cerrado ? $fin->copy()->addDay() : null,
+                'cerrado_por' => $cerrado ? $usuarioAdmin?->id : null,
                 'anio_id' => $anio?->id,
                 'mes_id' => $mes?->id,
                 'presentacion' => "<p>Bienvenido a su itinerario exclusivo diseñado por <strong>Andean Exclusive</strong>. Cada detalle ha sido meticulosamente seleccionado para ofrecerle una experiencia inigualable en Perú, combinando la mística de los Andes con la más alta excelencia en hospitalidad.</p>",
@@ -763,28 +802,29 @@ class ProgramaSeeder extends Seeder
                 }
             }
 
-            // Asociar estadías de habitaciones
+            // Alojamiento y noches
             if (! empty($def['habitaciones'])) {
                 $diasOffset = 0;
-                foreach ($def['habitaciones'] as $habDef) {
-                    $hModel = $hoteles[$habDef['hotel']] ?? null;
+                foreach ($def['habitaciones'] as $habData) {
+                    $hModel = $hoteles->get($habData['hotel']);
                     if (! $hModel) {
                         continue;
                     }
-                    $habModel = $hModel->habitaciones->firstWhere('tipo', $habDef['tipo']) ?? $hModel->habitaciones->first();
+
+                    $habModel = $hModel->habitaciones->firstWhere('tipo', $habData['tipo']);
                     if (! $habModel) {
                         continue;
                     }
 
                     $checkIn = $inicio->copy()->addDays($diasOffset)->toDateString();
-                    $checkOut = $inicio->copy()->addDays($diasOffset + $habDef['noches'])->toDateString();
-                    $diasOffset += $habDef['noches'];
+                    $checkOut = $inicio->copy()->addDays($diasOffset + $habData['noches'])->toDateString();
+                    $diasOffset += $habData['noches'];
 
                     HabitacionFecha::create([
                         'programa_id' => $programa->id,
                         'habitacion_id' => $habModel->id,
                         'cantidad' => 1,
-                        'costo_noche' => $habDef['costo_noche'],
+                        'costo_noche' => $habData['costo_noche'],
                         'moneda' => 'USD',
                         'fecha_ingreso' => $checkIn,
                         'fecha_salida' => $checkOut,
@@ -793,9 +833,29 @@ class ProgramaSeeder extends Seeder
 
                 // Sincronizar servicios de alojamiento automáticamente
                 AlojamientoEnServicios::sincronizar($programa);
+
+                if ($cerrado) {
+                    $programa->servicios()->whereNull('pagado_at')->each(function (Servicio $s) use ($fin) {
+                        $s->update([
+                            'estado' => 'confirmado',
+                            'pagado_at' => $fin->toDateString(),
+                        ]);
+
+                        if ($s->costo > 0) {
+                            ProveedorPago::create([
+                                'servicio_id' => $s->id,
+                                'fecha' => $fin->toDateString(),
+                                'monto' => $s->importe,
+                                'moneda' => $s->moneda ?? 'USD',
+                                'metodo' => 'transferencia',
+                                'referencia' => 'OP-HAB-'.str_pad((string) $s->id, 5, '0', STR_PAD_LEFT),
+                            ]);
+                        }
+                    });
+                }
             }
 
-            // Pasajeros
+            // Pasajeros (Paxs)
             if (! empty($def['paxes'])) {
                 foreach ($def['paxes'] as $paxData) {
                     $paxData['programa_id'] = $programa->id;
@@ -824,6 +884,7 @@ class ProgramaSeeder extends Seeder
                     $fechaServ = $inicio->copy()->addDays($servData['dia'])->toDateString();
                     $provId = isset($proveedores[$servData['prov']]) ? $proveedores[$servData['prov']]->id : null;
 
+                    $pagoSolicitado = ! empty($servData['pago_solicitado']);
                     $servicio = $programa->servicios()->create([
                         'fecha' => $fechaServ,
                         'hora' => $servData['hora'],
@@ -832,28 +893,36 @@ class ProgramaSeeder extends Seeder
                         'proveedor_id' => $provId,
                         'punto_encuentro' => $servData['tipo'] === 'traslado' ? 'Sala de llegadas / Lobby' : 'Lobby del Hotel',
                         'estado' => $servData['estado'],
-                        'confirmacion' => $servData['confirmacion'],
-                        'costo' => $servData['costo'],
-                        'costo_estimado' => $servData['costo'],
-                        'moneda' => $servData['moneda'],
-                        'costo_por' => $servData['por'],
+                        'confirmacion' => $servData['confirmacion'] ?? null,
+                        'costo' => $servData['costo'] ?? null,
+                        'costo_estimado' => $servData['costo'] ?? 0,
+                        'moneda' => $servData['moneda'] ?? 'USD',
+                        'costo_por' => $servData['por'] ?? 'grupo',
                         'visible_cliente' => true,
+                        'pago_solicitado_at' => $pagoSolicitado ? Carbon::now()->subDay() : null,
+                        'pago_solicitado_por' => $pagoSolicitado ? $usuarioAdmin?->id : null,
+                        'orden_enviada_at' => in_array($servData['estado'], ['solicitado', 'confirmado']) ? Carbon::parse($fechaServ)->subDays(10) : null,
                     ]);
 
-                    // Si ya se prestó el servicio o está confirmado en el pasado, registrar su pago a proveedor
-                    if ($servData['estado'] === 'confirmado' && Carbon::parse($fechaServ)->lte($hoy)) {
+                    // Pago a proveedor: se genera para servicios confirmados que ya pasaron o en programas cerrados
+                    $pendientePago = ! empty($servData['pendiente_pago']);
+                    $debeEstarPagado = $servData['estado'] === 'confirmado'
+                        && ! $pendientePago
+                        && (Carbon::parse($fechaServ)->lte($hoy) || $cerrado);
+
+                    if ($debeEstarPagado) {
                         $servicio->update([
                             'pagado_at' => $fechaServ,
                         ]);
 
                         $paxCount = max(1, count($def['paxes']));
-                        $montoReal = $servData['por'] === 'persona' ? $servData['costo'] * $paxCount : $servData['costo'];
+                        $montoReal = ($servData['por'] ?? 'grupo') === 'persona' ? $servData['costo'] * $paxCount : $servData['costo'];
 
                         ProveedorPago::create([
                             'servicio_id' => $servicio->id,
                             'fecha' => $fechaServ,
                             'monto' => $montoReal,
-                            'moneda' => $servData['moneda'],
+                            'moneda' => $servData['moneda'] ?? 'USD',
                             'metodo' => 'transferencia',
                             'referencia' => 'OP-PROV-'.str_pad((string) $servicio->id, 5, '0', STR_PAD_LEFT),
                         ]);
@@ -863,15 +932,36 @@ class ProgramaSeeder extends Seeder
 
             // Pagos del cliente
             if (! empty($def['pagos'])) {
-                foreach ($def['pagos'] as $pagoDef) {
-                    $fechaPago = $inicio->copy()->subDays($pagoDef['dias_antes'])->toDateString();
+                if ($cerrado) {
+                    $totalVenta = $programa->presupuesto()['total'];
+                    $deposito = round($totalVenta * 0.5, 2);
+                    $saldo = round($totalVenta - $deposito, 2);
+
                     $programa->pagos()->create([
-                        'fecha' => $fechaPago,
-                        'monto' => $pagoDef['monto'],
-                        'tipo' => $pagoDef['tipo'],
-                        'metodo' => $pagoDef['metodo'],
-                        'referencia' => $pagoDef['ref'],
+                        'fecha' => $inicio->copy()->subDays(60)->toDateString(),
+                        'monto' => $deposito,
+                        'tipo' => 'deposito',
+                        'metodo' => 'transferencia',
+                        'referencia' => 'SWIFT-DEPOSITO-100%',
                     ]);
+                    $programa->pagos()->create([
+                        'fecha' => $inicio->copy()->subDays(30)->toDateString(),
+                        'monto' => $saldo,
+                        'tipo' => 'saldo',
+                        'metodo' => 'transferencia',
+                        'referencia' => 'SWIFT-SALDO-100%',
+                    ]);
+                } else {
+                    foreach ($def['pagos'] as $pagoDef) {
+                        $fechaPago = $inicio->copy()->subDays($pagoDef['dias_antes'])->toDateString();
+                        $programa->pagos()->create([
+                            'fecha' => $fechaPago,
+                            'monto' => $pagoDef['monto'],
+                            'tipo' => $pagoDef['tipo'],
+                            'metodo' => $pagoDef['metodo'],
+                            'referencia' => $pagoDef['ref'],
+                        ]);
+                    }
                 }
             }
 
@@ -882,14 +972,14 @@ class ProgramaSeeder extends Seeder
                     ['titulo' => 'Comprar boletos oficiales de ingreso a la Llaqta en DDC Cusco', 'dias_antes' => 30],
                     ['titulo' => 'Reconfirmar habitaciones y oxigenación con Belmond y Marriott', 'dias_antes' => 15],
                     ['titulo' => 'Asignar chofer y placa de Sprinter en VIP Transports', 'dias_antes' => 7],
-                    ['titulo' => 'Asignar guía oficial colegiado bilingüe con AGOTUR', 'dias_antes' => 7],
+                    ['titulo' => 'Asignar guía oficial colegiado bilingüe', 'dias_antes' => 7],
                     ['titulo' => 'Reconfirmar restricciones dietéticas y alergias con restaurantes', 'dias_antes' => 3],
                     ['titulo' => 'Enviar briefing final, vouchers y contacto de chofer al cliente', 'dias_antes' => 2],
                 ];
 
                 foreach ($tareasPlantillas as $tp) {
                     $limite = $inicio->copy()->subDays($tp['dias_antes']);
-                    $completada = $limite->lt($hoy);
+                    $completada = $limite->lt($hoy) || $cerrado;
 
                     $programa->tareas()->create([
                         'titulo' => $tp['titulo'],

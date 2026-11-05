@@ -151,7 +151,7 @@ function initItinerario(root) {
         if (dayItems.length <= 1) {
             const msg = 'El programa debe conservar al menos 1 día en su itinerario.';
             if (window.Swal) {
-                window.Swal.fire({ icon: 'info', title: 'Atención', text: msg, confirmButtonColor: '#078f84' });
+                window.Swal.fire({ icon: 'info', title: 'Atención', text: msg, confirmButtonColor: '#0f172a' });
             } else {
                 alert(msg);
             }
@@ -425,113 +425,6 @@ function initBudget(root) {
         set('deposito', money(total * depositoPct / 100));
     };
 
-    // --- Cotizador Dinámico desde Costos de Proveedores ---
-    const cotizadorCard = root.querySelector('[data-cotizador-card]');
-    if (cotizadorCard) {
-        let margenSeleccionado = 25;
-
-        const calcularCostosItinerario = () => {
-            const tc = parseFloat(root.querySelector('[name="tipo_cambio"]')?.value) || 3.75;
-
-            // 1. Hoteles / Estadías
-            let costoHoteles = 0;
-            root.querySelectorAll('[data-estadia-item]').forEach((fila) => {
-                const reservado = fila.querySelector('[data-estadia-reservado]')?.checked;
-                if (reservado) return;
-                const costoNoche = parseFloat(fila.querySelector('[data-estadia-costo]')?.value) || 0;
-                const cant = parseInt(fila.querySelector('[data-estadia-cantidad]')?.value, 10) || 1;
-                const ing = fila.querySelector('[data-estadia-ingreso]')?.value;
-                const sal = fila.querySelector('[data-estadia-salida]')?.value;
-                let noches = 0;
-                if (ing && sal) {
-                    const diff = Math.round((new Date(sal + 'T00:00:00') - new Date(ing + 'T00:00:00')) / 86400000);
-                    noches = Math.max(0, diff);
-                }
-                const moneda = fila.querySelector('[data-estadia-moneda]')?.value || 'USD';
-                let totalEstadia = costoNoche * cant * noches;
-                if (moneda === 'PEN') totalEstadia /= tc;
-                costoHoteles += totalEstadia;
-            });
-
-            // Pasajeros pagantes
-            const pagantes = Math.max(1, (parseInt(root.querySelector('[data-res-adultos]')?.textContent, 10) || 0) + (parseInt(root.querySelector('[data-res-ninos]')?.textContent, 10) || 0) || 1);
-
-            // 2. Servicios del Itinerario
-            let costoServicios = 0;
-            root.querySelectorAll('[data-svc-item]').forEach((svc) => {
-                const est = parseFloat(svc.querySelector('[id$="-estimado"]')?.value) || 0;
-                const real = parseFloat(svc.querySelector('[id$="-costo"]')?.value);
-                const costoVal = (!isNaN(real) && real > 0) ? real : est;
-                if (!costoVal || costoVal <= 0) return;
-
-                const por = svc.querySelector('[id$="-por"]')?.value || 'grupo';
-                const moneda = svc.querySelector('[id$="-moneda"]')?.value || 'USD';
-                let importe = costoVal * (por === 'persona' ? pagantes : 1);
-                if (moneda === 'PEN') importe /= tc;
-                costoServicios += importe;
-            });
-
-            const costoTotal = costoHoteles + costoServicios;
-            const costoPorPax = costoTotal / pagantes;
-
-            const elHoteles = cotizadorCard.querySelector('[data-calc-hoteles]');
-            const elServicios = cotizadorCard.querySelector('[data-calc-servicios]');
-            const elTotal = cotizadorCard.querySelector('[data-calc-total]');
-            const elPorPax = cotizadorCard.querySelector('[data-calc-por-pax]');
-
-            if (elHoteles) elHoteles.textContent = `US$ ${costoHoteles.toFixed(2)}`;
-            if (elServicios) elServicios.textContent = `US$ ${costoServicios.toFixed(2)}`;
-            if (elTotal) elTotal.textContent = `US$ ${costoTotal.toFixed(2)}`;
-            if (elPorPax) elPorPax.textContent = `US$ ${costoPorPax.toFixed(2)}`;
-
-            return { costoHoteles, costoServicios, costoTotal, costoPorPax, pagantes };
-        };
-
-        // Botones de margen rápido
-        cotizadorCard.querySelectorAll('[data-calc-margen]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                cotizadorCard.querySelectorAll('[data-calc-margen]').forEach((b) => {
-                    b.classList.remove('active', 'btn-outline-primary', 'fw-bold');
-                    b.classList.add('btn-outline-secondary');
-                });
-                btn.classList.add('active', 'btn-outline-primary', 'fw-bold');
-                btn.classList.remove('btn-outline-secondary');
-                margenSeleccionado = parseFloat(btn.dataset.calcMargen) || 25;
-            });
-        });
-
-        // Botón Sincronizar
-        cotizadorCard.querySelector('[data-cotizador-sync]')?.addEventListener('click', calcularCostosItinerario);
-
-        // Botón Aplicar al Precio de Venta
-        cotizadorCard.querySelector('[data-calc-aplicar]')?.addEventListener('click', () => {
-            const { costoPorPax } = calcularCostosItinerario();
-            const inputAdulto = root.querySelector('[data-precio-adulto]');
-            const inputNino = root.querySelector('[data-precio-nino]');
-            const inputGanancia = root.querySelector('[data-ganancia]');
-
-            if (inputAdulto) {
-                inputAdulto.value = costoPorPax.toFixed(2);
-                inputAdulto.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-            if (inputNino) {
-                inputNino.value = (costoPorPax * 0.7).toFixed(2);
-                inputNino.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-            if (inputGanancia) {
-                inputGanancia.value = margenSeleccionado;
-                inputGanancia.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            const info = cotizadorCard.querySelector('[data-calc-info]');
-            if (info) {
-                info.innerHTML = `<span class="text-success fw-bold"><i class="fas fa-check me-1"></i> Costo base fijado ($${costoPorPax.toFixed(2)}) + ${margenSeleccionado}% margen aplicado.</span>`;
-            }
-        });
-
-        setTimeout(calcularCostosItinerario, 400);
-    }
-
     root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles]').forEach((input) => {
         input.addEventListener('input', compute);
     });
@@ -675,7 +568,7 @@ function initFlightControls(root) {
                     icon: 'info',
                     title: 'Fechas del viaje pendientes',
                     text: `Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje en la sección superior.`,
-                    confirmButtonColor: '#078f84'
+                    confirmButtonColor: '#0f172a'
                 }) || alert(`Primero ingresa la fecha de ${tipo === 'llegada' ? 'inicio' : 'fin'} del viaje.`);
             }
         });
@@ -861,6 +754,232 @@ function initNuevoHotelModal(root) {
     });
 }
 
+// Calculadora inteligente de cotización: suma servicios de cada día y noches de hotel para obtener el costo base por persona
+function initCotizacionCalculator(root, recomputeBudget) {
+    const btn = root.querySelector('[data-btn-calcular-cotizacion]');
+    const liveBox = root.querySelector('[data-cotizacion-live-box]');
+    const liveText = root.querySelector('[data-cotizacion-live-text]');
+    const liveTotal = root.querySelector('[data-cotizacion-live-total]');
+    const adultoInput = root.querySelector('[data-precio-adulto]');
+    const ninoInput = root.querySelector('[data-precio-nino]');
+
+    const calcular = () => {
+        const tc = parseFloat(root.querySelector('input[name="tipo_cambio"]')?.value) || 3.75;
+        const toUsd = (monto, moneda) => moneda === 'PEN' ? (monto / tc) : monto;
+
+        // Pasajeros
+        const inicio = root.querySelector('[data-fecha-inicio]')?.value;
+        const referencia = inicio ? new Date(inicio + 'T00:00:00') : new Date();
+        const paxItems = [...root.querySelectorAll('[data-pax-item]')].filter((el) => !el.closest('template'));
+        let pagantes = 0;
+        let adultos = 0;
+        let ninos = 0;
+
+        paxItems.forEach((item) => {
+            const nacInput = item.querySelector('[data-pax-nacimiento]');
+            if (nacInput && nacInput.value) {
+                const nac = new Date(nacInput.value + 'T00:00:00');
+                let edad = referencia.getFullYear() - nac.getFullYear();
+                const cumple = new Date(referencia.getFullYear(), nac.getMonth(), nac.getDate());
+                if (referencia < cumple) edad -= 1;
+                if (edad >= 12) { adultos++; pagantes++; }
+                else if (edad >= 5) { ninos++; pagantes++; }
+            } else {
+                adultos++;
+                pagantes++;
+            }
+        });
+        if (pagantes <= 0) pagantes = Math.max(1, paxItems.length || 1);
+
+        // Servicios del itinerario
+        let totalServiciosUsd = 0;
+        let numServicios = 0;
+        const svcItems = [...root.querySelectorAll('[data-svc-item]')].filter((el) => !el.closest('template'));
+
+        svcItems.forEach((item) => {
+            // Ignorar servicios automáticos de estadía de hotel para no duplicar
+            if (item.querySelector('.svc-row__de-estadia') || item.querySelector('.svc-row__estadia-bar')) return;
+
+            const estado = item.querySelector('[data-svc-estado]')?.value;
+            if (estado === 'cancelado') return;
+
+            const estimadoInput = item.querySelector('input[name*="[costo_estimado]"]');
+            const realInput = item.querySelector('input[name*="[costo]"]');
+            const moneda = item.querySelector('select[name*="[moneda]"]')?.value || 'USD';
+            const por = item.querySelector('select[name*="[costo_por]"]')?.value || 'grupo';
+
+            let valor = parseFloat(estimadoInput?.value);
+            if (isNaN(valor) || valor === null || valor === undefined) {
+                valor = parseFloat(realInput?.value) || 0;
+            }
+
+            if (valor > 0) {
+                const valorUsd = toUsd(valor, moneda);
+                const totalSvc = por === 'persona' ? (valorUsd * pagantes) : valorUsd;
+                totalServiciosUsd += totalSvc;
+                numServicios++;
+            }
+        });
+
+        // Alojamiento (Hoteles)
+        let totalHotelesUsd = 0;
+        let totalNoches = 0;
+        const estadiaItems = [...root.querySelectorAll('[data-estadia-item]')].filter((el) => !el.closest('template'));
+
+        estadiaItems.forEach((item) => {
+            const reservadoCli = item.querySelector('[data-estadia-reservado-switch]')?.checked;
+            if (reservadoCli) return;
+
+            const cant = parseInt(item.querySelector('[data-estadia-cantidad]')?.value, 10) || 0;
+            const costoNoche = parseFloat(item.querySelector('[data-estadia-costo]')?.value) || 0;
+            const moneda = item.querySelector('[data-estadia-moneda]')?.value || 'USD';
+            const ingreso = item.querySelector('[data-estadia-ingreso]')?.value;
+            const salida = item.querySelector('[data-estadia-salida]')?.value;
+
+            if (ingreso && salida && salida > ingreso && costoNoche > 0 && cant > 0) {
+                const noches = Math.round((new Date(salida + 'T00:00:00') - new Date(ingreso + 'T00:00:00')) / 86400000);
+                if (noches > 0) {
+                    const totalEstadia = toUsd(costoNoche * cant * noches, moneda);
+                    totalHotelesUsd += totalEstadia;
+                    totalNoches += noches;
+                }
+            }
+        });
+
+        const totalPaqueteUsd = totalServiciosUsd + totalHotelesUsd;
+        const costoPorPax = pagantes > 0 ? (totalPaqueteUsd / pagantes) : totalPaqueteUsd;
+
+        return {
+            totalServiciosUsd,
+            numServicios,
+            totalHotelesUsd,
+            totalNoches,
+            totalPaqueteUsd,
+            pagantes,
+            adultos,
+            ninos,
+            costoPorPax: Math.round(costoPorPax * 100) / 100,
+        };
+    };
+
+    const actualizarLive = () => {
+        if (!liveBox) return;
+        const res = calcular();
+        if (liveTotal) {
+            liveTotal.textContent = money(res.costoPorPax);
+        }
+        if (liveText) {
+            if (res.numServicios === 0 && res.totalNoches === 0) {
+                liveText.innerHTML = '<span class="text-muted">Aún no hay servicios ni hoteles con costo asignado en el itinerario.</span>';
+            } else {
+                liveText.innerHTML = `<strong>${res.numServicios}</strong> servicios (${money(res.totalServiciosUsd)}) + <strong>${res.totalNoches}</strong> noches de hotel (${money(res.totalHotelesUsd)}) para <strong>${res.pagantes}</strong> ${res.pagantes === 1 ? 'pasajero' : 'pasajeros'}.`;
+            }
+        }
+    };
+
+    btn?.addEventListener('click', () => {
+        const res = calcular();
+        if (res.numServicios === 0 && res.totalNoches === 0) {
+            const msg = 'No se encontraron servicios ni noches de hotel con precio en el itinerario. Asigna precios en la pestaña Itinerario o Alojamiento.';
+            if (window.Swal) {
+                window.Swal.fire({ icon: 'info', title: 'Sin costos en itinerario', text: msg, confirmButtonColor: '#0f172a' });
+            } else {
+                alert(msg);
+            }
+            return;
+        }
+
+        const aplicar = () => {
+            if (adultoInput) {
+                adultoInput.value = res.costoPorPax.toFixed(2);
+                adultoInput.dispatchEvent(new Event('input', { bubbles: true }));
+                adultoInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (ninoInput && res.ninos > 0 && (!parseFloat(ninoInput.value) || parseFloat(ninoInput.value) === 0)) {
+                // Sugerir tarifa de niño al 75% si estaba vacía
+                ninoInput.value = (Math.round(res.costoPorPax * 0.75 * 100) / 100).toFixed(2);
+                ninoInput.dispatchEvent(new Event('input', { bubbles: true }));
+                ninoInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            if (recomputeBudget) recomputeBudget();
+
+            if (window.Swal) {
+                window.Swal.fire({
+                    icon: 'success',
+                    title: '¡Cotización calculada!',
+                    html: `
+                        <p class="mb-2">Se ha actualizado la tarifa base de <strong>Adulto</strong> a <strong>${money(res.costoPorPax)}</strong>.</p>
+                        <div class="small text-muted border-top pt-2">
+                            <div>• Servicios del viaje: <strong>${money(res.totalServiciosUsd)}</strong> (${res.numServicios} servicios)</div>
+                            <div>• Alojamiento: <strong>${money(res.totalHotelesUsd)}</strong> (${res.totalNoches} noches)</div>
+                            <div>• Total paquete: <strong>${money(res.totalPaqueteUsd)}</strong> entre ${res.pagantes} pasajeros</div>
+                        </div>
+                    `,
+                    timer: 3500,
+                    showConfirmButton: false,
+                    toast: true,
+                    position: 'top-end',
+                });
+            }
+        };
+
+        if (window.Swal) {
+            window.Swal.fire({
+                title: '¿Aplicar cálculo a la cotización?',
+                html: `
+                    <div class="text-start fs-6">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Servicios (${res.numServicios}):</span>
+                            <strong>${money(res.totalServiciosUsd)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Hoteles (${res.totalNoches} noches):</span>
+                            <strong>${money(res.totalHotelesUsd)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Total paquete grupo:</span>
+                            <strong>${money(res.totalPaqueteUsd)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Pasajeros pagantes:</span>
+                            <strong>${res.pagantes}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 text-primary fw-bold fs-5">
+                            <span>Costo base por adulto:</span>
+                            <span>${money(res.costoPorPax)}</span>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mt-2">Esto reemplazará el valor actual de Adulto ($) y recalculará la venta con el % de ganancia.</small>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#b48c58',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: '<i class="fas fa-check me-1"></i> Sí, aplicar a la cotización',
+                cancelButtonText: 'Cancelar',
+            }).then((result) => {
+                if (result.isConfirmed) aplicar();
+            });
+        } else {
+            aplicar();
+        }
+    });
+
+    // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros o tipo de cambio
+    root.addEventListener('input', (e) => {
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], input[name="tipo_cambio"]')) {
+            actualizarLive();
+        }
+    });
+    root.addEventListener('change', (e) => {
+        if (e.target.matches('[data-svc-moneda], [data-svc-por], [data-svc-estado], [data-estadia-moneda], [data-estadia-ingreso], [data-estadia-salida], [data-estadia-reservado-switch]')) {
+            actualizarLive();
+        }
+    });
+
+    actualizarLive();
+}
+
 export function initProgramaForm() {
     const root = document.querySelector('[data-programa-form]');
     if (!root) return;
@@ -876,5 +995,6 @@ export function initProgramaForm() {
     initFlightControls(root);
     initDirtyGuard(root);
     initNotificaciones(root);
+    initCotizacionCalculator(root, recompute);
     recompute();
 }

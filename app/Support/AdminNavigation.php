@@ -19,31 +19,36 @@ class AdminNavigation
             'items' => [
                 ['label' => 'Inicio', 'icon' => 'fa-tachometer-alt', 'route' => 'home', 'active' => ['home']],
                 ['label' => 'Notificaciones', 'icon' => 'fa-bell', 'route' => 'avisos.index', 'active' => ['avisos.*']],
-                ['label' => 'Movimientos', 'icon' => 'fa-stream', 'route' => 'movimientos.index', 'active' => ['movimientos.*']],
-                ['label' => 'Reportes', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
                 ['label' => 'Ayuda', 'icon' => 'fa-question-circle', 'route' => 'ayuda.index', 'active' => ['ayuda.*']],
             ],
         ],
         [
-            'label' => 'Operaciones',
+            'label' => 'Comercial y Operaciones',
             'items' => [
                 ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
                 ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.*']],
-                ['label' => 'Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
-                ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],
                 ['label' => 'Clientes', 'icon' => 'fa-address-book', 'route' => 'clientes.index', 'active' => ['clientes.*']],
                 ['label' => 'Pasajeros', 'icon' => 'fa-users', 'route' => 'paxs.index', 'active' => ['paxs.*']],
+                ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],
+                ['label' => 'Agentes / Counters', 'icon' => 'fa-user-tie', 'route' => 'agentes.index', 'active' => ['agentes.*']],
             ],
         ],
         [
-            'label' => 'Proveedores',
+            'label' => 'Reservas y Proveedores',
             'items' => [
-                ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
+                ['label' => 'Bandeja de Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
                 ['label' => 'Tarifario', 'icon' => 'fa-tags', 'route' => 'tarifas.index', 'active' => ['tarifas.*']],
                 ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
-                ['label' => 'Categorías', 'icon' => 'fa-tags', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
                 ['label' => 'Hoteles', 'icon' => 'fa-hotel', 'route' => 'hotel.index', 'active' => ['hotel.*', 'habitacion.*']],
-                ['label' => 'Agentes', 'icon' => 'fa-user-tie', 'route' => 'agentes.index', 'active' => ['agentes.*']],
+                ['label' => 'Categorías', 'icon' => 'fa-layer-group', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
+            ],
+        ],
+        [
+            'label' => 'Finanzas y Contabilidad',
+            'items' => [
+                ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
+                ['label' => 'Reportes y Margen', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
+                ['label' => 'Movimientos', 'icon' => 'fa-stream', 'route' => 'movimientos.index', 'active' => ['movimientos.*']],
             ],
         ],
         [
@@ -58,6 +63,7 @@ class AdminNavigation
         ],
         [
             'label' => 'Medios',
+            'roles' => ['administrador'],
             'items' => [
                 ['label' => 'Imágenes', 'icon' => 'fa-images', 'route' => 'imagenes.index', 'active' => ['imagenes.*']],
             ],

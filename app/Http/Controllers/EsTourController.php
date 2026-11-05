@@ -13,10 +13,11 @@ class EsTourController extends Controller
 {
     public function index()
     {
-        $tours = Estour::all();
+        $tours = Estour::with(['categorias', 'tour'])->get();
         $totalTours = Estour::count();
+        $categorias = EsCategoria::orderBy('nombre')->get();
 
-        return view('admin.estours.index', compact('tours', 'totalTours'));
+        return view('admin.estours.index', compact('tours', 'totalTours', 'categorias'));
     }
 
     public function create()

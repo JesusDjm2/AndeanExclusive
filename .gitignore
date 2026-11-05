@@ -25,3 +25,4 @@ yarn-error.log
 error_log
 *.log
 storage/framework/lsp-*
+/scratch/
