@@ -171,27 +171,30 @@
     margin-bottom: 1.85rem;
 }
 
-.auth-card__title {
+.auth-card__title,
+.auth-panel__title {
     font-size: 1.65rem;
     font-weight: 700;
-    color: #0f172a;
+    color: #0f172a !important;
     margin-bottom: 0.3rem;
     letter-spacing: -0.02em;
 }
 
-.auth-card__lead {
+.auth-card__lead,
+.auth-panel__lead {
     font-size: 0.95rem;
-    color: #64748b;
+    color: #64748b !important;
     margin-bottom: 0;
 }
 
 // --------------------------------------------------------------------------
 // 3. Formulario y Controles de Entrada (Inputs Blancos Nítidos con Fix Autofill)
 // --------------------------------------------------------------------------
-.auth-label {
+.auth-label,
+.auth-card .form-label {
     font-size: 0.88rem;
     font-weight: 600;
-    color: #1e293b;
+    color: #1e293b !important;
     margin-bottom: 0.45rem;
 }
 
