@@ -1,37 +1,55 @@
 @extends('layouts.app')
-@section('titulo', 'Editar usuario · ' . $user->name)
+@section('titulo', 'Editar Usuario · ' . $user->name)
 
 @section('contenido')
-    <div class="container-fluid">
-        <div class="row align-items-center ae-admin-page-header">
-            <div class="col-lg-8 text-start mb-2 mb-lg-0">
-                <h2 class="ae-admin-page-title">
-                    <i class="fas fa-fw fa-user-edit text-primary me-2"></i>
-                    Actualizar Usuario
-                </h2>
-                <small class="ae-admin-page-desc">Modifica los accesos o datos del usuario <strong>{{ $user->name }}</strong></small>
+    <div class="container-fluid px-0">
+        {{-- Encabezado --}}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 ae-admin-page-header mb-4">
+            <div>
+                <h1 class="ae-admin-page-title mb-1">
+                    <i class="fas fa-user-edit" aria-hidden="true"></i>
+                    Editar Usuario
+                </h1>
+                <small class="ae-admin-page-desc">Actualiza los datos personales, área de operación o contraseña de acceso de <strong>{{ $user->name }}</strong>.</small>
             </div>
-            <div class="col-lg-4 text-lg-end">
-                <a href="{{ route('users.index') }}" class="btn btn-sm btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Volver a usuarios
+            <div>
+                <a href="{{ route('users.index') }}" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i> Volver a Usuarios
                 </a>
             </div>
         </div>
 
         @if (session('status'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('status') }}
+            <div class="alert alert-success alert-dismissible fade show shadow-sm mb-4" role="alert">
+                <i class="fas fa-check-circle me-2"></i> {{ session('status') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
         @endif
 
         <div class="row justify-content-center">
-            <div class="col-xl-8 col-lg-10">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header py-3 bg-white border-bottom">
-                        <span class="fw-bold text-secondary">
-                            <i class="fas fa-id-card me-1 text-primary"></i> Información de la cuenta
+            <div class="col-xl-9 col-lg-10">
+                <div class="card border-0 shadow-sm overflow-hidden mb-4">
+                    {{-- Cabecera con avatar --}}
+                    @php
+                        $initials = collect(explode(' ', trim($user->name)))
+                            ->filter()
+                            ->take(2)
+                            ->map(fn($w) => mb_strtoupper(mb_substr($w, 0, 1)))
+                            ->implode('');
+                        $currentRole = old('role', $user->roles->first()?->name ?? 'contabilidad');
+                    @endphp
+                    <div class="card-header p-4 border-bottom bg-transparent d-flex align-items-center gap-3">
+                        <span class="ae-avatar-circle ae-avatar-circle--gold" style="width: 3.5rem; height: 3.5rem; font-size: 1.25rem;">
+                            {{ $initials ?: 'U' }}
                         </span>
+                        <div>
+                            <h4 class="mb-0 fw-bold">{{ $user->name }}</h4>
+                            <span class="text-muted small">
+                                <i class="fas fa-envelope me-1"></i> {{ $user->email }}
+                                <span class="mx-1">·</span>
+                                <i class="fas fa-id-badge me-1"></i> ID #{{ $user->id }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="card-body p-4">
@@ -39,20 +57,22 @@
                             @csrf
                             @method('PUT')
 
-                            <div class="row mb-3">
-                                <label for="name" class="col-md-4 col-form-label text-md-end">Nombre <span class="text-danger">*</span></label>
-                                <div class="col-md-7">
+                            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                <i class="fas fa-id-card text-muted"></i> Datos de la Cuenta
+                            </h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="name" class="form-label fw-semibold small">Nombre Completo <span class="text-danger">*</span></label>
                                     <input type="text" id="name" name="name" class="form-control @error('name') is-invalid @enderror"
-                                        required value="{{ old('name', $user->name) }}" placeholder="Nombre completo">
+                                        required value="{{ old('name', $user->name) }}" placeholder="Ej. Carlos Mendoza">
                                     @error('name')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </div>
-                            </div>
 
-                            <div class="row mb-3">
-                                <label for="email" class="col-md-4 col-form-label text-md-end">Correo electrónico <span class="text-danger">*</span></label>
-                                <div class="col-md-7">
+                                <div class="col-md-6">
+                                    <label for="email" class="form-label fw-semibold small">Correo Electrónico <span class="text-danger">*</span></label>
                                     <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror"
                                         required value="{{ old('email', $user->email) }}" placeholder="correo@andeanexclusive.com">
                                     @error('email')
@@ -61,79 +81,106 @@
                                 </div>
                             </div>
 
-                            <div class="row mb-4">
-                                <label for="role" class="col-md-4 col-form-label text-md-end">Rol en el panel <span class="text-danger">*</span></label>
-                                <div class="col-md-7">
-                                    @php
-                                        $currentRole = old('role', $user->roles->first()?->name ?? 'contabilidad');
-                                    @endphp
-                                    <select id="role" name="role" class="form-select @error('role') is-invalid @enderror" required>
-                                        <option value="administrador" {{ $currentRole === 'administrador' ? 'selected' : '' }}>Administrador (incluye usuarios)</option>
-                                        <option value="operaciones" {{ $currentRole === 'operaciones' ? 'selected' : '' }}>Operaciones y ventas</option>
-                                        <option value="contabilidad" {{ $currentRole === 'contabilidad' ? 'selected' : '' }}>Contabilidad</option>
-                                        <option value="reservas" {{ $currentRole === 'reservas' ? 'selected' : '' }}>Reservas</option>
-                                    </select>
-                                    @error('role')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                            <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                <i class="fas fa-user-tag text-muted"></i> Rol y Permisos de Área
+                            </h5>
+
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6 col-lg-3">
+                                    <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'administrador' ? 'border-primary bg-primary-subtle' : '' }}">
+                                        <input type="radio" name="role" value="administrador" class="visually-hidden" @checked($currentRole === 'administrador')>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-crown text-warning fs-5"></i>
+                                            <strong class="d-block">Administración</strong>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
+                                            Acceso total, usuarios, respaldos, sitio web y configuración global.
+                                        </small>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3">
+                                    <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'operaciones' ? 'border-primary bg-primary-subtle' : '' }}">
+                                        <input type="radio" name="role" value="operaciones" class="visually-hidden" @checked($currentRole === 'operaciones')>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-route text-primary fs-5"></i>
+                                            <strong class="d-block">Operaciones</strong>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
+                                            Programas, consultas de clientes, armado de itinerarios y pasajeros.
+                                        </small>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3">
+                                    <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'reservas' ? 'border-primary bg-primary-subtle' : '' }}">
+                                        <input type="radio" name="role" value="reservas" class="visually-hidden" @checked($currentRole === 'reservas')>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-concierge-bell text-info fs-5"></i>
+                                            <strong class="d-block">Reservas</strong>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
+                                            Asignación de servicios, contacto con proveedores, hoteles y órdenes.
+                                        </small>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-6 col-lg-3">
+                                    <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'contabilidad' ? 'border-primary bg-primary-subtle' : '' }}">
+                                        <input type="radio" name="role" value="contabilidad" class="visually-hidden" @checked($currentRole === 'contabilidad')>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-calculator text-success fs-5"></i>
+                                            <strong class="d-block">Contabilidad</strong>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
+                                            Cuentas por pagar, cobros, margen de ganancia real y reportes financieros.
+                                        </small>
+                                    </label>
                                 </div>
                             </div>
+                            @error('role')
+                                <div class="text-danger small mb-3">{{ $message }}</div>
+                            @enderror
 
                             <hr class="my-4">
 
-                            <div class="row mb-3">
-                                <div class="col-md-7 offset-md-4">
-                                    <h6 class="fw-bold mb-1 text-secondary">
-                                        <i class="fas fa-key me-1 text-primary"></i> Cambiar contraseña
-                                    </h6>
-                                    <small class="text-muted d-block">
-                                        Deja estos campos en blanco si deseas mantener la contraseña actual del usuario.
-                                    </small>
-                                </div>
-                            </div>
+                            <h5 class="fw-bold mb-2 d-flex align-items-center gap-2">
+                                <i class="fas fa-key text-muted"></i> Seguridad y Contraseña
+                            </h5>
+                            <p class="text-muted small mb-3">Deja estos campos en blanco si no deseas cambiar la contraseña actual del usuario.</p>
 
-                            <div class="row mb-3">
-                                <label for="password" class="col-md-4 col-form-label text-md-end">Nueva contraseña</label>
-                                <div class="col-md-7">
-                                    <div class="input-group has-validation">
+                            <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label for="password" class="form-label fw-semibold small">Nueva Contraseña (opcional)</label>
+                                    <div class="input-group">
                                         <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
-                                            name="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres (opcional)">
-                                        <button type="button" class="btn btn-outline-secondary btn-toggle-password"
-                                            data-toggle-password="#password" aria-label="Mostrar contraseña" title="Mostrar contraseña"
-                                            aria-pressed="false">
-                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                            name="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres">
+                                        <button type="button" class="btn btn-outline-secondary" data-toggle-password="#password" title="Mostrar/ocultar">
+                                            <i class="fas fa-eye"></i>
                                         </button>
                                         @error('password')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
-                            </div>
 
-                            <div class="row mb-4">
-                                <label for="password-confirm" class="col-md-4 col-form-label text-md-end">Confirmar contraseña</label>
-                                <div class="col-md-7">
+                                <div class="col-md-6">
+                                    <label for="password-confirm" class="form-label fw-semibold small">Confirmar Nueva Contraseña</label>
                                     <div class="input-group">
                                         <input id="password-confirm" type="password" class="form-control"
-                                            name="password_confirmation" autocomplete="new-password" placeholder="Repite la nueva contraseña">
-                                        <button type="button" class="btn btn-outline-secondary btn-toggle-password"
-                                            data-toggle-password="#password-confirm" aria-label="Mostrar contraseña" title="Mostrar contraseña"
-                                            aria-pressed="false">
-                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                            name="password_confirmation" autocomplete="new-password" placeholder="Repite la contraseña">
+                                        <button type="button" class="btn btn-outline-secondary" data-toggle-password="#password-confirm" title="Mostrar/ocultar">
+                                            <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="row mb-0">
-                                <div class="col-md-7 offset-md-4 d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary px-4">
-                                        <i class="fas fa-save me-1"></i> Actualizar usuario
-                                    </button>
-                                    <a href="{{ route('users.index') }}" class="btn btn-light border px-3">
-                                        Cancelar
-                                    </a>
-                                </div>
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                                <button type="submit" class="btn btn-primary px-4 shadow-sm">
+                                    <i class="fas fa-save me-1"></i> Guardar Cambios
+                                </button>
                             </div>
                         </form>
                     </div>
@@ -141,4 +188,19 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            document.querySelectorAll('.role-card input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    document.querySelectorAll('.role-card').forEach(card => {
+                        card.classList.remove('border-primary', 'bg-primary-subtle');
+                    });
+                    if (radio.checked) {
+                        radio.closest('.role-card').classList.add('border-primary', 'bg-primary-subtle');
+                    }
+                });
+            });
+        </script>
+    @endpush
 @endsection

@@ -9,10 +9,23 @@ use Illuminate\Http\Request;
 
 class AgenteController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $agentes = Agente::latest()->paginate(10);
-        return view('programas.agentes.index', compact('agentes'));
+        $query = Agente::query()->withCount('programas');
+
+        if ($q = trim($request->input('q', ''))) {
+            $query->where(function ($w) use ($q) {
+                $w->where('nombre', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('telefono', 'like', "%{$q}%");
+            });
+        }
+
+        $agentes = $query->latest('id')->paginate(12)->withQueryString();
+        $totalAgentes = Agente::count();
+        $conProgramas = Agente::has('programas')->count();
+
+        return view('programas.agentes.index', compact('agentes', 'totalAgentes', 'conProgramas', 'q'));
     }
 
     public function create()
@@ -41,6 +54,11 @@ class AgenteController extends Controller
 
     public function show(Agente $agente)
     {
+        $agente->loadCount('programas');
+        $agente->load(['programas' => function ($q) {
+            $q->latest('id')->take(15);
+        }]);
+
         return view('programas.agentes.show', compact('agente'));
     }
 

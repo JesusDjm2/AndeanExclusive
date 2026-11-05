@@ -10,11 +10,30 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::query()->with('roles')->orderBy('id')->get();
+        $query = User::query()->with('roles');
 
-        return view('auth.users.index', compact('users'));
+        if ($q = trim($request->input('q', ''))) {
+            $query->where(function ($w) use ($q) {
+                $w->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhereHas('roles', function ($r) use ($q) {
+                        $r->where('name', 'like', "%{$q}%");
+                    });
+            });
+        }
+
+        $users = $query->orderBy('name')->get();
+        $totalCount = User::count();
+        $rolesCount = [
+            'administrador' => User::whereHas('roles', fn ($r) => $r->where('name', 'administrador'))->count(),
+            'operaciones' => User::whereHas('roles', fn ($r) => $r->where('name', 'operaciones'))->count(),
+            'reservas' => User::whereHas('roles', fn ($r) => $r->where('name', 'reservas'))->count(),
+            'contabilidad' => User::whereHas('roles', fn ($r) => $r->where('name', 'contabilidad'))->count(),
+        ];
+
+        return view('auth.users.index', compact('users', 'totalCount', 'rolesCount', 'q'));
     }
 
     public function login(Request $request)
