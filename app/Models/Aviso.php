@@ -27,28 +27,44 @@ class Aviso extends Model
     }
 
     /** Los de su área (el administrador ve los de todas); nadie recibe aviso de lo que hizo él mismo. */
-    public function scopeParaUsuario(Builder $query, User $user): Builder
+    public function scopeParaUsuario(Builder $query, ?User $user = null): Builder
     {
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query
             ->when(! $user->hasRole(Permisos::ADMIN), fn ($q) => $q->whereIn('area', $user->getRoleNames()))
             ->where(fn ($q) => $q->whereNull('actor_id')->orWhere('actor_id', '!=', $user->id));
     }
 
     /** Pendientes de ver. Lo ya resuelto no cuenta: nadie debe actuar sobre algo que dejó de hacer falta. */
-    public function scopeNoVistosPor(Builder $query, User $user): Builder
+    public function scopeNoVistosPor(Builder $query, ?User $user = null): Builder
     {
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->whereNull('resuelto_at')
             ->whereDoesntHave('lecturas', fn ($q) => $q->where('user_id', $user->id));
     }
 
-    public function scopeVistosPor(Builder $query, User $user): Builder
+    public function scopeVistosPor(Builder $query, ?User $user = null): Builder
     {
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
         return $query->where(fn ($q) => $q->whereNotNull('resuelto_at')
             ->orWhereHas('lecturas', fn ($l) => $l->where('user_id', $user->id)));
     }
 
-    public function scopeConVisto(Builder $query, User $user): Builder
+    public function scopeConVisto(Builder $query, ?User $user = null): Builder
     {
+        if (! $user) {
+            return $query->selectRaw('0 as visto');
+        }
+
         return $query->withExists(['lecturas as visto' => fn ($q) => $q->where('user_id', $user->id)]);
     }
 

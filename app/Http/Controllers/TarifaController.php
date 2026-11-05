@@ -10,89 +10,152 @@ use App\Models\Tarifa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-/** Tarifario: lo que cobra cada hotel y proveedor por temporada. Sugiere el costo al cotizar y al reservar. */
+/** Tarifario: lo que cobra cada hotel y proveedor (tarifas fijas estándar o por temporada). Sugiere el costo al cotizar y al reservar. */
 class TarifaController extends Controller
 {
     public function index(Request $request)
     {
         $hoy = now()->toDateString();
-        $vista = in_array($request->input('vista'), ['vigentes', 'vencidas', 'todas'], true) ? $request->input('vista') : 'vigentes';
+        $vista = in_array($request->input('vista'), ['vigentes', 'fijas', 'vencidas', 'todas'], true) ? $request->input('vista') : 'vigentes';
 
         $tarifas = Tarifa::query()->with(['habitacion.hotel', 'proveedor'])
-            ->when($vista === 'vigentes', fn ($q) => $q->whereDate('hasta', '>=', $hoy))
-            ->when($vista === 'vencidas', fn ($q) => $q->whereDate('hasta', '<', $hoy))
+            ->when($vista === 'vigentes', fn ($q) => $q->where(fn ($sub) => $sub->whereDate('hasta', '>=', $hoy)->orWhereNull('hasta')->orWhere('es_fija', true)))
+            ->when($vista === 'fijas', fn ($q) => $q->where(fn ($sub) => $sub->whereNull('desde')->orWhere('es_fija', true)))
+            ->when($vista === 'vencidas', fn ($q) => $q->whereNotNull('hasta')->where('es_fija', false)->whereDate('hasta', '<', $hoy))
             ->when($request->filled('q'), function ($q) use ($request) {
                 $texto = '%' . addcslashes(trim((string) $request->input('q')), '%_\\') . '%';
                 $q->where(fn ($w) => $w->where('concepto', 'like', $texto)
+                    ->orWhere('unidad_detalle', 'like', $texto)
                     ->orWhereHas('proveedor', fn ($p) => $p->where('nombre', 'like', $texto))
                     ->orWhereHas('habitacion', fn ($h) => $h->where('tipo', 'like', $texto)->orWhereHas('hotel', fn ($o) => $o->where('nombre', 'like', $texto))));
             })
-            ->orderBy('desde')->paginate(30)->withQueryString();
+            ->conPrioridadTemporada()
+            ->paginate(30)->withQueryString();
 
         return view('tarifas.index', compact('tarifas', 'vista'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        return view('tarifas.form', $this->catalogos(new Tarifa(['moneda' => 'USD', 'por' => 'noche'])));
+        $tarifa = new Tarifa([
+            'moneda' => 'USD',
+            'por' => $request->input('por', 'grupo'),
+            'es_fija' => true,
+        ]);
+
+        if ($request->filled('proveedor_id')) {
+            $tarifa->proveedor_id = $request->integer('proveedor_id');
+        }
+        if ($request->filled('habitacion_id')) {
+            $tarifa->habitacion_id = $request->integer('habitacion_id');
+            $tarifa->por = 'noche';
+        }
+
+        $retorno = $request->input('retorno');
+
+        return view('tarifas.form', array_merge($this->catalogos($tarifa), compact('retorno')));
     }
 
     public function store(Request $request)
     {
-        Tarifa::create($this->validar($request));
+        $datos = $this->validar($request);
+        $tarifa = Tarifa::create($datos);
 
-        return redirect()->route('tarifas.index')->with('success', 'Tarifa guardada.');
+        if ($request->input('retorno') === 'proveedor' && $tarifa->proveedor_id) {
+            return redirect()->route('proveedors.show', $tarifa->proveedor_id)->with('success', 'Tarifa guardada en el catálogo del proveedor.');
+        }
+
+        return redirect()->route('tarifas.index')->with('success', 'Tarifa guardada con éxito.');
     }
 
-    public function edit(Tarifa $tarifa)
+    public function edit(Request $request, Tarifa $tarifa)
     {
-        return view('tarifas.form', $this->catalogos($tarifa));
+        $retorno = $request->input('retorno');
+
+        return view('tarifas.form', array_merge($this->catalogos($tarifa), compact('retorno')));
     }
 
     public function update(Request $request, Tarifa $tarifa)
     {
-        $tarifa->update($this->validar($request));
+        $datos = $this->validar($request);
+        $tarifa->update($datos);
+
+        if ($request->input('retorno') === 'proveedor' && $tarifa->proveedor_id) {
+            return redirect()->route('proveedors.show', $tarifa->proveedor_id)->with('success', 'Tarifa del proveedor actualizada.');
+        }
 
         return redirect()->route('tarifas.index')->with('success', 'Tarifa actualizada.');
     }
 
-    public function destroy(Tarifa $tarifa)
+    public function destroy(Request $request, Tarifa $tarifa)
     {
+        $proveedorId = $tarifa->proveedor_id;
         $tarifa->delete();
+
+        if ($request->input('retorno') === 'proveedor' && $proveedorId) {
+            return redirect()->route('proveedors.show', $proveedorId)->with('success', 'Tarifa eliminada del proveedor.');
+        }
 
         return back()->with('success', 'Tarifa eliminada.');
     }
 
-    /** Tarifas vigentes en una fecha, para sugerir el costo. Si dos coinciden, primero la más reciente. */
+    /** Tarifas vigentes en una fecha o fijas estándar, para sugerir el costo al cotizar o reservar. */
     public function sugerir(Request $request)
     {
         $datos = $request->validate([
-            'fecha' => 'required|date',
+            'fecha' => 'nullable|date',
             'habitacion_id' => 'nullable|integer',
             'proveedor_id' => 'nullable|integer',
         ]);
 
-        $tarifas = Tarifa::query()->vigenteEl($datos['fecha'])
-            ->when($datos['habitacion_id'] ?? null, fn ($q, $id) => $q->where('habitacion_id', $id))
-            ->when(! ($datos['habitacion_id'] ?? null) && ($datos['proveedor_id'] ?? null), fn ($q) => $q->where('proveedor_id', $datos['proveedor_id']))
-            ->when(! ($datos['habitacion_id'] ?? null) && ! ($datos['proveedor_id'] ?? null), fn ($q) => $q->whereRaw('1 = 0'))
-            ->latest('id')->limit(10)->get();
+        $query = Tarifa::query();
+
+        if (! empty($datos['fecha'])) {
+            $query->vigenteEl($datos['fecha']);
+        } else {
+            $query->where(fn ($q) => $q->whereNull('desde')->orWhere('es_fija', true));
+        }
+
+        if (! empty($datos['habitacion_id'])) {
+            $query->where('habitacion_id', $datos['habitacion_id']);
+        } elseif (! empty($datos['proveedor_id'])) {
+            $query->where('proveedor_id', $datos['proveedor_id']);
+        } else {
+            return response()->json(['tarifas' => []]);
+        }
+
+        $tarifas = $query->conPrioridadTemporada()->latest('id')->limit(25)->get();
 
         return response()->json(['tarifas' => $tarifas->map(fn (Tarifa $t) => [
-            'concepto' => $t->concepto, 'precio' => (float) $t->precio, 'moneda' => $t->moneda, 'por' => Tarifa::POR[$t->por] ?? $t->por,
-            'simbolo' => Servicio::MONEDAS[$t->moneda] ?? '', 'hasta' => $t->hasta->format('d/m/Y'),
+            'id' => $t->id,
+            'concepto' => $t->concepto,
+            'tipo_servicio' => $t->tipo_servicio,
+            'unidad_detalle' => $t->unidad_detalle,
+            'precio' => (float) $t->precio,
+            'moneda' => $t->moneda,
+            'por' => Tarifa::POR[$t->por] ?? $t->por,
+            'por_raw' => $t->por,
+            'simbolo' => Servicio::MONEDAS[$t->moneda] ?? '$',
+            'es_fija' => (bool) ($t->es_fija || (! $t->desde && ! $t->hasta)),
+            'temporada' => $t->temporada_texto,
+            'hasta' => $t->hasta?->format('d/m/Y'),
         ])]);
     }
 
     private function validar(Request $request): array
     {
+        $esFija = $request->boolean('es_fija') || (! $request->filled('desde') && ! $request->filled('hasta'));
+
         $datos = $request->validate([
             'tipo' => 'required|in:habitacion,proveedor',
             'habitacion_id' => ['nullable', 'required_if:tipo,habitacion', 'exists:habitacions,id'],
             'proveedor_id' => ['nullable', 'required_if:tipo,proveedor', 'exists:proveedors,id'],
             'concepto' => 'nullable|required_if:tipo,proveedor|string|max:255',
-            'desde' => 'required|date',
-            'hasta' => 'required|date|after_or_equal:desde',
+            'tipo_servicio' => 'nullable|string|max:50',
+            'unidad_detalle' => 'nullable|string|max:100',
+            'es_fija' => 'nullable|boolean',
+            'desde' => $esFija ? 'nullable|date' : 'required|date',
+            'hasta' => $esFija ? 'nullable|date' : 'required|date|after_or_equal:desde',
             'precio' => 'required|numeric|min:0',
             'moneda' => ['required', Rule::in(array_keys(Servicio::MONEDAS))],
             'por' => ['required', Rule::in(array_keys(Tarifa::POR))],
@@ -101,11 +164,19 @@ class TarifaController extends Controller
             'habitacion_id.required_if' => 'Elige el hotel y la habitación.',
             'proveedor_id.required_if' => 'Elige el proveedor.',
             'concepto.required_if' => 'Indica qué servicio cobra a este precio.',
+            'desde.required' => 'Indica la fecha de inicio de la temporada o marca la tarifa como fija.',
+            'hasta.required' => 'Indica la fecha de término de la temporada o marca la tarifa como fija.',
             'hasta.after_or_equal' => 'La fecha final no puede ser anterior a la inicial.',
         ]);
 
         $esHabitacion = $datos['tipo'] === 'habitacion';
         unset($datos['tipo']);
+
+        $datos['es_fija'] = $esFija;
+        if ($esFija) {
+            $datos['desde'] = null;
+            $datos['hasta'] = null;
+        }
 
         return array_merge($datos, $esHabitacion
             ? ['proveedor_id' => null, 'concepto' => null, 'por' => 'noche']
