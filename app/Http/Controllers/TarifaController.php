@@ -17,22 +17,26 @@ class TarifaController extends Controller
     {
         $hoy = now()->toDateString();
         $vista = in_array($request->input('vista'), ['vigentes', 'fijas', 'vencidas', 'todas'], true) ? $request->input('vista') : 'vigentes';
+        $categoriaFiltro = $request->input('categoria');
 
-        $tarifas = Tarifa::query()->with(['habitacion.hotel', 'proveedor'])
+        $query = Tarifa::query()->with(['habitacion.hotel', 'proveedor.categoria'])
             ->when($vista === 'vigentes', fn ($q) => $q->where(fn ($sub) => $sub->whereDate('hasta', '>=', $hoy)->orWhereNull('hasta')->orWhere('es_fija', true)))
             ->when($vista === 'fijas', fn ($q) => $q->where(fn ($sub) => $sub->whereNull('desde')->orWhere('es_fija', true)))
             ->when($vista === 'vencidas', fn ($q) => $q->whereNotNull('hasta')->where('es_fija', false)->whereDate('hasta', '<', $hoy))
+            ->when($categoriaFiltro === 'hotel', fn ($q) => $q->whereNotNull('habitacion_id'))
+            ->when($categoriaFiltro && is_numeric($categoriaFiltro), fn ($q) => $q->whereHas('proveedor', fn ($p) => $p->where('categoria_id', (int) $categoriaFiltro)))
             ->when($request->filled('q'), function ($q) use ($request) {
                 $texto = '%' . addcslashes(trim((string) $request->input('q')), '%_\\') . '%';
                 $q->where(fn ($w) => $w->where('concepto', 'like', $texto)
                     ->orWhere('unidad_detalle', 'like', $texto)
                     ->orWhereHas('proveedor', fn ($p) => $p->where('nombre', 'like', $texto))
                     ->orWhereHas('habitacion', fn ($h) => $h->where('tipo', 'like', $texto)->orWhereHas('hotel', fn ($o) => $o->where('nombre', 'like', $texto))));
-            })
-            ->conPrioridadTemporada()
-            ->paginate(30)->withQueryString();
+            });
 
-        return view('tarifas.index', compact('tarifas', 'vista'));
+        $tarifas = (clone $query)->conPrioridadTemporada()->paginate(30)->withQueryString();
+        $categorias = \App\Models\Categoria::orderBy('nombre')->get();
+
+        return view('tarifas.index', compact('tarifas', 'vista', 'categorias', 'categoriaFiltro'));
     }
 
     public function create(Request $request)

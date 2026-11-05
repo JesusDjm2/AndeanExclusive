@@ -213,6 +213,9 @@ class ProgramaController extends Controller
 
             $programa->agentes()->sync($request->input('agentes', []));
             $this->guardarEstadias($programa, $request);
+            if ($request->boolean('_itinerario')) {
+                $this->guardarItinerario($programa, $request);
+            }
             Consulta::find($request->integer('consulta_id'))?->seguirA($programa);
             AlojamientoEnServicios::sincronizar($programa);
 

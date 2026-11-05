@@ -41,7 +41,7 @@
     }
     $clavesDias = $itinerario['dias']->pluck('clave')->all();
     $serviciosPorDia = collect($servicioRows)->groupBy(fn ($row) => in_array($row['fecha'] ?? '', $clavesDias, true) ? $row['fecha'] : 'fuera', true);
-    $operacion = $isEdit ? $programa->operacion() : null;
+    $operacion = $isEdit ? $programa->operacion() : ['servicios' => 0, 'confirmados' => 0, 'abiertos' => 0];
     $costeo = $isEdit ? $programa->costeo() : null;
     $correosSugeridos = $isEdit ? \App\Support\Recordatorios::sugeridos($programa) : [];
     $estadiaRows = old('estadias') ?? $programa->habitacionesFechas->sortBy(fn ($e) => [$e->fecha_ingreso === null, (string) $e->fecha_ingreso, $e->id])->values()
@@ -60,7 +60,7 @@
         ?? ($errors->pago->any() ? 'pagos' : null)
         ?? ($errors->tarea->any() ? 'tareas' : null)
         ?? (in_array(request('tab'), ['datos', 'pasajeros', 'alojamiento', 'itinerario', 'precios', 'pagos', 'tareas', 'historial'], true) ? request('tab') : 'datos');
-    if (in_array($initialTab, ['itinerario', 'pagos', 'tareas', 'historial'], true) && ! $isEdit) {
+    if (in_array($initialTab, ['pagos', 'tareas', 'historial'], true) && ! $isEdit) {
         $initialTab = 'datos';
     }
 
@@ -68,11 +68,9 @@
         'datos' => ['Datos', 'fa-clipboard-list'],
         'pasajeros' => ['Pasajeros', 'fa-users'],
         'alojamiento' => ['Alojamiento', 'fa-bed'],
+        'itinerario' => ['Itinerario', 'fa-route'],
+        'precios' => ['Precios & Cotización', 'fa-dollar-sign'],
     ];
-    if ($isEdit) {
-        $tabs['itinerario'] = ['Itinerario', 'fa-route'];
-    }
-    $tabs['precios'] = ['Precios', 'fa-dollar-sign'];
     if ($isEdit) {
         $tabs['pagos'] = ['Pagos', 'fa-wallet'];
         $tabs['tareas'] = ['Tareas', 'fa-tasks'];
@@ -635,11 +633,10 @@
                 </div>
             </section>
 
-            {{-- ── ITINERARIO (solo edición): días con su texto para el cliente y los servicios a operar ── --}}
-            @if ($isEdit)
-                <section class="tab-pane fade {{ $initialTab === 'itinerario' ? 'show active' : '' }}" id="pf-itinerario" role="tabpanel" aria-labelledby="pf-tab-itinerario"
-                    data-itinerario data-next-index="{{ count($servicioRows) ? max(array_keys($servicioRows)) + 1 : 0 }}">
-                    <input type="hidden" name="_itinerario" value="1">
+            {{-- ── ITINERARIO: días con su texto para el cliente y los servicios a operar y cotizar ── --}}
+            <section class="tab-pane fade {{ $initialTab === 'itinerario' ? 'show active' : '' }}" id="pf-itinerario" role="tabpanel" aria-labelledby="pf-tab-itinerario"
+                data-itinerario data-next-index="{{ count($servicioRows) ? max(array_keys($servicioRows)) + 1 : 0 }}">
+                <input type="hidden" name="_itinerario" value="1">
 
                     <div class="itin-summary d-flex flex-wrap justify-content-between align-items-center gap-3">
                         <div>
@@ -770,68 +767,145 @@
                         @include('programas.partials.servicio-row', ['i' => '__INDEX__', 's' => ['fecha' => '__FECHA__', 'estado' => 'pendiente', 'visible_cliente' => true]])
                     </template>
                 </section>
-            @endif
 
-            {{-- ── PRECIOS ── --}}
+            {{-- ── PRECIOS & COTIZACIÓN ── --}}
             <section class="tab-pane fade {{ $initialTab === 'precios' ? 'show active' : '' }}" id="pf-precios" role="tabpanel" aria-labelledby="pf-tab-precios">
                 <div class="pf-pricing">
                     <div class="pf-pricing__main">
-                    <div class="prog-section">
-                        <div class="prog-section__header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                    
+                    {{-- Hoja de Cotización Interna (Vista Agencia) --}}
+                    <div class="card border shadow-sm mb-4">
+                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
                             <div>
-                                <span class="prog-section__title">{{ $verCotizacion ? 'Costo y cotización por persona' : 'Precio de venta por persona' }}</span>
-                                <span class="prog-section__subtitle">Tarifa base por persona para el paquete; la ganancia (%) calcula el precio final de venta.</span>
+                                <h5 class="mb-0 text-white fw-bold">
+                                    <i class="fas fa-file-invoice-dollar text-warning me-2"></i>Hoja de Costeo y Cotizador Interno (Vista Agencia)
+                                </h5>
+                                <small class="text-light opacity-75">
+                                    Suma automática de costos netos por servicio y hotel para definir tu margen comercial antes de presentar al cliente.
+                                </small>
                             </div>
-                            @if ($verCotizacion)
-                            <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary" data-btn-calcular-cotizacion
-                                    title="Suma los precios de todos los servicios del itinerario y el alojamiento por noche para calcular el costo por adulto automáticamente">
-                                    <i class="fas fa-calculator me-1" aria-hidden="true"></i> Calcular desde servicios e itinerario
-                                </button>
-                            </div>
-                            @endif
+                            <span class="badge bg-warning text-dark font-monospace px-3 py-2">
+                                <i class="fas fa-user-shield me-1"></i> Confidencial Operaciones / Ventas
+                            </span>
                         </div>
-                        <div class="prog-section__body">
-                            {{-- Resumen inteligente en vivo de los servicios e itinerario --}}
-                            <div class="alert alert-light border py-2 px-3 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-2" data-cotizacion-live-box style="font-size: 0.85rem;">
+                        <div class="card-body p-4 bg-light">
+                            {{-- Tarjetas de Desglose en Tiempo Real --}}
+                            <div class="row g-3 mb-4" data-cotizador-breakdown>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small fw-bold text-uppercase">1. Servicios Grupales</span>
+                                            <i class="fas fa-bus text-info"></i>
+                                        </div>
+                                        <div class="fs-5 fw-bold text-dark"><span data-cost-grupales-pax>$0.00</span> <small class="fs-6 fw-normal text-muted">/ pax</small></div>
+                                        <small class="text-muted d-block mt-1">Total grupo: <span class="fw-semibold" data-cost-grupales>$0.00</span></small>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small fw-bold text-uppercase">2. Servicios Por Pax</span>
+                                            <i class="fas fa-utensils text-warning"></i>
+                                        </div>
+                                        <div class="fs-5 fw-bold text-dark"><span data-cost-individuales-pax>$0.00</span> <small class="fs-6 fw-normal text-muted">/ pax</small></div>
+                                        <small class="text-muted d-block mt-1">Almuerzos, entradas, trenes</small>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="p-3 bg-white rounded border shadow-sm h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-muted small fw-bold text-uppercase">3. Alojamiento Hotel</span>
+                                            <i class="fas fa-hotel text-primary"></i>
+                                        </div>
+                                        <div class="fs-5 fw-bold text-dark"><span data-cost-hoteles-pax>$0.00</span> <small class="fs-6 fw-normal text-muted">/ pax</small></div>
+                                        <small class="text-muted d-block mt-1">Total hoteles: <span class="fw-semibold" data-cost-hoteles>$0.00</span></small>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6 col-lg-3">
+                                    <div class="p-3 bg-dark text-white rounded border border-warning shadow-sm h-100">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="text-warning small fw-bold text-uppercase">Costo Neto Base</span>
+                                            <i class="fas fa-coins text-warning"></i>
+                                        </div>
+                                        <div class="fs-4 fw-bold text-white"><span data-cost-neto-total>$0.00</span> <small class="fs-6 fw-normal text-light opacity-75">/ pax</small></div>
+                                        <small class="text-light opacity-75 d-block mt-1" data-pax-count-label>Calculando para el grupo...</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Simulador Interactivo de Margen Comercial y Precio de Venta --}}
+                            <div class="p-4 bg-white rounded border mb-3">
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark">
+                                            <i class="fas fa-sliders-h text-primary me-2"></i>Simulador de Margen Comercial (Markup de Agencia)
+                                        </h6>
+                                        <small class="text-muted">Elige un margen sugerido o define el porcentaje para calcular la ganancia y el precio al pasajero.</small>
+                                    </div>
+                                    <div class="d-flex gap-1 align-items-center">
+                                        <span class="small text-muted me-1 fw-bold">Márgenes rápidos:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="15">15%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="20">20%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="25">25%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="30">30%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="35">35%</button>
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 align-items-center">
+                                    <div class="col-sm-4">
+                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Costo Base Adulto ($ USD)</label>
+                                        <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $verCotizacion ? old('precioAdulto', $programa->precioAdulto) : ($programa->exists ? $programa->presupuesto()['ventaAdulto'] : '') }}"
+                                            step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg fw-bold @error('precioAdulto') is-invalid @enderror" data-precio-adulto>
+                                        @error('precioAdulto')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="pf-ganancia" class="form-label fw-semibold small text-muted">Margen Comercial Agencia (%)</label>
+                                        <div class="input-group input-group-lg">
+                                            <input id="pf-ganancia" type="number" name="porcentaje_ganancia" value="{{ old('porcentaje_ganancia', $programa->porcentaje_ganancia ?? 20) }}"
+                                                step="0.01" min="0" placeholder="20" class="form-control fw-bold text-primary @error('porcentaje_ganancia') is-invalid @enderror" data-ganancia>
+                                            <span class="input-group-text fw-bold">%</span>
+                                        </div>
+                                        @error('porcentaje_ganancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Costo Niño 5–11 ($ USD)</label>
+                                        <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $verCotizacion ? old('precioChild', $programa->precioChild) : ($programa->exists ? $programa->presupuesto()['ventaNino'] : '') }}"
+                                            step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg @error('precioChild') is-invalid @enderror" data-precio-nino>
+                                        @error('precioChild')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                </div>
+
+                                {{-- Resultados de la Simulación --}}
+                                <div class="mt-4 p-3 bg-light rounded border d-flex justify-content-between align-items-center flex-wrap gap-3">
+                                    <div>
+                                        <div class="small text-muted mb-1">
+                                            Ganancia neta agencia: <strong class="text-primary fs-6" data-ganancia-pax>+$0.00</strong> / pax
+                                            · Ganancia total grupo: <strong class="text-primary fs-6" data-ganancia-total>$0.00</strong>
+                                        </div>
+                                        <div class="d-flex align-items-baseline gap-2">
+                                            <span class="text-muted fw-bold">Precio de Venta al Pasajero:</span>
+                                            <span class="fs-3 fw-bold text-success" data-precio-venta-sugerido>$0.00</span>
+                                            <small class="text-muted">USD por persona</small>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="button" class="btn btn-outline-primary" data-btn-calcular-cotizacion title="Recalcular sumando servicios del itinerario y alojamiento">
+                                            <i class="fas fa-sync-alt me-1"></i> Recalcular desde Itinerario
+                                        </button>
+                                        <button type="button" class="btn btn-success" data-btn-aplicar-cotizacion title="Aplica el costo neto calculado y el margen oficial">
+                                            <i class="fas fa-check-circle me-1"></i> Aplicar a Precios Oficiales
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="alert alert-info-subtle border border-info-subtle py-2 px-3 mb-0 small text-dark d-flex align-items-center gap-2">
+                                <i class="fas fa-shield-alt text-info fs-5"></i>
                                 <div>
-                                    <i class="fas fa-layer-group text-primary me-1" aria-hidden="true"></i>
-                                    <span data-cotizacion-live-text>Calculando balance de servicios...</span>
-                                </div>
-                                <div class="text-end">
-                                    <span class="text-muted">Costo servicios + hoteles:</span>
-                                    <strong class="text-dark fs-6" data-cotizacion-live-total>$0.00</strong> <small class="text-muted">/ persona</small>
+                                    <strong>Protección Comercial:</strong> El pasajero ve únicamente su <strong>Itinerario de Experiencias</strong> y el <strong>Precio Final de Venta</strong> en el sitio web y el PDF. Ningún costo unitario de proveedor ni tu margen de ganancia se divulga al cliente.
                                 </div>
                             </div>
-                            <div class="row g-3">
-                                <div class="col-sm-4">
-                                    <label for="pf-precio-adulto" class="prog-label">Adulto ($)</label>
-                                    <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $verCotizacion ? old('precioAdulto', $programa->precioAdulto) : ($programa->exists ? $programa->presupuesto()['ventaAdulto'] : '') }}"
-                                        step="0.01" min="0" placeholder="0.00" class="form-control @error('precioAdulto') is-invalid @enderror" data-precio-adulto>
-                                    @error('precioAdulto')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                                <div class="col-sm-4">
-                                    <label for="pf-precio-nino" class="prog-label">Niño 5–11 ($)</label>
-                                    <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $verCotizacion ? old('precioChild', $programa->precioChild) : ($programa->exists ? $programa->presupuesto()['ventaNino'] : '') }}"
-                                        step="0.01" min="0" placeholder="0.00" class="form-control @error('precioChild') is-invalid @enderror" data-precio-nino>
-                                    @error('precioChild')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                                @if ($verCotizacion)
-                                <div class="col-sm-4">
-                                    <label for="pf-ganancia" class="prog-label">Ganancia (%)</label>
-                                    <input id="pf-ganancia" type="number" name="porcentaje_ganancia" value="{{ old('porcentaje_ganancia', $programa->porcentaje_ganancia ?? 0) }}"
-                                        step="0.01" min="0" placeholder="15" class="form-control @error('porcentaje_ganancia') is-invalid @enderror" data-ganancia>
-                                    @error('porcentaje_ganancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                </div>
-                                @else
-                                    <input type="hidden" value="0" data-ganancia>
-                                @endif
-                            </div>
-                            @if ($verCotizacion)
-                            <p class="prog-input-hint mt-3 mb-0">
-                                El cliente ve el <strong>precio de venta</strong> (costo + ganancia) en el itinerario y el PDF; el desglose interno solo aparece en el panel.
-                            </p>
-                            @endif
                         </div>
                     </div>
 

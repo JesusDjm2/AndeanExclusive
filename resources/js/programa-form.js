@@ -757,6 +757,7 @@ function initNuevoHotelModal(root) {
 // Calculadora inteligente de cotización: suma servicios de cada día y noches de hotel para obtener el costo base por persona
 function initCotizacionCalculator(root, recomputeBudget) {
     const btn = root.querySelector('[data-btn-calcular-cotizacion]');
+    const btnAplicar = root.querySelector('[data-btn-aplicar-cotizacion]');
     const liveBox = root.querySelector('[data-cotizacion-live-box]');
     const liveText = root.querySelector('[data-cotizacion-live-text]');
     const liveTotal = root.querySelector('[data-cotizacion-live-total]');
@@ -792,7 +793,8 @@ function initCotizacionCalculator(root, recomputeBudget) {
         if (pagantes <= 0) pagantes = Math.max(1, paxItems.length || 1);
 
         // Servicios del itinerario
-        let totalServiciosUsd = 0;
+        let totalGrupalesUsd = 0;
+        let totalIndividualesUsd = 0;
         let numServicios = 0;
         const svcItems = [...root.querySelectorAll('[data-svc-item]')].filter((el) => !el.closest('template'));
 
@@ -815,8 +817,11 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
             if (valor > 0) {
                 const valorUsd = toUsd(valor, moneda);
-                const totalSvc = por === 'persona' ? (valorUsd * pagantes) : valorUsd;
-                totalServiciosUsd += totalSvc;
+                if (por === 'persona') {
+                    totalIndividualesUsd += valorUsd;
+                } else {
+                    totalGrupalesUsd += valorUsd;
+                }
                 numServicios++;
             }
         });
@@ -846,10 +851,27 @@ function initCotizacionCalculator(root, recomputeBudget) {
             }
         });
 
+        const costoGrupalesPorPax = pagantes > 0 ? (totalGrupalesUsd / pagantes) : totalGrupalesUsd;
+        const costoIndividualesPorPax = totalIndividualesUsd;
+        const costoHotelesPorPax = pagantes > 0 ? (totalHotelesUsd / pagantes) : totalHotelesUsd;
+        const costoNetoTotalPorPax = costoGrupalesPorPax + costoIndividualesPorPax + costoHotelesPorPax;
+        const totalServiciosUsd = totalGrupalesUsd + (totalIndividualesUsd * pagantes);
         const totalPaqueteUsd = totalServiciosUsd + totalHotelesUsd;
-        const costoPorPax = pagantes > 0 ? (totalPaqueteUsd / pagantes) : totalPaqueteUsd;
+
+        const margenPct = parseFloat(root.querySelector('[data-ganancia]')?.value) || 0;
+        const gananciaPax = costoNetoTotalPorPax * (margenPct / 100);
+        const precioVentaSugerido = costoNetoTotalPorPax + gananciaPax;
+        const gananciaTotalGrupo = gananciaPax * pagantes;
 
         return {
+            totalGrupalesUsd,
+            costoGrupalesPorPax,
+            totalIndividualesUsd,
+            costoIndividualesPorPax,
+            totalHotelesUsd,
+            costoHotelesPorPax,
+            costoNetoTotalPorPax: Math.round(costoNetoTotalPorPax * 100) / 100,
+            costoPorPax: Math.round(costoNetoTotalPorPax * 100) / 100,
             totalServiciosUsd,
             numServicios,
             totalHotelesUsd,
@@ -858,16 +880,41 @@ function initCotizacionCalculator(root, recomputeBudget) {
             pagantes,
             adultos,
             ninos,
-            costoPorPax: Math.round(costoPorPax * 100) / 100,
+            margenPct,
+            gananciaPax,
+            precioVentaSugerido,
+            gananciaTotalGrupo,
         };
     };
 
     const actualizarLive = () => {
-        if (!liveBox) return;
         const res = calcular();
-        if (liveTotal) {
-            liveTotal.textContent = money(res.costoPorPax);
-        }
+
+        // Actualizar tarjetas de la Hoja de Cotización Interna
+        const elGrupales = root.querySelector('[data-cost-grupales]');
+        const elGrupalesPax = root.querySelector('[data-cost-grupales-pax]');
+        const elIndivPax = root.querySelector('[data-cost-individuales-pax]');
+        const elHoteles = root.querySelector('[data-cost-hoteles]');
+        const elHotelesPax = root.querySelector('[data-cost-hoteles-pax]');
+        const elNetoTotal = root.querySelector('[data-cost-neto-total]');
+        const elPaxLabel = root.querySelector('[data-pax-count-label]');
+        const elGananciaPax = root.querySelector('[data-ganancia-pax]');
+        const elGananciaTotal = root.querySelector('[data-ganancia-total]');
+        const elVentaSugerido = root.querySelector('[data-precio-venta-sugerido]');
+
+        if (elGrupales) elGrupales.textContent = money(res.totalGrupalesUsd);
+        if (elGrupalesPax) elGrupalesPax.textContent = money(res.costoGrupalesPorPax);
+        if (elIndivPax) elIndivPax.textContent = money(res.costoIndividualesPorPax);
+        if (elHoteles) elHoteles.textContent = money(res.totalHotelesUsd);
+        if (elHotelesPax) elHotelesPax.textContent = money(res.costoHotelesPorPax);
+        if (elNetoTotal) elNetoTotal.textContent = money(res.costoNetoTotalPorPax);
+        if (elPaxLabel) elPaxLabel.textContent = `Prorrateado para ${res.pagantes} ${res.pagantes === 1 ? 'pasajero' : 'pasajeros'}`;
+        if (elGananciaPax) elGananciaPax.textContent = `+${money(res.gananciaPax)}`;
+        if (elGananciaTotal) elGananciaTotal.textContent = money(res.gananciaTotalGrupo);
+        if (elVentaSugerido) elVentaSugerido.textContent = money(res.precioVentaSugerido);
+
+        // Retrocompatibilidad con alerta superior si existe
+        if (liveTotal) liveTotal.textContent = money(res.costoPorPax);
         if (liveText) {
             if (res.numServicios === 0 && res.totalNoches === 0) {
                 liveText.innerHTML = '<span class="text-muted">Aún no hay servicios ni hoteles con costo asignado en el itinerario.</span>';
@@ -876,6 +923,62 @@ function initCotizacionCalculator(root, recomputeBudget) {
             }
         }
     };
+
+    // Botones rápidos de margen de ganancia
+    root.querySelectorAll('.btn-margen-preset').forEach((btnMargen) => {
+        btnMargen.addEventListener('click', () => {
+            const pct = btnMargen.dataset.pct;
+            const gananciaInput = root.querySelector('[data-ganancia]');
+            if (gananciaInput) {
+                gananciaInput.value = pct;
+                gananciaInput.dispatchEvent(new Event('input', { bubbles: true }));
+                gananciaInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            root.querySelectorAll('.btn-margen-preset').forEach((b) => {
+                b.classList.remove('btn-warning');
+                b.classList.add('btn-outline-warning');
+            });
+            btnMargen.classList.remove('btn-outline-warning');
+            btnMargen.classList.add('btn-warning');
+            actualizarLive();
+        });
+    });
+
+    // Botón aplicar a precios oficiales
+    const aplicarPrecios = () => {
+        const res = calcular();
+        if (adultoInput) {
+            adultoInput.value = res.costoNetoTotalPorPax.toFixed(2);
+            adultoInput.dispatchEvent(new Event('input', { bubbles: true }));
+            adultoInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (ninoInput && res.ninos > 0 && (!parseFloat(ninoInput.value) || parseFloat(ninoInput.value) === 0)) {
+            ninoInput.value = (Math.round(res.costoNetoTotalPorPax * 0.75 * 100) / 100).toFixed(2);
+            ninoInput.dispatchEvent(new Event('input', { bubbles: true }));
+            ninoInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        if (recomputeBudget) recomputeBudget();
+
+        if (window.Swal) {
+            window.Swal.fire({
+                icon: 'success',
+                title: '¡Tarifas oficiales aplicadas!',
+                html: `
+                    <p class="mb-2">Se fijó el costo base en <strong>${money(res.costoNetoTotalPorPax)}</strong>.</p>
+                    <div class="small text-muted border-top pt-2">
+                        <div>• Precio venta al pasajero: <strong>${money(res.precioVentaSugerido)}</strong> (${res.margenPct}% margen)</div>
+                        <div>• Ganancia neta para la agencia: <strong>${money(res.gananciaTotalGrupo)}</strong> (${res.pagantes} pasajeros)</div>
+                    </div>
+                `,
+                timer: 3500,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end',
+            });
+        }
+    };
+
+    btnAplicar?.addEventListener('click', aplicarPrecios);
 
     btn?.addEventListener('click', () => {
         const res = calcular();
@@ -889,67 +992,29 @@ function initCotizacionCalculator(root, recomputeBudget) {
             return;
         }
 
-        const aplicar = () => {
-            if (adultoInput) {
-                adultoInput.value = res.costoPorPax.toFixed(2);
-                adultoInput.dispatchEvent(new Event('input', { bubbles: true }));
-                adultoInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            if (ninoInput && res.ninos > 0 && (!parseFloat(ninoInput.value) || parseFloat(ninoInput.value) === 0)) {
-                // Sugerir tarifa de niño al 75% si estaba vacía
-                ninoInput.value = (Math.round(res.costoPorPax * 0.75 * 100) / 100).toFixed(2);
-                ninoInput.dispatchEvent(new Event('input', { bubbles: true }));
-                ninoInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            if (recomputeBudget) recomputeBudget();
-
-            if (window.Swal) {
-                window.Swal.fire({
-                    icon: 'success',
-                    title: '¡Cotización calculada!',
-                    html: `
-                        <p class="mb-2">Se ha actualizado la tarifa base de <strong>Adulto</strong> a <strong>${money(res.costoPorPax)}</strong>.</p>
-                        <div class="small text-muted border-top pt-2">
-                            <div>• Servicios del viaje: <strong>${money(res.totalServiciosUsd)}</strong> (${res.numServicios} servicios)</div>
-                            <div>• Alojamiento: <strong>${money(res.totalHotelesUsd)}</strong> (${res.totalNoches} noches)</div>
-                            <div>• Total paquete: <strong>${money(res.totalPaqueteUsd)}</strong> entre ${res.pagantes} pasajeros</div>
-                        </div>
-                    `,
-                    timer: 3500,
-                    showConfirmButton: false,
-                    toast: true,
-                    position: 'top-end',
-                });
-            }
-        };
-
         if (window.Swal) {
             window.Swal.fire({
                 title: '¿Aplicar cálculo a la cotización?',
                 html: `
                     <div class="text-start fs-6">
                         <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span>Servicios (${res.numServicios}):</span>
-                            <strong>${money(res.totalServiciosUsd)}</strong>
+                            <span>Servicios grupales (${res.numServicios}):</span>
+                            <strong>${money(res.totalGrupalesUsd)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Servicios por pax:</span>
+                            <strong>${money(res.totalIndividualesUsd)}</strong>
                         </div>
                         <div class="d-flex justify-content-between py-1 border-bottom">
                             <span>Hoteles (${res.totalNoches} noches):</span>
                             <strong>${money(res.totalHotelesUsd)}</strong>
                         </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span>Total paquete grupo:</span>
-                            <strong>${money(res.totalPaqueteUsd)}</strong>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 border-bottom">
-                            <span>Pasajeros pagantes:</span>
-                            <strong>${res.pagantes}</strong>
-                        </div>
                         <div class="d-flex justify-content-between py-2 text-primary fw-bold fs-5">
-                            <span>Costo base por adulto:</span>
-                            <span>${money(res.costoPorPax)}</span>
+                            <span>Costo neto base por adulto:</span>
+                            <span>${money(res.costoNetoTotalPorPax)}</span>
                         </div>
                     </div>
-                    <small class="text-muted d-block mt-2">Esto reemplazará el valor actual de Adulto ($) y recalculará la venta con el % de ganancia.</small>
+                    <small class="text-muted d-block mt-2">Se actualizará el costo base y la venta estimada con tu margen actual.</small>
                 `,
                 icon: 'question',
                 showCancelButton: true,
@@ -958,21 +1023,21 @@ function initCotizacionCalculator(root, recomputeBudget) {
                 confirmButtonText: '<i class="fas fa-check me-1"></i> Sí, aplicar a la cotización',
                 cancelButtonText: 'Cancelar',
             }).then((result) => {
-                if (result.isConfirmed) aplicar();
+                if (result.isConfirmed) aplicarPrecios();
             });
         } else {
-            aplicar();
+            aplicarPrecios();
         }
     });
 
-    // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros o tipo de cambio
+    // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros, ganancia o tipo de cambio
     root.addEventListener('input', (e) => {
-        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], input[name="tipo_cambio"]')) {
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], input[name="tipo_cambio"]')) {
             actualizarLive();
         }
     });
     root.addEventListener('change', (e) => {
-        if (e.target.matches('[data-svc-moneda], [data-svc-por], [data-svc-estado], [data-estadia-moneda], [data-estadia-ingreso], [data-estadia-salida], [data-estadia-reservado-switch]')) {
+        if (e.target.matches('[data-svc-moneda], [data-svc-por], [data-svc-estado], [data-estadia-moneda], [data-estadia-ingreso], [data-estadia-salida], [data-estadia-reservado-switch], [data-ganancia]')) {
             actualizarLive();
         }
     });

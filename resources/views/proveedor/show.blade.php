@@ -119,9 +119,14 @@
                             <small class="text-muted">Lista de precios fijos por servicio (medio día, día completo, ruta, etc.) y temporadas para cotizaciones automáticas.</small>
                         </div>
                         @can('proveedores.gestionar')
-                            <a href="{{ route('tarifas.create', ['proveedor_id' => $proveedor->id, 'retorno' => 'proveedor']) }}" class="btn btn-success btn-sm">
-                                <i class="fas fa-plus me-1"></i> Agregar Tarifa / Servicio
-                            </a>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevaTarifa">
+                                    <i class="fas fa-plus me-1"></i> Agregar Tarifa / Servicio
+                                </button>
+                                <a href="{{ route('tarifas.create', ['proveedor_id' => $proveedor->id, 'retorno' => 'proveedor']) }}" class="btn btn-outline-secondary btn-sm" title="Formulario completo">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
                         @endcan
                     </div>
                     <div class="card-body p-0">
@@ -131,9 +136,9 @@
                                 <h5 class="fw-normal">No hay tarifas registradas para este proveedor</h5>
                                 <p class="small text-muted mb-3">Registra los precios que cobra por sus servicios (ej. medio día, día completo, traslados, tipo de vehículo o menús) para que aparezcan automáticamente al armar cotizaciones.</p>
                                 @can('proveedores.gestionar')
-                                    <a href="{{ route('tarifas.create', ['proveedor_id' => $proveedor->id, 'retorno' => 'proveedor']) }}" class="btn btn-outline-success btn-sm">
+                                    <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevaTarifa">
                                         <i class="fas fa-plus me-1"></i> Cargar primera tarifa fija
-                                    </a>
+                                    </button>
                                 @endcan
                             </div>
                         @else
@@ -211,4 +216,227 @@
             </div>
         </div>
     </section>
+
+    {{-- Modal Carga Rápida de Tarifa / Servicio para este Proveedor --}}
+    @can('proveedores.gestionar')
+        @php
+            $cat = \Illuminate\Support\Str::lower($proveedor->categoria->nombre ?? '');
+            $esTransporte = str_contains($cat, 'transporte');
+            $esGuia = str_contains($cat, 'guia') || str_contains($cat, 'guía');
+            $esRestaurante = str_contains($cat, 'restaurante') || str_contains($cat, 'gastr');
+            $esEntradasTren = str_contains($cat, 'tren') || str_contains($cat, 'bus') || str_contains($cat, 'entrada') || str_contains($cat, 'boleto');
+            $modoDefecto = ($esRestaurante || $esEntradasTren) ? 'persona' : 'grupo';
+        @endphp
+        <div class="modal fade" id="modalNuevaTarifa" tabindex="-1" aria-labelledby="modalNuevaTarifaLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content border-0 shadow-lg">
+                    <form action="{{ route('tarifas.store') }}" method="POST" id="formNuevaTarifaProveedor">
+                        @csrf
+                        <input type="hidden" name="tipo" value="proveedor">
+                        <input type="hidden" name="proveedor_id" value="{{ $proveedor->id }}">
+                        <input type="hidden" name="retorno" value="proveedor">
+
+                        <div class="modal-header bg-dark text-white py-3">
+                            <div>
+                                <h5 class="modal-title fw-bold text-white mb-0" id="modalNuevaTarifaLabel">
+                                    <i class="fas fa-tags text-warning me-2"></i>Nueva Tarifa para {{ $proveedor->nombre }}
+                                </h5>
+                                <small class="text-light opacity-75">
+                                    Rubro: <span class="badge bg-secondary">{{ $proveedor->categoria->nombre ?? 'General' }}</span>
+                                </small>
+                            </div>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+
+                        <div class="modal-body p-4">
+                            {{-- Chips de Sugerencia Inteligente según Rubro --}}
+                            <div class="p-3 bg-light rounded border mb-3">
+                                <span class="d-block text-muted small fw-bold text-uppercase mb-2">
+                                    <i class="fas fa-magic text-warning me-1"></i> Sugerencias con 1 clic para {{ $proveedor->categoria->nombre ?? 'este proveedor' }}:
+                                </span>
+
+                                @if ($esTransporte)
+                                    <div class="mb-2">
+                                        <span class="small text-muted me-1">Tipo de Vehículo:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Van H1 (1-4 pax)">Van H1 (1-4 pax)</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Sprinter (5-15 pax)">Sprinter (5-15 pax)</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Renault Master">Renault Master</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Suburban VIP">Suburban VIP</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Sedán Privado">Sedán Privado</button>
+                                    </div>
+                                    <div>
+                                        <span class="small text-muted me-1">Rutas frecuentes:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Traslado Aeropuerto ⇄ Hotel Cusco">Aeropuerto ⇄ Hotel</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Valle Sagrado de los Incas Full Day">Valle Sagrado Full Day</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Cusco → Estación Ollantaytambo">Cusco → Ollanta</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="City Tour Cusco & 4 Ruinas">City Tour & 4 Ruinas</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Maras, Moray & Salineras">Maras & Moray</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Disposición Vehicular (8 hrs)">Disposición 8 hrs</button>
+                                    </div>
+                                @elseif ($esGuia)
+                                    <div class="mb-2">
+                                        <span class="small text-muted me-1">Idiomas:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Español">Español</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Inglés">Inglés</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Francés">Francés</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Alemán">Alemán</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Portugués">Portugués</button>
+                                    </div>
+                                    <div>
+                                        <span class="small text-muted me-1">Servicios de Guía:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Guía Machu Picchu Full Day">Machu Picchu Full Day</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Guía Valle Sagrado Full Day">Valle Sagrado Full Day</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Guía City Tour Cusco (Medio Día)">City Tour Medio Día</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Guía Maras, Moray & Salineras">Maras & Moray</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="grupo" data-val="Guía Montaña 7 Colores">Montaña 7 Colores</button>
+                                    </div>
+                                @elseif ($esRestaurante)
+                                    <div>
+                                        <span class="small text-muted me-1">Experiencias gastronómicas:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Almuerzo Buffet">Almuerzo Buffet</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Menú Degustación (3 Tiempos)">Menú 3 Tiempos</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Menú Degustación (5 Tiempos)">Menú 5 Tiempos</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Box Lunch Gourmet">Box Lunch Gourmet</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Picnic Lunch de Lujo al Aire Libre">Picnic de Lujo</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Cooking Class & Pisco Sour Demonstration">Cooking Class & Pisco</button>
+                                    </div>
+                                @elseif ($esEntradasTren)
+                                    <div>
+                                        <span class="small text-muted me-1">Boletos y Trenes:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Boleto Turístico del Cusco (BTC Integral)">BTC Integral</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Boleto Llaqta Machupicchu (Circuito Clásico)">Llaqta Machupicchu</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Bus Consettur Machupicchu (Ida y Vuelta)">Bus Consettur (RT)</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Tren Vistadome / 360°">Tren Vistadome</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="persona" data-val="Tren Hiram Bingham de Lujo">Tren Hiram Bingham</button>
+                                    </div>
+                                @else
+                                    <div>
+                                        <span class="small text-muted me-1">Conceptos sugeridos:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-val="Servicio Estándar">Servicio Estándar</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-val="Día Completo">Día Completo</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-val="Medio Día">Medio Día</button>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-7">
+                                    <label for="modal-tar-concepto" class="form-label fw-semibold small">Servicio / Ruta / Experiencia <span class="text-danger">*</span></label>
+                                    <input type="text" id="modal-tar-concepto" name="concepto" required maxlength="255" class="form-control" placeholder="Ej. Traslado Aeropuerto ⇄ Hotel, Almuerzo Buffet, etc.">
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="modal-tar-unidad" class="form-label fw-semibold small">Detalle / Unidad (opcional)</label>
+                                    <input type="text" id="modal-tar-unidad" name="unidad_detalle" maxlength="100" class="form-control" placeholder="Ej. Van H1, Inglés, Buffet, etc.">
+                                </div>
+
+                                {{-- Switch Tarifa Fija vs Temporada --}}
+                                <div class="col-12">
+                                    <div class="form-check form-switch p-2 bg-light rounded border">
+                                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="modal-tar-es-fija" name="es_fija" value="1" checked>
+                                        <label class="form-check-label fw-bold text-dark cursor-pointer" for="modal-tar-es-fija">
+                                            <i class="fas fa-infinity text-success me-1"></i> Tarifa fija estándar (Aplica todo el año / Sin fechas de corte)
+                                        </label>
+                                        <small class="d-block text-muted ms-4">Desmárcalo si solo aplica en ciertas fechas del año (ej. Temporada Alta Inti Raymi o Fiestas Patrias).</small>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-6" id="modal-tar-fechas-desde" style="display: none;">
+                                    <label for="modal-tar-desde" class="form-label fw-semibold small">Vigencia Desde</label>
+                                    <input type="date" id="modal-tar-desde" name="desde" class="form-control">
+                                </div>
+                                <div class="col-sm-6" id="modal-tar-fechas-hasta" style="display: none;">
+                                    <label for="modal-tar-hasta" class="form-label fw-semibold small">Vigencia Hasta</label>
+                                    <input type="date" id="modal-tar-hasta" name="hasta" class="form-control">
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <label for="modal-tar-moneda" class="form-label fw-semibold small">Moneda</label>
+                                    <select id="modal-tar-moneda" name="moneda" class="form-select">
+                                        @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
+                                            <option value="{{ $clave }}" @selected($clave === 'USD')>{{ $clave }} ({{ $simbolo }})</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="modal-tar-precio" class="form-label fw-semibold small">Precio / Costo Neto <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="modal-tar-precio" name="precio" min="0" step="0.01" required class="form-control fw-bold" placeholder="0.00">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label for="modal-tar-por" class="form-label fw-semibold small">Modalidad de Cobro</label>
+                                    <select id="modal-tar-por" name="por" class="form-select">
+                                        <option value="grupo" @selected($modoDefecto === 'grupo')>Por Grupo (Vehículo / Guía)</option>
+                                        <option value="persona" @selected($modoDefecto === 'persona')>Por Persona (Almuerzo / Entrada)</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="modal-tar-notas" class="form-label fw-semibold small">Notas internas / Condiciones (opcional)</label>
+                                    <input type="text" id="modal-tar-notas" name="notas" maxlength="255" class="form-control form-control-sm" placeholder="Ej. Mínimo 2 paxs, no incluye propinas, incluye agua mineral...">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save me-1"></i> Guardar Tarifa
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modal = document.getElementById('modalNuevaTarifa');
+                if (!modal) return;
+
+                const switchFija = modal.querySelector('#modal-tar-es-fija');
+                const desdeBox = modal.querySelector('#modal-tar-fechas-desde');
+                const hastaBox = modal.querySelector('#modal-tar-fechas-hasta');
+                const inputDesde = modal.querySelector('#modal-tar-desde');
+                const inputHasta = modal.querySelector('#modal-tar-hasta');
+
+                const syncFija = () => {
+                    const esFija = switchFija.checked;
+                    desdeBox.style.display = esFija ? 'none' : 'block';
+                    hastaBox.style.display = esFija ? 'none' : 'block';
+                    inputDesde.required = !esFija;
+                    inputHasta.required = !esFija;
+                    if (esFija) {
+                        inputDesde.value = '';
+                        inputHasta.value = '';
+                    }
+                };
+
+                switchFija.addEventListener('change', syncFija);
+
+                // Chips rápidos
+                modal.querySelectorAll('.btn-chip').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const target = this.dataset.target;
+                        const val = this.dataset.val;
+                        const mode = this.dataset.mode;
+
+                        if (target === 'concepto') {
+                            const input = modal.querySelector('#modal-tar-concepto');
+                            if (input) input.value = val;
+                        } else if (target === 'unidad') {
+                            const input = modal.querySelector('#modal-tar-unidad');
+                            if (input) input.value = val;
+                        }
+
+                        if (mode) {
+                            const selectPor = modal.querySelector('#modal-tar-por');
+                            if (selectPor) selectPor.value = mode;
+                        }
+                    });
+                });
+            });
+        </script>
+    @endcan
 @endsection
