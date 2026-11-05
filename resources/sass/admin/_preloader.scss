@@ -1,0 +1,203 @@
+// ==========================================================================
+// Andean Exclusive - Pantalla de Carga Cinemática (Senior UI/UX)
+// ==========================================================================
+
+.ae-preloader {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #070c14;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: all;
+    user-select: none;
+    -webkit-user-select: none;
+
+    &.ae-preloader--loaded {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+
+        .ae-preloader__content {
+            transform: scale(1.03);
+            filter: blur(4px);
+        }
+    }
+}
+
+.ae-preloader__backdrop {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.95) 0%, rgba(7, 12, 20, 0.99) 100%),
+                linear-gradient(180deg, rgba(8, 145, 178, 0.08) 0%, transparent 60%);
+    z-index: 1;
+}
+
+.ae-preloader__content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    transition: transform 0.65s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ae-preloader__logo-box {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.ae-preloader__glow {
+    position: absolute;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, rgba(226, 183, 20, 0.1) 45%, transparent 70%);
+    filter: blur(18px);
+    border-radius: 50%;
+    animation: ae-glow-pulse 3s ease-in-out infinite alternate;
+}
+
+.ae-preloader__logo {
+    position: relative;
+    z-index: 2;
+    width: 220px;
+    max-width: 75vw;
+    height: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+    animation: ae-logo-breathe 3s ease-in-out infinite alternate;
+}
+
+.ae-preloader__slogan {
+    font-family: $font-display;
+    font-size: 1.5rem;
+    color: #38bdf8;
+    margin-top: 0.4rem;
+    margin-bottom: 1.75rem;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 16px rgba(56, 189, 248, 0.4), 0 2px 4px rgba(0, 0, 0, 0.6);
+    animation: ae-slogan-fade 2.5s ease-in-out infinite alternate;
+}
+
+.ae-preloader__track {
+    position: relative;
+    width: 170px;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.ae-preloader__indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 50%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, #06b6d4 40%, #e2b714 80%, transparent);
+    animation: ae-slide-track 1.6s ease-in-out infinite;
+}
+
+.ae-preloader__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.76rem;
+    font-weight: 500;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+.ae-preloader__status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #06b6d4;
+    box-shadow: 0 0 8px #06b6d4;
+    animation: ae-dot-pulse 1.4s ease-in-out infinite;
+}
+
+// Keyframes
+@keyframes ae-glow-pulse {
+    0% {
+        transform: scale(0.9);
+        opacity: 0.45;
+    }
+    100% {
+        transform: scale(1.15);
+        opacity: 0.85;
+    }
+}
+
+@keyframes ae-logo-breathe {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        transform: translateY(-3px) scale(1.02);
+    }
+}
+
+@keyframes ae-slogan-fade {
+    0% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 1;
+        color: #5eead4;
+    }
+}
+
+@keyframes ae-slide-track {
+    0% {
+        left: -50%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+@keyframes ae-dot-pulse {
+    0%, 100% {
+        opacity: 0.4;
+        transform: scale(0.85);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.25);
+    }
+}
+
+// Accesibilidad: reducir movimientos
+@media (prefers-reduced-motion: reduce) {
+    .ae-preloader {
+        transition-duration: 0.15s;
+    }
+    .ae-preloader__glow,
+    .ae-preloader__logo,
+    .ae-preloader__slogan,
+    .ae-preloader__status-dot {
+        animation: none !important;
+    }
+    .ae-preloader__indicator {
+        animation-duration: 3s;
+    }
+}

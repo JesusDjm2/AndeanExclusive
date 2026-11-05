@@ -27,7 +27,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('admin/vendor/fontawesome-free/css/all.min.css') }}">
     @vite(['resources/sass/admin.scss', 'resources/js/admin.js'])
     @stack('styles')
@@ -36,6 +36,9 @@
 </head>
 
 <body class="admin @yield('body-class')">
+    {{-- Pantalla de Carga y Transición Cinemática --}}
+    @include('layouts.partials.preloader')
+
     <a href="#admin-content" class="visually-hidden-focusable btn btn-primary admin-skip">Saltar al contenido</a>
 
     <div class="admin-shell">

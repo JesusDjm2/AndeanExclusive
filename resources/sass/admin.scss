@@ -50,6 +50,7 @@ $body-bg: var(--ae-bg);
 // Capa del panel
 @import 'admin/shell';
 @import 'admin/components';
+@import 'admin/preloader';
 @import 'admin/dashboard';
 @import 'admin/auth';
 @import 'admin/programas-form';

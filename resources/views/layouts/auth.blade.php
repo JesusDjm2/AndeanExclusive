@@ -19,6 +19,9 @@
 </head>
 
 <body class="auth-page">
+    {{-- Pantalla de Carga y Transición Cinemática --}}
+    @include('layouts.partials.preloader')
+
     {{-- Fondo de video con poster fotográfico de fallback y velo cinematográfico --}}
     <div class="auth-bg" aria-hidden="true">
         <img src="{{ asset('img/machupicchu.webp') }}" alt="" class="auth-bg__poster" id="auth-bg-poster">

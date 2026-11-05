@@ -35,7 +35,10 @@ export function initAuthVideo() {
         // Transición cinematográfica suave del fondo
         setTimeout(() => {
             document.body.classList.add('video-active');
-        }, 800);
+            if (typeof window.aeDismissPreloader === 'function') {
+                window.aeDismissPreloader();
+            }
+        }, 600);
 
         // Bucle exacto: si alcanza 3:50 (230s), rebobina a 2:20 (140s) sin cortes
         if (loopInterval) clearInterval(loopInterval);

@@ -12,6 +12,7 @@ import { initTarifas } from './tarifas';
 import { initPasswordToggle } from './password-toggle';
 import { initProgramaHover } from './programa-hover';
 import { initAuthVideo } from './auth-video';
+import { initPreloader } from './preloader';
 
 window.bootstrap = bootstrap;
 
@@ -150,6 +151,7 @@ function initPrintButtons() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initPreloader();
     initTheme();
     initPdfPreview(bootstrap);
     initServicioAcciones(bootstrap);
