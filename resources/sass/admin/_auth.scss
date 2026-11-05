@@ -8,7 +8,7 @@
     padding: 0;
     min-height: 100vh;
     min-height: 100dvh;
-    background-color: #0b1320;
+    background-color: #080f1a;
     color: #1e293b;
     overflow-x: hidden;
     font-family: $font-body;
@@ -26,7 +26,7 @@
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
-    background-color: #0b1320;
+    background-color: #080f1a;
 }
 
 // Poster fotográfico de alta resolución (fallback y carga inicial)
@@ -64,11 +64,11 @@
     // Adaptación matemática para cubrir 100% de la ventana sin barras negras
     @media (min-aspect-ratio: 16/9) {
         width: 100vw;
-        height: 56.25vw; // 100 * 9 / 16
+        height: 56.25vw;
     }
 
     @media (max-aspect-ratio: 16/9) {
-        width: 177.78vh; // 100 * 16 / 9
+        width: 177.78vh;
         height: 100vh;
     }
 
@@ -79,7 +79,7 @@
         width: 100%;
         height: 100%;
         border: 0;
-        transform: scale(1.15); // Zoom ligero para ocultar bordes y elementos de interfaz de YouTube
+        transform: scale(1.15);
         pointer-events: none;
     }
 }
@@ -89,10 +89,10 @@
     position: absolute;
     inset: 0;
     z-index: 3;
-    background: radial-gradient(circle at center, rgba(15, 23, 42, 0.52) 0%, rgba(11, 19, 32, 0.85) 100%),
-               linear-gradient(180deg, rgba(15, 23, 42, 0.6) 0%, rgba(15, 23, 42, 0.4) 50%, rgba(11, 19, 32, 0.88) 100%);
-    backdrop-filter: blur(1.5px);
-    -webkit-backdrop-filter: blur(1.5px);
+    background: radial-gradient(circle at center, rgba(11, 19, 32, 0.48) 0%, rgba(8, 15, 26, 0.88) 100%),
+               linear-gradient(180deg, rgba(8, 15, 26, 0.55) 0%, rgba(15, 23, 42, 0.35) 50%, rgba(8, 15, 26, 0.9) 100%);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
 }
 
 // --------------------------------------------------------------------------
@@ -113,27 +113,27 @@
 .auth-card {
     width: 100%;
     max-width: 440px;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 22px;
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.48),
-                0 0 0 1px rgba(255, 255, 255, 0.4),
-                0 10px 30px -5px rgba(180, 140, 88, 0.18);
-    padding: 2.75rem 2.25rem;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(30px) saturate(190%);
+    -webkit-backdrop-filter: blur(30px) saturate(190%);
+    border-radius: 24px;
+    border: 1.5px solid rgba(212, 175, 55, 0.35);
+    box-shadow: 0 30px 65px -15px rgba(8, 15, 26, 0.6),
+                0 0 35px rgba(212, 175, 55, 0.15),
+                0 1px 0 rgba(255, 255, 255, 0.95) inset;
+    padding: 2.85rem 2.35rem;
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
 
     @media (max-width: 480px) {
-        padding: 2rem 1.5rem;
-        border-radius: 18px;
+        padding: 2.2rem 1.6rem;
+        border-radius: 20px;
     }
 }
 
 // Cabecera de la tarjeta
 .auth-card__header {
     text-align: center;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.85rem;
 }
 
 .auth-card__brand {
@@ -146,7 +146,7 @@
 }
 
 .auth-card__logo {
-    height: 48px;
+    height: 52px;
     width: auto;
     object-fit: contain;
 }
@@ -154,85 +154,132 @@
 .auth-card__tagline {
     display: block;
     font-family: 'Dancing Script', cursive, serif;
-    font-size: 1.45rem;
-    color: #b48c58;
-    margin-top: 0.35rem;
+    font-size: 1.65rem;
+    font-weight: 600;
+    color: #c5a059;
+    background: linear-gradient(135deg, #d4af37 0%, #aa7c11 50%, #d4af37 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-top: 0.45rem;
     letter-spacing: 0.5px;
+    text-shadow: 0 1px 2px rgba(180, 140, 88, 0.15);
 }
 
 // Títulos y subtítulos
 .auth-title-group {
     text-align: center;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.85rem;
 }
 
 .auth-card__title {
-    font-size: 1.55rem;
+    font-size: 1.65rem;
     font-weight: 700;
     color: #0f172a;
-    margin-bottom: 0.25rem;
+    margin-bottom: 0.3rem;
     letter-spacing: -0.02em;
 }
 
 .auth-card__lead {
-    font-size: 0.92rem;
+    font-size: 0.95rem;
     color: #64748b;
     margin-bottom: 0;
 }
 
 // --------------------------------------------------------------------------
-// 3. Formulario y Controles de Entrada
+// 3. Formulario y Controles de Entrada (Inputs Blancos Nítidos con Fix Autofill)
 // --------------------------------------------------------------------------
 .auth-label {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     font-weight: 600;
-    color: #334155;
-    margin-bottom: 0.4rem;
+    color: #1e293b;
+    margin-bottom: 0.45rem;
 }
 
 .auth-input-group {
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    transition: box-shadow 0.2s ease;
+
+    &:focus-within {
+        box-shadow: 0 4px 14px rgba(197, 160, 89, 0.2);
+    }
+
     .input-group-text {
-        background: #f8fafc;
-        border-color: #cbd5e1;
-        color: #b48c58;
-        font-size: 0.95rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        border-top-left-radius: 12px;
-        border-bottom-left-radius: 12px;
+        background-color: #ffffff !important;
+        border: 1.5px solid #cbd5e1;
+        border-right: none;
+        color: #c5a059 !important;
+        font-size: 1rem;
+        padding-left: 1.15rem;
+        padding-right: 1.15rem;
+        border-top-left-radius: 14px;
+        border-bottom-left-radius: 14px;
+        transition: border-color 0.2s ease, color 0.2s ease;
     }
 
     .form-control {
-        border-color: #cbd5e1;
-        height: 46px;
-        font-size: 0.95rem;
-        padding: 0.65rem 0.85rem;
-        color: #0f172a;
+        background-color: #ffffff !important;
+        border: 1.5px solid #cbd5e1;
+        height: 48px;
+        font-size: 0.96rem;
+        font-weight: 500;
+        padding: 0.7rem 0.95rem;
+        color: #0f172a !important;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
         &:focus {
-            border-color: #b48c58;
-            box-shadow: 0 0 0 3px rgba(180, 140, 88, 0.2);
+            background-color: #ffffff !important;
+            border-color: #c5a059 !important;
+            box-shadow: none !important;
             outline: none;
+            color: #0f172a !important;
         }
 
         &::placeholder {
             color: #94a3b8;
-            font-size: 0.9rem;
+            font-size: 0.92rem;
+            font-weight: 400;
+        }
+
+        // SOLUCIÓN DEFINITIVA A AUTOFILL DE CHROME / EDGE
+        // Evita que el navegador pinte el input de gris azulado opaco con texto blanco
+        &:-webkit-autofill,
+        &:-webkit-autofill:hover,
+        &:-webkit-autofill:focus,
+        &:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            -webkit-text-fill-color: #0f172a !important;
+            caret-color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+    }
+
+    &:focus-within {
+        .input-group-text {
+            border-color: #c5a059 !important;
+            color: #aa7c11 !important;
+        }
+        .form-control {
+            border-color: #c5a059 !important;
+        }
+        .btn-toggle-password {
+            border-color: #c5a059 !important;
         }
     }
 
     .btn-toggle-password {
-        border-color: #cbd5e1;
-        background: #f8fafc;
+        border: 1.5px solid #cbd5e1;
+        border-left: none;
+        background-color: #ffffff !important;
         color: #64748b;
-        border-top-right-radius: 12px;
-        border-bottom-right-radius: 12px;
-        padding: 0 0.85rem;
-        transition: color 0.2s ease, background-color 0.2s ease;
+        border-top-right-radius: 14px;
+        border-bottom-right-radius: 14px;
+        padding: 0 1rem;
+        transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 
         &:hover {
-            background: #e2e8f0;
+            background-color: #f8fafc !important;
             color: #0f172a;
         }
     }
@@ -241,20 +288,34 @@
 .auth-checkbox {
     .form-check-input {
         cursor: pointer;
-        width: 1.05rem;
-        height: 1.05rem;
-        border-color: #cbd5e1;
+        width: 1.15rem;
+        height: 1.15rem;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 5px;
+        margin-top: 0.15rem;
 
         &:checked {
             background-color: #0f172a;
-            border-color: #0f172a;
+            border-color: #c5a059;
         }
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.25);
+            border-color: #c5a059;
+        }
+    }
+
+    .form-check-label {
+        color: #475569 !important;
+        font-size: 0.88rem;
+        font-weight: 500;
+        cursor: pointer;
     }
 }
 
 .auth-link-subtle {
-    font-size: 0.82rem;
-    color: #b48c58;
+    font-size: 0.85rem;
+    color: #b38b47;
     font-weight: 600;
     text-decoration: none;
     transition: color 0.2s ease;
@@ -271,49 +332,70 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 48px;
-    padding: 0.75rem 1.5rem;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    color: #ffffff;
-    font-weight: 600;
-    font-size: 1rem;
-    border: 1px solid rgba(180, 140, 88, 0.4);
-    border-radius: 12px;
-    box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.35);
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
+    min-height: 50px;
+    padding: 0.85rem 1.6rem;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.02em;
+    border: 1.5px solid rgba(212, 175, 55, 0.55);
+    border-radius: 14px;
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.45), 0 0 15px rgba(212, 175, 55, 0.15);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     cursor: pointer;
     text-decoration: none;
 
+    i {
+        color: #d4af37;
+        transition: transform 0.25s ease;
+    }
+
     &:hover {
-        color: #e5c38e;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        border-color: #d4af37;
+        color: #ffffff !important;
         transform: translateY(-2px);
-        box-shadow: 0 14px 26px -5px rgba(15, 23, 42, 0.45);
-        border-color: #b48c58;
+        box-shadow: 0 16px 30px -5px rgba(15, 23, 42, 0.55), 0 0 22px rgba(212, 175, 55, 0.28);
+
+        i {
+            transform: translateX(4px);
+            color: #ffd700;
+        }
     }
 
     &:active {
         transform: translateY(0);
-        box-shadow: 0 6px 14px -3px rgba(15, 23, 42, 0.3);
+        box-shadow: 0 6px 14px -3px rgba(15, 23, 42, 0.35);
     }
 }
 
 // Pie de la tarjeta
 .auth-card__footer {
     text-align: center;
-    margin-top: 1.75rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    margin-top: 1.85rem;
+    padding-top: 1.35rem;
+    border-top: 1px solid rgba(226, 232, 240, 0.85);
 }
 
 .auth-card__back {
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     color: #64748b;
     text-decoration: none;
-    font-weight: 500;
-    transition: color 0.2s ease;
+    font-weight: 600;
+    transition: color 0.2s ease, transform 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+
+    i {
+        transition: transform 0.2s ease;
+    }
 
     &:hover {
-        color: #b48c58;
+        color: #09ccbd;
+        i {
+            transform: translateX(-3px);
+        }
     }
 }
 
@@ -322,16 +404,22 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.4rem;
-    margin-top: 1.25rem;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.8rem;
+    gap: 0.45rem;
+    margin-top: 1.35rem;
+    padding: 0.45rem 1.15rem;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.82rem;
     font-weight: 500;
     letter-spacing: 0.3px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
 
     i {
-        color: #dfb77c;
+        color: #d4af37;
     }
 }
 

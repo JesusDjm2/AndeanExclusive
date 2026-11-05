@@ -3,7 +3,7 @@
     Diseño Cinemático de Lujo con fondo de video YouTube en bucle (2:20 - 3:50) y tarjeta central glassmorphic.
 --}}
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light">
 
 <head>
     <meta charset="utf-8">
