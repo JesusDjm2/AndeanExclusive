@@ -13,13 +13,7 @@ class TarifasFijasYCotizadorTest extends TestCase
 {
     public function test_proveedor_puede_tener_tarifas_fijas_todo_el_ano(): void
     {
-        $categoria = Categoria::firstOrCreate(['nombre' => 'Transporte']);
-        $proveedor = Proveedor::create([
-            'nombre' => 'Transporte Los Andes Test',
-            'categoria_id' => $categoria->id,
-            'telefono' => '987654321',
-            'correo' => 'losandes@test.com',
-        ]);
+        $proveedor = $this->proveedor('Transporte Los Andes Test');
 
         $tarifaFija = Tarifa::create([
             'tipo' => 'proveedor',
@@ -51,13 +45,7 @@ class TarifasFijasYCotizadorTest extends TestCase
     {
         $this->actingAs($this->usuario('operaciones'));
 
-        $categoria = Categoria::firstOrCreate(['nombre' => 'Guías']);
-        $proveedor = Proveedor::create([
-            'nombre' => 'Guía Juan Pérez Test',
-            'categoria_id' => $categoria->id,
-            'telefono' => '999888777',
-            'correo' => 'guia@test.com',
-        ]);
+        $proveedor = $this->proveedor('Guía Juan Pérez Test');
 
         Tarifa::create([
             'proveedor_id' => $proveedor->id,
@@ -73,5 +61,31 @@ class TarifasFijasYCotizadorTest extends TestCase
             ->assertJsonPath('tarifas.0.concepto', 'Guía Día Completo')
             ->assertJsonPath('tarifas.0.precio', 90)
             ->assertJsonPath('tarifas.0.es_fija', true);
+    }
+
+    public function test_redireccion_retorno_proveedor_y_permisos(): void
+    {
+        $this->actingAs($this->usuario('reservas'));
+
+        $proveedor = $this->proveedor('Restaurante Valle Sagrado Test');
+
+        $response = $this->post(route('tarifas.store'), [
+            'tipo' => 'proveedor',
+            'proveedor_id' => $proveedor->id,
+            'concepto' => 'Almuerzo Buffet',
+            'es_fija' => '1',
+            'precio' => '25.00',
+            'moneda' => 'USD',
+            'por' => 'persona',
+            'retorno' => 'proveedor',
+        ]);
+
+        $response->assertRedirect(route('proveedors.show', $proveedor->id));
+        $this->assertDatabaseHas('tarifas', [
+            'proveedor_id' => $proveedor->id,
+            'concepto' => 'Almuerzo Buffet',
+            'es_fija' => 1,
+            'por' => 'persona',
+        ]);
     }
 }

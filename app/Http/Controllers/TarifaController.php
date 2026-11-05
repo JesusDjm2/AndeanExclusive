@@ -62,7 +62,7 @@ class TarifaController extends Controller
         $tarifa = Tarifa::create($datos);
 
         if ($request->input('retorno') === 'proveedor' && $tarifa->proveedor_id) {
-            return redirect()->route('proveedor.show', $tarifa->proveedor_id)->with('success', 'Tarifa guardada en el catálogo del proveedor.');
+            return redirect()->route('proveedors.show', $tarifa->proveedor_id)->with('success', 'Tarifa guardada en el catálogo del proveedor.');
         }
 
         return redirect()->route('tarifas.index')->with('success', 'Tarifa guardada con éxito.');
@@ -81,7 +81,7 @@ class TarifaController extends Controller
         $tarifa->update($datos);
 
         if ($request->input('retorno') === 'proveedor' && $tarifa->proveedor_id) {
-            return redirect()->route('proveedor.show', $tarifa->proveedor_id)->with('success', 'Tarifa del proveedor actualizada.');
+            return redirect()->route('proveedors.show', $tarifa->proveedor_id)->with('success', 'Tarifa del proveedor actualizada.');
         }
 
         return redirect()->route('tarifas.index')->with('success', 'Tarifa actualizada.');
@@ -93,7 +93,7 @@ class TarifaController extends Controller
         $tarifa->delete();
 
         if ($request->input('retorno') === 'proveedor' && $proveedorId) {
-            return redirect()->route('proveedor.show', $proveedorId)->with('success', 'Tarifa eliminada del proveedor.');
+            return redirect()->route('proveedors.show', $proveedorId)->with('success', 'Tarifa eliminada del proveedor.');
         }
 
         return back()->with('success', 'Tarifa eliminada.');
