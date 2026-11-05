@@ -23,19 +23,29 @@ export function initPreloader() {
         }, 700);
     }
 
-    // Exponer función para que otros módulos (como el reproductor de video de auth)
-    // puedan indicar cuando el contenido específico ya está listo
+    // Exponer función para que el reproductor de video u otros módulos indiquen
+    // cuando su contenido específico ya está listo y reproduciéndose
     window.aeDismissPreloader = hidePreloader;
 
-    // Si el documento ya terminó de cargar
-    if (document.readyState === 'complete') {
-        setTimeout(hidePreloader, 400);
-    } else {
-        window.addEventListener('load', () => {
-            setTimeout(hidePreloader, 400);
-        });
-    }
+    const isAuthPage = document.body.classList.contains('auth-page');
 
-    // Timeout de seguridad de 1.8 segundos: jamás bloquear al usuario si una librería externa demora
-    setTimeout(hidePreloader, 1800);
+    if (isAuthPage) {
+        // En la pantalla de login/auth, el preloader se mantiene visible
+        // hasta que el video empiece a reproducirse activamente (onPlayerStateChange == PLAYING)
+        // para que la transición sea cinemática y sin cortes.
+        // Timeout de seguridad de 4.5s por si el usuario tiene mala conexión o bloqueador de anuncios.
+        setTimeout(hidePreloader, 4500);
+    } else {
+        // En las vistas normales del panel administrativo:
+        if (document.readyState === 'complete') {
+            setTimeout(hidePreloader, 350);
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(hidePreloader, 350);
+            });
+        }
+
+        // Timeout de seguridad de 1.8 segundos: jamás bloquear al usuario si una librería externa demora
+        setTimeout(hidePreloader, 1800);
+    }
 }

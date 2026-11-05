@@ -1,7 +1,7 @@
 {{--
     Layout de acceso al panel (login, recuperar contraseña, verificación).
-    Diseño Cinemático de Lujo con fondo fotográfico ultra-rápido de Machu Picchu
-    y opción de video YouTube bajo demanda (on-demand) para acceso instantáneo sin demoras.
+    Diseño Cinemático de Lujo con fondo de video YouTube en bucle (2:20 - 3:50),
+    precarga optimizada con preconnects e inicio sincronizado con el preloader de marca.
 --}}
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="light">
@@ -16,11 +16,35 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('admin/vendor/fontawesome-free/css/all.min.css') }}">
+
+    {{-- Preconexión ultra-rápida a los servidores y CDN de YouTube --}}
+    <link rel="preconnect" href="https://www.youtube.com" crossorigin>
+    <link rel="preconnect" href="https://s.ytimg.com" crossorigin>
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.youtube.com">
+    <link rel="dns-prefetch" href="https://s.ytimg.com">
+    <link rel="dns-prefetch" href="https://i.ytimg.com">
+
+    {{-- Bootstrap anticipado de la API de YouTube para carga inmediata --}}
+    <script>
+        window.YT_API_READY = false;
+        window.onYouTubeIframeAPIReady = function() {
+            window.YT_API_READY = true;
+            if (typeof window.aeInitAuthVideo === 'function') {
+                window.aeInitAuthVideo();
+            }
+        };
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     @vite(['resources/sass/admin.scss', 'resources/js/admin.js'])
 </head>
 
 <body class="auth-page">
-    {{-- Fondo fotográfico de alta resolución con velo cinematográfico (Carga instantánea) --}}
+    {{-- Pantalla de Carga y Transición Cinemática (se mantiene hasta que el video esté reproduciéndose) --}}
+    @include('layouts.partials.preloader')
+
+    {{-- Fondo de video con poster fotográfico de fallback y velo cinematográfico --}}
     <div class="auth-bg" aria-hidden="true">
         <img src="{{ asset('img/machupicchu.webp') }}" alt="" class="auth-bg__poster" id="auth-bg-poster">
         <div class="auth-bg__video-wrap" id="auth-video-wrap">
@@ -29,7 +53,7 @@
         <div class="auth-bg__overlay"></div>
     </div>
 
-    {{-- Contenedor Central Flotante (Visible de inmediato al cargar la página) --}}
+    {{-- Contenedor Central Flotante --}}
     <div class="auth-viewport">
         <main class="auth-card" role="main">
             {{-- Cabecera con Logotipo Oficial y Lema de Marca --}}
@@ -60,23 +84,14 @@
         </div>
     </div>
 
-    {{-- Controles discretos de fondo: Foto instantánea por defecto, video opcional bajo demanda --}}
-    <div class="auth-video-controls" id="auth-video-controls" aria-label="Control de fondo visual">
-        <button type="button" class="auth-video-pill" id="auth-video-activate" title="Activar video de fondo cinematográfico">
-            <i class="fas fa-play me-1" id="auth-video-play-icon"></i>
-            <span id="auth-video-play-text">Video de fondo</span>
+    {{-- Controles flotantes discretos del video en esquina inferior --}}
+    <div class="auth-video-controls" id="auth-video-controls" aria-label="Controles del video">
+        <button type="button" class="auth-video-btn" id="auth-video-toggle" title="Pausar video" aria-label="Pausar o reanudar video">
+            <i class="fas fa-pause" id="auth-video-icon"></i>
         </button>
-        <div class="auth-video-playback-group d-none" id="auth-video-playback-group">
-            <button type="button" class="auth-video-btn" id="auth-video-toggle" title="Pausar video" aria-label="Pausar o reanudar video">
-                <i class="fas fa-pause" id="auth-video-icon"></i>
-            </button>
-            <button type="button" class="auth-video-btn" id="auth-audio-toggle" title="Activar audio" aria-label="Silenciar o activar audio">
-                <i class="fas fa-volume-mute" id="auth-audio-icon"></i>
-            </button>
-            <button type="button" class="auth-video-btn" id="auth-video-close" title="Volver a fondo fotográfico" aria-label="Volver a fondo fotográfico">
-                <i class="fas fa-image"></i>
-            </button>
-        </div>
+        <button type="button" class="auth-video-btn" id="auth-audio-toggle" title="Activar audio" aria-label="Silenciar o activar audio">
+            <i class="fas fa-volume-mute" id="auth-audio-icon"></i>
+        </button>
     </div>
 </body>
 
