@@ -112,98 +112,139 @@ function initAsignar() {
 }
 
 // Filas de itinerario en el formulario de programa: muestra botones de tarifas al elegir proveedor
+async function cargarTarifasFila(row, proveedorId) {
+    let contenedor = row.querySelector('[data-svc-quick-rates]');
+    if (!contenedor) {
+        contenedor = document.createElement('div');
+        contenedor.className = 'svc-quick-rates mt-1';
+        contenedor.dataset.svcQuickRates = 'true';
+        const selectProv = row.querySelector('[id$="-prov"], [data-svc-proveedor-select]');
+        if (selectProv) selectProv.parentNode.appendChild(contenedor);
+    }
+
+    contenedor.replaceChildren();
+    if (!proveedorId) return;
+
+    const fechaInput = row.querySelector('[data-svc-fecha]') || row.closest('[data-dia-item]')?.querySelector('[data-dia-fecha]');
+    const fecha = fechaInput ? fechaInput.value : '';
+
+    const tarifas = await buscar('/tarifario/sugerir', {
+        proveedor_id: proveedorId,
+        ...(fecha ? { fecha } : {}),
+    });
+
+    if (tarifas.length === 0) {
+        const hint = document.createElement('small');
+        hint.className = 'text-muted d-block mt-1';
+        hint.style.fontSize = '0.74rem';
+        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Este proveedor no tiene tarifas fijas registradas aún. Escribe el precio directamente a la derecha.';
+        contenedor.appendChild(hint);
+        return;
+    }
+
+    const box = document.createElement('div');
+    box.className = 'd-flex flex-wrap gap-1 align-items-center mt-1';
+
+    const label = document.createElement('span');
+    label.className = 'badge bg-gold-subtle text-gold-text border small';
+    label.style.fontSize = '0.72rem';
+    label.innerHTML = '<i class="fas fa-tags me-1"></i>Tarifas de este proveedor (haz clic para aplicar):';
+    box.appendChild(label);
+
+    tarifas.forEach((tarifa) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-xs btn-outline-primary text-truncate py-0 px-2 fw-medium';
+        btn.style.fontSize = '0.75rem';
+        btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por})`;
+        btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
+
+        btn.addEventListener('click', () => {
+            // Autocompletar concepto si está vacío o sugerido
+            const tituloInput = row.querySelector('[data-svc-titulo]');
+            if (tituloInput && (!tituloInput.value || tituloInput.value.trim() === '')) {
+                tituloInput.value = tarifa.concepto;
+                tituloInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+
+            // Costo estimado
+            const estInput = row.querySelector('[id$="-estimado"]');
+            if (estInput) {
+                estInput.value = tarifa.precio;
+                estInput.dispatchEvent(new Event('input', { bubbles: true }));
+                estInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Costo real (si no está bloqueado)
+            const realInput = row.querySelector('[id$="-costo"]');
+            if (realInput && !realInput.disabled) {
+                realInput.value = tarifa.precio;
+                realInput.dispatchEvent(new Event('input', { bubbles: true }));
+                realInput.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Moneda
+            const monedaSelect = row.querySelector('[id$="-moneda"]');
+            if (monedaSelect && !monedaSelect.disabled) {
+                monedaSelect.value = tarifa.moneda;
+                monedaSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Por grupo / persona
+            const porSelect = row.querySelector('[id$="-por"]');
+            if (porSelect && !porSelect.disabled && tarifa.por_raw) {
+                porSelect.value = tarifa.por_raw;
+                porSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+
+            // Abrir detalles si estaba cerrado para que el usuario vea el costo asignado
+            const details = row.querySelector('details');
+            if (details) details.open = true;
+
+            // Feedback visual breve
+            btn.className = 'btn btn-xs btn-success text-truncate py-0 px-2 fw-bold';
+            setTimeout(() => {
+                btn.className = 'btn btn-xs btn-outline-primary text-truncate py-0 px-2 fw-medium';
+            }, 1200);
+        });
+
+        box.appendChild(btn);
+    });
+
+    contenedor.appendChild(box);
+}
+
 function initItinerarioServicios() {
-    document.addEventListener('change', async (evento) => {
-        const selectProv = evento.target.closest('[id$="-prov"]');
+    // 1. Escuchar cambios de proveedor en cualquier fila (existente o agregada dinámicamente)
+    document.addEventListener('change', (evento) => {
+        const selectProv = evento.target.closest('[id$="-prov"], [data-svc-proveedor-select]');
         if (!selectProv) return;
 
         const row = selectProv.closest('[data-svc-item]');
         if (!row) return;
 
-        const proveedorId = selectProv.value;
-        let contenedor = row.querySelector('[data-svc-quick-rates]');
-        if (!contenedor) {
-            contenedor = document.createElement('div');
-            contenedor.className = 'svc-quick-rates mt-1 d-flex flex-wrap gap-1 align-items-center';
-            contenedor.dataset.svcQuickRates = 'true';
-            selectProv.parentNode.appendChild(contenedor);
-        }
+        cargarTarifasFila(row, selectProv.value);
+    });
 
-        contenedor.replaceChildren();
-        if (!proveedorId) return;
-
-        const fechaInput = row.querySelector('[data-svc-fecha]') || row.closest('[data-dia-item]')?.querySelector('[data-dia-fecha]');
-        const fecha = fechaInput ? fechaInput.value : '';
-
-        const tarifas = await buscar('/tarifas/sugerir', {
-            proveedor_id: proveedorId,
-            ...(fecha ? { fecha } : {}),
+    // 2. Cargar tarifas de inicio para las filas que ya tengan proveedor seleccionado
+    const cargarFilasExistentes = () => {
+        document.querySelectorAll('[data-svc-item]').forEach((row) => {
+            if (row.closest('template')) return;
+            const selectProv = row.querySelector('[id$="-prov"], [data-svc-proveedor-select]');
+            if (selectProv && selectProv.value) {
+                cargarTarifasFila(row, selectProv.value);
+            }
         });
+    };
 
-        if (tarifas.length === 0) return;
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', cargarFilasExistentes);
+    } else {
+        cargarFilasExistentes();
+    }
 
-        const label = document.createElement('span');
-        label.className = 'badge bg-light text-muted border me-1 small';
-        label.textContent = 'Tarifas del proveedor:';
-        contenedor.appendChild(label);
-
-        tarifas.forEach((tarifa) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'btn btn-xs btn-outline-info text-truncate py-0 px-2';
-            btn.style.fontSize = '0.75rem';
-            btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por})`;
-            btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
-
-            btn.addEventListener('click', () => {
-                // Autocompletar concepto si está vacío o sugerido
-                const tituloInput = row.querySelector('[data-svc-titulo]');
-                if (tituloInput && (!tituloInput.value || tituloInput.value.trim() === '')) {
-                    tituloInput.value = tarifa.concepto;
-                    tituloInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-
-                // Costo estimado
-                const estInput = row.querySelector('[id$="-estimado"]');
-                if (estInput) {
-                    estInput.value = tarifa.precio;
-                    estInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-
-                // Costo real (si no está bloqueado)
-                const realInput = row.querySelector('[id$="-costo"]');
-                if (realInput && !realInput.disabled) {
-                    realInput.value = tarifa.precio;
-                    realInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-
-                // Moneda
-                const monedaSelect = row.querySelector('[id$="-moneda"]');
-                if (monedaSelect && !monedaSelect.disabled) {
-                    monedaSelect.value = tarifa.moneda;
-                    monedaSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-
-                // Por grupo / persona
-                const porSelect = row.querySelector('[id$="-por"]');
-                if (porSelect && !porSelect.disabled && tarifa.por_raw) {
-                    porSelect.value = tarifa.por_raw;
-                    porSelect.dispatchEvent(new Event('change', { bubbles: true }));
-                }
-
-                // Abrir detalles si estaba cerrado para que el usuario vea el costo asignado
-                const details = row.querySelector('details');
-                if (details) details.open = true;
-
-                // Feedback visual breve
-                btn.className = 'btn btn-xs btn-success text-truncate py-0 px-2';
-                setTimeout(() => {
-                    btn.className = 'btn btn-xs btn-outline-info text-truncate py-0 px-2';
-                }, 1200);
-            });
-
-            contenedor.appendChild(btn);
-        });
+    document.querySelectorAll('[data-bs-toggle="tab"], .nav-link').forEach((tab) => {
+        tab.addEventListener('shown.bs.tab', cargarFilasExistentes);
     });
 }
 

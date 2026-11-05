@@ -37,7 +37,6 @@ class AdminNavigation
             'label' => 'Reservas y Proveedores',
             'items' => [
                 ['label' => 'Bandeja de Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
-                ['label' => 'Buscador de Tarifas', 'icon' => 'fa-search-dollar', 'route' => 'tarifas.index', 'active' => ['tarifas.*']],
                 ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
                 ['label' => 'Hoteles', 'icon' => 'fa-hotel', 'route' => 'hotel.index', 'active' => ['hotel.*', 'habitacion.*']],
                 ['label' => 'Categorías', 'icon' => 'fa-layer-group', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],

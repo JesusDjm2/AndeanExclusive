@@ -45,7 +45,7 @@
         <div class="svc-row__proveedor">
             <label class="prog-label" for="svc-{{ $i }}-prov">Proveedor</label>
             @if ($bloqueado)<input type="hidden" name="{{ $name('proveedor_id') }}" value="{{ $v('proveedor_id') }}">@endif
-            <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm">
+            <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm" data-svc-proveedor-select>
                 <option value="">— Sin asignar —</option>
                 @foreach ($proveedoresPorCategoria as $categoria => $proveedores)
                     <optgroup label="{{ $categoria }}">
@@ -55,6 +55,7 @@
                     </optgroup>
                 @endforeach
             </select>
+            <div class="svc-quick-rates mt-1" data-svc-quick-rates="true"></div>
         </div>
         <div class="svc-row__titulo">
             <label class="prog-label" for="svc-{{ $i }}-titulo">Servicio / Experiencia</label>
@@ -79,11 +80,30 @@
 
     {{-- Línea 2: Precios de Operaciones & Cotización (Visible directamente para cotizar sin desplegar) --}}
     @if ($esEstadia)
-        <div class="svc-row__estadia-bar">
-            <span class="badge bg-light text-dark border">
-                <i class="fas fa-bed text-primary me-1" aria-hidden="true"></i>
-                Estadía de Hotel: El costo por noche se gestiona en la pestaña <strong>Alojamiento</strong> (el pasajero lo ve en su itinerario sin precio).
-            </span>
+        @php
+            $esReservadoCliente = empty($v('costo')) && empty($v('costo_estimado'));
+        @endphp
+        <div class="svc-row__estadia-bar p-2 rounded border bg-light d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                @if ($esReservadoCliente)
+                    <span class="badge bg-info-subtle text-info border">
+                        <i class="fas fa-user-check me-1"></i> Hotel reservado por el cliente
+                    </span>
+                    <strong class="text-dark">{{ $v('titulo') ?: 'Estadía de Hotel' }}</strong>
+                    <span class="small text-muted">· Costo para la agencia: <strong>US$ 0.00</strong> (lo abona el pasajero directamente)</span>
+                @else
+                    <span class="badge bg-success-subtle text-success border">
+                        <i class="fas fa-bed me-1"></i> Hotel reservado por la agencia
+                    </span>
+                    <strong class="text-dark">{{ $v('titulo') ?: 'Estadía de Hotel' }}</strong>
+                    <span class="small text-muted">· Costo noche: <strong class="text-success">{{ \App\Models\Servicio::formatoMonto((float) $v('costo'), $v('moneda')) }}</strong> (definido en Alojamiento)</span>
+                @endif
+            </div>
+            <div>
+                <button type="button" class="btn btn-xs btn-outline-secondary" onclick="document.querySelector('#pf-tab-alojamiento')?.click();">
+                    <i class="fas fa-bed me-1"></i> Modificar en Alojamiento
+                </button>
+            </div>
         </div>
     @else
         <div class="svc-row__finance-grid">

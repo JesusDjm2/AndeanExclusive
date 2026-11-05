@@ -111,14 +111,51 @@
     --bs-border-color: var(--ae-border);
     --bs-emphasis-color: #ffffff;
 
+    // Reasignación de utilidades Bootstrap en modo oscuro para evitar textos negros o apagados
+    --bs-dark: #f8fafc;
+    --bs-dark-rgb: 248, 250, 252;
+    --bs-dark-text-emphasis: #f8fafc;
+    --bs-secondary: #cbd5e1;
+    --bs-secondary-rgb: 203, 213, 225;
+    --bs-secondary-color: #cbd5e1;
+    --bs-secondary-text-emphasis: #e2e8f0;
+    --bs-secondary-bg-subtle: rgba(148, 163, 184, 0.22);
+    --bs-light: #1e293b;
+    --bs-light-rgb: 30, 41, 59;
+    --bs-light-bg-subtle: #1e293b;
+    --bs-light-text-emphasis: #f1f5f9;
+    --bs-primary-bg-subtle: rgba(96, 165, 250, 0.22);
+    --bs-primary-text-emphasis: #93c5fd;
+    --bs-success-bg-subtle: rgba(74, 222, 128, 0.22);
+    --bs-success-text-emphasis: #86efac;
+    --bs-info-bg-subtle: rgba(56, 189, 248, 0.22);
+    --bs-info-text-emphasis: #7dd3fc;
+    --bs-warning-bg-subtle: rgba(251, 191, 36, 0.22);
+    --bs-warning-text-emphasis: #fde047;
+    --bs-danger-bg-subtle: rgba(248, 113, 113, 0.22);
+    --bs-danger-text-emphasis: #fca5a5;
+
+    // Textos de utilidad con contraste absoluto en modo oscuro
+    .text-dark { color: #f8fafc !important; }
+    .text-secondary { color: #cbd5e1 !important; }
+    .text-secondary-emphasis { color: #e2e8f0 !important; }
+    .text-muted { color: #94a3b8 !important; }
+    .bg-light { background-color: #1e293b !important; color: #f1f5f9 !important; }
+    .bg-light-subtle { background-color: #1e293b !important; }
+    .bg-secondary-subtle { background-color: rgba(148, 163, 184, 0.22) !important; color: #e2e8f0 !important; }
+    .bg-primary-subtle { background-color: rgba(96, 165, 250, 0.22) !important; color: #93c5fd !important; }
+    .bg-success-subtle { background-color: rgba(74, 222, 128, 0.22) !important; color: #86efac !important; }
+    .bg-info-subtle { background-color: rgba(56, 189, 248, 0.22) !important; color: #7dd3fc !important; }
+    .bg-warning-subtle { background-color: rgba(251, 191, 36, 0.22) !important; color: #fde047 !important; }
+    .bg-danger-subtle { background-color: rgba(248, 113, 113, 0.22) !important; color: #fca5a5 !important; }
+
     .card { --bs-card-bg: var(--ae-surface); }
     .dropdown-menu { --bs-dropdown-bg: var(--ae-surface-2); --bs-dropdown-link-hover-bg: var(--ae-hover); --bs-dropdown-border-color: var(--ae-border); }
     .modal { --bs-modal-bg: var(--ae-surface); }
     .form-control,
-    .form-select { background-color: var(--ae-surface-2); }
+    .form-select { background-color: var(--ae-surface-2); color: var(--ae-ink); }
     .form-control:disabled,
     .form-select:disabled { background-color: var(--ae-hover); }
-    .text-muted { color: var(--ae-ink-soft) !important; }
     .text-bg-light { background-color: var(--ae-chip) !important; color: var(--ae-ink) !important; }
     .btn-light { --bs-btn-bg: var(--ae-chip); --bs-btn-border-color: var(--ae-border); --bs-btn-color: var(--ae-ink); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); }
     .btn-outline-secondary { --bs-btn-color: var(--ae-ink-soft); --bs-btn-border-color: var(--ae-border-strong); --bs-btn-hover-bg: var(--ae-hover); --bs-btn-hover-color: var(--ae-ink); --bs-btn-hover-border-color: var(--ae-border-strong); }
@@ -142,6 +179,92 @@
     .alert-danger { --bs-alert-bg: rgba(248, 113, 113, 0.12); --bs-alert-color: var(--ae-danger); --bs-alert-border-color: transparent; }
     .alert-warning { --bs-alert-bg: rgba(251, 191, 36, 0.12); --bs-alert-color: var(--ae-warn); --bs-alert-border-color: transparent; }
     .alert-info { --bs-alert-bg: rgba(96, 165, 250, 0.12); --bs-alert-color: var(--ae-info); --bs-alert-border-color: transparent; }
+
+    // Badges en modo oscuro: colores vivos y texto de alto contraste garantizado
+    .badge {
+        &.bg-secondary-subtle,
+        &.bg-secondary {
+            background-color: rgba(148, 163, 184, 0.22) !important;
+            color: #e2e8f0 !important;
+            border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        }
+        &.bg-primary-subtle,
+        &.bg-primary {
+            background-color: rgba(96, 165, 250, 0.22) !important;
+            color: #93c5fd !important;
+            border: 1px solid rgba(96, 165, 250, 0.4) !important;
+        }
+        &.bg-success-subtle,
+        &.bg-success {
+            background-color: rgba(74, 222, 128, 0.22) !important;
+            color: #86efac !important;
+            border: 1px solid rgba(74, 222, 128, 0.4) !important;
+        }
+        &.bg-info-subtle,
+        &.bg-info {
+            background-color: rgba(56, 189, 248, 0.22) !important;
+            color: #7dd3fc !important;
+            border: 1px solid rgba(56, 189, 248, 0.4) !important;
+        }
+        &.bg-warning-subtle,
+        &.bg-warning {
+            background-color: rgba(251, 191, 36, 0.22) !important;
+            color: #fde047 !important;
+            border: 1px solid rgba(251, 191, 36, 0.4) !important;
+        }
+        &.bg-danger-subtle,
+        &.bg-danger {
+            background-color: rgba(248, 113, 113, 0.22) !important;
+            color: #fca5a5 !important;
+            border: 1px solid rgba(248, 113, 113, 0.4) !important;
+        }
+        &.bg-light,
+        &.bg-light-subtle,
+        &.text-bg-light {
+            background-color: #1e293b !important;
+            color: #f1f5f9 !important;
+            border: 1px solid #334155 !important;
+        }
+        &.text-secondary,
+        &.text-muted,
+        &.text-dark {
+            color: #f1f5f9 !important;
+        }
+        i {
+            color: inherit !important;
+        }
+    }
+
+    // Tablas en modo oscuro: encabezados, celdas y textos tenues
+    .table {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--ae-ink);
+        --bs-table-border-color: var(--ae-border-soft);
+        --bs-table-striped-bg: rgba(255, 255, 255, 0.02);
+        --bs-table-striped-color: var(--ae-ink);
+        --bs-table-hover-bg: rgba(255, 255, 255, 0.04);
+        --bs-table-hover-color: #ffffff;
+        color: var(--ae-ink);
+
+        th {
+            background-color: var(--ae-surface-2) !important;
+            color: #e2e8f0 !important;
+            border-bottom: 2px solid var(--ae-border) !important;
+        }
+        td {
+            color: var(--ae-ink);
+            border-color: var(--ae-border-soft);
+        }
+        .text-dark {
+            color: #f8fafc !important;
+        }
+        .text-secondary {
+            color: #cbd5e1 !important;
+        }
+        .text-muted {
+            color: #94a3b8 !important;
+        }
+    }
 
     // Editor CKEditor 4 y SweetAlert2 no tienen tema oscuro: se enmarcan para que no "brillen" sobre el fondo.
     .cke { border-color: var(--ae-border) !important; border-radius: $border-radius; overflow: hidden; }

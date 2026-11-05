@@ -114,12 +114,6 @@ class TarifaController extends Controller
 
         $query = Tarifa::query();
 
-        if (! empty($datos['fecha'])) {
-            $query->vigenteEl($datos['fecha']);
-        } else {
-            $query->where(fn ($q) => $q->whereNull('desde')->orWhere('es_fija', true));
-        }
-
         if (! empty($datos['habitacion_id'])) {
             $query->where('habitacion_id', $datos['habitacion_id']);
         } elseif (! empty($datos['proveedor_id'])) {
@@ -128,7 +122,24 @@ class TarifaController extends Controller
             return response()->json(['tarifas' => []]);
         }
 
-        $tarifas = $query->conPrioridadTemporada()->latest('id')->limit(25)->get();
+        if (! empty($datos['fecha'])) {
+            $queryFecha = (clone $query)->vigenteEl($datos['fecha']);
+            $tarifas = $queryFecha->conPrioridadTemporada()->latest('id')->limit(25)->get();
+            if ($tarifas->isEmpty()) {
+                // Si no hay tarifa exacta para la fecha, mostrar las tarifas vigentes del proveedor/hotel
+                $tarifas = $query->conPrioridadTemporada()->latest('id')->limit(25)->get();
+            }
+        } else {
+            $tarifas = $query->where(function ($q) {
+                $q->where('es_fija', true)
+                  ->orWhereNull('hasta')
+                  ->orWhere('hasta', '>=', now()->startOfYear()->toDateString());
+            })->conPrioridadTemporada()->latest('id')->limit(25)->get();
+
+            if ($tarifas->isEmpty()) {
+                $tarifas = $query->conPrioridadTemporada()->latest('id')->limit(25)->get();
+            }
+        }
 
         return response()->json(['tarifas' => $tarifas->map(fn (Tarifa $t) => [
             'id' => $t->id,
