@@ -38,7 +38,6 @@
     object-fit: cover;
     z-index: 1;
     transition: opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-    filter: brightness(0.85);
 
     body.video-active & {
         opacity: 0;
@@ -84,15 +83,9 @@
     }
 }
 
-// Velo cinematográfico para asegurar legibilidad perfecta (WCAG AA)
+// Capa de velo oscuro eliminada para mostrar la imagen y el video con su brillo y color natural
 .auth-bg__overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    background: radial-gradient(circle at center, rgba(11, 19, 32, 0.48) 0%, rgba(8, 15, 26, 0.88) 100%),
-               linear-gradient(180deg, rgba(8, 15, 26, 0.55) 0%, rgba(15, 23, 42, 0.35) 50%, rgba(8, 15, 26, 0.9) 100%);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
+    display: none !important;
 }
 
 // --------------------------------------------------------------------------

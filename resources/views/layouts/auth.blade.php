@@ -44,13 +44,12 @@
     {{-- Pantalla de Carga y Transición Cinemática (se mantiene hasta que el video esté reproduciéndose) --}}
     @include('layouts.partials.preloader')
 
-    {{-- Fondo de video con poster fotográfico de fallback y velo cinematográfico --}}
+    {{-- Fondo de video con poster fotográfico de fallback sin velo oscuro --}}
     <div class="auth-bg" aria-hidden="true">
         <img src="{{ asset('img/machupicchu.webp') }}" alt="" class="auth-bg__poster" id="auth-bg-poster">
         <div class="auth-bg__video-wrap" id="auth-video-wrap">
             <div id="auth-yt-player"></div>
         </div>
-        <div class="auth-bg__overlay"></div>
     </div>
 
     {{-- Contenedor Central Flotante --}}
