@@ -10,6 +10,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
+    <meta name="color-scheme" content="light">
     <title>@yield('titulo', 'Acceso') · Panel Andean Exclusive</title>
     <link rel="icon" type="image/png" href="{{ asset('img/logoico.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">

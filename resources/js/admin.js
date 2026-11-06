@@ -129,7 +129,22 @@ function initCopyButtons() {
 
         try {
             await navigator.clipboard.writeText(button.dataset.copy);
-            window.Swal?.fire({ toast: true, position: 'bottom-end', icon: 'success', title: 'Enlace copiado', showConfirmButton: false, timer: 2000 });
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark';
+            window.Swal?.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'success',
+                title: 'Enlace copiado',
+                showConfirmButton: false,
+                timer: 2000,
+                background: isDark ? '#0f172a' : '#ffffff',
+                color: isDark ? '#f8fafc' : '#0f172a',
+                iconColor: isDark ? '#34d399' : '#10b981',
+                customClass: {
+                    popup: 'ae-copy-toast',
+                    title: 'ae-copy-toast__title'
+                }
+            });
         } catch {
             window.prompt('Copia el enlace:', button.dataset.copy);
         }

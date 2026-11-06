@@ -104,6 +104,7 @@
 }
 
 .auth-card {
+    color-scheme: light;
     width: 100%;
     max-width: 440px;
     background: rgba(255, 255, 255, 0.97);
@@ -221,6 +222,7 @@
         font-weight: 500;
         padding: 0.7rem 0.95rem;
         color: #0f172a !important;
+        color-scheme: light !important;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
         &:focus {
@@ -244,7 +246,10 @@
         &:-webkit-autofill:focus,
         &:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+            box-shadow: 0 0 0 1000px #ffffff inset !important;
             -webkit-text-fill-color: #0f172a !important;
+            color: #0f172a !important;
+            color-scheme: light !important;
             caret-color: #0f172a !important;
             border-color: #cbd5e1 !important;
             transition: background-color 5000s ease-in-out 0s;
