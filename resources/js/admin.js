@@ -151,6 +151,78 @@ function initPrintButtons() {
     });
 }
 
+// Modal Rápido de Historial / Bitácora del Grupo en 1 clic
+function initHistorialModal(bootstrap) {
+    const modalEl = document.getElementById('modal-historial-programa');
+    if (!modalEl || !bootstrap?.Modal) return;
+
+    const modalTitle = document.getElementById('modal-historial-title');
+    const modalSubtitle = document.getElementById('modal-historial-subtitle');
+    const modalBody = document.getElementById('modal-historial-body');
+    const bsModal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    document.addEventListener('click', async (event) => {
+        const btn = event.target.closest('[data-historial-modal]');
+        if (!btn) return;
+
+        event.preventDefault();
+
+        const nombre = btn.dataset.programaNombre || 'Programa';
+        const codigo = btn.dataset.programaCodigo || '';
+        const url = btn.dataset.historialUrl;
+
+        if (modalTitle) {
+            modalTitle.textContent = codigo ? `[${codigo}] ${nombre}` : nombre;
+        }
+        if (modalSubtitle) {
+            modalSubtitle.textContent = 'Historial y bitácora completa de movimientos del grupo';
+        }
+
+        if (modalBody) {
+            modalBody.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                    <p class="text-muted mt-2 small">Cargando bitácora del grupo...</p>
+                </div>
+            `;
+        }
+
+        bsModal.show();
+
+        if (!url) return;
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Modal-Request': '1'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const html = await response.text();
+            if (modalBody) {
+                modalBody.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error cargando historial de programa:', error);
+            if (modalBody) {
+                modalBody.innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <div>No se pudo cargar el historial del grupo. Intenta nuevamente o ábrelo desde edición.</div>
+                    </div>
+                `;
+            }
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initPreloader();
     initTheme();
@@ -172,4 +244,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initProgramaForm();
     initClienteCampos();
     initAuthVideo();
+    initHistorialModal(bootstrap);
 });

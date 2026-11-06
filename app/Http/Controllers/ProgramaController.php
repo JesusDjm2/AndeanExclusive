@@ -651,6 +651,51 @@ class ProgramaController extends Controller
         return view('programas.show', compact('programa'));
     }
 
+    /** Historial de auditoría y movimientos del grupo (para consulta rápida en modal o ficha). */
+    public function historial(Programa $programa, Request $request)
+    {
+        $movimientos = $programa->movimientos()->limit(100)->get();
+
+        if ($request->ajax() || $request->wantsJson() || $request->header('X-Modal-Request') || $request->boolean('modal')) {
+            return view('programas.partials.historial-modal-content', compact('programa', 'movimientos'));
+        }
+
+        return redirect()->route('programas.edit', [$programa, 'tab' => 'historial']);
+    }
+
+    /** Ficha Ejecutiva y de Operaciones interna para consulta centralizada sin riesgo de edición. */
+    public function adminShow(Programa $programa)
+    {
+        $programa->loadMissing([
+            'cliente',
+            'agentes',
+            'paxs',
+            'dias.servicios.proveedor',
+            'habitacionesFechas.habitacion.hotel',
+            'pagos',
+            'tareas',
+        ]);
+
+        $movimientos = $programa->movimientos()->limit(50)->get();
+        $presupuesto = $programa->presupuesto();
+        $cobro = $programa->cobranza();
+        $costos = $programa->costeo();
+        $alojamiento = $programa->alojamiento();
+        $operacion = $programa->operacion();
+        $tareasResumen = $programa->tareasResumen();
+
+        return view('programas.ficha', compact(
+            'programa',
+            'movimientos',
+            'presupuesto',
+            'cobro',
+            'costos',
+            'alojamiento',
+            'operacion',
+            'tareasResumen'
+        ));
+    }
+
     /** PDF del programa: ?ver=1 lo muestra en el navegador (vista previa); sin parámetro, lo descarga. */
     public function exportPdf(Request $request, Programa $programa)
     {

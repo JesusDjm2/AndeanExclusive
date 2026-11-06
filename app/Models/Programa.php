@@ -350,6 +350,32 @@ public function paxs()
         return $this->belongsTo(Mes::class, 'mes_id');
     }
 
+    public function movimientos()
+    {
+        return $this->hasMany(Movimiento::class, 'programa_id')->latest()->orderByDesc('id');
+    }
+
+    /** Indica si el grupo tiene algún dato de vuelo de llegada o salida registrado. */
+    public function tieneVuelos(): bool
+    {
+        return filled($this->llegada_vuelo) || filled($this->salida_vuelo) || $this->llegada_at !== null || $this->salida_at !== null;
+    }
+
+    /** Resumen de tareas operativas del grupo. */
+    public function tareasResumen(): array
+    {
+        $this->loadMissing('tareas');
+        $pendientes = $this->tareas->whereNull('completada_at');
+        $vencidas = $pendientes->filter(fn ($t) => $t->fecha_limite && Carbon::parse($t->fecha_limite)->isPast())->count();
+
+        return [
+            'total' => $this->tareas->count(),
+            'pendientes' => $pendientes->count(),
+            'vencidas' => $vencidas,
+            'completadas' => $this->tareas->whereNotNull('completada_at')->count(),
+        ];
+    }
+
     /** Edad mínima para tarifa de adulto y rango de tarifa infantil (los menores de 5 no pagan). */
     public const EDAD_ADULTO = 12;
 

@@ -147,7 +147,7 @@
 
                         <div class="prog-row__main">
                             <h2 class="prog-row__name">
-                                                                    <a href="{{ route('programas.edit', $programa) }}">{{ $programa->nombre }}</a>
+                                <a href="{{ route('programas.ficha', $programa) }}" title="Ver ficha operativa de {{ $programa->nombre }}">{{ $programa->nombre }}</a>
                             </h2>
                             <p class="prog-row__meta">
                                 <span title="Código"><i class="fas fa-hashtag" aria-hidden="true"></i>{{ $programa->codigo }}</span>
@@ -156,6 +156,17 @@
                                 @endif
                                 @if ($programa->agentes->isNotEmpty())
                                     <span title="Agente"><i class="fas fa-user-tie" aria-hidden="true"></i>{{ $programa->agentes->pluck('nombre')->implode(', ') }}</span>
+                                @endif
+                                @if ($programa->tieneVuelos())
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle" title="Llegada: {{ $programa->llegada_vuelo ?: 'Sí' }} · Salida: {{ $programa->salida_vuelo ?: 'Sí' }}"><i class="fas fa-plane me-1"></i>Vuelos OK</span>
+                                @elseif ($inicio && $inicio->isFuture() && $dias <= 30)
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" title="Sin vuelos registrados"><i class="fas fa-plane-slash me-1"></i>Sin vuelos</span>
+                                @endif
+                                @php $tRes = $programa->tareasResumen(); @endphp
+                                @if ($tRes['vencidas'] > 0)
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle" title="{{ $tRes['vencidas'] }} tareas vencidas"><i class="fas fa-exclamation-triangle me-1"></i>{{ $tRes['vencidas'] }} tar. vencidas</span>
+                                @elseif ($tRes['pendientes'] > 0)
+                                    <span class="badge bg-info-subtle text-info border border-info-subtle" title="{{ $tRes['pendientes'] }} tareas pendientes"><i class="fas fa-tasks me-1"></i>{{ $tRes['pendientes'] }} tareas</span>
                                 @endif
                             </p>
                         </div>
@@ -253,12 +264,28 @@
                                         </li>
                                     @endif
                                         <li><hr class="dropdown-divider"></li>
-                                        <li><h3 class="dropdown-header">Gestión</h3></li>
+                                        <li><h3 class="dropdown-header">Gestión Operativa</h3></li>
                                         <li>
-                                            <a class="dropdown-item" href="{{ route('programas.edit', $programa) }}">
-                                                <i class="fas fa-fw {{ $canEdit ? 'fa-pen' : 'fa-eye' }}" aria-hidden="true"></i> {{ $canEdit ? 'Editar' : 'Ver ficha' }}
+                                            <a class="dropdown-item" href="{{ route('programas.ficha', $programa) }}">
+                                                <i class="fas fa-fw fa-id-card text-primary" aria-hidden="true"></i> Ficha operativa
                                             </a>
                                         </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item"
+                                                data-historial-modal
+                                                data-programa-nombre="{{ $programa->nombre }}"
+                                                data-programa-codigo="{{ $programa->codigo }}"
+                                                data-historial-url="{{ route('programas.historial', $programa) }}">
+                                                <i class="fas fa-fw fa-history text-secondary" aria-hidden="true"></i> Historial de movimientos
+                                            </button>
+                                        </li>
+                                        @if ($canEdit)
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('programas.edit', $programa) }}">
+                                                    <i class="fas fa-fw fa-pencil-alt text-muted" aria-hidden="true"></i> Editar datos
+                                                </a>
+                                            </li>
+                                        @endif
                                         @if ($canEdit)
                                         <li>
                                             <a class="dropdown-item" href="{{ route('programas.duplicar', $programa) }}">
@@ -393,6 +420,39 @@
                                     <p class="prog-detail__contact"><i class="fas fa-envelope" aria-hidden="true"></i> {{ $programa->email }}</p>
                                 @endif
                             </section>
+
+                            {{-- Barra de Acciones Directas del Detalle --}}
+                            <div class="prog-detail__footer d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-3 border-top w-100">
+                                <div class="d-flex align-items-center gap-2">
+                                    @if ($programa->tieneVuelos())
+                                        <span class="badge text-bg-success-subtle text-success border border-success-subtle">
+                                            <i class="fas fa-plane me-1"></i>
+                                            Llegada: {{ $programa->llegada_vuelo ?: 'Definido' }} | Salida: {{ $programa->salida_vuelo ?: 'Definido' }}
+                                        </span>
+                                    @else
+                                        <span class="badge text-bg-warning-subtle text-warning-emphasis border border-warning-subtle">
+                                            <i class="fas fa-plane-slash me-1"></i> Vuelos pendientes
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                        data-historial-modal
+                                        data-programa-nombre="{{ $programa->nombre }}"
+                                        data-programa-codigo="{{ $programa->codigo }}"
+                                        data-historial-url="{{ route('programas.historial', $programa) }}">
+                                        <i class="fas fa-history me-1 text-primary"></i> Historial
+                                    </button>
+                                    <a href="{{ route('programas.ficha', $programa) }}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-id-card me-1"></i> Ficha operativa
+                                    </a>
+                                    @if ($canEdit)
+                                        <a href="{{ route('programas.edit', $programa) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-pencil-alt me-1"></i> Editar
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </li>
@@ -403,4 +463,7 @@
             {{ $programas->links('pagination::bootstrap-5') }}
         </div>
     @endif
+
+    {{-- Modal Reutilizable de Historial de Movimientos --}}
+    @include('programas.partials.modal-historial')
 @endsection

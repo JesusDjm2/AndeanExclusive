@@ -325,10 +325,18 @@
                                                         class="btn btn-sm btn-outline-info" title="Auditoría de pagos y cuentas">
                                                         <i class="fas fa-wallet me-1"></i> Pagos
                                                     </a>
-                                                    <a href="{{ route('programas.edit', [$programa, 'tab' => 'historial']) }}"
-                                                        class="btn btn-sm btn-outline-secondary" title="Bitácora e historial de eventos">
-                                                        <i class="fas fa-history me-1"></i> Historial
+                                                    <a href="{{ route('programas.ficha', $programa) }}"
+                                                        class="btn btn-sm btn-outline-primary" title="Ficha operativa de consulta">
+                                                        <i class="fas fa-id-card me-1"></i> Ficha
                                                     </a>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        data-historial-modal
+                                                        data-programa-nombre="{{ $programa->nombre }}"
+                                                        data-programa-codigo="{{ $programa->codigo }}"
+                                                        data-historial-url="{{ route('programas.historial', $programa) }}"
+                                                        title="Bitácora e historial de eventos en 1 clic">
+                                                        <i class="fas fa-history me-1"></i> Historial
+                                                    </button>
                                                 @else
                                                     {{-- ACCIONES PARA PROGRAMA EN SERVICIO O PRÓXIMO --}}
                                                     @if ($rol === 'contabilidad')
@@ -446,4 +454,7 @@
             @endif
         @endif
     </div>
+
+    {{-- Modal Reutilizable de Historial de Movimientos --}}
+    @include('programas.partials.modal-historial')
 @endsection
