@@ -454,11 +454,31 @@
     }
 }
 
-// Transición suave al cambiar de tema (no al cargar: theme.js añade la clase solo durante el cambio).
+// Cambio de tema (theme.js añade estas clases solo durante el cambio, nunca al cargar).
+// Navegadores sin View Transitions: fundido de colores.
 .ae-theme-switching,
-.ae-theme-switching * {
-    transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease !important;
+.ae-theme-switching *,
+.ae-theme-switching *::before,
+.ae-theme-switching *::after {
+    transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.35s cubic-bezier(0.4, 0, 0.2, 1), fill 0.35s ease, box-shadow 0.4s ease !important;
 }
+
+// Con View Transitions: el tema nuevo se revela en círculo desde el botón (la animación la define theme.js).
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+}
+
+::view-transition-new(root) { z-index: 2; }
+
+// Durante la revelación, que ninguna transición propia de los elementos compita con la captura.
+.ae-theme-revealing * { transition: none !important; }
+
+// El ícono del botón gira al cambiar.
+.theme-toggle__btn i { transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1); }
+.theme-toggle__btn:active i { transform: rotate(-30deg) scale(0.9); }
 
 // Botón de tema (barra superior): alterna claro/oscuro con un clic.
 .theme-toggle__btn {

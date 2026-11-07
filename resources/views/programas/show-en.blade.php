@@ -42,9 +42,9 @@
                 class="fullscreen-img" width="1920" height="1080" decoding="async" fetchpriority="high">
             <div class="content-overlay-paxs">
                 <div class="program-info-card">
-                    {{-- Header con nombre y código --}}
+                    {{-- Header con logo (sitio público) y nombre del viaje --}}
                     <div class="program-header">
-                        <div class="program-code-badge">{{ $programa->codigo }}</div><br>
+                        @include('layouts.partials.programa-show-hero-logo', ['locale' => 'en'])
                         <h1 class="mb-2">
                             {{ $programa->nombre }}
                             <span class="title-dot"></span>
@@ -68,7 +68,7 @@
                         @endphp
 
                         {{-- Métricas principales en grid --}}
-                        <div class="program-metrics-grid">
+                        <div class="program-metrics-grid program-metrics-grid--compact">
                             {{-- Duración --}}
                             <div class="metric-item">
                                 <div class="metric-icon">
@@ -123,95 +123,12 @@
                         </div>
                     @endif
 
-                    @if ($programa->agentes && $programa->agentes->count() > 0)
-                        <div class="program-section">
-                            <div class="section-header">
-                                <i class="fa fa-group"></i>
-                                <h3>Agentes Asignados:</h3>
-                            </div>
-
-                            <div class="participants-vertical-grid">
-                                @foreach ($programa->agentes as $agente)
-                                    <div class="participant-vcard">
-                                        <div class="vcard-row">
-                                            <div class="vcard-icon">
-                                                @if ($agente->foto)
-                                                    <img src="{{ asset($agente->foto) }}" alt="{{ $agente->nombre }}"
-                                                        style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                                                @else
-                                                    <i class="fa fa-user-circle"></i>
-                                                @endif
-                                            </div>
-                                            <div class="vcard-name">{{ $agente->nombre }}</div>
-                                        </div>
-
-                                        <div class="vcard-details">
-                                            @if ($agente->telefono)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-phone"></i>
-                                                    <span>{{ $agente->telefono }}</span>
-                                                </div>
-                                            @endif
-
-                                            @if ($agente->email)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-envelope"></i>
-                                                    <span>{{ $agente->email }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- Participantes con detalles --}}
-                    @if ($programa->paxs->count() > 0)
-                        <div class="program-section">
-                            <div class="section-header">
-                                <i class="fa fa-users"></i>
-                                <h3>Viajeros:</h3>
-                            </div>
-
-                            <div class="participants-vertical-grid">
-                                @foreach ($programa->paxs as $pax)
-                                    <div class="participant-vcard">
-                                        <div class="vcard-row">
-                                            <div class="vcard-icon">
-                                                @if ($pax->edad < 5)
-                                                    <i class="fa fa-baby"></i>
-                                                @elseif($pax->edad < 12)
-                                                    <i class="fa fa-child"></i>
-                                                @else
-                                                    <i class="fa fa-user"></i>
-                                                @endif
-                                            </div>
-                                            <div class="vcard-name">{{ $pax->nombre }}</div>
-                                        </div>
-
-                                        <div class="vcard-details">
-                                            <div class="vcard-detail">
-                                                <i class="fa fa-birthday-cake"></i>
-                                                <span>{{ $pax->edad }} years</span>
-                                            </div>
-
-                                            <div class="vcard-detail">
-                                                <i class="fa fa-flag"></i>
-                                                <span>{{ $pax->nacionalidad }}</span>
-                                            </div>
-
-                                            @if ($pax->alimentacion)
-                                                <div class="vcard-detail">
-                                                    <i class="fa fa-cutlery"></i>
-                                                    <span>{{ $pax->alimentacion }}</span>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+                    @if (
+                        ($programa->agentes && $programa->agentes->count() > 0) || $programa->paxs->count() > 0)
+                        @include('layouts.partials.programa-show-hero-lists', [
+                            'locale' => 'en',
+                            'programa' => $programa,
+                        ])
                     @endif
                 </div>
             </div>
@@ -593,6 +510,8 @@
             </div>
         </div>
     </div>
+
+    @include('layouts.partials.programa-show-footer', ['locale' => 'en'])
 
     {{-- Scripts --}}
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

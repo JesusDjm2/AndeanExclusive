@@ -13,15 +13,47 @@ const stored = () => {
     }
 };
 
-function apply(theme, animate = false) {
+const REVEAL_MS = 650;
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    syncControls(theme);
+}
+
+// origin: elemento desde el que se expande el tema nuevo (el botón pulsado).
+function apply(theme, animate = false, origin = null) {
     const root = document.documentElement;
     const finalTheme = theme === 'light' ? 'light' : 'dark';
-    if (animate) {
-        root.classList.add('ae-theme-switching');
-        window.setTimeout(() => root.classList.remove('ae-theme-switching'), 300);
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!animate || reduceMotion) {
+        setTheme(finalTheme);
+        return;
     }
-    root.setAttribute('data-bs-theme', finalTheme);
-    syncControls(finalTheme);
+
+    // Sin View Transitions: fundido de colores en toda la página.
+    if (!document.startViewTransition) {
+        root.classList.add('ae-theme-switching');
+        setTheme(finalTheme);
+        window.setTimeout(() => root.classList.remove('ae-theme-switching'), 450);
+        return;
+    }
+
+    // Con View Transitions: el tema nuevo se revela en un círculo que crece desde el botón.
+    const rect = origin?.getBoundingClientRect();
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth - 40;
+    const y = rect ? rect.top + rect.height / 2 : 40;
+    const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+    root.classList.add('ae-theme-revealing');
+    const transition = document.startViewTransition(() => setTheme(finalTheme));
+    transition.ready.then(() => {
+        root.animate(
+            { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+            { duration: REVEAL_MS, easing: 'cubic-bezier(0.65, 0, 0.35, 1)', pseudoElement: '::view-transition-new(root)' },
+        );
+    });
+    transition.finished.finally(() => root.classList.remove('ae-theme-revealing'));
 }
 
 function syncControls(theme) {
@@ -55,7 +87,7 @@ export function initTheme() {
             } catch {
                 // Modo privado
             }
-            apply(theme, true);
+            apply(theme, true, item);
             return;
         }
 
@@ -66,7 +98,7 @@ export function initTheme() {
             try {
                 localStorage.setItem(STORAGE_KEY, nextTheme);
             } catch {}
-            apply(nextTheme, true);
+            apply(nextTheme, true, toggleBtn);
         }
     });
 }
