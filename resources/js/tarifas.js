@@ -113,8 +113,65 @@ function initAsignar() {
     modal.addEventListener('shown.bs.modal', cargar);
 }
 
-// Filas de itinerario en el formulario de programa: muestra botones de tarifas al elegir proveedor
-async function cargarTarifasFila(row, proveedorId) {
+// Aplica una tarifa del proveedor a la fila: precio cotizado, moneda, modo de cobro y nombre si estaba vacío.
+function aplicarTarifa(row, tarifa, automatica = false) {
+    const disparar = (el) => {
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    const tituloInput = row.querySelector('[data-svc-titulo]');
+    if (tituloInput && !tituloInput.value.trim()) {
+        tituloInput.value = tarifa.concepto;
+        disparar(tituloInput);
+    }
+
+    const estInput = row.querySelector('[data-svc-estimado]');
+    if (estInput) {
+        estInput.value = tarifa.precio;
+        disparar(estInput);
+    }
+
+    // El costo real lo confirma Reservas; solo se propone si el campo está habilitado y vacío.
+    const realInput = row.querySelector('[data-svc-costo]');
+    if (realInput && !realInput.disabled && realInput.value === '') {
+        realInput.value = tarifa.precio;
+        disparar(realInput);
+    }
+
+    const monedaSelect = row.querySelector('[data-svc-moneda]');
+    if (monedaSelect && !monedaSelect.disabled) {
+        monedaSelect.value = tarifa.moneda;
+        monedaSelect.dataset.monedaAuto = '0';
+        disparar(monedaSelect);
+    }
+
+    const porSelect = row.querySelector('[data-svc-por]');
+    if (porSelect && !porSelect.disabled && tarifa.por_raw) {
+        porSelect.value = tarifa.por_raw;
+        disparar(porSelect);
+    }
+
+    const origen = row.querySelector('[data-svc-origen]');
+    if (origen) {
+        origen.hidden = false;
+        origen.classList.toggle('is-warning', Boolean(tarifa.fuera_de_temporada));
+        const cuando = tarifa.fuera_de_temporada ? `de otra temporada (${tarifa.temporada}), confírmala` : tarifa.temporada;
+        origen.innerHTML = `<i class="fas ${tarifa.fuera_de_temporada ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-1" aria-hidden="true"></i>${automatica ? 'Del tarifario' : 'Tarifa aplicada'}: ${tarifa.concepto} · ${cuando}`;
+    }
+}
+
+// Elige sola la tarifa cuando no hay dudas: una sola vigente o una sola del mismo tipo de servicio.
+function tarifaUnica(row, tarifas) {
+    const vigentes = tarifas.filter((t) => !t.fuera_de_temporada);
+    if (vigentes.length === 1) return vigentes[0];
+    const tipo = row.querySelector('[id$="-tipo"]')?.value;
+    const delTipo = vigentes.filter((t) => t.tipo_servicio && t.tipo_servicio === tipo);
+    return delTipo.length === 1 ? delTipo[0] : null;
+}
+
+// Filas de itinerario en el formulario de programa: al elegir proveedor aplica su tarifa o muestra las opciones.
+async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
     let contenedor = row.querySelector('[data-svc-quick-rates]');
     if (!contenedor) {
         contenedor = document.createElement('div');
@@ -139,10 +196,18 @@ async function cargarTarifasFila(row, proveedorId) {
         const hint = document.createElement('small');
         hint.className = 'text-muted d-block mt-1';
         hint.style.fontSize = '0.74rem';
-        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Este proveedor no tiene tarifas fijas registradas aún. Escribe el precio directamente a la derecha.';
+        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Este proveedor aún no tiene tarifas en el tarifario: escribe el precio cotizado.';
         contenedor.appendChild(hint);
         return;
     }
+
+    // Al elegir el proveedor, si su tarifa es inequívoca se aplica sola (sin pisar un precio ya escrito).
+    const estInput = row.querySelector('[data-svc-estimado]');
+    const unica = autoAplicar && estInput && estInput.value === '' ? tarifaUnica(row, tarifas) : null;
+    if (unica) aplicarTarifa(row, unica, true);
+
+    // Con una sola tarifa ya aplicada no hace falta mostrar botones.
+    if (unica && tarifas.length === 1) return;
 
     const box = document.createElement('div');
     box.className = 'd-flex flex-wrap gap-1 align-items-center mt-1';
@@ -150,7 +215,9 @@ async function cargarTarifasFila(row, proveedorId) {
     const label = document.createElement('span');
     label.className = 'badge bg-gold-subtle text-gold-text border small';
     label.style.fontSize = '0.72rem';
-    label.innerHTML = '<i class="fas fa-tags me-1"></i>Tarifas de este proveedor (haz clic para aplicar):';
+    label.innerHTML = unica
+        ? '<i class="fas fa-tags me-1"></i>Otras tarifas de este proveedor:'
+        : '<i class="fas fa-tags me-1"></i>Elige la tarifa de este proveedor:';
     box.appendChild(label);
 
     if (tarifas[0].fuera_de_temporada) {
@@ -172,48 +239,7 @@ async function cargarTarifasFila(row, proveedorId) {
         btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
 
         btn.addEventListener('click', () => {
-            // Autocompletar concepto si está vacío o sugerido
-            const tituloInput = row.querySelector('[data-svc-titulo]');
-            if (tituloInput && (!tituloInput.value || tituloInput.value.trim() === '')) {
-                tituloInput.value = tarifa.concepto;
-                tituloInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-
-            // Costo estimado
-            const estInput = row.querySelector('[id$="-estimado"]');
-            if (estInput) {
-                estInput.value = tarifa.precio;
-                estInput.dispatchEvent(new Event('input', { bubbles: true }));
-                estInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            // Costo real (si no está bloqueado)
-            const realInput = row.querySelector('[id$="-costo"]');
-            if (realInput && !realInput.disabled) {
-                realInput.value = tarifa.precio;
-                realInput.dispatchEvent(new Event('input', { bubbles: true }));
-                realInput.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            // Moneda
-            const monedaSelect = row.querySelector('[id$="-moneda"]');
-            if (monedaSelect && !monedaSelect.disabled) {
-                monedaSelect.value = tarifa.moneda;
-                monedaSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            // Por grupo / persona
-            const porSelect = row.querySelector('[id$="-por"]');
-            if (porSelect && !porSelect.disabled && tarifa.por_raw) {
-                porSelect.value = tarifa.por_raw;
-                porSelect.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-
-            // Abrir detalles si estaba cerrado para que el usuario vea el costo asignado
-            const details = row.querySelector('details');
-            if (details) details.open = true;
-
-            // Feedback visual breve
+            aplicarTarifa(row, tarifa);
             btn.className = 'btn btn-xs btn-success text-truncate py-0 px-2 fw-bold';
             setTimeout(() => {
                 btn.className = `btn btn-xs ${claseBoton} text-truncate py-0 px-2 fw-medium`;
@@ -235,7 +261,7 @@ function initItinerarioServicios() {
         const row = selectProv.closest('[data-svc-item]');
         if (!row) return;
 
-        cargarTarifasFila(row, selectProv.value);
+        cargarTarifasFila(row, selectProv.value, true);
     });
 
     // 2. Cargar tarifas de inicio para las filas que ya tengan proveedor seleccionado

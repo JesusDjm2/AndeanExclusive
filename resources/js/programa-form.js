@@ -223,9 +223,24 @@ function initItinerario(root) {
     });
 
     section.addEventListener('change', (event) => {
+        // Quien elige la moneda de una fila a mano la fija: deja de seguir a la del programa.
+        if (event.isTrusted && event.target.matches('[data-svc-moneda]')) event.target.dataset.monedaAuto = '0';
         const select = event.target.closest('[data-svc-estado]');
         if (!select) return;
         select.className = select.className.replace(/svc-estado--\S+/, `svc-estado--${select.value}`);
+    });
+
+    // Las filas sin moneda propia siguen a la del programa (en captura, antes de recalcular el presupuesto).
+    const monedaPrograma = root.querySelector('[data-programa-moneda]');
+    const seguirMoneda = (scope) => {
+        if (!monedaPrograma) return;
+        scope.querySelectorAll('[data-svc-moneda][data-moneda-auto="1"]:not(:disabled)').forEach((sel) => {
+            sel.value = monedaPrograma.value;
+        });
+    };
+    monedaPrograma?.addEventListener('change', () => seguirMoneda(section), true);
+    section.addEventListener('click', (event) => {
+        if (event.target.closest('[data-svc-add]')) queueMicrotask(() => seguirMoneda(section));
     });
 }
 

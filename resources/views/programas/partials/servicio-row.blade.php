@@ -107,21 +107,25 @@
         </div>
     @else
         <div class="svc-row__finance-grid">
+            {{-- La moneda va pegada al precio: por defecto la del programa, o la de la tarifa del proveedor si se aplica una. --}}
+            @php $monedaFila = $v('moneda') ?: ($programa->moneda ?? 'USD'); @endphp
             <div class="svc-fin__col svc-fin__col--estimado">
                 <label class="prog-label" for="svc-{{ $i }}-estimado">
                     <i class="fas fa-tag text-warning me-1" aria-hidden="true"></i>Precio cotizado
                 </label>
-                <input id="svc-{{ $i }}-estimado" type="number" name="{{ $name('costo_estimado') }}" value="{{ $v('costo_estimado') }}" step="0.01" min="0"
-                    class="form-control form-control-sm {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
-            </div>
-            <div class="svc-fin__col svc-fin__col--moneda">
-                <label class="prog-label" for="svc-{{ $i }}-moneda">Moneda</label>
-                @if ($bloqueadoMoneda)<input type="hidden" name="{{ $name('moneda') }}" value="{{ $v('moneda') ?: 'USD' }}">@endif
-                <select id="svc-{{ $i }}-moneda" @disabled($bloqueadoMoneda) name="{{ $name('moneda') }}" class="form-select form-select-sm" data-svc-moneda>
-                    @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
-                        <option value="{{ $clave }}" @selected(($v('moneda') ?: 'USD') === $clave)>{{ $clave }} ({{ $simbolo }})</option>
-                    @endforeach
-                </select>
+                <div class="input-group input-group-sm">
+                    @if ($bloqueadoMoneda)<input type="hidden" name="{{ $name('moneda') }}" value="{{ $monedaFila }}">@endif
+                    <select id="svc-{{ $i }}-moneda" @disabled($bloqueadoMoneda) name="{{ $name('moneda') }}" class="form-select svc-fin__moneda"
+                        aria-label="Moneda del precio" title="Moneda del precio: la del programa salvo que la tarifa del proveedor sea en otra"
+                        data-svc-moneda data-moneda-auto="{{ filled($v('moneda')) ? '0' : '1' }}">
+                        @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
+                            <option value="{{ $clave }}" @selected($monedaFila === $clave)>{{ $simbolo }}</option>
+                        @endforeach
+                    </select>
+                    <input id="svc-{{ $i }}-estimado" type="number" name="{{ $name('costo_estimado') }}" value="{{ $v('costo_estimado') }}" step="0.01" min="0"
+                        class="form-control {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
+                </div>
+                <small class="svc-fin__origen" data-svc-origen hidden></small>
             </div>
             <div class="svc-fin__col svc-fin__col--por">
                 <label class="prog-label" for="svc-{{ $i }}-por">Se cobra</label>

@@ -130,4 +130,18 @@ class AceptacionYTarifarioTest extends TestCase
         $this->getJson("/tarifario/sugerir?proveedor_id={$proveedor->id}&fecha=2030-06-10")->assertJsonPath('tarifas.0.concepto', 'Traslado')->assertJsonPath('tarifas.0.simbolo', 'S/');
         $this->getJson('/tarifario/sugerir?fecha=2030-06-10')->assertJsonCount(0, 'tarifas');
     }
+
+    public function test_el_servicio_nuevo_toma_la_moneda_del_programa_y_el_guardado_conserva_la_suya(): void
+    {
+        $programa = $this->programa(['moneda' => 'PEN']);
+        $programa->servicios()->create(['fecha' => '2030-05-11', 'tipo' => 'guia', 'titulo' => 'Guía en dólares', 'estado' => 'pendiente', 'moneda' => 'USD', 'costo_por' => 'grupo', 'costo_estimado' => 50]);
+
+        $html = $this->actingAs($this->usuario('operaciones'))->get("/programas/{$programa->id}/edit?tab=itinerario")->assertOk()->getContent();
+
+        // La plantilla de servicio nuevo sigue al programa (soles) y el servicio guardado conserva sus dólares.
+        $plantilla = str($html)->after('data-svc-template')->before('</template>');
+        $this->assertStringContainsString('<option value="PEN" selected>S/</option>', (string) $plantilla);
+        $this->assertStringContainsString('data-moneda-auto="1"', (string) $plantilla);
+        $this->assertMatchesRegularExpression('/data-moneda-auto="0">\s*<option value="USD" selected>US\$<\/option>/', $html);
+    }
 }

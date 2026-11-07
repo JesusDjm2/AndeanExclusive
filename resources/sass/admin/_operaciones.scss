@@ -138,7 +138,7 @@ $svc-info: #2563a8;
 
     &__finance-grid {
         display: grid;
-        grid-template-columns: 9rem 6.5rem 7.5rem 8.5rem 8.5rem 1fr;
+        grid-template-columns: 12rem 7.5rem 8.5rem 8.5rem 1fr;
         gap: 0.5rem 0.6rem;
         align-items: end;
         margin-top: 0.65rem;
@@ -170,7 +170,17 @@ $svc-info: #2563a8;
             color: var(--ae-gold);
             font-weight: 700;
         }
-        input {
+        // Moneda como prefijo del precio: compacta, sin flecha visible hasta el foco.
+        .svc-fin__moneda {
+            flex: 0 0 auto;
+            width: 4.1rem;
+            padding-right: 1.4rem;
+            font-weight: 600;
+            background-position: right 0.35rem center;
+            background-color: var(--ae-surface-alt, var(--ae-surface));
+            border-color: rgba(180, 140, 88, 0.4);
+        }
+        input[type="number"] {
             font-weight: 600;
             border-color: rgba(180, 140, 88, 0.4);
             &:focus {
@@ -178,6 +188,17 @@ $svc-info: #2563a8;
                 box-shadow: 0 0 0 0.2rem rgba(180, 140, 88, 0.15);
             }
         }
+    }
+
+    // De dónde salió el precio (tarifa del proveedor aplicada sola o elegida).
+    .svc-fin__origen {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.72rem;
+        line-height: 1.25;
+        color: var(--ae-success, #198754);
+
+        &.is-warning { color: var(--ae-warn, #b7791f); }
     }
 
     @include media-breakpoint-down(xl) {
