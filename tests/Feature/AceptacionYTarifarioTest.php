@@ -98,7 +98,11 @@ class AceptacionYTarifarioTest extends TestCase
         $this->get('/tarifario/create')->assertOk();
         $this->post('/tarifario', ['tipo' => 'habitacion', 'desde' => '2030-05-20', 'hasta' => '2030-05-01', 'precio' => 100, 'moneda' => 'USD', 'por' => 'noche'])->assertSessionHasErrors(['habitacion_id', 'hasta']);
         $this->post('/tarifario', ['tipo' => 'habitacion', 'habitacion_id' => $habitacion->id, 'desde' => '2030-05-01', 'hasta' => '2030-09-30', 'precio' => 180, 'moneda' => 'USD', 'por' => 'grupo'])->assertSessionHasNoErrors();
-        $this->post('/tarifario', ['tipo' => 'proveedor', 'proveedor_id' => $proveedor->id, 'concepto' => 'Traslado', 'desde' => '2030-01-01', 'hasta' => '2030-12-31', 'precio' => 40, 'moneda' => 'USD', 'por' => 'grupo'])->assertSessionHasNoErrors();
+        $this->post('/tarifario', ['tipo' => 'proveedor', 'proveedor_id' => $proveedor->id, 'concepto' => 'Traslado', 'tipo_servicio' => 'nave-espacial', 'precio' => 40, 'moneda' => 'USD', 'por' => 'grupo'])->assertSessionHasErrors('tipo_servicio');
+        $this->post('/tarifario', ['tipo' => 'proveedor', 'proveedor_id' => $proveedor->id, 'concepto' => 'Traslado', 'tipo_servicio' => 'traslado', 'desde' => '2030-01-01', 'hasta' => '2030-12-31', 'precio' => 40, 'moneda' => 'USD', 'por' => 'grupo'])->assertSessionHasNoErrors();
+        // El tipo llega al itinerario para que elija sola la tarifa del servicio.
+        $this->getJson("/tarifario/sugerir?proveedor_id={$proveedor->id}&fecha=2030-06-10")->assertJsonPath('tarifas.0.tipo_servicio', 'traslado');
+        $this->get("/proveedors/{$proveedor->id}")->assertOk()->assertSee('name="tipo_servicio"', false);
 
         $hotel = Tarifa::whereNotNull('habitacion_id')->sole();
         $this->assertSame('noche', $hotel->por, 'Una habitación siempre es por noche');

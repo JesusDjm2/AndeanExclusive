@@ -320,11 +320,25 @@
                             </div>
 
                             <div class="row g-3">
-                                <div class="col-md-7">
+                                <div class="col-md-5">
                                     <label for="modal-tar-concepto" class="form-label fw-semibold small">Servicio / Ruta / Experiencia <span class="text-danger">*</span></label>
                                     <input type="text" id="modal-tar-concepto" name="concepto" required maxlength="255" class="form-control" placeholder="Ej. Traslado Aeropuerto ⇄ Hotel, Almuerzo Buffet, etc.">
                                 </div>
-                                <div class="col-md-5">
+                                {{-- El tipo deja que el itinerario aplique sola esta tarifa cuando el proveedor tiene varias. --}}
+                                @php
+                                    $tipoPorRubro = match (true) { $esTransporte => 'traslado', $esGuia => 'guia', $esRestaurante => 'comida', $esEntradasTren => 'entrada', default => '' };
+                                @endphp
+                                <div class="col-md-3">
+                                    <label for="modal-tar-tipo" class="form-label fw-semibold small">Tipo de servicio</label>
+                                    <select id="modal-tar-tipo" name="tipo_servicio" class="form-select">
+                                        <option value="">Sin especificar</option>
+                                        @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
+                                            @continue($clave === 'alojamiento')
+                                            <option value="{{ $clave }}" @selected($tipoPorRubro === $clave)>{{ $etiqueta }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
                                     <label for="modal-tar-unidad" class="form-label fw-semibold small">Detalle / Unidad (opcional)</label>
                                     <input type="text" id="modal-tar-unidad" name="unidad_detalle" maxlength="100" class="form-control" placeholder="Ej. Van H1, Inglés, Buffet, etc.">
                                 </div>

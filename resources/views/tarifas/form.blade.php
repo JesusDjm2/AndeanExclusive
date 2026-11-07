@@ -107,7 +107,19 @@
                     </select>
                 </div>
 
-                <div class="col-md-6" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
+                {{-- Con el tipo, el itinerario aplica sola la tarifa correcta cuando el proveedor tiene varias. --}}
+                <div class="col-md-4" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
+                    <label for="t-tipo-servicio" class="prog-label">Tipo de servicio</label>
+                    <select id="t-tipo-servicio" name="tipo_servicio" class="form-select @error('tipo_servicio') is-invalid @enderror">
+                        <option value="">Sin especificar</option>
+                        @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
+                            @continue($clave === 'alojamiento')
+                            <option value="{{ $clave }}" @selected($input('tipo_servicio') === $clave)>{{ $etiqueta }}</option>
+                        @endforeach
+                    </select>
+                    @error('tipo_servicio')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                </div>
+                <div class="col-md-8" data-tarifa-panel="proveedor" @if ($tipo !== 'proveedor') hidden @endif>
                     <label for="t-unidad" class="prog-label">Detalle de unidad / servicio (opcional)</label>
                     <input id="t-unidad" type="text" name="unidad_detalle" value="{{ $input('unidad_detalle') }}" maxlength="100" placeholder="Ej. Van H1 (1-6 pax), Bilingüe, Solo ida…" class="form-control">
                 </div>

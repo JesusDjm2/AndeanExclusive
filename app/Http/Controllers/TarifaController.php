@@ -170,7 +170,7 @@ class TarifaController extends Controller
             'habitacion_id' => ['nullable', 'required_if:tipo,habitacion', 'exists:habitacions,id'],
             'proveedor_id' => ['nullable', 'required_if:tipo,proveedor', 'exists:proveedors,id'],
             'concepto' => 'nullable|required_if:tipo,proveedor|string|max:255',
-            'tipo_servicio' => 'nullable|string|max:50',
+            'tipo_servicio' => ['nullable', Rule::in(array_keys(Servicio::TIPOS))],
             'unidad_detalle' => 'nullable|string|max:100',
             'es_fija' => 'nullable|boolean',
             'desde' => $esFija ? 'nullable|date' : 'required|date',
