@@ -139,7 +139,7 @@ class Ayuda
             'notas' => ['Con programa, el estado cambia solo: se gana al confirmarlo y se pierde al cancelarlo.', 'El mismo correo no crea un cliente repetido.'],
         ],
         'prog-lista' => [
-            'grupo' => 'programas', 'rutas' => ['programas.index', 'programas.por-periodo'], 'titulo' => 'Buscar y abrir programas',
+            'grupo' => 'programas', 'rutas' => ['programas.index', 'programas.por-periodo', 'programas.ficha'], 'titulo' => 'Buscar y abrir programas',
             'resumen' => 'La lista de todos los viajes, separados en próximos, finalizados y sin fechas.',
             'pasos' => ['Busca por nombre, código, correo o pasajero, y filtra por año, mes y estado.', 'Pulsa «Detalle» para ver pasajeros, hoteles y presupuesto sin abrir el programa.', 'El botón de tres puntos abre las acciones: ver itinerario, copiar enlace, ver PDF y más.', '«Por año y mes» muestra los viajes como un calendario.'],
         ],

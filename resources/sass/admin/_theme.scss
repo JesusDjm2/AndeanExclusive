@@ -460,13 +460,7 @@
     transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease !important;
 }
 
-// Selector de tema (barra superior).
-.theme-toggle {
-    .dropdown-item.active,
-    .dropdown-item:active { background: var(--ae-hover); color: var(--ae-accent-text); font-weight: 600; }
-    .dropdown-item i { width: 1.1rem; }
-}
-
+// Botón de tema (barra superior): alterna claro/oscuro con un clic.
 .theme-toggle__btn {
     display: inline-flex;
     align-items: center;
@@ -478,8 +472,7 @@
     background: var(--ae-surface);
     color: var(--ae-ink-soft);
 
-    &:hover,
-    &[aria-expanded="true"] { color: var(--ae-accent-text); border-color: var(--ae-border-strong); }
+    &:hover { color: var(--ae-accent-text); border-color: var(--ae-border-strong); }
     &:focus-visible { outline: 2px solid $color-primary; outline-offset: 2px; }
 }
 

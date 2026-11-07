@@ -122,9 +122,11 @@ class AceptacionYTarifarioTest extends TestCase
         Tarifa::create(['proveedor_id' => $proveedor->id, 'concepto' => 'Traslado', 'desde' => '2030-01-01', 'hasta' => '2030-12-31', 'precio' => 40, 'moneda' => 'PEN', 'por' => 'grupo']);
         $this->actingAs($this->usuario('operaciones'));
 
-        $this->getJson("/tarifario/sugerir?habitacion_id={$habitacion->id}&fecha=2030-06-10")->assertOk()->assertJsonPath('tarifas.0.precio', 180)->assertJsonCount(1, 'tarifas');
+        $this->getJson("/tarifario/sugerir?habitacion_id={$habitacion->id}&fecha=2030-06-10")->assertOk()->assertJsonPath('tarifas.0.precio', 180)->assertJsonCount(1, 'tarifas')->assertJsonPath('tarifas.0.fuera_de_temporada', false);
         $this->getJson("/tarifario/sugerir?habitacion_id={$habitacion->id}&fecha=2030-02-10")->assertJsonPath('tarifas.0.precio', 100);
-        $this->getJson("/tarifario/sugerir?habitacion_id={$habitacion->id}&fecha=2031-02-10")->assertJsonCount(0, 'tarifas');
+        // Sin tarifa para esa fecha ofrece las de otras temporadas, marcadas como tales.
+        $this->getJson("/tarifario/sugerir?habitacion_id={$habitacion->id}&fecha=2031-02-10")->assertJsonCount(2, 'tarifas')
+            ->assertJsonPath('tarifas.0.fuera_de_temporada', true)->assertJsonPath('tarifas.1.fuera_de_temporada', true);
         $this->getJson("/tarifario/sugerir?proveedor_id={$proveedor->id}&fecha=2030-06-10")->assertJsonPath('tarifas.0.concepto', 'Traslado')->assertJsonPath('tarifas.0.simbolo', 'S/');
         $this->getJson('/tarifario/sugerir?fecha=2030-06-10')->assertJsonCount(0, 'tarifas');
     }

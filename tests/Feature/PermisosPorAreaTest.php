@@ -44,10 +44,21 @@ class PermisosPorAreaTest extends TestCase
         $programa = $this->programa(['estado' => 'confirmado']);
         $url = "/programas/{$programa->id}/edit?tab=precios";
 
-        $this->actingAs($this->usuario('reservas'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertDontSee('Ganancia (%)');
-        $this->actingAs($this->usuario('operaciones'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertSee('Ganancia (%)');
+        $this->actingAs($this->usuario('reservas'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertDontSee('Margen Comercial Agencia (%)');
+        $this->actingAs($this->usuario('operaciones'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertSee('Margen Comercial Agencia (%)');
         $this->actingAs($this->usuario('contabilidad'))->get($url)->assertOk()->assertSee('Margen actual');
         $this->actingAs($this->usuario('administrador'))->get($url)->assertOk()->assertSee('Margen actual');
+    }
+
+    public function test_la_ficha_operativa_muestra_el_dia_a_dia_y_el_margen_solo_a_quien_corresponde(): void
+    {
+        $programa = $this->programa(['estado' => 'confirmado']);
+        $programa->servicios()->create(['fecha' => '2030-05-11', 'tipo' => 'guia', 'titulo' => 'Guía en Cusco', 'estado' => 'sin_asignar', 'moneda' => 'USD', 'costo_por' => 'grupo']);
+        $url = "/programas/{$programa->id}/ficha";
+
+        $this->actingAs($this->usuario('reservas'))->get($url)->assertOk()->assertSee('Día 2:')->assertSee('Guía en Cusco')->assertDontSee('MARGEN DE GANANCIA');
+        $this->actingAs($this->usuario('operaciones'))->get($url)->assertOk()->assertSee('COSTO NETO OPERATIVO')->assertDontSee('MARGEN DE GANANCIA');
+        $this->actingAs($this->usuario('contabilidad'))->get($url)->assertOk()->assertSee('MARGEN DE GANANCIA');
     }
 
     public function test_sin_sesion_se_pide_iniciar_sesion_y_sin_area_no_se_entra(): void
@@ -61,7 +72,7 @@ class PermisosPorAreaTest extends TestCase
     {
         $admin = $this->usuario('administrador');
         $this->actingAs($admin);
-        $this->get('/users/create')->assertOk()->assertSee('<option value="contabilidad"', false)->assertSee('Correo electrónico');
+        $this->get('/users/create')->assertOk()->assertSee('name="role" value="contabilidad"', false)->assertSee('Correo Electrónico');
 
         foreach (['operaciones', 'reservas', 'contabilidad', 'administrador'] as $rol) {
             $correo = "{$rol}.nuevo@example.com";
@@ -70,7 +81,7 @@ class PermisosPorAreaTest extends TestCase
         }
 
         $carla = User::where('email', 'contabilidad.nuevo@example.com')->first();
-        $this->get("/users/{$carla->id}/edit")->assertOk()->assertSee('<option value="contabilidad" selected', false);
+        $this->get("/users/{$carla->id}/edit")->assertOk()->assertSee('name="role" value="contabilidad" class="visually-hidden" checked', false);
         $this->put("/users/{$carla->id}", ['name' => 'Otro nombre', 'email' => $carla->email, 'role' => 'contabilidad'])->assertSessionHasNoErrors();
         $this->assertSame('Otro nombre', $carla->fresh()->name);
     }

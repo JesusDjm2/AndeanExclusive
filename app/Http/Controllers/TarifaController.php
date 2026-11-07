@@ -122,12 +122,15 @@ class TarifaController extends Controller
             return response()->json(['tarifas' => []]);
         }
 
+        $fueraDeTemporada = false;
+
         if (! empty($datos['fecha'])) {
             $queryFecha = (clone $query)->vigenteEl($datos['fecha']);
             $tarifas = $queryFecha->conPrioridadTemporada()->latest('id')->limit(25)->get();
             if ($tarifas->isEmpty()) {
-                // Si no hay tarifa exacta para la fecha, mostrar las tarifas vigentes del proveedor/hotel
+                // Sin tarifa para esa fecha se muestran las de otras temporadas, marcadas para no cotizar con un precio que no aplica.
                 $tarifas = $query->conPrioridadTemporada()->latest('id')->limit(25)->get();
+                $fueraDeTemporada = true;
             }
         } else {
             $tarifas = $query->where(function ($q) {
@@ -154,6 +157,7 @@ class TarifaController extends Controller
             'es_fija' => (bool) ($t->es_fija || (! $t->desde && ! $t->hasta)),
             'temporada' => $t->temporada_texto,
             'hasta' => $t->hasta?->format('d/m/Y'),
+            'fuera_de_temporada' => $fueraDeTemporada,
         ])]);
     }
 

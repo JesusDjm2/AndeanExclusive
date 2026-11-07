@@ -46,7 +46,7 @@ class AdminNavigation
             'label' => 'Finanzas y Contabilidad',
             'items' => [
                 ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
-                ['label' => 'Reportes y Margen', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
+                ['label' => 'Reportes', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
                 ['label' => 'Movimientos', 'icon' => 'fa-stream', 'route' => 'movimientos.index', 'active' => ['movimientos.*']],
             ],
         ],

@@ -786,8 +786,9 @@
             <section class="tab-pane fade {{ $initialTab === 'precios' ? 'show active' : '' }}" id="pf-precios" role="tabpanel" aria-labelledby="pf-tab-precios">
                 <div class="pf-pricing">
                     <div class="pf-pricing__main">
-                    
-                    {{-- Hoja de Cotización Interna (Vista Agencia) --}}
+
+                    {{-- Hoja de Cotización Interna (Vista Agencia): costo base y % de ganancia solo para quien cotiza --}}
+                    @if ($verCotizacion)
                     <div class="card border shadow-sm mb-4">
                         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
                             <div>
@@ -922,6 +923,27 @@
                             </div>
                         </div>
                     </div>
+                    @else
+                    <div class="prog-section">
+                        <div class="prog-section__header">
+                            <span class="prog-section__title">Precio de venta</span>
+                        </div>
+                        <div class="prog-section__body">
+                            <div class="row g-3">
+                                <div class="col-sm-6">
+                                    <label for="pf-precio-adulto" class="prog-label">Adulto (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $programa->exists ? $programa->presupuesto()['ventaAdulto'] : '' }}"
+                                        step="0.01" min="0" placeholder="0.00" class="form-control" data-precio-adulto>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label for="pf-precio-nino" class="prog-label">Niño 5–11 (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $programa->exists ? $programa->presupuesto()['ventaNino'] : '' }}"
+                                        step="0.01" min="0" placeholder="0.00" class="form-control" data-precio-nino>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
 
                     <div class="prog-section">
                         <div class="prog-section__header">

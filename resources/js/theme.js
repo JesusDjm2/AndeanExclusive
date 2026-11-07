@@ -30,8 +30,15 @@ function syncControls(theme) {
         item.classList.toggle('active', active);
         item.setAttribute('aria-pressed', String(active));
     });
+    // El botón muestra el tema al que se pasa con un clic.
+    const next = theme === 'dark' ? 'light' : 'dark';
     document.querySelectorAll('[data-theme-icon]').forEach((icon) => {
-        icon.className = `fas ${ICONS[theme] ?? 'fa-moon'}`;
+        icon.className = `fas ${ICONS[next]}`;
+    });
+    document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
+        const label = `Cambiar a tema ${next === 'light' ? 'claro' : 'oscuro'}`;
+        btn.setAttribute('aria-label', label);
+        btn.title = label;
     });
 }
 

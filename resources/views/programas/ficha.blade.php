@@ -246,23 +246,24 @@
                         <span class="badge text-bg-light border">{{ $duracion }} días de viaje</span>
                     </div>
 
-                    @forelse ($programa->dias as $dia)
+                    @forelse ($programa->itinerario()['dias'] as $itDia)
+                        @php $dia = $itDia['dia']; $serviciosDia = $itDia['servicios']; @endphp
                         <div class="card border mb-3 rounded-3 overflow-hidden">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
                                 <div>
-                                    <strong class="text-primary me-2">Día {{ $dia->dia }}:</strong>
-                                    <span class="fw-bold">{{ $dia->titulo }}</span>
-                                    @if ($dia->fecha)
-                                        <small class="text-muted ms-2">({{ \Carbon\Carbon::parse($dia->fecha)->locale('es')->isoFormat('dddd D [de] MMMM') }})</small>
-                                    @endif
+                                    <strong class="text-primary me-2">Día {{ $itDia['numero'] }}:</strong>
+                                    <span class="fw-bold">{{ $dia?->titulo }}</span>
+                                    <small class="text-muted ms-2">({{ $itDia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM') }})</small>
                                 </div>
+                                @if ($itDia['hotel'])
+                                    <small class="text-muted"><i class="fas fa-bed me-1"></i>{{ $itDia['hotel'] }}</small>
+                                @endif
                             </div>
                             <div class="card-body p-3">
-                                @if ($dia->descripcion)
+                                @if ($dia?->descripcion)
                                     <div class="text-muted small mb-3">{!! nl2br(e($dia->descripcion)) !!}</div>
                                 @endif
 
-                                @php $serviciosDia = $programa->servicios->where('fecha', (string) $dia->fecha); @endphp
                                 @if ($serviciosDia->isNotEmpty())
                                     <div class="table-responsive">
                                         <table class="table table-sm table-hover align-middle mb-0">
@@ -288,7 +289,7 @@
                                                                 <span class="text-muted fst-italic">Sin asignar</span>
                                                             @endif
                                                         </td>
-                                                        <td><span class="badge text-bg-light border">{{ $s->categoria }}</span></td>
+                                                        <td><span class="badge text-bg-light border">{{ $s->tipo_etiqueta }}</span></td>
                                                         <td>
                                                             <span class="badge {{ $s->estado === 'confirmado' ? 'bg-success-subtle text-success' : ($s->estado === 'cancelado' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
                                                                 {{ ucfirst($s->estado) }}
@@ -456,6 +457,7 @@
                                     <small class="text-muted">Servicios y hoteles de proveedores</small>
                                 </div>
                             </div>
+                            @can('margen.ver')
                             <div class="col-12 col-md-4">
                                 <div class="card bg-success-subtle border-0 p-3 rounded-3">
                                     <div class="text-success small fw-semibold">MARGEN DE GANANCIA</div>
@@ -463,6 +465,7 @@
                                     <small class="text-success fw-semibold">{{ number_format($cost['margenPct'], 1) }}% de rentabilidad</small>
                                 </div>
                             </div>
+                            @endcan
                         </div>
 
                         <h4 class="h6 fw-bold text-muted text-uppercase mb-3">Historial de Cobros al Cliente</h4>

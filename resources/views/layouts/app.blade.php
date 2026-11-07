@@ -85,16 +85,9 @@
                         </a>
                     @endif
 
-                    <div class="dropdown theme-toggle">
-                        <button class="theme-toggle__btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Cambiar tema de color" title="Cambiar tema">
-                            <i class="fas fa-moon" data-theme-icon aria-hidden="true"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                            <li><h3 class="dropdown-header">Tema del Panel</h3></li>
-                            <li><button type="button" class="dropdown-item" data-theme-value="light"><i class="fas fa-sun me-2 text-warning" aria-hidden="true"></i>Claro</button></li>
-                            <li><button type="button" class="dropdown-item" data-theme-value="dark"><i class="fas fa-moon me-2 text-primary" aria-hidden="true"></i>Oscuro</button></li>
-                        </ul>
-                    </div>
+                    <button class="theme-toggle__btn" type="button" data-theme-toggle aria-label="Cambiar a tema claro" title="Cambiar a tema claro">
+                        <i class="fas fa-sun" data-theme-icon aria-hidden="true"></i>
+                    </button>
 
                     @if ($authUser)
                         <button class="ayuda-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#ayudaPanel" aria-controls="ayudaPanel" aria-label="Ayuda de esta pantalla" title="Ayuda de esta pantalla">

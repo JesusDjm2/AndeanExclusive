@@ -64,7 +64,8 @@ function initEstadias() {
         if (!costo || costo.value !== '' || !habitacion || !fecha) return;
 
         const [tarifa] = await buscar(seccion.dataset.tarifaUrl, { habitacion_id: habitacion, fecha });
-        if (!tarifa || costo.value !== '') return;
+        // Una tarifa de otra temporada no se propone sola: el precio de esa fecha puede ser otro.
+        if (!tarifa || tarifa.fuera_de_temporada || costo.value !== '') return;
 
         costo.value = tarifa.precio;
         fila.querySelector('[data-estadia-moneda]').value = tarifa.moneda;
@@ -95,9 +96,10 @@ function initAsignar() {
         tarifas.forEach((tarifa) => {
             const boton = document.createElement('button');
             boton.type = 'button';
-            boton.className = 'btn btn-sm btn-outline-secondary';
+            boton.className = tarifa.fuera_de_temporada ? 'btn btn-sm btn-outline-warning' : 'btn btn-sm btn-outline-secondary';
             const etiquetaFija = tarifa.es_fija ? ' (fija)' : '';
-            boton.textContent = `${tarifa.concepto}: ${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por}${etiquetaFija}`;
+            const etiquetaFuera = tarifa.fuera_de_temporada ? ` · fuera de temporada (${tarifa.temporada})` : '';
+            boton.textContent = `${tarifa.concepto}: ${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por}${etiquetaFija}${etiquetaFuera}`;
             boton.addEventListener('click', () => {
                 costo.value = tarifa.precio;
                 costo.dispatchEvent(new Event('input', { bubbles: true }));
@@ -151,12 +153,22 @@ async function cargarTarifasFila(row, proveedorId) {
     label.innerHTML = '<i class="fas fa-tags me-1"></i>Tarifas de este proveedor (haz clic para aplicar):';
     box.appendChild(label);
 
+    if (tarifas[0].fuera_de_temporada) {
+        const aviso = document.createElement('small');
+        aviso.className = 'text-warning-emphasis d-block w-100';
+        aviso.style.fontSize = '0.72rem';
+        aviso.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Ninguna tarifa cubre esta fecha: son de otra temporada, confirma el precio con el proveedor.';
+        box.appendChild(aviso);
+    }
+
+    const claseBoton = tarifas[0].fuera_de_temporada ? 'btn-outline-warning' : 'btn-outline-primary';
+
     tarifas.forEach((tarifa) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'btn btn-xs btn-outline-primary text-truncate py-0 px-2 fw-medium';
+        btn.className = `btn btn-xs ${claseBoton} text-truncate py-0 px-2 fw-medium`;
         btn.style.fontSize = '0.75rem';
-        btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por})`;
+        btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por}) · ${tarifa.temporada}`;
         btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
 
         btn.addEventListener('click', () => {
@@ -204,7 +216,7 @@ async function cargarTarifasFila(row, proveedorId) {
             // Feedback visual breve
             btn.className = 'btn btn-xs btn-success text-truncate py-0 px-2 fw-bold';
             setTimeout(() => {
-                btn.className = 'btn btn-xs btn-outline-primary text-truncate py-0 px-2 fw-medium';
+                btn.className = `btn btn-xs ${claseBoton} text-truncate py-0 px-2 fw-medium`;
             }, 1200);
         });
 
