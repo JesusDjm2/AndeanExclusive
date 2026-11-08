@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Aceptacion;
 use App\Models\Aviso;
 use App\Models\Programa;
+use App\Models\Servicio;
 use App\Models\Tarifa;
 use Tests\TestCase;
 
@@ -142,10 +143,27 @@ class AceptacionYTarifarioTest extends TestCase
 
         $html = $this->actingAs($this->usuario('operaciones'))->get("/programas/{$programa->id}/edit?tab=itinerario")->assertOk()->getContent();
 
-        // La plantilla de servicio nuevo sigue al programa (soles) y el servicio guardado conserva sus dólares.
-        $plantilla = str($html)->after('data-svc-template')->before('</template>');
-        $this->assertStringContainsString('<option value="PEN" selected>S/</option>', (string) $plantilla);
-        $this->assertStringContainsString('data-moneda-auto="1"', (string) $plantilla);
-        $this->assertMatchesRegularExpression('/data-moneda-auto="0">\s*<option value="USD" selected>US\$<\/option>/', $html);
+        // La plantilla de servicio nuevo sigue al programa (soles) sin preguntar; el servicio guardado conserva sus dólares.
+        $plantilla = (string) str($html)->after('data-svc-template')->before('</template>');
+        $this->assertMatchesRegularExpression('/value="PEN"\s+data-svc-moneda data-moneda-auto="1"/', $plantilla);
+        $this->assertMatchesRegularExpression('/data-svc-moneda-toggle[^>]*>S\/<\/button>/', $plantilla);
+        $this->assertMatchesRegularExpression('/value="USD"\s+data-svc-moneda data-moneda-auto="0"/', $html);
+        // Un solo campo de tipo de cambio (el de Datos principales).
+        $this->assertSame(1, substr_count($html, 'name="tipo_cambio"'));
+        $this->assertStringNotContainsString('data-tipo-cambio-sync', $html);
+    }
+
+    public function test_cada_rubro_de_proveedor_se_ofrece_solo_para_sus_tipos_de_servicio(): void
+    {
+        $this->assertSame(['traslado', 'tour'], Servicio::tiposDeRubro('Transporte'));
+        $this->assertSame(['guia'], Servicio::tiposDeRubro('Guía'));
+        $this->assertSame(['tren'], Servicio::tiposDeRubro('Tren y buses'));
+        $this->assertSame(['comida'], Servicio::tiposDeRubro('Restaurante'));
+        $this->assertSame([], Servicio::tiposDeRubro('Seguros'), 'Un rubro no reconocido sirve para todos los tipos');
+
+        $programa = $this->programa();
+        $this->proveedor('Transportes Cusco');
+        $html = $this->actingAs($this->usuario('operaciones'))->get("/programas/{$programa->id}/edit?tab=itinerario")->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('/<optgroup label="[^"]+" data-tipos="[a-z ]*">/', $html);
     }
 }

@@ -28,6 +28,26 @@ class Servicio extends Model
 
     public const MONEDAS = ['USD' => 'US$', 'PEN' => 'S/'];
 
+    /** Palabras del nombre del rubro del proveedor que indican qué tipos de servicio presta (los rubros los crea el usuario). */
+    public const RUBROS_POR_TIPO = [
+        'traslado' => ['transporte', 'traslado', 'movilidad'],
+        'tour' => ['transporte', 'tour', 'operador', 'agencia'],
+        'guia' => ['guia', 'guía'],
+        'tren' => ['tren', 'bus'],
+        'vuelo' => ['vuelo', 'aerol'],
+        'entrada' => ['entrada', 'boleto', 'ticket'],
+        'comida' => ['restaurante', 'gastr', 'picnic', 'comida'],
+        'alojamiento' => ['hotel', 'hosped', 'aloj'],
+    ];
+
+    /** Tipos de servicio que presta un rubro de proveedor (vacío si no se reconoce: entonces sirve para todos). */
+    public static function tiposDeRubro(?string $rubro): array
+    {
+        $rubro = mb_strtolower((string) $rubro);
+
+        return array_keys(array_filter(self::RUBROS_POR_TIPO, fn (array $palabras) => collect($palabras)->contains(fn ($p) => str_contains($rubro, $p))));
+    }
+
     /** El costo se cobra una vez por el grupo o por cada pasajero que paga (los menores de 5 no pagan). */
     public const COSTO_POR = ['grupo' => 'por grupo', 'persona' => 'por persona'];
 

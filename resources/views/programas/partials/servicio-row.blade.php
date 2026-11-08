@@ -36,7 +36,7 @@
         </div>
         <div class="svc-row__tipo">
             <label class="prog-label" for="svc-{{ $i }}-tipo">Tipo</label>
-            <select id="svc-{{ $i }}-tipo" name="{{ $name('tipo') }}" class="form-select form-select-sm">
+            <select id="svc-{{ $i }}-tipo" name="{{ $name('tipo') }}" class="form-select form-select-sm" data-svc-tipo>
                 @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
                     <option value="{{ $clave }}" @selected(($v('tipo') ?: 'traslado') === $clave)>{{ $etiqueta }}</option>
                 @endforeach
@@ -48,7 +48,7 @@
             <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm" data-svc-proveedor-select>
                 <option value="">— Sin asignar —</option>
                 @foreach ($proveedoresPorCategoria as $categoria => $proveedores)
-                    <optgroup label="{{ $categoria }}">
+                    <optgroup label="{{ $categoria }}" data-tipos="{{ implode(' ', \App\Models\Servicio::tiposDeRubro($categoria)) }}">
                         @foreach ($proveedores as $proveedor)
                             <option value="{{ $proveedor->id }}" @selected((int) $v('proveedor_id') === $proveedor->id)>{{ $proveedor->nombre }}</option>
                         @endforeach
@@ -114,14 +114,11 @@
                     <i class="fas fa-tag text-warning me-1" aria-hidden="true"></i>Precio cotizado
                 </label>
                 <div class="input-group input-group-sm">
-                    @if ($bloqueadoMoneda)<input type="hidden" name="{{ $name('moneda') }}" value="{{ $monedaFila }}">@endif
-                    <select id="svc-{{ $i }}-moneda" @disabled($bloqueadoMoneda) name="{{ $name('moneda') }}" class="form-select svc-fin__moneda"
-                        aria-label="Moneda del precio" title="Moneda del precio: la del programa salvo que la tarifa del proveedor sea en otra"
+                    {{-- No se pregunta: es la del programa o la de la tarifa aplicada. Un clic la alterna solo en casos excepcionales. --}}
+                    <input type="hidden" id="svc-{{ $i }}-moneda" name="{{ $name('moneda') }}" value="{{ $monedaFila }}"
                         data-svc-moneda data-moneda-auto="{{ filled($v('moneda')) ? '0' : '1' }}">
-                        @foreach (\App\Models\Servicio::MONEDAS as $clave => $simbolo)
-                            <option value="{{ $clave }}" @selected($monedaFila === $clave)>{{ $simbolo }}</option>
-                        @endforeach
-                    </select>
+                    <button type="button" class="input-group-text svc-fin__moneda" @disabled($bloqueadoMoneda) data-svc-moneda-toggle
+                        title="Moneda del precio (la del programa o la de la tarifa). Clic para cambiarla" aria-label="Moneda del precio: {{ $monedaFila }}. Cambiar">{{ \App\Models\Servicio::MONEDAS[$monedaFila] ?? 'US$' }}</button>
                     <input id="svc-{{ $i }}-estimado" type="number" name="{{ $name('costo_estimado') }}" value="{{ $v('costo_estimado') }}" step="0.01" min="0"
                         class="form-control {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
                 </div>

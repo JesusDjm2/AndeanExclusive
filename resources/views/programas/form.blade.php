@@ -262,11 +262,13 @@
                                 </select>
                                 @error('moneda')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
-                            <div class="col-sm-6 col-lg-3">
-                                <label for="pf-tc" class="prog-label"><i class="fas fa-exchange-alt text-primary me-1"></i> Tipo de cambio (S/)</label>
+                            {{-- Solo hace falta si algún servicio u hotel se cobra en otra moneda (lo muestra programa-form.js). --}}
+                            <div class="col-sm-6 col-lg-3" data-tipo-cambio-campo>
+                                <label for="pf-tc" class="prog-label"><i class="fas fa-exchange-alt text-primary me-1"></i> Tipo de cambio (S/ por US$)</label>
                                 <input id="pf-tc" type="number" name="tipo_cambio" value="{{ old('tipo_cambio', $programa->tipo_cambio ?: \App\Models\Programa::TIPO_CAMBIO_DEFECTO) }}" step="0.001" min="0.5"
                                     placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control @error('tipo_cambio') is-invalid @enderror" data-tipo-cambio>
                                 @error('tipo_cambio')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <small class="prog-input-hint" data-tipo-cambio-motivo></small>
                             </div>
                             <div class="col-sm-6 col-lg-4">
                                 <label for="pf-inicio" class="prog-label">Inicio</label>
@@ -947,29 +949,24 @@
 
                     <div class="prog-section">
                         <div class="prog-section__header">
-                            <span class="prog-section__title">Suplemento individual y tipo de cambio</span>
+                            <span class="prog-section__title">Suplemento individual</span>
                         </div>
                         <div class="prog-section__body">
                             <div class="row g-3">
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <label for="pf-sup" class="prog-label">Suplemento por hab. individual ($)</label>
                                     <input id="pf-sup" type="number" name="suplemento_individual" value="{{ old('suplemento_individual', (float) $programa->suplemento_individual ?: '') }}"
                                         step="0.01" min="0" placeholder="0.00" class="form-control @error('suplemento_individual') is-invalid @enderror" data-suplemento>
                                     @error('suplemento_individual')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-6">
                                     <label for="pf-singles" class="prog-label">Habitaciones individuales</label>
                                     <input id="pf-singles" type="number" name="habitaciones_individuales" value="{{ old('habitaciones_individuales', $programa->habitaciones_individuales ?: '') }}"
                                         step="1" min="0" max="50" placeholder="0" class="form-control @error('habitaciones_individuales') is-invalid @enderror" data-singles>
                                     @error('habitaciones_individuales')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                 </div>
-                                <div class="col-sm-4">
-                                    <label for="pf-tc-2" class="prog-label">Tipo de cambio (S/ por US$)</label>
-                                    <input id="pf-tc-2" type="number" value="{{ old('tipo_cambio', $programa->tipo_cambio ?: \App\Models\Programa::TIPO_CAMBIO_DEFECTO) }}" step="0.001" min="0.5"
-                                        placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control" data-tipo-cambio-sync>
-                                </div>
                             </div>
-                            <p class="prog-input-hint mt-3 mb-0">El suplemento es precio de venta (no se le suma la ganancia). El tipo de cambio convierte a dólares los costos en soles.</p>
+                            <p class="prog-input-hint mt-3 mb-0">El suplemento es precio de venta (no se le suma la ganancia).</p>
                             @if ($isEdit && ($individuales = $programa->individualesSegunAlojamiento()) !== (int) $programa->habitaciones_individuales)
                                 <p class="prog-input-hint text-warning mt-1 mb-0"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Según Alojamiento hay {{ $individuales }} {{ $individuales === 1 ? 'habitación individual' : 'habitaciones individuales' }}; aquí figuran {{ (int) $programa->habitaciones_individuales }}.</p>
                             @endif

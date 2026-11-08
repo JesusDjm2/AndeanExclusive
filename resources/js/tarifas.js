@@ -139,11 +139,12 @@ function aplicarTarifa(row, tarifa, automatica = false) {
         disparar(realInput);
     }
 
-    const monedaSelect = row.querySelector('[data-svc-moneda]');
-    if (monedaSelect && !monedaSelect.disabled) {
-        monedaSelect.value = tarifa.moneda;
-        monedaSelect.dataset.monedaAuto = '0';
-        disparar(monedaSelect);
+    // La moneda queda fija si Reservas ya cargó el costo real (su botón está deshabilitado).
+    const monedaInput = row.querySelector('[data-svc-moneda]');
+    if (monedaInput && !row.querySelector('[data-svc-moneda-toggle]')?.disabled) {
+        monedaInput.value = tarifa.moneda;
+        monedaInput.dataset.monedaAuto = '0';
+        disparar(monedaInput);
     }
 
     const porSelect = row.querySelector('[data-svc-por]');
@@ -206,18 +207,14 @@ async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
     const unica = autoAplicar && estInput && estInput.value === '' ? tarifaUnica(row, tarifas) : null;
     if (unica) aplicarTarifa(row, unica, true);
 
-    // Con una sola tarifa ya aplicada no hace falta mostrar botones.
-    if (unica && tarifas.length === 1) return;
-
+    // El tarifario del proveedor queda siempre a la vista; la tarifa en uso se marca.
     const box = document.createElement('div');
     box.className = 'd-flex flex-wrap gap-1 align-items-center mt-1';
 
     const label = document.createElement('span');
     label.className = 'badge bg-gold-subtle text-gold-text border small';
     label.style.fontSize = '0.72rem';
-    label.innerHTML = unica
-        ? '<i class="fas fa-tags me-1"></i>Otras tarifas de este proveedor:'
-        : '<i class="fas fa-tags me-1"></i>Elige la tarifa de este proveedor:';
+    label.innerHTML = '<i class="fas fa-tags me-1"></i>Tarifario del proveedor:';
     box.appendChild(label);
 
     if (tarifas[0].fuera_de_temporada) {
@@ -229,21 +226,25 @@ async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
     }
 
     const claseBoton = tarifas[0].fuera_de_temporada ? 'btn-outline-warning' : 'btn-outline-primary';
+    const estilo = (btn, enUso) => {
+        btn.className = `btn btn-xs ${enUso ? 'btn-success' : claseBoton} text-truncate py-0 px-2 fw-medium`;
+        btn.setAttribute('aria-pressed', String(enUso));
+    };
+    // En uso: la recién aplicada, o la que coincide con el precio y la moneda ya guardados.
+    const monedaFila = row.querySelector('[data-svc-moneda]')?.value;
+    const enUso = unica ?? tarifas.find((t) => estInput?.value !== '' && Number(estInput?.value) === t.precio && t.moneda === monedaFila);
 
     tarifas.forEach((tarifa) => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = `btn btn-xs ${claseBoton} text-truncate py-0 px-2 fw-medium`;
         btn.style.fontSize = '0.75rem';
         btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por}) · ${tarifa.temporada}`;
         btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
+        estilo(btn, tarifa === enUso);
 
         btn.addEventListener('click', () => {
             aplicarTarifa(row, tarifa);
-            btn.className = 'btn btn-xs btn-success text-truncate py-0 px-2 fw-bold';
-            setTimeout(() => {
-                btn.className = `btn btn-xs ${claseBoton} text-truncate py-0 px-2 fw-medium`;
-            }, 1200);
+            box.querySelectorAll('button').forEach((b) => estilo(b, b === btn));
         });
 
         box.appendChild(btn);

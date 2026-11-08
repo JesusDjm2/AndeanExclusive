@@ -170,15 +170,19 @@ $svc-info: #2563a8;
             color: var(--ae-gold);
             font-weight: 700;
         }
-        // Moneda como prefijo del precio: compacta, sin flecha visible hasta el foco.
+        // Moneda como prefijo del precio: un símbolo, no una pregunta.
         .svc-fin__moneda {
-            flex: 0 0 auto;
-            width: 4.1rem;
-            padding-right: 1.4rem;
-            font-weight: 600;
-            background-position: right 0.35rem center;
-            background-color: var(--ae-surface-alt, var(--ae-surface));
+            min-width: 2.9rem;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--ae-gold);
+            background: var(--ae-surface);
             border-color: rgba(180, 140, 88, 0.4);
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+
+            &:hover:not(:disabled) { background: rgba(180, 140, 88, 0.1); }
+            &:disabled { cursor: default; opacity: 0.85; }
         }
         input[type="number"] {
             font-weight: 600;

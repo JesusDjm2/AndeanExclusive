@@ -223,25 +223,88 @@ function initItinerario(root) {
     });
 
     section.addEventListener('change', (event) => {
-        // Quien elige la moneda de una fila a mano la fija: deja de seguir a la del programa.
-        if (event.isTrusted && event.target.matches('[data-svc-moneda]')) event.target.dataset.monedaAuto = '0';
         const select = event.target.closest('[data-svc-estado]');
         if (!select) return;
         select.className = select.className.replace(/svc-estado--\S+/, `svc-estado--${select.value}`);
     });
 
-    // Las filas sin moneda propia siguen a la del programa (en captura, antes de recalcular el presupuesto).
+    // Moneda de cada servicio: un símbolo junto al precio; sigue a la del programa salvo que una tarifa o un clic la fijen.
+    const SIMBOLOS = { USD: 'US$', PEN: 'S/' };
     const monedaPrograma = root.querySelector('[data-programa-moneda]');
-    const seguirMoneda = (scope) => {
-        if (!monedaPrograma) return;
-        scope.querySelectorAll('[data-svc-moneda][data-moneda-auto="1"]:not(:disabled)').forEach((sel) => {
-            sel.value = monedaPrograma.value;
-        });
+    const pintarMoneda = (input) => {
+        const boton = input.closest('.input-group')?.querySelector('[data-svc-moneda-toggle]');
+        if (boton) boton.textContent = SIMBOLOS[input.value] ?? input.value;
     };
-    monedaPrograma?.addEventListener('change', () => seguirMoneda(section), true);
+    const seguirMoneda = () => {
+        if (!monedaPrograma) return;
+        section.querySelectorAll('[data-svc-moneda][data-moneda-auto="1"]').forEach((input) => {
+            if (input.closest('.input-group')?.querySelector('[data-svc-moneda-toggle]')?.disabled) return;
+            input.value = monedaPrograma.value;
+            pintarMoneda(input);
+        });
+        actualizarTipoCambio();
+    };
     section.addEventListener('click', (event) => {
-        if (event.target.closest('[data-svc-add]')) queueMicrotask(() => seguirMoneda(section));
+        const boton = event.target.closest('[data-svc-moneda-toggle]');
+        if (!boton || boton.disabled) return;
+        const input = boton.closest('.input-group').querySelector('[data-svc-moneda]');
+        input.value = input.value === 'USD' ? 'PEN' : 'USD';
+        input.dataset.monedaAuto = '0';
+        input.dispatchEvent(new Event('change', { bubbles: true }));
     });
+    // Cualquier cambio de moneda (clic, tarifa aplicada) repinta el símbolo y revisa si hace falta tipo de cambio.
+    root.addEventListener('change', (event) => {
+        if (event.target.matches('[data-svc-moneda]')) pintarMoneda(event.target);
+        if (event.target.matches('[data-svc-moneda], [data-estadia-moneda]')) actualizarTipoCambio();
+    });
+    monedaPrograma?.addEventListener('change', seguirMoneda);
+
+    // El tipo de cambio solo se pide si algún servicio u hotel se cobra en una moneda distinta a la del programa.
+    const campoTc = root.querySelector('[data-tipo-cambio-campo]');
+    const motivoTc = root.querySelector('[data-tipo-cambio-motivo]');
+    function actualizarTipoCambio() {
+        if (!campoTc || !monedaPrograma) return;
+        const distintas = [...root.querySelectorAll('[data-svc-moneda], [data-estadia-moneda]')]
+            .filter((el) => !el.closest('template') && el.value && el.value !== monedaPrograma.value).length;
+        campoTc.hidden = distintas === 0 && !campoTc.querySelector('.is-invalid');
+        if (motivoTc) motivoTc.textContent = distintas ? `${distintas} ${distintas === 1 ? 'costo está' : 'costos están'} en otra moneda; se convierten con este valor.` : '';
+    }
+
+    // Proveedor según el tipo de servicio: un traslado solo ofrece transportistas, una guía solo guías, etc.
+    const opcionesProveedor = template.content.querySelector('[data-svc-proveedor-select]')?.cloneNode(true);
+    const filtrarProveedores = (fila, limpiarSiNoCorresponde) => {
+        const select = fila.querySelector('[data-svc-proveedor-select]');
+        const tipo = fila.querySelector('[data-svc-tipo]')?.value;
+        if (!select || select.disabled || !opcionesProveedor || !tipo) return;
+        const grupos = [...opcionesProveedor.querySelectorAll('optgroup')];
+        const delTipo = grupos.filter((g) => g.dataset.tipos.split(' ').includes(tipo));
+        const actual = select.value;
+        // Sin rubros del tipo (actividad, otro…) se ofrecen todos.
+        const visibles = delTipo.length ? delTipo : grupos;
+        const corresponde = !actual || visibles.some((g) => g.querySelector(`option[value="${actual}"]`));
+        select.replaceChildren(opcionesProveedor.querySelector('option[value=""]').cloneNode(true));
+        visibles.forEach((g) => select.append(g.cloneNode(true)));
+        // Al cargar se conserva lo guardado aunque sea de otro rubro; al cambiar el tipo, se quita.
+        if (!corresponde && !limpiarSiNoCorresponde) {
+            const propio = grupos.find((g) => g.querySelector(`option[value="${actual}"]`));
+            if (propio) select.append(propio.cloneNode(true));
+        }
+        select.value = corresponde || !limpiarSiNoCorresponde ? actual : '';
+        if (select.value !== actual) select.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    section.addEventListener('change', (event) => {
+        if (event.target.matches('[data-svc-tipo]')) filtrarProveedores(event.target.closest('[data-svc-item]'), true);
+    });
+    section.addEventListener('click', (event) => {
+        if (!event.target.closest('[data-svc-add]')) return;
+        queueMicrotask(() => {
+            const fila = event.target.closest('[data-svc-add]').parentElement.querySelector('[data-svc-list]')?.lastElementChild;
+            if (fila) filtrarProveedores(fila, true);
+            seguirMoneda();
+        });
+    });
+    section.querySelectorAll('[data-svc-item]').forEach((fila) => filtrarProveedores(fila, false));
+    actualizarTipoCambio();
 }
 
 // Alojamiento: filas de habitación con cantidad y fechas; avisa si faltan plazas para el grupo (sin bloquear: los infantes suelen compartir).
@@ -1069,14 +1132,7 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
     // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros, ganancia, moneda o tipo de cambio
     root.addEventListener('input', (e) => {
-        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], input[name="tipo_cambio"], [data-tipo-cambio-sync]')) {
-            if (e.target.matches('input[name="tipo_cambio"]')) {
-                const syncEl = root.querySelector('[data-tipo-cambio-sync]');
-                if (syncEl && syncEl !== e.target) syncEl.value = e.target.value;
-            } else if (e.target.matches('[data-tipo-cambio-sync]')) {
-                const primaryEl = root.querySelector('input[name="tipo_cambio"]');
-                if (primaryEl && primaryEl !== e.target) primaryEl.value = e.target.value;
-            }
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], input[name="tipo_cambio"]')) {
             actualizarLive();
         }
     });
