@@ -113,7 +113,7 @@ function initAsignar() {
     modal.addEventListener('shown.bs.modal', cargar);
 }
 
-// Aplica una tarifa del proveedor a la fila: precio cotizado, moneda, modo de cobro y nombre si estaba vacío.
+// Aplica una tarifa del proveedor a la fila: nombre del servicio (va al PDF), precio, moneda y modo de cobro.
 function aplicarTarifa(row, tarifa, automatica = false) {
     const disparar = (el) => {
         el.dispatchEvent(new Event('input', { bubbles: true }));
@@ -121,7 +121,7 @@ function aplicarTarifa(row, tarifa, automatica = false) {
     };
 
     const tituloInput = row.querySelector('[data-svc-titulo]');
-    if (tituloInput && !tituloInput.value.trim()) {
+    if (tituloInput) {
         tituloInput.value = tarifa.concepto;
         disparar(tituloInput);
     }
@@ -153,7 +153,10 @@ function aplicarTarifa(row, tarifa, automatica = false) {
         disparar(porSelect);
     }
 
-    // Bajo el precio solo el origen y la vigencia: el nombre ya está en el campo del servicio.
+    // Recuerda lo que puso la tarifa para limpiarlo si luego se cambia de proveedor.
+    row.dataset.tarifaPrecio = String(tarifa.precio);
+
+    // Bajo el precio solo el origen y la vigencia: el nombre ya está en el selector de servicio.
     const origen = row.querySelector('[data-svc-origen]');
     if (origen) {
         const fuera = Boolean(tarifa.fuera_de_temporada);
@@ -172,133 +175,147 @@ function aplicarTarifa(row, tarifa, automatica = false) {
 function tarifaUnica(row, tarifas) {
     const vigentes = tarifas.filter((t) => !t.fuera_de_temporada);
     if (vigentes.length === 1) return vigentes[0];
-    const tipo = row.querySelector('[id$="-tipo"]')?.value;
+    const tipo = row.querySelector('[data-svc-tipo]')?.value;
     const delTipo = vigentes.filter((t) => t.tipo_servicio && t.tipo_servicio === tipo);
     return delTipo.length === 1 ? delTipo[0] : null;
 }
 
-// Filas de itinerario en el formulario de programa: al elegir proveedor aplica su tarifa o muestra las opciones.
-async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
-    let contenedor = row.querySelector('[data-svc-quick-rates]');
-    if (!contenedor) {
-        contenedor = document.createElement('div');
-        contenedor.className = 'svc-quick-rates mt-1';
-        contenedor.dataset.svcQuickRates = 'true';
-        const selectProv = row.querySelector('[id$="-prov"], [data-svc-proveedor-select]');
-        if (selectProv) selectProv.parentNode.appendChild(contenedor);
-    }
+// ---- Selector de servicio: el tarifario del proveedor, o "Otro servicio" para escribirlo a mano ----
+const OTRO_SERVICIO = '__otro';
 
-    contenedor.replaceChildren();
-    if (!proveedorId) return;
+function modoLibre(row, libre, enfocar = false) {
+    const select = row.querySelector('[data-svc-servicio]');
+    const libreBox = row.querySelector('[data-svc-titulo-libre]');
+    const input = row.querySelector('[data-svc-titulo]');
+    if (!select || !libreBox || !input) return;
+    select.hidden = libre;
+    libreBox.hidden = !libre;
+    row.querySelector('[data-svc-servicio-label]')?.setAttribute('for', libre ? input.id : select.id);
+    if (libre && enfocar) input.focus();
+}
 
-    const fechaInput = row.querySelector('[data-svc-fecha]') || row.closest('[data-dia-item]')?.querySelector('[data-dia-fecha]');
-    const fecha = fechaInput ? fechaInput.value : '';
+function llenarServicios(row, tarifas, proveedorId) {
+    const select = row.querySelector('[data-svc-servicio]');
+    if (!select) return;
+    row.svcTarifas = tarifas;
 
-    const tarifas = await buscar('/tarifario/sugerir', {
-        proveedor_id: proveedorId,
-        ...(fecha ? { fecha } : {}),
+    // Primero las tarifas del tipo de servicio de la fila.
+    const tipo = row.querySelector('[data-svc-tipo]')?.value;
+    const orden = tarifas.map((t, i) => i).sort((a, b) => Number(tarifas[b].tipo_servicio === tipo) - Number(tarifas[a].tipo_servicio === tipo));
+
+    const aviso = !proveedorId ? 'Elige primero el proveedor' : (tarifas.length ? 'Elige el servicio…' : 'Sin tarifas: escribe el servicio');
+    const opciones = [new Option(aviso, '')];
+    orden.forEach((i) => {
+        const t = tarifas[i];
+        const detalle = t.unidad_detalle ? ` · ${t.unidad_detalle}` : '';
+        const temporada = t.fuera_de_temporada ? ' (otra temporada)' : '';
+        opciones.push(new Option(`${t.concepto}${detalle} — ${t.simbolo} ${t.precio.toFixed(2)}${temporada}`, String(i)));
     });
+    opciones.push(new Option('Otro servicio (escribir)…', OTRO_SERVICIO));
+    select.replaceChildren(...opciones);
 
-    if (tarifas.length === 0) {
-        const hint = document.createElement('small');
-        hint.className = 'text-muted d-block mt-1';
-        hint.style.fontSize = '0.74rem';
-        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sin tarifas en el tarifario';
-        contenedor.appendChild(hint);
+    const volver = row.querySelector('[data-svc-volver-lista]');
+    if (volver) volver.hidden = tarifas.length === 0;
+}
+
+// Muestra en el selector el servicio guardado; si no es del tarifario, queda escrito a mano.
+function mostrarActual(row) {
+    const select = row.querySelector('[data-svc-servicio]');
+    const titulo = row.querySelector('[data-svc-titulo]')?.value.trim() ?? '';
+    if (!select) return;
+    const indice = (row.svcTarifas ?? []).findIndex((t) => t.concepto === titulo);
+    if (indice >= 0) {
+        select.value = String(indice);
+        modoLibre(row, false);
+    } else {
+        select.value = '';
+        modoLibre(row, titulo !== '');
+    }
+}
+
+// Al cambiar de proveedor se quita lo que había puesto la tarifa del anterior.
+function limpiarTarifaAnterior(row) {
+    if (row.dataset.tarifaPrecio === undefined) return;
+    const precio = row.dataset.tarifaPrecio;
+    ['[data-svc-estimado]', '[data-svc-costo]'].forEach((sel) => {
+        const el = row.querySelector(sel);
+        if (el && !el.disabled && el.value === precio) {
+            el.value = '';
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    });
+    const titulo = row.querySelector('[data-svc-titulo]');
+    if (titulo) titulo.value = '';
+    const origen = row.querySelector('[data-svc-origen]');
+    if (origen) origen.hidden = true;
+    delete row.dataset.tarifaPrecio;
+}
+
+async function cargarTarifasFila(row, proveedorId, elegidoAhora = false) {
+    if (!row.querySelector('[data-svc-servicio]')) return;
+    if (!proveedorId) {
+        llenarServicios(row, [], '');
+        mostrarActual(row);
         return;
     }
 
-    // Al elegir el proveedor, si su tarifa es inequívoca se aplica sola (sin pisar un precio ya escrito).
-    const estInput = row.querySelector('[data-svc-estimado]');
-    const unica = autoAplicar && estInput && estInput.value === '' ? tarifaUnica(row, tarifas) : null;
-    if (unica) aplicarTarifa(row, unica, true);
+    const fechaInput = row.querySelector('[data-svc-fecha]') || row.closest('[data-dia-item]')?.querySelector('[data-dia-fecha]');
+    const fecha = fechaInput ? fechaInput.value : '';
+    const tarifas = await buscar('/tarifario/sugerir', { proveedor_id: proveedorId, ...(fecha ? { fecha } : {}) });
 
-    // Tarifario compacto: "Tarifario · N" abre la lista; la tarifa en uso queda marcada.
-    const fuera = tarifas[0].fuera_de_temporada;
-    const monedaFila = row.querySelector('[data-svc-moneda]')?.value;
-    const enUso = unica ?? tarifas.find((t) => estInput?.value !== '' && Number(estInput?.value) === t.precio && t.moneda === monedaFila);
+    llenarServicios(row, tarifas, proveedorId);
+    row.dataset.svcProveedorCargado = proveedorId;
 
-    const box = document.createElement('div');
-    box.className = 'dropdown svc-tarifario';
-
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.className = `svc-tarifario__toggle${fuera ? ' is-warning' : ''}${enUso ? ' is-applied' : ''}`;
-    toggle.dataset.bsToggle = 'dropdown';
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.title = fuera ? 'Ninguna tarifa cubre esta fecha: son de otra temporada' : 'Ver y aplicar las tarifas de este proveedor';
-    toggle.innerHTML = `<i class="fas ${fuera ? 'fa-exclamation-triangle' : 'fa-tags'}" aria-hidden="true"></i> Tarifario <span class="svc-tarifario__count">${tarifas.length}</span><i class="fas fa-chevron-down svc-tarifario__caret" aria-hidden="true"></i>`;
-
-    const menu = document.createElement('ul');
-    menu.className = 'dropdown-menu svc-tarifario__menu';
-    if (fuera) {
-        const aviso = document.createElement('li');
-        aviso.className = 'svc-tarifario__aviso';
-        aviso.textContent = 'Ninguna tarifa cubre esta fecha: son de otra temporada, confirma el precio con el proveedor.';
-        menu.append(aviso);
+    if (elegidoAhora) {
+        // Proveedor recién elegido: si su tarifa es inequívoca se aplica sola; sin tarifas, se escribe el servicio.
+        const estInput = row.querySelector('[data-svc-estimado]');
+        const unica = estInput && estInput.value === '' ? tarifaUnica(row, tarifas) : null;
+        if (unica) aplicarTarifa(row, unica, true);
+        if (!tarifas.length) {
+            modoLibre(row, true);
+            return;
+        }
     }
-
-    const marcar = (item, activo) => {
-        item.classList.toggle('active', activo);
-        item.setAttribute('aria-current', activo ? 'true' : 'false');
-    };
-
-    tarifas.forEach((tarifa) => {
-        const li = document.createElement('li');
-        const item = document.createElement('button');
-        item.type = 'button';
-        item.className = 'dropdown-item svc-tarifario__item';
-
-        const texto = document.createElement('span');
-        texto.className = 'svc-tarifario__texto';
-        const concepto = document.createElement('span');
-        concepto.className = 'svc-tarifario__concepto';
-        concepto.textContent = tarifa.concepto;
-        const meta = document.createElement('span');
-        meta.className = 'svc-tarifario__meta';
-        meta.textContent = [tarifa.unidad_detalle, tarifa.por, tarifa.es_fija ? 'fija' : tarifa.temporada].filter(Boolean).join(' · ');
-        texto.append(concepto, meta);
-
-        const precio = document.createElement('span');
-        precio.className = 'svc-tarifario__precio';
-        precio.textContent = `${tarifa.simbolo} ${tarifa.precio.toFixed(2)}`;
-
-        item.append(texto, precio);
-        marcar(item, tarifa === enUso);
-        item.addEventListener('click', () => {
-            aplicarTarifa(row, tarifa);
-            menu.querySelectorAll('.svc-tarifario__item').forEach((i) => marcar(i, i === item));
-            toggle.classList.add('is-applied');
-        });
-
-        li.append(item);
-        menu.append(li);
-    });
-
-    box.append(toggle, menu);
-    contenedor.appendChild(box);
+    mostrarActual(row);
 }
 
 function initItinerarioServicios() {
-    // 1. Escuchar cambios de proveedor en cualquier fila (existente o agregada dinámicamente)
     document.addEventListener('change', (evento) => {
-        const selectProv = evento.target.closest('[id$="-prov"], [data-svc-proveedor-select]');
-        if (!selectProv) return;
+        const row = evento.target.closest('[data-svc-item]');
+        if (!row || row.closest('template')) return;
 
-        const row = selectProv.closest('[data-svc-item]');
-        if (!row) return;
+        if (evento.target.matches('[data-svc-proveedor-select]')) {
+            limpiarTarifaAnterior(row);
+            cargarTarifasFila(row, evento.target.value, true);
+            return;
+        }
 
-        cargarTarifasFila(row, selectProv.value, true);
+        if (evento.target.matches('[data-svc-servicio]')) {
+            const valor = evento.target.value;
+            if (valor === OTRO_SERVICIO) {
+                modoLibre(row, true, true);
+            } else if (valor !== '' && row.svcTarifas?.[valor]) {
+                aplicarTarifa(row, row.svcTarifas[valor]);
+            }
+        }
     });
 
-    // 2. Cargar tarifas de inicio para las filas que ya tengan proveedor seleccionado
+    // Volver del texto libre al tarifario del proveedor.
+    document.addEventListener('click', (evento) => {
+        const volver = evento.target.closest('[data-svc-volver-lista]');
+        if (!volver) return;
+        const row = volver.closest('[data-svc-item]');
+        modoLibre(row, false);
+        mostrarActual(row);
+        row.querySelector('[data-svc-servicio]')?.focus();
+    });
+
+    // Filas ya guardadas: carga el tarifario de su proveedor una sola vez.
     const cargarFilasExistentes = () => {
         document.querySelectorAll('[data-svc-item]').forEach((row) => {
             if (row.closest('template')) return;
-            const selectProv = row.querySelector('[id$="-prov"], [data-svc-proveedor-select]');
-            if (selectProv && selectProv.value) {
-                cargarTarifasFila(row, selectProv.value);
-            }
+            const proveedor = row.querySelector('[data-svc-proveedor-select]')?.value ?? '';
+            if (proveedor && row.dataset.svcProveedorCargado !== proveedor) cargarTarifasFila(row, proveedor);
         });
     };
 

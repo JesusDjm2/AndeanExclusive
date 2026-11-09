@@ -148,6 +148,9 @@ class AceptacionYTarifarioTest extends TestCase
         $this->assertMatchesRegularExpression('/value="PEN"\s+data-svc-moneda data-moneda-auto="1"/', $plantilla);
         $this->assertMatchesRegularExpression('/data-svc-moneda-toggle[^>]*>S\/<\/button>/', $plantilla);
         $this->assertMatchesRegularExpression('/value="USD"\s+data-svc-moneda data-moneda-auto="0"/', $html);
+        // El servicio se elige del tarifario; uno guardado sin proveedor se muestra escrito a mano.
+        $this->assertStringContainsString('data-svc-servicio', $plantilla);
+        $this->assertMatchesRegularExpression('/data-svc-titulo-libre\s*>\s*<input[^>]+value="Guía en dólares"/', $html);
         // Un solo campo de tipo de cambio (el de Datos principales).
         $this->assertSame(1, substr_count($html, 'name="tipo_cambio"'));
         $this->assertStringNotContainsString('data-tipo-cambio-sync', $html);

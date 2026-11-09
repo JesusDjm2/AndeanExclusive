@@ -55,13 +55,27 @@
                     </optgroup>
                 @endforeach
             </select>
-            <div class="svc-quick-rates mt-1" data-svc-quick-rates="true"></div>
         </div>
+        {{-- Servicio: se elige del tarifario del proveedor (tarifas.js lo llena) o se escribe con "Otro servicio".
+             El nombre elegido es el que ve el cliente en el PDF y en el itinerario. --}}
+        @php $titulo = $v('titulo'); $libre = $err('titulo') || (filled($titulo) && blank($v('proveedor_id'))); @endphp
         <div class="svc-row__titulo">
-            <label class="prog-label" for="svc-{{ $i }}-titulo">Servicio / Experiencia</label>
-            <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $v('titulo') }}" maxlength="255"
-                class="form-control form-control-sm {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Ej. Traslado aeropuerto → hotel (opcional)" data-svc-titulo>
-            @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
+            <label class="prog-label" for="{{ $libre ? "svc-{$i}-titulo" : "svc-{$i}-servicio" }}" data-svc-servicio-label>Servicio</label>
+            <select id="svc-{{ $i }}-servicio" class="form-select form-select-sm" data-svc-servicio @if ($libre) hidden @endif>
+                @if (filled($titulo))
+                    <option value="" selected>{{ $titulo }}</option>
+                @else
+                    <option value="">{{ blank($v('proveedor_id')) ? 'Elige primero el proveedor' : 'Elige el servicio…' }}</option>
+                @endif
+                <option value="__otro">Otro servicio (escribir)…</option>
+            </select>
+            <div class="input-group input-group-sm" data-svc-titulo-libre @unless ($libre) hidden @endunless>
+                <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $titulo }}" maxlength="255"
+                    class="form-control {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Escribe el servicio" data-svc-titulo>
+                <button type="button" class="btn btn-outline-secondary" data-svc-volver-lista hidden
+                    title="Elegir del tarifario del proveedor" aria-label="Elegir del tarifario del proveedor"><i class="fas fa-list-ul" aria-hidden="true"></i></button>
+                @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
+            </div>
         </div>
         <div class="svc-row__actions">
             @if (! empty($s['id']))
