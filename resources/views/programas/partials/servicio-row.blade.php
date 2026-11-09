@@ -86,7 +86,16 @@
                 @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
             </div>
         </div>
+        @php
+            $esCeroCliente = (isset($v('costo_estimado')) && (float) $v('costo_estimado') === 0.0 && (float) ($v('costo') ?? 0) === 0.0 && filled($v('costo_estimado')));
+        @endphp
         <div class="svc-row__actions">
+            @unless ($esEstadia)
+                <button type="button" class="btn btn-sm {{ $esCeroCliente ? 'btn-info text-white' : 'btn-outline-info' }}" data-svc-toggle-cliente-pax
+                    title="{{ $esCeroCliente ? 'Servicio reservado por el cliente (Costo $0)' : 'Marcar si este servicio fue contratado/reservado directamente por el cliente (Costo US$ 0.00)' }}">
+                    <i class="fas fa-user-check" aria-hidden="true"></i>
+                </button>
+            @endunless
             @if (! empty($s['id']))
                 <a href="{{ route('servicios.voucher', $s['id']) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"
                     title="Orden de servicio (PDF)" aria-label="Orden de servicio en PDF"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>

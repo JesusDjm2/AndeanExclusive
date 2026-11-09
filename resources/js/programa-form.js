@@ -220,6 +220,50 @@ function initItinerario(root) {
         }
         const remove = event.target.closest('[data-svc-remove]');
         if (remove) remove.closest('[data-svc-item]').remove();
+
+        const btnCli = event.target.closest('[data-svc-toggle-cliente-pax]');
+        if (btnCli) {
+            const row = btnCli.closest('[data-svc-item]');
+            if (!row) return;
+
+            const estInput = row.querySelector('[data-svc-estimado]');
+            const costInput = row.querySelector('[data-svc-costo]');
+            const estadoSel = row.querySelector('[data-svc-estado]');
+            const origen = row.querySelector('[data-svc-origen]');
+
+            const isAlreadyCli = btnCli.classList.contains('btn-info');
+            if (!isAlreadyCli) {
+                btnCli.classList.remove('btn-outline-info');
+                btnCli.classList.add('btn-info', 'text-white');
+                btnCli.title = 'Servicio reservado por el cliente (Costo $0)';
+                row.dataset.prevEstimado = estInput ? estInput.value : '';
+                row.dataset.prevCosto = costInput ? costInput.value : '';
+                if (estInput) { estInput.value = '0.00'; estInput.dispatchEvent(new Event('input', { bubbles: true })); }
+                if (costInput) { costInput.value = '0.00'; costInput.dispatchEvent(new Event('input', { bubbles: true })); }
+                if (estadoSel) { estadoSel.value = 'confirmado'; estadoSel.dispatchEvent(new Event('change', { bubbles: true })); }
+                if (origen) {
+                    origen.hidden = false;
+                    origen.textContent = '✔ Reservado por el cliente (Costo US$ 0.00)';
+                    origen.className = 'svc-fin__origen';
+                }
+            } else {
+                btnCli.classList.remove('btn-info', 'text-white');
+                btnCli.classList.add('btn-outline-info');
+                btnCli.title = 'Marcar si este servicio fue contratado/reservado directamente por el cliente (Costo US$ 0.00)';
+                if (estInput && row.dataset.prevEstimado !== undefined) {
+                    estInput.value = row.dataset.prevEstimado;
+                    estInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (costInput && row.dataset.prevCosto !== undefined) {
+                    costInput.value = row.dataset.prevCosto;
+                    costInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (origen) {
+                    origen.hidden = true;
+                    origen.textContent = '';
+                }
+            }
+        }
     });
 
     section.addEventListener('change', (event) => {

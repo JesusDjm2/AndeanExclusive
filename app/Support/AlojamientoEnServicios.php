@@ -51,7 +51,7 @@ class AlojamientoEnServicios
 
     private static function crear(HabitacionFecha $estadia): void
     {
-        $importe = self::importe($estadia);
+        $importe = $estadia->reservado_cliente ? 0.0 : self::importe($estadia);
         $servicio = $estadia->programa->servicios()->create([
             'tipo' => 'alojamiento',
             'fecha' => $estadia->fecha_ingreso,
@@ -71,12 +71,13 @@ class AlojamientoEnServicios
     private static function actualizar(HabitacionFecha $estadia): void
     {
         $servicio = $estadia->servicio;
-        $importe = self::importe($estadia);
+        $importe = $estadia->reservado_cliente ? 0.0 : self::importe($estadia);
         $cambios = ['fecha' => $estadia->fecha_ingreso, 'titulo' => self::titulo($estadia), 'costo_estimado' => $importe];
 
         if ($estadia->reservado_cliente) {
             $cambios['estado'] = 'confirmado';
             $cambios['costo'] = 0.0;
+            $cambios['costo_estimado'] = 0.0;
         } else {
             // El costo real sigue al estimado hasta que Reservas pone el del hotel o ya hay pagos.
             $sinTocar = $servicio->costo === null || (float) $servicio->costo === (float) $servicio->costo_estimado;
