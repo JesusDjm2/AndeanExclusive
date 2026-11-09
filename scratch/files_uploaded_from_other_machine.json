@@ -1,0 +1,128 @@
+[
+    {
+        "path": "resources\/js\/programa-form.js",
+        "size": 46695,
+        "mtime": 1793832476,
+        "mtime_str": "2026-11-04 23:47:56"
+    },
+    {
+        "path": "app\/Http\/Controllers\/ClienteController.php",
+        "size": 3977,
+        "mtime": 1793830462,
+        "mtime_str": "2026-11-04 23:14:22"
+    },
+    {
+        "path": "app\/Support\/AdminNavigation.php",
+        "size": 5901,
+        "mtime": 1793825159,
+        "mtime_str": "2026-11-04 21:45:59"
+    },
+    {
+        "path": "database\/seeders\/TarifaSeeder.php",
+        "size": 20929,
+        "mtime": 1793824937,
+        "mtime_str": "2026-11-04 21:42:17"
+    },
+    {
+        "path": "database\/seeders\/RolePermissionSeeder.php",
+        "size": 2188,
+        "mtime": 1793824936,
+        "mtime_str": "2026-11-04 21:42:16"
+    },
+    {
+        "path": "database\/seeders\/ProgramaSeeder.php",
+        "size": 76371,
+        "mtime": 1793824935,
+        "mtime_str": "2026-11-04 21:42:15"
+    },
+    {
+        "path": "database\/seeders\/PeruProveedoresHotelesSeeder.php",
+        "size": 34339,
+        "mtime": 1793824934,
+        "mtime_str": "2026-11-04 21:42:14"
+    },
+    {
+        "path": "database\/seeders\/AvisosSeeder.php",
+        "size": 4649,
+        "mtime": 1793824933,
+        "mtime_str": "2026-11-04 21:42:13"
+    },
+    {
+        "path": "app\/Support\/Ayuda.php",
+        "size": 68128,
+        "mtime": 1793822948,
+        "mtime_str": "2026-11-04 21:09:08"
+    },
+    {
+        "path": "resources\/js\/image-preview.js",
+        "size": 2245,
+        "mtime": 1793822450,
+        "mtime_str": "2026-11-04 21:00:50"
+    },
+    {
+        "path": "resources\/js\/admin.js",
+        "size": 6836,
+        "mtime": 1793822449,
+        "mtime_str": "2026-11-04 21:00:49"
+    },
+    {
+        "path": "resources\/sass\/components\/_tour-detail.scss",
+        "size": 19868,
+        "mtime": 1793821836,
+        "mtime_str": "2026-11-04 20:50:36"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EstagController.php",
+        "size": 2556,
+        "mtime": 1793821833,
+        "mtime_str": "2026-11-04 20:50:33"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EntagController.php",
+        "size": 2556,
+        "mtime": 1793821832,
+        "mtime_str": "2026-11-04 20:50:32"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EsCatController.php",
+        "size": 2819,
+        "mtime": 1793821830,
+        "mtime_str": "2026-11-04 20:50:30"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EnCatController.php",
+        "size": 2815,
+        "mtime": 1793821829,
+        "mtime_str": "2026-11-04 20:50:29"
+    },
+    {
+        "path": "resources\/sass\/admin.scss",
+        "size": 2503,
+        "mtime": 1793816785,
+        "mtime_str": "2026-11-04 19:26:25"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EsblogController.php",
+        "size": 5471,
+        "mtime": 1793816782,
+        "mtime_str": "2026-11-04 19:26:22"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EnblogController.php",
+        "size": 4242,
+        "mtime": 1793816781,
+        "mtime_str": "2026-11-04 19:26:21"
+    },
+    {
+        "path": "app\/Http\/Controllers\/EsTourController.php",
+        "size": 7400,
+        "mtime": 1793816780,
+        "mtime_str": "2026-11-04 19:26:20"
+    },
+    {
+        "path": "app\/Http\/Controllers\/TourController.php",
+        "size": 7053,
+        "mtime": 1793816778,
+        "mtime_str": "2026-11-04 19:26:18"
+    }
+]

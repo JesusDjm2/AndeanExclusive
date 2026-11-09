@@ -1,0 +1,16 @@
+[
+    {
+        "path": "package.json",
+        "size": 504,
+        "mtime": 1793816810,
+        "mtime_str": "2026-11-04 19:26:50",
+        "line": "-rw-rw-rw-    1 jmrecufg   jmrecufg          504 Nov  4 14:26 package.json"
+    },
+    {
+        "path": "phpunit.xml",
+        "size": 1191,
+        "mtime": 1793816809,
+        "mtime_str": "2026-11-04 19:26:49",
+        "line": "-rw-rw-rw-    1 jmrecufg   jmrecufg         1191 Sep  7  2025 phpunit.xml"
+    }
+]
