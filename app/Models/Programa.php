@@ -447,6 +447,7 @@ public function paxs()
             'habitacionesIndividuales' => (int) $this->habitaciones_individuales,
             'suplemento' => $suplemento,
             'total' => $subtotal + $ganancia + $suplemento,
+            'deposito' => ($subtotal + $ganancia + $suplemento) * (self::PORCENTAJE_DEPOSITO / 100),
         ];
     }
 

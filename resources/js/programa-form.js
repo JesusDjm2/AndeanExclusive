@@ -212,6 +212,18 @@ function initItinerario(root) {
         }
         const add = event.target.closest('[data-svc-add]');
         if (add) {
+            const diaItem = add.closest('[data-itin-day-item]');
+            const isLibre = diaItem?.querySelector('[data-dia-libre-check]')?.checked;
+            if (isLibre) {
+                event.preventDefault();
+                const aviso = 'Este día está marcado como «Día libre». Para agregar servicios operativos, primero debes desmarcar la casilla «Día libre».';
+                if (window.Swal) {
+                    window.Swal.fire({ icon: 'info', title: 'Día libre', text: aviso, confirmButtonColor: '#0f172a' });
+                } else {
+                    alert(aviso);
+                }
+                return;
+            }
             const list = add.parentElement.querySelector('[data-svc-list]');
             const html = template.innerHTML.replaceAll('__INDEX__', nextIndex++).replaceAll('__FECHA__', add.dataset.fecha);
             list.insertAdjacentHTML('beforeend', html);
@@ -272,7 +284,7 @@ function initItinerario(root) {
         select.className = select.className.replace(/svc-estado--\S+/, `svc-estado--${select.value}`);
     });
 
-    // Día libre: marcar badge y sugerir título y texto si están vacíos
+    // Día libre: marcar badge, ocultar botón de agregar servicio y sugerir título y texto
     section.addEventListener('change', (event) => {
         const check = event.target.closest('[data-dia-libre-check]');
         if (!check) return;
@@ -281,16 +293,34 @@ function initItinerario(root) {
         const badge = dia.querySelector('[data-dia-libre-badge]');
         const titulo = dia.querySelector('[data-dia-titulo-input]');
         const desc = dia.querySelector('[data-dia-desc-input]');
+        const addBtn = dia.querySelector('[data-svc-add]');
+        const msg = dia.querySelector('[data-dia-libre-msg]');
 
         if (badge) badge.style.display = check.checked ? '' : 'none';
+        if (addBtn) addBtn.style.display = check.checked ? 'none' : '';
+        if (msg) msg.style.display = check.checked ? '' : 'none';
 
         if (check.checked) {
+            const numDia = dia.dataset.diaNum || '';
             if (titulo && !titulo.value.trim()) {
-                titulo.value = 'Día libre — Exploración a su propio ritmo';
+                titulo.value = numDia ? `Día ${numDia}` : 'Día libre';
             }
             if (desc && !desc.value.trim()) {
                 desc.value = 'Jornada libre para descansar, aclimatarse o recorrer la ciudad y sus atractivos a su propio ritmo.';
             }
+        }
+    });
+
+    // Inicializar estado de día libre en todos los días existentes al cargar
+    daysList?.querySelectorAll('[data-itin-day-item]').forEach((dia) => {
+        const check = dia.querySelector('[data-dia-libre-check]');
+        const addBtn = dia.querySelector('[data-svc-add]');
+        const msg = dia.querySelector('[data-dia-libre-msg]');
+        const badge = dia.querySelector('[data-dia-libre-badge]');
+        if (check && check.checked) {
+            if (addBtn) addBtn.style.display = 'none';
+            if (msg) msg.style.display = '';
+            if (badge) badge.style.display = '';
         }
     });
 
@@ -542,9 +572,17 @@ function initBudget(root) {
                 if (referencia < cumpleaños) edad -= 1;
                 return edad;
             });
-        const adultos = edades.filter((e) => e >= edadAdulto).length;
-        const ninos = edades.filter((e) => e >= edadNino && e < edadAdulto).length;
-        const infantes = edades.filter((e) => e < edadNino).length;
+        const cantPaxInput = root.querySelector('[data-cantidad-pax]');
+        const cantPaxVal = Math.max(1, parseInt(cantPaxInput?.value, 10) || 1);
+
+        let adultos = edades.filter((e) => e >= edadAdulto).length;
+        let ninos = edades.filter((e) => e >= edadNino && e < edadAdulto).length;
+        let infantes = edades.filter((e) => e < edadNino).length;
+
+        // Si aún no se han registrado pasajeros individuales en la lista, usamos la cantidad de pasajeros del grupo como adultos
+        if (edades.length === 0) {
+            adultos = cantPaxVal;
+        }
 
         const factor = 1 + num(root.querySelector('[data-ganancia]')) / 100;
         const costoAdulto = num(root.querySelector('[data-precio-adulto]'));

@@ -743,8 +743,8 @@
                                                 </label>
                                             </div>
                                             <input id="dia-{{ $dia['clave'] }}-titulo" type="text" name="dias[{{ $dia['clave'] }}][titulo]" maxlength="255"
-                                                value="{{ old('dias.' . $dia['clave'] . '.titulo', $dia['dia']?->titulo) }}"
-                                                class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour" data-dia-titulo-input>
+                                                value="{{ old('dias.' . $dia['clave'] . '.titulo', filled($dia['dia']?->titulo) ? $dia['dia']->titulo : ('Día ' . $dia['numero'])) }}"
+                                                class="form-control form-control-sm" placeholder="Día {{ $dia['numero'] }}" data-dia-titulo-input>
                                         </div>
                                         <div class="col-md-7">
                                             <label class="prog-label" for="dia-{{ $dia['clave'] }}-desc">Descripción para el cliente</label>
@@ -758,7 +758,13 @@
                                             @include('programas.partials.servicio-row', ['i' => $i, 's' => $fila])
                                         @endforeach
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="{{ $dia['clave'] }}">
+                                    @php
+                                        $esDiaLibre = (bool) old('dias.' . $dia['clave'] . '.es_libre', $dia['dia']?->es_libre);
+                                    @endphp
+                                    <div class="alert alert-info py-2 px-3 small d-flex align-items-center mb-0 mt-2" data-dia-libre-msg @unless($esDiaLibre) style="display:none;" @endunless>
+                                        <span><i class="fas fa-sun text-warning me-2"></i><strong>Día libre activo:</strong> Este día está marcado como libre. Para agregar servicios operativos, desmarca la casilla «Día libre».</span>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="{{ $dia['clave'] }}" @if($esDiaLibre) style="display:none;" @endif>
                                         <i class="fas fa-plus" aria-hidden="true"></i> Agregar servicio
                                     </button>
                                 </div>
@@ -816,7 +822,8 @@
                                             </label>
                                         </div>
                                         <input id="dia-__FECHA__-titulo" type="text" name="dias[__FECHA__][titulo]" maxlength="255"
-                                            class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour" data-dia-titulo-input>
+                                            value="Día __NUM__"
+                                            class="form-control form-control-sm" placeholder="Día __NUM__" data-dia-titulo-input>
                                     </div>
                                     <div class="col-md-7">
                                         <label class="prog-label" for="dia-__FECHA__-desc">Descripción para el cliente</label>
@@ -826,6 +833,9 @@
                                 </div>
 
                                 <div class="itin-day__services" data-svc-list></div>
+                                <div class="alert alert-info py-2 px-3 small d-flex align-items-center mb-0 mt-2" data-dia-libre-msg style="display:none;">
+                                    <span><i class="fas fa-sun text-warning me-2"></i><strong>Día libre activo:</strong> Este día está marcado como libre. Para agregar servicios operativos, desmarca la casilla «Día libre».</span>
+                                </div>
                                 <button type="button" class="btn btn-sm btn-outline-primary" data-svc-add data-fecha="__FECHA__">
                                     <i class="fas fa-plus" aria-hidden="true"></i> Agregar servicio
                                 </button>
@@ -1083,20 +1093,37 @@
 
                     </div>
 
+                    @php
+                        $pres = $isEdit ? $programa->presupuesto() : [
+                            'adultos' => max(1, (int) (old('cantidad_pax', $programa->cantidad_pax) ?: 1)),
+                            'ninos' => 0,
+                            'infantes' => 0,
+                            'ventaAdulto' => 0,
+                            'ventaNino' => 0,
+                            'subtotalAdultos' => 0,
+                            'subtotalNinos' => 0,
+                            'subtotal' => 0,
+                            'pctGanancia' => 20,
+                            'ganancia' => 0,
+                            'suplemento' => 0,
+                            'total' => 0,
+                            'deposito' => 0,
+                        ];
+                    @endphp
                     {{-- Vista previa en vivo (resources/js/programa-form.js) --}}
                     <aside class="pf-budget" aria-live="polite">
                         <h2 class="pf-budget__title">Presupuesto</h2>
                         <dl class="pf-budget__rows">
-                            <dt>Adultos <span data-b="adultos">0</span> × <span data-b="ventaAdulto">$0.00</span></dt><dd data-b="subAdultos">$0.00</dd>
-                            <dt>Niños <span data-b="ninos">0</span> × <span data-b="ventaNino">$0.00</span></dt><dd data-b="subNinos">$0.00</dd>
-                            <dt>Infantes <span data-b="infantes">0</span></dt><dd>Sin costo</dd>
-                            <dt>Suplemento individual × <span data-b="singles">0</span></dt><dd data-b="suplemento">$0.00</dd>
+                            <dt>Adultos <span data-b="adultos">{{ $pres['adultos'] }}</span> × <span data-b="ventaAdulto">{{ $money($pres['ventaAdulto']) }}</span></dt><dd data-b="subAdultos">{{ $money($pres['subtotalAdultos'] * (1 + $pres['pctGanancia']/100)) }}</dd>
+                            <dt>Niños <span data-b="ninos">{{ $pres['ninos'] }}</span> × <span data-b="ventaNino">{{ $money($pres['ventaNino']) }}</span></dt><dd data-b="subNinos">{{ $money($pres['subtotalNinos'] * (1 + $pres['pctGanancia']/100)) }}</dd>
+                            <dt>Infantes <span data-b="infantes">{{ $pres['infantes'] }}</span></dt><dd>Sin costo</dd>
+                            <dt>Suplemento individual × <span data-b="singles">{{ $programa->habitaciones_individuales ?? 0 }}</span></dt><dd data-b="suplemento">{{ $money($pres['suplemento']) }}</dd>
                         </dl>
-                        <p class="pf-budget__total"><span>Total al cliente</span><strong data-b="total">$0.00</strong></p>
+                        <p class="pf-budget__total"><span>Total al cliente</span><strong data-b="total">{{ $money($pres['total']) }}</strong></p>
                         @if ($verCotizacion)
-                        <p class="pf-budget__internal">Costo <span data-b="costo">$0.00</span> · Ganancia <span data-b="ganancia">$0.00</span></p>
+                        <p class="pf-budget__internal">Costo <span data-b="costo">{{ $money($pres['subtotal']) }}</span> · Ganancia <span data-b="ganancia">{{ $money($pres['ganancia']) }}</span></p>
                         @endif
-                        <p class="pf-budget__deposit">Depósito requerido ({{ \App\Models\Programa::PORCENTAJE_DEPOSITO }}%): <strong data-b="deposito">$0.00</strong></p>
+                        <p class="pf-budget__deposit">Depósito requerido ({{ \App\Models\Programa::PORCENTAJE_DEPOSITO }}%): <strong data-b="deposito">{{ $money($pres['deposito']) }}</strong></p>
                     </aside>
                 </div>
             </section>
