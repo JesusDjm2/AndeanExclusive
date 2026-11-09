@@ -11,6 +11,7 @@ export function initPdfPreview(bootstrap) {
     const loading = modalEl.querySelector('[data-pdf-loading]');
     const fallback = modalEl.querySelector('[data-pdf-fallback]');
     const title = modalEl.querySelector('[data-pdf-title]');
+    const subtitle = modalEl.querySelector('[data-pdf-subtitle]');
     const openLink = modalEl.querySelector('[data-pdf-open]');
     const downloadLink = modalEl.querySelector('[data-pdf-download]');
 
@@ -24,8 +25,14 @@ export function initPdfPreview(bootstrap) {
 
         const inlineUrl = trigger.dataset.pdfPreview;
         title.textContent = trigger.dataset.pdfTitle || 'Vista previa';
+        if (subtitle) {
+            subtitle.textContent = trigger.dataset.pdfSubtitle || 'Vista previa del documento';
+        }
         openLink.href = inlineUrl;
         downloadLink.href = trigger.getAttribute('href');
+        if (trigger.dataset.pdfTitle) {
+            downloadLink.setAttribute('download', trigger.dataset.pdfTitle.replace(/[^A-Za-z0-9_-]+/g, '_') + '.pdf');
+        }
 
         fallback.hidden = canEmbed;
         loading.hidden = !canEmbed;

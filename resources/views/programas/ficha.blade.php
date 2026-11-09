@@ -93,7 +93,7 @@
         <div class="d-flex flex-wrap gap-2">
             @if ($verCotizacion)
                 <button type="button" class="btn btn-outline-success" onclick="document.querySelector('#tab-costeo-excel-btn')?.click(); window.scrollTo({top: (document.querySelector('#fichaTab')?.offsetTop || 200) - 80, behavior: 'smooth'});">
-                    <i class="fas fa-file-excel me-1 text-success"></i> Hoja de Costeo Excel
+                    <i class="fas fa-file-excel me-1 text-success"></i> Hoja de Costeo
                 </button>
                 <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAjustarPrecios">
                     <i class="fas fa-tags me-1 text-primary"></i> Precios & Márgenes
@@ -106,7 +106,10 @@
                 data-historial-url="{{ route('programas.historial', $programa) }}">
                 <i class="fas fa-history me-1 text-primary"></i> Bitácora
             </button>
-            <a href="{{ route('programas.pdf', [$programa, 'ver' => 1]) }}" class="btn btn-outline-danger" target="_blank">
+            <a href="{{ route('programas.pdf', $programa) }}" class="btn btn-outline-danger"
+                data-pdf-preview="{{ route('programas.pdf', [$programa, 'ver' => 1]) }}"
+                data-pdf-title="Cotización · {{ $programa->nombre }}"
+                data-pdf-subtitle="Documento PDF de Cotización / Presentación">
                 <i class="fas fa-file-pdf me-1"></i> PDF
             </a>
             <a href="{{ route('itinerario', $programa) }}" class="btn btn-outline-info" target="_blank">
@@ -246,7 +249,7 @@
                 @if ($verCotizacion)
                     <li class="nav-item" role="presentation">
                         <button class="nav-link py-3 px-3 fw-semibold text-success" id="tab-costeo-excel-btn" data-bs-toggle="tab" data-bs-target="#tab-costeo-excel" type="button" role="tab">
-                            <i class="fas fa-file-excel me-2 text-success"></i> Hoja de Costeo & Cotizador (Excel)
+                            <i class="fas fa-file-excel me-2 text-success"></i> Hoja de Costeo & Cotizador
                         </button>
                     </li>
                 @endif
@@ -351,8 +354,13 @@
                                                         </td>
                                                         <td class="text-end">
                                                             @if ($s->proveedor_id)
-                                                                <a href="{{ route('servicios.voucher', $s) }}" class="btn btn-xs btn-outline-secondary" target="_blank" title="Ver orden de servicio">
-                                                                    <i class="fas fa-file-invoice"></i> Voucher
+                                                                <a href="{{ route('servicios.voucher', ['servicio' => $s, 'download' => 1]) }}"
+                                                                    class="btn btn-xs btn-outline-secondary"
+                                                                    data-pdf-preview="{{ route('servicios.voucher', ['servicio' => $s, 'ver' => 1]) }}"
+                                                                    data-pdf-title="Voucher #{{ $s->id }} · {{ $s->titulo }}"
+                                                                    data-pdf-subtitle="Orden de servicio · Proveedor: {{ $s->proveedor?->nombre ?? 'Sin proveedor' }}"
+                                                                    title="Ver orden de servicio (Voucher)">
+                                                                    <i class="fas fa-file-invoice me-1"></i> Voucher
                                                                 </a>
                                                             @endif
                                                         </td>
@@ -589,6 +597,16 @@
                                                         <span class="badge {{ $s->estado === 'confirmado' ? 'bg-success-subtle text-success' : ($s->estado === 'cancelado' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
                                                             {{ ucfirst($s->estado) }}
                                                         </span>
+                                                        @if ($s->proveedor_id)
+                                                            <a href="{{ route('servicios.voucher', ['servicio' => $s, 'download' => 1]) }}"
+                                                                class="btn btn-xs btn-outline-secondary py-0 px-1 ms-1"
+                                                                data-pdf-preview="{{ route('servicios.voucher', ['servicio' => $s, 'ver' => 1]) }}"
+                                                                data-pdf-title="Voucher #{{ $s->id }} · {{ $s->titulo }}"
+                                                                data-pdf-subtitle="Orden de servicio · Proveedor: {{ $s->proveedor?->nombre ?? 'Sin proveedor' }}"
+                                                                title="Ver orden de servicio (Voucher)">
+                                                                <i class="fas fa-file-invoice"></i>
+                                                            </a>
+                                                        @endif
                                                         @if ($s->notas)
                                                             <span class="text-muted ms-1 text-truncate d-inline-block" style="max-width: 140px;" title="{{ $s->notas }}">
                                                                 {{ $s->notas }}

@@ -10,7 +10,7 @@
                     <span class="pdf-preview__icon" aria-hidden="true"><i class="fas fa-file-pdf"></i></span>
                     <div>
                         <h2 class="modal-title" id="pdfPreviewTitle" data-pdf-title>Vista previa</h2>
-                        <small class="text-muted">Vista previa del PDF que recibe el cliente</small>
+                        <small class="text-muted" data-pdf-subtitle>Vista previa del documento</small>
                     </div>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
@@ -33,7 +33,7 @@
                 <a href="#" class="btn btn-outline-primary" target="_blank" rel="noopener" data-pdf-open>
                     <i class="fas fa-external-link-alt" aria-hidden="true"></i> Abrir en nueva ventana
                 </a>
-                <a href="#" class="btn btn-primary" data-pdf-download>
+                <a href="#" class="btn btn-primary" download data-pdf-download>
                     <i class="fas fa-download" aria-hidden="true"></i> Descargar
                 </a>
             </div>

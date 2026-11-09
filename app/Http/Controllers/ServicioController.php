@@ -184,10 +184,11 @@ class ServicioController extends Controller
         $dompdf->render();
 
         $nombre = 'orden-servicio-' . preg_replace('/[^A-Za-z0-9_-]+/', '-', $servicio->programa->codigo) . '-' . $servicio->id . '.pdf';
+        $disposicion = request()->boolean('download') ? 'attachment' : 'inline';
 
         return response($dompdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="' . $nombre . '"',
+            'Content-Disposition' => $disposicion . '; filename="' . $nombre . '"',
         ]);
     }
 }

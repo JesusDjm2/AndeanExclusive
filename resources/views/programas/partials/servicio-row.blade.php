@@ -98,7 +98,11 @@
                 </button>
             @endunless
             @if (! empty($s['id']))
-                <a href="{{ route('servicios.voucher', $s['id']) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary"
+                <a href="{{ route('servicios.voucher', ['servicio' => $s['id'], 'download' => 1]) }}"
+                    data-pdf-preview="{{ route('servicios.voucher', ['servicio' => $s['id'], 'ver' => 1]) }}"
+                    data-pdf-title="Voucher #{{ $s['id'] }} · {{ $s['titulo'] ?? 'Servicio' }}"
+                    data-pdf-subtitle="Orden de servicio para proveedor"
+                    class="btn btn-sm btn-outline-secondary"
                     title="Orden de servicio (PDF)" aria-label="Orden de servicio en PDF"><i class="fas fa-file-invoice" aria-hidden="true"></i></a>
             @endif
             @if ($esEstadia)
