@@ -324,133 +324,183 @@
                         </div>
                     </div>
 
-                    {{-- Detalle desplegable --}}
+                    {{-- Detalle desplegable: lo que falta para que el viaje salga bien y el viaje de un vistazo.
+                         El desglose de precios y los datos de cada pasajero están en la ficha operativa. --}}
+                    @php
+                        $op = $programa->operacion();
+                        $porConfirmar = $programa->servicios->filter(fn ($s) => in_array($s->estado, \App\Models\Servicio::ABIERTOS, true))->sortBy('fecha')->values();
+                        $pctServicios = $op['servicios'] ? (int) round($op['confirmados'] / $op['servicios'] * 100) : 0;
+                        $estadoServicios = ! $op['servicios'] ? 'muted' : ($op['abiertos'] ? 'warn' : 'ok');
+                        $estadoCobro = $cobro['total'] <= 0 ? 'muted' : ($cobro['estado'] === 'pagado' ? 'ok' : ($cobro['saldoVencido'] ? 'danger' : 'warn'));
+                        $estadoTareas = $op['tareasVencidas'] ? 'danger' : ($op['tareasPendientes'] ? 'warn' : 'ok');
+                        $iconos = ['ok' => 'fa-check-circle', 'warn' => 'fa-clock', 'danger' => 'fa-exclamation-circle', 'muted' => 'fa-minus-circle'];
+                        $conDieta = $programa->paxs->filter(fn ($pax) => filled($pax->alimentacion))->count();
+                    @endphp
                     <div class="collapse" id="prog-detail-{{ $programa->id }}">
                         <div class="prog-detail">
-                            <section class="prog-detail__col">
-                                <h3 class="prog-detail__title"><i class="fas fa-users" aria-hidden="true"></i> Pasajeros</h3>
-                                @forelse ($programa->paxs as $pax)
-                                    <div class="prog-detail__line">
-                                        <strong>{{ $pax->nombre }}</strong>
-                                        <span>{{ $pax->edad }} años · {{ $pax->nacionalidad }}@if ($pax->alimentacion) · <i class="fas fa-utensils" aria-hidden="true"></i> {{ $pax->alimentacion }}@endif</span>
-                                    </div>
-                                @empty
-                                    <p class="prog-detail__empty">Sin pasajeros registrados.</p>
-                                @endforelse
-                            </section>
+                            <section class="prog-detail__pendientes" aria-labelledby="prog-pend-{{ $programa->id }}">
+                                <h3 class="prog-detail__title" id="prog-pend-{{ $programa->id }}"><i class="fas fa-clipboard-check" aria-hidden="true"></i> Pendientes</h3>
+                                <ul class="prog-check">
+                                    <li class="prog-check__item prog-check__item--{{ $estadoServicios }}">
+                                        <i class="prog-check__icon fas {{ $iconos[$estadoServicios] }}" aria-hidden="true"></i>
+                                        <div class="prog-check__body">
+                                            <div class="prog-check__head">
+                                                <strong>Servicios</strong>
+                                                <span>{{ $op['servicios'] ? $op['confirmados'] . ' de ' . $op['servicios'] . ' confirmados' : 'Sin servicios cargados' }}</span>
+                                            </div>
+                                            @if ($op['servicios'])
+                                                <div class="prog-meter" role="progressbar" aria-label="Servicios confirmados" aria-valuenow="{{ $pctServicios }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ $pctServicios }}%"></span></div>
+                                            @endif
+                                            @if ($porConfirmar->isNotEmpty())
+                                                <p class="prog-check__detail">
+                                                    Por confirmar:
+                                                    {{ $porConfirmar->take(3)->map(fn ($s) => ($s->titulo ?: $s->tipo_etiqueta) . ' (' . ($s->proveedor?->nombre ?? 'sin proveedor') . ')')->implode(' · ') }}@if ($porConfirmar->count() > 3) y {{ $porConfirmar->count() - 3 }} más @endif
+                                                </p>
+                                            @endif
+                                        </div>
+                                        @if ($op['abiertos'])
+                                            <a class="prog-check__action" href="{{ route('reservas.index', ['q' => $programa->codigo, 'periodo' => 'todos']) }}">Ir a Reservas</a>
+                                        @endif
+                                    </li>
 
-                            <section class="prog-detail__col">
-                                <h3 class="prog-detail__title"><i class="fas fa-hotel" aria-hidden="true"></i> Hoteles</h3>
-                                @forelse ($hoteles as ['hotel' => $hotel, 'estadias' => $estadias])
-                                    <div class="prog-detail__line">
-                                        <strong>{{ $hotel->nombre }}</strong>
-                                        @foreach ($estadias as $hf)
-                                            <span>
-                                                {{ $hf->etiqueta }} ·
-                                                @if ($hf->fecha_ingreso)
-                                                    {{ \Carbon\Carbon::parse($hf->fecha_ingreso)->format('d/m') }} → {{ \Carbon\Carbon::parse($hf->fecha_salida)->format('d/m/Y') }}
-                                                @else
-                                                    <span class="text-warning">sin fechas</span>
+                                    <li class="prog-check__item prog-check__item--{{ $estadoCobro }}">
+                                        <i class="prog-check__icon fas {{ $iconos[$estadoCobro] }}" aria-hidden="true"></i>
+                                        <div class="prog-check__body">
+                                            <div class="prog-check__head">
+                                                <strong>Cobro</strong>
+                                                <span>
+                                                    @if ($cobro['total'] <= 0)
+                                                        Sin precio de venta
+                                                    @elseif ($cobro['estado'] === 'pagado')
+                                                        Pagado completo
+                                                    @else
+                                                        {{ $cobro['porcentaje'] }}% pagado
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            @if ($cobro['total'] > 0)
+                                                <div class="prog-meter" role="progressbar" aria-label="Porcentaje cobrado" aria-valuenow="{{ $cobro['porcentaje'] }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ min(100, $cobro['porcentaje']) }}%"></span></div>
+                                                @if ($cobro['saldo'] > 0)
+                                                    <p class="prog-check__detail">
+                                                        Saldo <strong>{{ $money($cobro['saldo']) }}</strong>
+                                                        @if ($cobro['vencimientoSaldo'])· {{ $cobro['saldoVencido'] ? 'venció' : 'vence' }} el {{ $cobro['vencimientoSaldo']->locale('es')->isoFormat('D [de] MMMM') }}@endif
+                                                    </p>
                                                 @endif
-                                            </span>
+                                            @endif
+                                        </div>
+                                        @can('cobros.gestionar')
+                                            @if ($cobro['saldo'] > 0)
+                                                <a class="prog-check__action" href="{{ route('programas.edit', [$programa, 'tab' => 'pagos']) }}">Registrar pago</a>
+                                            @endif
+                                        @endcan
+                                    </li>
+
+                                    @php $estadoVuelos = $programa->tieneVuelos() ? 'ok' : 'warn'; @endphp
+                                    <li class="prog-check__item prog-check__item--{{ $estadoVuelos }}">
+                                        <i class="prog-check__icon fas {{ $programa->tieneVuelos() ? 'fa-plane' : 'fa-plane-slash' }}" aria-hidden="true"></i>
+                                        <div class="prog-check__body">
+                                            <div class="prog-check__head">
+                                                <strong>Vuelos</strong>
+                                                <span>
+                                                    @if ($programa->tieneVuelos())
+                                                        Llegada {{ $programa->llegada_vuelo ?: 'registrada' }} · Salida {{ $programa->salida_vuelo ?: 'registrada' }}
+                                                    @else
+                                                        Faltan los vuelos de llegada y salida
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @if ($canEdit && ! $programa->tieneVuelos())
+                                            <a class="prog-check__action" href="{{ route('programas.edit', [$programa, 'tab' => 'datos']) }}">Cargar vuelos</a>
+                                        @endif
+                                    </li>
+
+                                    <li class="prog-check__item prog-check__item--{{ $estadoTareas }}">
+                                        <i class="prog-check__icon fas {{ $iconos[$estadoTareas] }}" aria-hidden="true"></i>
+                                        <div class="prog-check__body">
+                                            <div class="prog-check__head">
+                                                <strong>Tareas</strong>
+                                                <span>
+                                                    @if ($op['tareasVencidas'])
+                                                        {{ $op['tareasVencidas'] }} {{ $op['tareasVencidas'] === 1 ? 'vencida' : 'vencidas' }} de {{ $op['tareasPendientes'] }} pendientes
+                                                    @elseif ($op['tareasPendientes'])
+                                                        {{ $op['tareasPendientes'] }} {{ $op['tareasPendientes'] === 1 ? 'pendiente' : 'pendientes' }}, ninguna vencida
+                                                    @else
+                                                        Al día
+                                                    @endif
+                                                </span>
+                                            </div>
+                                        </div>
+                                        @if ($op['tareasPendientes'])
+                                            <a class="prog-check__action" href="{{ route('programas.edit', [$programa, 'tab' => 'tareas']) }}">Ver tareas</a>
+                                        @endif
+                                    </li>
+                                </ul>
+                            </section>
+
+                            <section class="prog-detail__viaje" aria-labelledby="prog-viaje-{{ $programa->id }}">
+                                <h3 class="prog-detail__title" id="prog-viaje-{{ $programa->id }}"><i class="fas fa-suitcase-rolling" aria-hidden="true"></i> El viaje</h3>
+
+                                <span class="prog-trip__label">Hoteles</span>
+                                @if ($hoteles->isNotEmpty())
+                                    <ol class="prog-stays">
+                                        @foreach ($hoteles as ['hotel' => $hotel, 'estadias' => $estadias])
+                                            @foreach ($estadias as $hf)
+                                                @php
+                                                    $entrada = $hf->fecha_ingreso ? \Carbon\Carbon::parse($hf->fecha_ingreso) : null;
+                                                    $salida = $hf->fecha_salida ? \Carbon\Carbon::parse($hf->fecha_salida) : null;
+                                                    $noches = $entrada && $salida ? (int) $entrada->diffInDays($salida) : null;
+                                                @endphp
+                                                <li>
+                                                    <strong>{{ $hotel->nombre }}</strong>
+                                                    <span>
+                                                        @if ($noches)
+                                                            {{ $noches }} {{ $noches === 1 ? 'noche' : 'noches' }} · {{ $entrada->format('d/m') }} → {{ $salida->format('d/m') }}
+                                                        @else
+                                                            <span class="text-warning">Sin fechas</span>
+                                                        @endif
+                                                    </span>
+                                                </li>
+                                            @endforeach
                                         @endforeach
-                                    </div>
-                                @empty
+                                    </ol>
+                                @else
                                     <p class="prog-detail__empty">Sin hoteles asignados.</p>
-                                @endforelse
+                                @endif
 
-                                @php $op = $programa->operacion(); @endphp
-                                <h3 class="prog-detail__title mt-3"><i class="fas fa-route" aria-hidden="true"></i> Operación</h3>
-                                @if ($op['servicios'] || $op['tareasPendientes'])
-                                    <div class="prog-detail__line">
-                                        <strong>Servicios</strong>
-                                        <span>{{ $op['confirmados'] }} de {{ $op['servicios'] }} confirmados
-                                            @if ($op['abiertos'])<span class="svc-badge svc-badge--pendiente ms-1">{{ $op['abiertos'] }} por confirmar</span>@endif
-                                        </span>
-                                        <span>{{ $programa->servicios->pluck('proveedor.nombre')->filter()->unique()->implode(' · ') ?: 'Sin proveedores asignados' }}</span>
-                                    </div>
-                                    <div class="prog-detail__line">
-                                        <strong>Tareas</strong>
-                                        <span>{{ $op['tareasPendientes'] }} pendientes
-                                            @if ($op['tareasVencidas'])<span class="svc-badge svc-badge--pendiente ms-1">{{ $op['tareasVencidas'] }} vencidas</span>@endif
-                                        </span>
-                                    </div>
+                                <span class="prog-trip__label">Pasajeros</span>
+                                @if ($programa->paxs->isNotEmpty())
+                                    <p class="prog-trip__text">
+                                        {{ $programa->paxs->pluck('nombre')->implode(', ') }}
+                                        @if ($conDieta)<span class="prog-trip__note"><i class="fas fa-utensils" aria-hidden="true"></i> {{ $conDieta }} con dieta especial</span>@endif
+                                    </p>
                                 @else
-                                    <p class="prog-detail__empty">Sin servicios ni tareas cargados.</p>
+                                    <p class="prog-detail__empty">Sin pasajeros registrados.</p>
                                 @endif
-                            </section>
 
-                            <section class="prog-detail__col">
-                                <h3 class="prog-detail__title"><i class="fas fa-coins" aria-hidden="true"></i> Presupuesto</h3>
-                                @if ($p['subtotal'] > 0)
-                                    <dl class="prog-budget">
-                                        @if ($p['adultos'])
-                                            <dt>Adultos ({{ $p['adultos'] }} × {{ $money($verCotizacion ? $programa->precioAdulto : $p['ventaAdulto']) }})</dt>
-                                            <dd>{{ $money($verCotizacion ? $p['subtotalAdultos'] : $p['ventaAdulto'] * $p['adultos']) }}</dd>
-                                        @endif
-                                        @if ($p['ninos'])
-                                            <dt>Niños 5-11 ({{ $p['ninos'] }} × {{ $money($verCotizacion ? $programa->precioChild : $p['ventaNino']) }})</dt>
-                                            <dd>{{ $money($verCotizacion ? $p['subtotalNinos'] : $p['ventaNino'] * $p['ninos']) }}</dd>
-                                        @endif
-                                        @if ($p['infantes'])
-                                            <dt>Infantes ({{ $p['infantes'] }})</dt>
-                                            <dd>Gratis</dd>
-                                        @endif
-                                        @if ($verCotizacion && $p['pctGanancia'] > 0)
-                                            <dt class="prog-budget__sep">Subtotal</dt>
-                                            <dd class="prog-budget__sep">{{ $money($p['subtotal']) }}</dd>
-                                            <dt>Ganancia ({{ rtrim(rtrim(number_format($p['pctGanancia'], 2), '0'), '.') }}%)</dt>
-                                            <dd class="text-success">+{{ $money($p['ganancia']) }}</dd>
-                                        @endif
-                                        <dt class="prog-budget__total">Total</dt>
-                                        <dd class="prog-budget__total">{{ $money($p['total']) }}</dd>
-                                    </dl>
-                                @else
-                                    <p class="prog-detail__empty">Sin tarifas cargadas.</p>
-                                @endif
-                                @if ($cobro['total'] > 0)
-                                    <dl class="prog-budget mt-3">
-                                        <dt>Pagado ({{ $cobro['porcentaje'] }}%)</dt>
-                                        <dd class="text-success">{{ $money($cobro['pagado']) }}</dd>
-                                        <dt>Saldo{{ $cobro['vencimientoSaldo'] && $cobro['saldo'] > 0 ? ' · vence ' . $cobro['vencimientoSaldo']->locale('es')->isoFormat('D MMM') : '' }}</dt>
-                                        <dd class="{{ $cobro['saldoVencido'] ? 'text-danger' : '' }}">{{ $money($cobro['saldo']) }}</dd>
-                                    </dl>
-                                @endif
                                 @if ($programa->email)
-                                    <p class="prog-detail__contact"><i class="fas fa-envelope" aria-hidden="true"></i> {{ $programa->email }}</p>
+                                    <span class="prog-trip__label">Contacto</span>
+                                    <p class="prog-trip__text"><a href="mailto:{{ $programa->email }}">{{ $programa->email }}</a></p>
                                 @endif
                             </section>
 
-                            {{-- Barra de Acciones Directas del Detalle --}}
-                            <div class="prog-detail__footer d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-3 border-top w-100">
-                                <div class="d-flex align-items-center gap-2">
-                                    @if ($programa->tieneVuelos())
-                                        <span class="badge text-bg-success-subtle text-success border border-success-subtle">
-                                            <i class="fas fa-plane me-1"></i>
-                                            Llegada: {{ $programa->llegada_vuelo ?: 'Definido' }} | Salida: {{ $programa->salida_vuelo ?: 'Definido' }}
-                                        </span>
-                                    @else
-                                        <span class="badge text-bg-warning-subtle text-warning-emphasis border border-warning-subtle">
-                                            <i class="fas fa-plane-slash me-1"></i> Vuelos pendientes
-                                        </span>
-                                    @endif
-                                </div>
+                            <div class="prog-detail__footer">
+                                <button type="button" class="btn btn-sm btn-link prog-detail__link"
+                                    data-historial-modal
+                                    data-programa-nombre="{{ $programa->nombre }}"
+                                    data-programa-codigo="{{ $programa->codigo }}"
+                                    data-historial-url="{{ route('programas.historial', $programa) }}">
+                                    <i class="fas fa-history me-1" aria-hidden="true"></i> Historial
+                                </button>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                        data-historial-modal
-                                        data-programa-nombre="{{ $programa->nombre }}"
-                                        data-programa-codigo="{{ $programa->codigo }}"
-                                        data-historial-url="{{ route('programas.historial', $programa) }}">
-                                        <i class="fas fa-history me-1 text-primary"></i> Historial
-                                    </button>
-                                    <a href="{{ route('programas.ficha', $programa) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-id-card me-1"></i> Ficha operativa
-                                    </a>
                                     @if ($canEdit)
-                                        <a href="{{ route('programas.edit', $programa) }}" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-pencil-alt me-1"></i> Editar
+                                        <a href="{{ route('programas.edit', $programa) }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-pencil-alt me-1" aria-hidden="true"></i> Editar
                                         </a>
                                     @endif
+                                    <a href="{{ route('programas.ficha', $programa) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-id-card me-1" aria-hidden="true"></i> Abrir ficha operativa
+                                    </a>
                                 </div>
                             </div>
                         </div>

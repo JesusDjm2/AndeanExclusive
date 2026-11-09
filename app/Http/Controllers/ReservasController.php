@@ -62,7 +62,7 @@ class ReservasController extends Controller
 
         $servicios = (clone $base)
             ->whereIn('estado', self::BANDEJAS[$bandeja][1])
-            ->with(['programa.paxs', 'programa.cliente', 'proveedor', 'pagos'])
+            ->with(['programa.paxs', 'programa.cliente', 'proveedor', 'pagos'])->withCount('mensajes')
             ->when($periodo === 'pasados', fn ($q) => $q->orderByDesc('fecha'), fn ($q) => $q->orderBy('fecha'))
             ->orderByRaw('hora IS NULL, hora')
             ->paginate(40)

@@ -60,17 +60,16 @@
         data-nombre="{{ $nombre }}" title="Historial y pagos" aria-label="Historial y pagos de {{ $servicio->titulo }}">
         <i class="fas fa-history" aria-hidden="true"></i>
     </button>
-    @can('servicios.gestionar')
-        @if (! $sinProveedor && $servicio->estado !== 'cancelado' && filter_var((string) $servicio->proveedor?->correo, FILTER_VALIDATE_EMAIL))
-            <form action="{{ route('servicios.enviar-orden', $servicio) }}" method="POST" class="d-inline"
-                data-confirm="Se enviará la orden en PDF a {{ $servicio->proveedor->correo }}." data-confirm-title="¿Enviar orden de servicio?" data-confirm-button="Sí, enviar">
-                @csrf
-                <button type="submit" class="btn btn-sm btn-light" title="{{ $servicio->orden_enviada_at ? 'Orden enviada el ' . $servicio->orden_enviada_at->format('d/m/Y H:i') . '. Reenviar' : 'Enviar orden por correo' }}" aria-label="Enviar orden de {{ $servicio->titulo }} por correo">
-                    <i class="fas {{ $servicio->orden_enviada_at ? 'fa-check-double' : 'fa-envelope' }}" aria-hidden="true"></i>
-                </button>
-            </form>
-        @endif
-    @endcan
+    {{-- Mensajería con el proveedor desde reservas@: solicitar, confirmar con orden, modificar, cancelar y su hilo. --}}
+    @unless ($sinProveedor)
+        @php $nMensajes = $servicio->mensajes_count ?? null; @endphp
+        <a href="{{ route('servicios.mensaje', $servicio) }}" class="btn btn-sm btn-light svc-msg-btn"
+            title="{{ $nMensajes ? $nMensajes . ' ' . ($nMensajes === 1 ? 'mensaje' : 'mensajes') . ' con el proveedor' : 'Escribir al proveedor' }}{{ $servicio->orden_enviada_at ? ' · orden enviada el ' . $servicio->orden_enviada_at->format('d/m/Y') : '' }}"
+            aria-label="Mensajes con el proveedor de {{ $servicio->titulo }}">
+            <i class="fas {{ $servicio->orden_enviada_at ? 'fa-envelope-open-text' : 'fa-envelope' }}" aria-hidden="true"></i>
+            @if ($nMensajes)<span class="svc-msg-btn__count">{{ $nMensajes }}</span>@endif
+        </a>
+    @endunless
     @unless ($sinProveedor)
         <a href="{{ route('servicios.voucher', $servicio) }}" target="_blank" rel="noopener" class="btn btn-sm btn-light"
             title="Orden de servicio (PDF)" aria-label="Orden de servicio de {{ $servicio->titulo }}">

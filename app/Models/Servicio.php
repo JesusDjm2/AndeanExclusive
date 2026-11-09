@@ -138,6 +138,12 @@ class Servicio extends Model
         return $this->hasMany(ProveedorPago::class)->orderBy('fecha')->orderBy('id');
     }
 
+    /** Hilo de mensajes con el proveedor (lo más reciente primero). */
+    public function mensajes()
+    {
+        return $this->hasMany(MensajeProveedor::class)->latest()->orderByDesc('id');
+    }
+
     public function eventos()
     {
         return $this->hasMany(ServicioEvento::class)->latest()->orderByDesc('id');

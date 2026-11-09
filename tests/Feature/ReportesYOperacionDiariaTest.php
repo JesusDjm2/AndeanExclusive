@@ -104,7 +104,7 @@ class ReportesYOperacionDiariaTest extends TestCase
         $servicio = $programa->servicios()->first();
         $this->actingAs($this->usuario('reservas'));
 
-        $this->get('/reservas?bandeja=confirmados&periodo=todos')->assertOk()->assertSee('Enviar orden de Guía por correo');
+        $this->get('/reservas?bandeja=confirmados&periodo=todos')->assertOk()->assertSee('Mensajes con el proveedor de Guía', false);
         $this->post("/servicios/{$servicio->id}/enviar-orden")->assertSessionHas('success');
         $this->assertNotNull($servicio->fresh()->orden_enviada_at);
         $this->assertTrue($servicio->eventos()->where('detalle', 'like', 'Orden de servicio enviada%')->exists());

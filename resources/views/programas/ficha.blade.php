@@ -362,6 +362,10 @@
                                                                     title="Ver orden de servicio (Voucher)">
                                                                     <i class="fas fa-file-invoice me-1"></i> Voucher
                                                                 </a>
+                                                                <a href="{{ route('servicios.mensaje', $s) }}" class="btn btn-xs btn-outline-secondary ms-1"
+                                                                    title="Mensajes con el proveedor (desde reservas@)" aria-label="Mensajes con el proveedor de {{ $s->titulo }}">
+                                                                    <i class="fas fa-envelope me-1" aria-hidden="true"></i> Mensajes
+                                                                </a>
                                                             @endif
                                                         </td>
                                                     </tr>
@@ -497,12 +501,12 @@
                                             @endphp
 
                                             {{-- Fila de Título del Día --}}
-                                            <tr class="table-primary-subtle border-bottom border-primary-subtle excel-row-header-dia">
+                                            <tr class="excel-row-header-dia">
                                                 <td colspan="8" class="py-2 px-3">
                                                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                                                         <div>
-                                                            <strong class="text-primary text-uppercase fs-7 me-2">Día {{ $itDia['numero'] }}:</strong>
-                                                            <span class="fw-bold text-dark">{{ $dia?->titulo ?: 'Ruta sin definir' }}</span>
+                                                            <strong class="excel-dia-num text-uppercase me-2">Día {{ $itDia['numero'] }}:</strong>
+                                                            <span class="excel-dia-titulo fw-bold">{{ $dia?->titulo ?: 'Ruta sin definir' }}</span>
                                                             <span class="text-muted small ms-2">({{ $itDia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }})</span>
                                                             @if ($itDia['es_libre'])
                                                                 <span class="badge bg-success text-white ms-2 shadow-xs">
@@ -1314,22 +1318,50 @@
 
 @push('styles')
 <style>
+/* Hoja de costeo: los fondos salen de variables para que el texto se lea en tema claro y oscuro. */
 .excel-costeo-table {
-    border-color: #dee2e6;
+    --excel-dia-bg: #eaf1fb;
+    --excel-dia-acento: #2563eb;
+    --excel-subtotal-bg: #f4f6f9;
+    --excel-total-bg: #e7ebf0;
+    border-color: var(--ae-border, #dee2e6);
     font-size: 0.86rem;
+}
+[data-bs-theme="dark"] .excel-costeo-table {
+    --excel-dia-bg: rgba(96, 165, 250, 0.13);
+    --excel-dia-acento: #93c5fd;
+    --excel-subtotal-bg: var(--ae-surface-2);
+    --excel-total-bg: rgba(148, 163, 184, 0.16);
 }
 .excel-costeo-table th, .excel-costeo-table td {
     vertical-align: middle;
 }
-.excel-row-header-dia {
-    background-color: #e9f2ff !important;
+/* Bootstrap pinta cada celda con --bs-table-bg: el color se fija ahí, no en la fila. */
+.excel-row-header-dia > td {
+    --bs-table-bg: var(--excel-dia-bg);
+    --bs-table-color: var(--ae-ink);
+    border-left: 3px solid var(--excel-dia-acento);
 }
-.excel-subtotal-dia {
-    background-color: #f8f9fa !important;
+.excel-row-header-dia .excel-dia-num {
+    color: var(--excel-dia-acento) !important;
+    letter-spacing: 0.04em;
+}
+.excel-row-header-dia .excel-dia-titulo {
+    color: var(--ae-ink) !important;
+    font-size: 0.95rem;
+}
+.excel-subtotal-dia > td {
+    --bs-table-bg: var(--excel-subtotal-bg);
+    --bs-table-color: var(--ae-ink);
+}
+.excel-costeo-table .table-secondary > td,
+.excel-costeo-table .table-secondary > th {
+    --bs-table-bg: var(--excel-total-bg);
+    --bs-table-color: var(--ae-ink);
 }
 @media (min-width: 992px) {
     .border-end-lg {
-        border-right: 1px solid #dee2e6;
+        border-right: 1px solid var(--ae-border, #dee2e6);
     }
 }
 @media print {

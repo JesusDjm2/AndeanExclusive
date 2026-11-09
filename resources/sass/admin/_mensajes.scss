@@ -1,0 +1,256 @@
+// ==========================================================================
+// Mensajería de Reservas con proveedores (mensajes/crear, mensajes/index)
+// ==========================================================================
+
+.msg-layout {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+
+    @include media-breakpoint-up(xl) { grid-template-columns: minmax(0, 1fr) 360px; }
+
+    &__main,
+    &__side { display: grid; gap: 1rem; min-width: 0; }
+}
+
+.msg-card__title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ae-ink);
+
+    i { color: var(--ae-accent-text); }
+}
+
+.msg-card__link { margin-left: auto; font-size: 0.78rem; font-weight: 600; letter-spacing: 0; text-transform: none; text-decoration: none; color: var(--ae-accent-text); }
+
+.msg-card__hint { margin: -0.25rem 0 0.75rem; font-size: 0.82rem; color: var(--ae-ink-soft); }
+
+// Botón de mensajes en las acciones de un servicio, con su contador.
+.svc-msg-btn { position: relative; }
+
+.svc-msg-btn__count {
+    position: absolute;
+    top: -0.4rem;
+    right: -0.4rem;
+    min-width: 1.05rem;
+    padding: 0 0.25rem;
+    font-size: 0.62rem;
+    font-weight: 700;
+    line-height: 1.05rem;
+    text-align: center;
+    color: #ffffff;
+    background: var(--ae-accent-text);
+    border-radius: 999px;
+}
+
+// ---- Redactar ----
+.msg-compose { padding: 0; overflow: hidden; }
+
+.msg-compose__types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--ae-border-soft);
+    background: var(--ae-surface-2);
+}
+
+.msg-type {
+    margin: 0;
+    cursor: pointer;
+
+    span {
+        display: inline-block;
+        padding: 0.35rem 0.8rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        color: var(--ae-ink-soft);
+        border: 1px solid var(--ae-border);
+        border-radius: 999px;
+        background: var(--ae-surface);
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+
+    input:checked + span { color: var(--ae-surface); background: var(--ae-ink); border-color: var(--ae-ink); }
+    input:focus-visible + span { outline: 2px solid var(--ae-accent-text); outline-offset: 2px; }
+    &:hover span { border-color: var(--ae-border-strong); }
+
+    &--danger input:checked + span { background: var(--ae-danger); border-color: var(--ae-danger); color: #ffffff; }
+}
+
+.msg-compose__body { padding: 1rem; }
+
+.msg-compose__from {
+    padding: 0.4rem 0;
+    font-size: 0.86rem;
+    color: var(--ae-ink-soft);
+    overflow-wrap: anywhere;
+}
+
+.msg-compose__text { font-size: 0.9rem; line-height: 1.55; resize: vertical; }
+
+.msg-compose__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-top: 1px solid var(--ae-border-soft);
+    background: var(--ae-surface-2);
+}
+
+.msg-compose__options { display: grid; gap: 0.2rem; font-size: 0.86rem; }
+.msg-compose__efecto { color: var(--ae-warn); font-weight: 600; &:empty { display: none; } }
+
+// ---- Registrar respuesta ----
+.msg-reply { padding: 1rem; }
+
+.msg-reply__options { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+
+.msg-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.84rem;
+    border: 1px solid var(--ae-border);
+    border-radius: 8px;
+    cursor: pointer;
+
+    &:has(input:checked) { border-color: var(--ae-accent-text); background: var(--ae-hover); }
+}
+
+// ---- Resumen del servicio ----
+.msg-summary { padding: 1rem; }
+.msg-summary__code { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; color: var(--ae-ink-soft); }
+.msg-summary__title { margin: 0.15rem 0; font-size: 1.05rem; font-weight: 700; color: var(--ae-ink); }
+.msg-summary__meta { margin: 0 0 0.75rem; font-size: 0.85rem; color: var(--ae-ink-soft); }
+
+.msg-summary__list {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.35rem 0.85rem;
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+
+    dt { font-weight: 600; color: var(--ae-ink-soft); }
+    dd { margin: 0; color: var(--ae-ink); overflow-wrap: anywhere; }
+}
+
+.msg-summary__back { font-size: 0.82rem; font-weight: 600; color: var(--ae-accent-text); text-decoration: none; }
+
+// ---- Hilo ----
+.msg-thread { padding: 1rem; }
+
+.msg-thread__count {
+    padding: 0 0.45rem;
+    font-size: 0.7rem;
+    color: var(--ae-surface);
+    background: var(--ae-ink-soft);
+    border-radius: 999px;
+}
+
+.msg-thread__empty { margin: 0; font-size: 0.85rem; font-style: italic; color: var(--ae-ink-soft); }
+
+.msg-bubble {
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--ae-border-soft);
+    border-radius: 10px;
+    font-size: 0.84rem;
+
+    & + & { margin-top: 0.5rem; }
+
+    &--enviado { margin-left: 1.25rem; background: var(--ae-surface-2); border-left: 3px solid var(--ae-accent-text); }
+    &--recibido { margin-right: 1.25rem; background: var(--ae-surface); border-left: 3px solid var(--ae-success); }
+    &.is-failed { border-left-color: var(--ae-danger); }
+}
+
+.msg-bubble__head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    strong { color: var(--ae-ink); }
+    time { flex-shrink: 0; font-size: 0.75rem; color: var(--ae-ink-soft); }
+}
+
+.msg-bubble__result { margin: 0.25rem 0 0; font-weight: 600; color: var(--ae-success); }
+.msg-bubble__text { margin: 0.35rem 0 0; color: var(--ae-ink); line-height: 1.5; overflow-wrap: anywhere; }
+
+.msg-bubble__details {
+    margin-top: 0.25rem;
+
+    summary { cursor: pointer; color: var(--ae-ink-soft); }
+    &[open] summary { margin-bottom: 0.25rem; }
+}
+
+.msg-bubble__foot { margin-top: 0.35rem; font-size: 0.74rem; color: var(--ae-ink-soft); }
+.msg-bubble__error { margin-left: 0.35rem; font-weight: 600; color: var(--ae-danger); }
+
+// ---- Bandeja ----
+.msg-waiting { padding: 1rem; margin-bottom: 1rem; }
+
+.msg-waiting__list { display: grid; gap: 0.4rem; margin: 0; padding: 0; list-style: none; }
+
+.msg-waiting__item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--ae-border-soft);
+    border-left: 3px solid var(--ae-warn);
+    border-radius: 8px;
+    font-size: 0.85rem;
+
+    strong { display: block; color: var(--ae-ink); }
+    span { color: var(--ae-ink-soft); }
+
+    &.is-late { border-left-color: var(--ae-danger); .msg-waiting__since { color: var(--ae-danger); font-weight: 600; } }
+
+    @include media-breakpoint-down(md) { grid-template-columns: minmax(0, 1fr) auto; .msg-waiting__since { grid-column: 1; } }
+}
+
+.msg-list { margin: 0; padding: 0; list-style: none; }
+
+.msg-list__item {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--ae-border-soft);
+
+    &:last-child { border-bottom: 0; }
+    &.is-failed .msg-list__icon { color: var(--ae-danger); }
+}
+
+.msg-list__icon { color: var(--ae-accent-text); }
+.msg-list__item--recibido .msg-list__icon { color: var(--ae-success); }
+
+.msg-list__head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; font-size: 0.86rem; strong { color: var(--ae-ink); } }
+
+.msg-list__type {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ae-ink-soft);
+}
+
+.msg-list__subject { margin: 0.15rem 0; font-size: 0.86rem; color: var(--ae-ink); overflow-wrap: anywhere; }
+.msg-list__meta { font-size: 0.76rem; color: var(--ae-ink-soft); }
+.msg-list__when { font-size: 0.78rem; color: var(--ae-ink-soft); white-space: nowrap; }
+
+@include media-breakpoint-down(md) {
+    .msg-list__item { grid-template-columns: auto minmax(0, 1fr) auto; }
+    .msg-list__when { grid-column: 2; }
+}

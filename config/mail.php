@@ -45,6 +45,18 @@ return [
             'auth_mode' => null,
         ],
 
+        // Cuenta corporativa de Reservas (reservas@andeanexclusivetours.com) para escribir a los proveedores.
+        // Sin MAIL_RESERVAS_HOST se usa el correo general con "responder a" y copia a reservas@ (App\Support\CorreoReservas).
+        'reservas' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_RESERVAS_HOST'),
+            'port' => env('MAIL_RESERVAS_PORT', 465),
+            'encryption' => env('MAIL_RESERVAS_ENCRYPTION', 'ssl'),
+            'username' => env('MAIL_RESERVAS_USERNAME', env('MAIL_RESERVAS_ADDRESS', 'reservas@andeanexclusivetours.com')),
+            'password' => env('MAIL_RESERVAS_PASSWORD'),
+            'timeout' => 30,
+        ],
+
         'ses' => [
             'transport' => 'ses',
         ],
@@ -93,6 +105,12 @@ return [
 
     // Quién recibe las consultas de los formularios del sitio.
     'consultas_destino' => env('CONSULTAS_CORREO', 'davidmiranda.puk@gmail.com'),
+
+    // Remitente de los mensajes a proveedores.
+    'reservas' => [
+        'address' => env('MAIL_RESERVAS_ADDRESS', 'reservas@andeanexclusivetours.com'),
+        'name' => env('MAIL_RESERVAS_NAME', 'Reservas · Andean Exclusive Tours'),
+    ],
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'mirandadjmdjm@gmail.com'),

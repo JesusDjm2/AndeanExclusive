@@ -33,6 +33,11 @@ class Proveedor extends Model
         return $this->hasMany(Servicio::class);
     }
 
+    public function mensajes()
+    {
+        return $this->hasMany(MensajeProveedor::class)->latest()->orderByDesc('id');
+    }
+
     public function tarifas()
     {
         return $this->hasMany(Tarifa::class)->conPrioridadTemporada();

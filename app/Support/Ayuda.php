@@ -228,9 +228,19 @@ class Ayuda
 
         // ---- Reservas y proveedores ----
         'res-enviar-orden' => [
-            'grupo' => 'reservas', 'rutas' => ['reservas.*', 'operaciones.*'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Enviar órdenes y listas de huéspedes',
-            'resumen' => 'La orden de servicio se puede enviar por correo al proveedor, y cada hotel tiene su lista de huéspedes en PDF.',
-            'pasos' => ['Pulsa el icono del sobre y confirma: la orden sale al correo de la ficha del proveedor.', 'Cuando ya se envió, el icono cambia a un doble visto.', 'Para un hotel, abre el programa, ve a Alojamiento y pulsa el nombre del hotel para sacar su lista.'],
+            'grupo' => 'reservas', 'rutas' => ['reservas.*', 'operaciones.*'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Escribir al proveedor y enviar órdenes',
+            'resumen' => 'Cada servicio tiene su sobre: desde ahí se escribe al proveedor desde reservas@andeanexclusivetours.com y queda el hilo.',
+            'pasos' => ['Pulsa el icono del sobre del servicio; el número indica cuántos mensajes hay.', 'Elige qué enviar (solicitar, confirmar con orden, modificar, cancelar o consulta) y revisa el texto.', 'La orden de servicio en PDF se adjunta marcando la casilla.', 'Para un hotel, abre el programa, ve a Alojamiento y pulsa el nombre del hotel para sacar su lista.'],
+        ],
+        'res-mensaje' => [
+            'grupo' => 'reservas', 'rutas' => ['servicios.mensaje'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Mensaje al proveedor',
+            'resumen' => 'El correo sale desde reservas@andeanexclusivetours.com y el proveedor responde a esa casilla. Todo queda en el hilo del servicio.',
+            'pasos' => ['Elige el tipo: el asunto y el texto se rellenan y puedes editarlos.', 'Solicitar pasa el servicio a «Solicitado»; cancelar lo pasa a «Cancelado».', 'Cuando el proveedor conteste, registra su respuesta: si confirmó, indica su n.º y el servicio queda confirmado; si no tiene disponibilidad, vuelve a «Por reservar».'],
+        ],
+        'res-mensajes' => [
+            'grupo' => 'reservas', 'rutas' => ['mensajes.*'], 'titulo' => 'Mensajes a proveedores',
+            'resumen' => 'Todo lo enviado a proveedores y sus respuestas, con lo que sigue esperando respuesta arriba.',
+            'pasos' => ['«Esperando respuesta» lista las solicitudes sin contestar; en rojo, las de hace dos días o más.', 'Filtra por proveedor, tipo o programa.', 'La flecha abre el hilo del servicio para responder o registrar la respuesta.'],
         ],
         'res-bandejas' => [
             'grupo' => 'reservas', 'rutas' => ['reservas.*'], 'permiso' => 'servicios.gestionar', 'titulo' => 'Las pestañas de Reservas',

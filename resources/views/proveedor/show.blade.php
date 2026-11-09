@@ -217,6 +217,36 @@
                     </div>
                 </div>
 
+                {{-- Mensajería con el proveedor: lo último enviado desde reservas@ y sus respuestas. --}}
+                @php $ultimosMensajes = $proveedor->mensajes()->with(['servicio:id,titulo,fecha', 'programa:id,codigo', 'user:id,name'])->limit(8)->get(); @endphp
+                <div class="card dash-card msg-thread mt-4">
+                    <h2 class="msg-card__title">
+                        <i class="fas fa-envelope-open-text" aria-hidden="true"></i> Mensajes con el proveedor
+                        @if ($ultimosMensajes->isNotEmpty())
+                            <a href="{{ route('mensajes.index', ['proveedor_id' => $proveedor->id]) }}" class="msg-card__link">Ver todos</a>
+                        @endif
+                    </h2>
+                    @forelse ($ultimosMensajes as $mensaje)
+                        <article class="msg-bubble msg-bubble--{{ $mensaje->direccion }} {{ $mensaje->fallido ? 'is-failed' : '' }}">
+                            <header class="msg-bubble__head">
+                                <strong>{{ \App\Models\MensajeProveedor::TIPOS[$mensaje->tipo] ?? $mensaje->tipo }}</strong>
+                                <time datetime="{{ $mensaje->created_at->toIso8601String() }}" title="{{ $mensaje->created_at->format('d/m/Y H:i') }}">{{ $mensaje->created_at->locale('es')->diffForHumans() }}</time>
+                            </header>
+                            <p class="msg-bubble__text">
+                                {{ $mensaje->direccion === 'recibido' ? (\App\Models\MensajeProveedor::RESULTADOS[$mensaje->resultado] ?? $mensaje->cuerpo) : $mensaje->asunto }}
+                            </p>
+                            <footer class="msg-bubble__foot">
+                                {{ $mensaje->programa?->codigo }}
+                                @if ($mensaje->servicio) · <a href="{{ route('servicios.mensaje', $mensaje->servicio) }}">{{ $mensaje->servicio->titulo }}</a>@endif
+                                · {{ $mensaje->user?->name ?? 'Sistema' }}
+                                @if ($mensaje->fallido)<span class="msg-bubble__error"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> No se envió</span>@endif
+                            </footer>
+                        </article>
+                    @empty
+                        <p class="msg-thread__empty">Todavía no hay mensajes. Se escribe al proveedor desde cada servicio en la Bandeja de Reservas.</p>
+                    @endforelse
+                </div>
+
             </div>
         </div>
     </section>

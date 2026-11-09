@@ -44,8 +44,8 @@ class PermisosPorAreaTest extends TestCase
         $programa = $this->programa(['estado' => 'confirmado']);
         $url = "/programas/{$programa->id}/edit?tab=precios";
 
-        $this->actingAs($this->usuario('reservas'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertDontSee('Margen Comercial Agencia (%)');
-        $this->actingAs($this->usuario('operaciones'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertSee('Margen Comercial Agencia (%)');
+        $this->actingAs($this->usuario('reservas'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertDontSee('Margen Ganancia (%)');
+        $this->actingAs($this->usuario('operaciones'))->get($url)->assertOk()->assertDontSee('Margen actual')->assertSee('Margen Ganancia (%)');
         $this->actingAs($this->usuario('contabilidad'))->get($url)->assertOk()->assertSee('Margen actual');
         $this->actingAs($this->usuario('administrador'))->get($url)->assertOk()->assertSee('Margen actual');
     }

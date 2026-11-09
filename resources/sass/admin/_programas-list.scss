@@ -307,20 +307,147 @@
 
 .prog-detail {
     display: grid;
-    gap: 1.25rem;
-    padding: 1rem 1.25rem 1.25rem;
+    gap: 1.1rem 2rem;
+    padding: 1.1rem 1.25rem 1rem;
     border-top: 1px dashed $card-border-color;
     background: var(--ae-surface-2);
     border-radius: 0 0 $border-radius-lg $border-radius-lg;
 
-    @include media-breakpoint-up(md) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    @include media-breakpoint-up(xl) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+    @include media-breakpoint-up(lg) {
+        grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
     }
 }
+
+// Pendientes: una lista de chequeo con el estado de cada frente del viaje.
+.prog-check {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.prog-check__item {
+    --tono: var(--ae-plomo);
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--ae-border-soft);
+    border-left: 3px solid var(--tono);
+    border-radius: 8px;
+    background: var(--ae-surface);
+
+    &--ok { --tono: var(--ae-success); }
+    &--warn { --tono: var(--ae-warn); }
+    &--danger { --tono: var(--ae-danger); }
+    &--muted { --tono: var(--ae-plomo); opacity: 0.85; }
+}
+
+.prog-check__icon { margin-top: 0.15rem; color: var(--tono); font-size: 0.95rem; }
+
+.prog-check__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.15rem 0.75rem;
+    font-size: 0.86rem;
+
+    strong { color: $color-ink; }
+    span { color: $color-ink-soft; }
+}
+
+.prog-check__detail {
+    margin: 0.35rem 0 0;
+    color: $color-ink-soft;
+    font-size: 0.8rem;
+    line-height: 1.4;
+
+    strong { color: $color-ink; }
+}
+
+.prog-check__action {
+    align-self: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--ae-accent-text);
+    text-decoration: none;
+
+    &::after { content: " →"; }
+    &:hover { text-decoration: underline; }
+}
+
+.prog-meter {
+    height: 5px;
+    margin-top: 0.4rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--ae-border-soft);
+
+    span { display: block; height: 100%; border-radius: inherit; background: var(--tono); transition: width 0.4s ease; }
+}
+
+// El viaje: hoteles, pasajeros y contacto, en texto compacto.
+.prog-trip__label {
+    display: block;
+    margin: 0.75rem 0 0.25rem;
+    color: $color-ink-soft;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    .prog-detail__title + & { margin-top: 0; }
+}
+
+.prog-stays {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+
+    li {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 0 0.75rem;
+        padding: 0.3rem 0;
+        border-bottom: 1px solid var(--ae-border-soft);
+
+        &:last-child { border-bottom: 0; }
+    }
+
+    strong { color: $color-ink; font-weight: 600; }
+    span { color: $color-ink-soft; font-variant-numeric: tabular-nums; }
+}
+
+.prog-trip__text {
+    margin: 0;
+    color: $color-ink;
+    font-size: 0.85rem;
+    line-height: 1.45;
+
+    a { color: var(--ae-accent-text); }
+}
+
+.prog-trip__note { display: block; margin-top: 0.15rem; color: $color-ink-soft; font-size: 0.78rem; }
+
+.prog-detail__footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--ae-border-soft);
+
+    @include media-breakpoint-up(lg) { grid-column: 1 / -1; }
+}
+
+.prog-detail__link { padding-left: 0; color: $color-ink-soft; text-decoration: none; &:hover { color: var(--ae-accent-text); } }
 
 .prog-detail__title {
     margin-bottom: 0.6rem;

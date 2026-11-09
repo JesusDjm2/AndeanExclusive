@@ -29,6 +29,7 @@ use App\Http\Controllers\CuentasPorPagarController;
 use App\Http\Controllers\DatosPasajerosController;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\OperacionDiariaController;
+use App\Http\Controllers\MensajeProveedorController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\PaxController;
@@ -108,6 +109,10 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::post('programas/{programa}/cerrar', [OperacionDiariaController::class, 'cerrar'])->name('programas.cerrar');
         Route::post('programas/{programa}/reabrir', [OperacionDiariaController::class, 'reabrir'])->name('programas.reabrir');
         Route::post('servicios/{servicio}/enviar-orden', [OperacionDiariaController::class, 'enviarOrden'])->name('servicios.enviar-orden');
+        Route::get('mensajes-proveedores', [MensajeProveedorController::class, 'index'])->name('mensajes.index');
+        Route::get('servicios/{servicio}/mensaje', [MensajeProveedorController::class, 'crear'])->name('servicios.mensaje');
+        Route::post('servicios/{servicio}/mensaje', [MensajeProveedorController::class, 'enviar'])->name('servicios.mensaje.enviar');
+        Route::post('servicios/{servicio}/respuesta', [MensajeProveedorController::class, 'respuesta'])->name('servicios.mensaje.respuesta');
         Route::get('programas/por-periodo', [ProgramaController::class, 'porPeriodo'])->name('programas.por-periodo');
         Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
         Route::get('programas/{programa}/historial', [ProgramaController::class, 'historial'])->name('programas.historial');

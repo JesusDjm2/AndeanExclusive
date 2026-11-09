@@ -55,7 +55,7 @@ class Permisos
         'programas.cerrar' => ['programas.cerrar'],
         'programas.reabrir' => ['programas.reabrir'],
         'consultas.gestionar' => ['consultas.create', 'consultas.store', 'consultas.update', 'consultas.cotizar'],
-        'servicios.gestionar' => ['servicios.estado', 'servicios.asignar', 'reservas.lote', 'servicios.enviar-orden'],
+        'servicios.gestionar' => ['servicios.estado', 'servicios.asignar', 'reservas.lote', 'servicios.enviar-orden', 'servicios.mensaje.enviar', 'servicios.mensaje.respuesta'],
         'proveedores.gestionar' => [
             'proveedors.create', 'proveedors.store', 'proveedors.edit', 'proveedors.update', 'proveedors.destroy',
             'categoriasproveedor.create', 'categoriasproveedor.store', 'categoriasproveedor.edit', 'categoriasproveedor.update', 'categoriasproveedor.destroy',
