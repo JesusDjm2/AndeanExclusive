@@ -14,13 +14,15 @@ class Tarifa extends Model
 
     protected $fillable = [
         'habitacion_id', 'proveedor_id', 'concepto', 'tipo_servicio',
-        'desde', 'hasta', 'es_fija', 'precio', 'moneda', 'por', 'unidad_detalle', 'notas',
+        'desde', 'hasta', 'es_fija', 'es_especial', 'nombre_especial',
+        'precio', 'moneda', 'por', 'unidad_detalle', 'notas',
     ];
 
     protected $casts = [
         'desde' => 'date',
         'hasta' => 'date',
         'es_fija' => 'boolean',
+        'es_especial' => 'boolean',
         'precio' => 'decimal:2',
     ];
 
@@ -54,10 +56,10 @@ class Tarifa extends Model
         });
     }
 
-    /** Ordena primero las tarifas específicas de temporada y luego las fijas estándar. */
+    /** Ordena primero las tarifas de fechas especiales, luego temporadas y luego las fijas estándar. */
     public function scopeConPrioridadTemporada(Builder $query): Builder
     {
-        return $query->orderByRaw('CASE WHEN desde IS NOT NULL AND hasta IS NOT NULL THEN 0 ELSE 1 END')
+        return $query->orderByRaw('CASE WHEN es_especial = 1 THEN 0 WHEN desde IS NOT NULL AND hasta IS NOT NULL THEN 1 ELSE 2 END')
             ->orderBy('concepto');
     }
 
@@ -73,6 +75,11 @@ class Tarifa extends Model
 
     public function getTemporadaTextoAttribute(): string
     {
+        if ($this->es_especial) {
+            $nombre = $this->nombre_especial ? " ({$this->nombre_especial})" : '';
+            return '⭐ Fecha especial' . $nombre . ': del ' . ($this->desde ? $this->desde->format('d/m/Y') : '—') . ' al ' . ($this->hasta ? $this->hasta->format('d/m/Y') : '—');
+        }
+
         if ($this->es_fija || (! $this->desde && ! $this->hasta)) {
             return 'Tarifa fija (Todo el año)';
         }

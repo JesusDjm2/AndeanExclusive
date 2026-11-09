@@ -22,17 +22,32 @@ function initFormulario() {
     };
     form.querySelectorAll('[data-tarifa-tipo]').forEach((radio) => radio.addEventListener('change', mostrarTipo));
 
-    // Conmutador tarifa fija (todo el año) vs temporada (desde/hasta)
+    // Conmutador vigencia: fija (todo el año) vs temporada vs fecha especial
     const toggleFija = form.querySelector('[data-tarifa-fija-toggle]');
+    const vigenciaRadios = form.querySelectorAll('[data-vigencia-radio]');
     const fechasWrap = form.querySelectorAll('[data-tarifa-fechas]');
+    const especialBox = form.querySelector('[data-tarifa-especial-box]');
+    const inputEsFija = form.querySelector('#input-es-fija');
+    const inputEsEspecial = form.querySelector('#input-es-especial');
+    const inputNombreEspecial = form.querySelector('#t-nombre-especial');
     const inputDesde = form.querySelector('[data-tarifa-desde]');
     const inputHasta = form.querySelector('[data-tarifa-hasta]');
 
-    const actualizarFechas = () => {
-        const esFija = toggleFija ? toggleFija.checked : false;
+    const actualizarVigencia = () => {
+        const checked = form.querySelector('[data-vigencia-radio]:checked')?.value || (toggleFija?.checked ? 'fija' : 'temporada');
+        const esFija = checked === 'fija';
+        const esEspecial = checked === 'especial';
+
+        if (inputEsFija) inputEsFija.value = esFija ? '1' : '0';
+        if (inputEsEspecial) inputEsEspecial.value = esEspecial ? '1' : '0';
+
         fechasWrap.forEach((el) => {
             el.style.display = esFija ? 'none' : '';
         });
+        if (especialBox) {
+            especialBox.style.display = esEspecial ? '' : 'none';
+        }
+
         if (inputDesde && inputHasta) {
             inputDesde.required = !esFija;
             inputHasta.required = !esFija;
@@ -41,11 +56,17 @@ function initFormulario() {
                 inputHasta.value = '';
             }
         }
+        if (inputNombreEspecial) {
+            inputNombreEspecial.required = esEspecial;
+        }
     };
 
-    if (toggleFija) {
-        toggleFija.addEventListener('change', actualizarFechas);
-        actualizarFechas();
+    if (vigenciaRadios.length) {
+        vigenciaRadios.forEach((r) => r.addEventListener('change', actualizarVigencia));
+        actualizarVigencia();
+    } else if (toggleFija) {
+        toggleFija.addEventListener('change', actualizarVigencia);
+        actualizarVigencia();
     }
 }
 
@@ -164,9 +185,15 @@ function aplicarTarifa(row, tarifa, automatica = false) {
         origen.classList.toggle('is-warning', fuera);
         origen.title = `${tarifa.concepto}${tarifa.unidad_detalle ? ` (${tarifa.unidad_detalle})` : ''} · ${tarifa.temporada}`;
         const icono = document.createElement('i');
-        icono.className = `fas ${fuera ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-1`;
+        if (tarifa.es_especial) {
+            icono.className = 'fas fa-star text-warning me-1';
+        } else {
+            icono.className = `fas ${fuera ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-1`;
+        }
         icono.setAttribute('aria-hidden', 'true');
-        const vigencia = fuera ? 'otra temporada, confírmala' : (tarifa.es_fija ? 'tarifa fija' : `hasta ${tarifa.hasta}`);
+        const vigencia = fuera
+            ? 'otra temporada, confírmala'
+            : (tarifa.es_especial ? `⭐ Fecha especial: ${tarifa.nombre_especial || 'Festividad'}` : (tarifa.es_fija ? 'tarifa fija' : `hasta ${tarifa.hasta}`));
         origen.replaceChildren(icono, `${automatica ? 'Del tarifario' : 'Tarifa aplicada'} · ${vigencia}`);
     }
 }
@@ -209,7 +236,8 @@ function llenarServicios(row, tarifas, proveedorId) {
         const t = tarifas[i];
         const detalle = t.unidad_detalle ? ` · ${t.unidad_detalle}` : '';
         const temporada = t.fuera_de_temporada ? ' (otra temporada)' : '';
-        opciones.push(new Option(`${t.concepto}${detalle} — ${t.simbolo} ${t.precio.toFixed(2)}${temporada}`, String(i)));
+        const prefijoEspecial = t.es_especial ? `⭐ [${t.nombre_especial || 'Especial'}] ` : '';
+        opciones.push(new Option(`${prefijoEspecial}${t.concepto}${detalle} — ${t.simbolo} ${t.precio.toFixed(2)}${temporada}`, String(i)));
     });
     opciones.push(new Option('Otro servicio (escribir)…', OTRO_SERVICIO));
     select.replaceChildren(...opciones);

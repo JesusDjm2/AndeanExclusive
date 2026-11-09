@@ -55,7 +55,7 @@
         $presupuesto['ninos'] ? $plural($presupuesto['ninos'], 'child', 'children') : null,
         $presupuesto['infantes'] ? $plural($presupuesto['infantes'], 'infant', 'infants') : null,
     ])->filter()->implode(' · ');
-    $dias = $programa->itinerario(soloCliente: true)['dias']->filter(fn ($d) => $d['dia'] || $d['servicios']->isNotEmpty() || $d['hotel']);
+    $dias = $programa->itinerario(soloCliente: true)['dias']->filter(fn ($d) => $d['dia'] || $d['servicios']->isNotEmpty() || $d['hotel'] || ! empty($d['es_libre']) || ! empty($d['dia']?->es_libre));
     $hoteles = $programa->alojamiento();
     $paises = \App\Support\Paises::enIdioma($locale);
 
@@ -223,9 +223,21 @@
                     <td class="day-num"><div><small>{{ $t['day'] }}</small><strong>{{ $dia['numero'] }}</strong></div></td>
                     <td class="day-body">
                         <p class="day-date">{{ $dia['fecha']->locale($locale)->isoFormat($isEn ? 'dddd, MMMM D' : 'dddd D [de] MMMM') }}</p>
-                        <p class="day-title">{{ $dia['dia']?->titulo ?: $t['day'] . ' ' . $dia['numero'] }}</p>
+                        @php
+                            $esDiaLibre = ! empty($dia['es_libre']) || ! empty($dia['dia']?->es_libre);
+                        @endphp
+                        <p class="day-title">
+                            @if ($esDiaLibre)
+                                <span style="background: #e6f6f4; color: #078f84; padding: 1mm 2.5mm; border-radius: 1.5mm; font-size: 7.5pt; text-transform: uppercase; font-weight: bold; margin-right: 2mm;">{{ $isEn ? 'Leisure Day' : 'Día Libre' }}</span>
+                            @endif
+                            {{ $dia['dia']?->titulo ?: ($esDiaLibre ? ($isEn ? 'Day at leisure' : 'Día libre a su propio ritmo') : $t['day'] . ' ' . $dia['numero']) }}
+                        </p>
                         @if ($dia['dia']?->descripcion)
                             <p class="day-text">{!! nl2br(e($dia['dia']->descripcion)) !!}</p>
+                        @elseif ($esDiaLibre)
+                            <p class="day-text" style="font-style: italic; color: #5b6b6d;">
+                                {{ $isEn ? 'Free day to rest, acclimatize or explore at your own pace.' : 'Día libre para descansar, aclimatarse o recorrer la ciudad a su propio ritmo.' }}
+                            </p>
                         @endif
                         @if ($dia['servicios']->isNotEmpty())
                             <table class="svc">

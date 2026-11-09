@@ -155,6 +155,8 @@ class TarifaController extends Controller
             'por_raw' => $t->por,
             'simbolo' => Servicio::MONEDAS[$t->moneda] ?? '$',
             'es_fija' => (bool) ($t->es_fija || (! $t->desde && ! $t->hasta)),
+            'es_especial' => (bool) $t->es_especial,
+            'nombre_especial' => $t->nombre_especial,
             'temporada' => $t->temporada_texto,
             'hasta' => $t->hasta?->format('d/m/Y'),
             'fuera_de_temporada' => $fueraDeTemporada,
@@ -163,7 +165,8 @@ class TarifaController extends Controller
 
     private function validar(Request $request): array
     {
-        $esFija = $request->boolean('es_fija') || (! $request->filled('desde') && ! $request->filled('hasta'));
+        $esEspecial = $request->boolean('es_especial');
+        $esFija = ! $esEspecial && ($request->boolean('es_fija') || (! $request->filled('desde') && ! $request->filled('hasta')));
 
         $datos = $request->validate([
             'tipo' => 'required|in:habitacion,proveedor',
@@ -173,6 +176,8 @@ class TarifaController extends Controller
             'tipo_servicio' => ['nullable', Rule::in(array_keys(Servicio::TIPOS))],
             'unidad_detalle' => 'nullable|string|max:100',
             'es_fija' => 'nullable|boolean',
+            'es_especial' => 'nullable|boolean',
+            'nombre_especial' => 'nullable|string|max:100',
             'desde' => $esFija ? 'nullable|date' : 'required|date',
             'hasta' => $esFija ? 'nullable|date' : 'required|date|after_or_equal:desde',
             'precio' => 'required|numeric|min:0',
@@ -183,8 +188,8 @@ class TarifaController extends Controller
             'habitacion_id.required_if' => 'Elige el hotel y la habitación.',
             'proveedor_id.required_if' => 'Elige el proveedor.',
             'concepto.required_if' => 'Indica qué servicio cobra a este precio.',
-            'desde.required' => 'Indica la fecha de inicio de la temporada o marca la tarifa como fija.',
-            'hasta.required' => 'Indica la fecha de término de la temporada o marca la tarifa como fija.',
+            'desde.required' => 'Indica la fecha de inicio de la temporada o fecha especial.',
+            'hasta.required' => 'Indica la fecha de término de la temporada o fecha especial.',
             'hasta.after_or_equal' => 'La fecha final no puede ser anterior a la inicial.',
         ]);
 
@@ -192,6 +197,8 @@ class TarifaController extends Controller
         unset($datos['tipo']);
 
         $datos['es_fija'] = $esFija;
+        $datos['es_especial'] = $esEspecial;
+        $datos['nombre_especial'] = $esEspecial ? ($request->input('nombre_especial') ?: null) : null;
         if ($esFija) {
             $datos['desde'] = null;
             $datos['hasta'] = null;

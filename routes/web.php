@@ -112,6 +112,7 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
         Route::get('programas/{programa}/historial', [ProgramaController::class, 'historial'])->name('programas.historial');
         Route::get('programas/{programa}/ficha', [ProgramaController::class, 'adminShow'])->name('programas.ficha');
+        Route::post('programas/{programa}/actualizar-cotizacion', [ProgramaController::class, 'actualizarCotizacion'])->name('programas.actualizar-cotizacion');
         Route::post('programas/{programa}/enviar-correo', [ProgramaController::class, 'enviarCorreo'])->name('programas.enviar-correo');
         Route::post('programas/{programa}/pagos', [PagoController::class, 'store'])->name('programas.pagos.store');
         Route::delete('programas/{programa}/pagos/{pago}', [PagoController::class, 'destroy'])->name('programas.pagos.destroy')->scopeBindings();

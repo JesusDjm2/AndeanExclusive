@@ -306,6 +306,7 @@
                             $numServicios = $dia['servicios']->count();
                             $hasServices = $numServicios > 0;
                             $hasHotel = !empty($dia['hotel']);
+                            $esDiaLibre = !empty($dia['es_libre']) || !empty($dia['dia']?->es_libre);
                             $isOpen = $loop->first;
                         @endphp
                         <li class="itin-day {{ $isOpen ? 'is-open' : '' }}" data-itin-day id="dia-{{ $dia['numero'] }}">
@@ -335,7 +336,19 @@
                                             <h3 class="itin-day__title">{{ $dia['dia']?->titulo ?: $t['day'] . ' ' . $dia['numero'] }}</h3>
                                             
                                             {{-- Resumen compacto en pastillas visible en mobile y tablet --}}
-                                            @if ($hasServices || $hasHotel)
+                                            @if ($esDiaLibre)
+                                                <div class="itin-day__summary-pills">
+                                                    <span class="itin-day__pill" style="background: rgba(9, 204, 189, 0.15); color: #058277; font-weight: 700; border: 1px solid rgba(9, 204, 189, 0.3);">
+                                                        <i class="fa fa-sun-o" aria-hidden="true"></i> {{ $isEn ? 'Leisure Day' : 'Día Libre' }}
+                                                    </span>
+                                                    @if ($hasHotel)
+                                                        <span class="itin-day__pill itin-day__pill--hotel">
+                                                            <i class="fa fa-bed" aria-hidden="true"></i>
+                                                            <span class="itin-day__pill-hotel-name">{{ $dia['hotel'] }}</span>
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                            @elseif ($hasServices || $hasHotel)
                                                 <div class="itin-day__summary-pills">
                                                     @if ($hasServices)
                                                         <span class="itin-day__pill">
@@ -367,7 +380,16 @@
                                      aria-label="{{ $t['day'] }} {{ $dia['numero'] }}"
                                      {{ $isOpen ? '' : 'hidden' }}>
                                     <div class="itin-day__content">
-                                        @if ($dia['dia']?->descripcion)
+                                        @if ($esDiaLibre && !$hasServices)
+                                            <div class="itin-day__leisure-card" style="padding: 0.9rem 1.2rem; margin-bottom: 1rem; border-radius: 8px; background: linear-gradient(135deg, rgba(9, 204, 189, 0.08) 0%, rgba(212, 163, 89, 0.08) 100%); border-left: 4px solid #09ccbd;">
+                                                <div style="font-weight: 700; color: #182229; margin-bottom: 0.25rem;">
+                                                    <i class="fa fa-compass" style="color: #09ccbd; margin-right: 0.4rem;"></i> {{ $isEn ? 'Time to explore at your own pace' : 'Tiempo para explorar a su propio ritmo' }}
+                                                </div>
+                                                <div class="small" style="color: #556970;">
+                                                    {{ $dia['dia']?->descripcion ?: ($isEn ? 'Enjoy this free day to relax, acclimatize, or discover the city on your own.' : 'Disfrute de esta jornada libre para descansar, aclimatarse o recorrer la ciudad y sus atractivos a su propio ritmo.') }}
+                                                </div>
+                                            </div>
+                                        @elseif ($dia['dia']?->descripcion)
                                             <div class="itin-day__text">{!! nl2br(e($dia['dia']->descripcion)) !!}</div>
                                         @endif
                                         @if ($dia['servicios']->isNotEmpty())

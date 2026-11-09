@@ -228,6 +228,28 @@ function initItinerario(root) {
         select.className = select.className.replace(/svc-estado--\S+/, `svc-estado--${select.value}`);
     });
 
+    // Día libre: marcar badge y sugerir título y texto si están vacíos
+    section.addEventListener('change', (event) => {
+        const check = event.target.closest('[data-dia-libre-check]');
+        if (!check) return;
+        const dia = check.closest('[data-itin-day-item]');
+        if (!dia) return;
+        const badge = dia.querySelector('[data-dia-libre-badge]');
+        const titulo = dia.querySelector('[data-dia-titulo-input]');
+        const desc = dia.querySelector('[data-dia-desc-input]');
+
+        if (badge) badge.style.display = check.checked ? '' : 'none';
+
+        if (check.checked) {
+            if (titulo && !titulo.value.trim()) {
+                titulo.value = 'Día libre — Exploración a su propio ritmo';
+            }
+            if (desc && !desc.value.trim()) {
+                desc.value = 'Jornada libre para descansar, aclimatarse o recorrer la ciudad y sus atractivos a su propio ritmo.';
+            }
+        }
+    });
+
     // Moneda de cada servicio: un símbolo junto al precio; sigue a la del programa salvo que una tarifa o un clic la fijen.
     const SIMBOLOS = { USD: 'US$', PEN: 'S/' };
     const monedaPrograma = root.querySelector('[data-programa-moneda]');

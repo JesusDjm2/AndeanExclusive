@@ -134,7 +134,7 @@
                     <button type="button" class="input-group-text svc-fin__moneda" @disabled($bloqueadoMoneda) data-svc-moneda-toggle
                         title="Moneda del precio (la del programa o la de la tarifa). Clic para cambiarla" aria-label="Moneda del precio: {{ $monedaFila }}. Cambiar">{{ \App\Models\Servicio::MONEDAS[$monedaFila] ?? 'US$' }}</button>
                     <input id="svc-{{ $i }}-estimado" type="number" name="{{ $name('costo_estimado') }}" value="{{ $v('costo_estimado') }}" step="0.01" min="0"
-                        class="form-control {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
+                        class="form-control form-control-sm {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
                 </div>
                 <small class="svc-fin__origen" data-svc-origen hidden></small>
             </div>

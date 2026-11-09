@@ -33,6 +33,7 @@ class CopiaDePrograma
                 'precioAdulto' => $origen->precioAdulto,
                 'precioChild' => $origen->precioChild,
                 'porcentaje_ganancia' => $origen->porcentaje_ganancia,
+                'porcentaje_igv' => $origen->porcentaje_igv,
                 'tipo_cambio' => $origen->tipo_cambio,
                 'suplemento_individual' => $origen->suplemento_individual,
                 'habitaciones_individuales' => $origen->habitaciones_individuales,
@@ -42,7 +43,12 @@ class CopiaDePrograma
             $copia->agentes()->sync($origen->agentes->pluck('id'));
 
             foreach ($origen->dias as $dia) {
-                $copia->dias()->create(['fecha' => $desplazar($dia->fecha), 'titulo' => $dia->titulo, 'descripcion' => $dia->descripcion]);
+                $copia->dias()->create([
+                    'fecha' => $desplazar($dia->fecha),
+                    'titulo' => $dia->titulo,
+                    'descripcion' => $dia->descripcion,
+                    'es_libre' => (bool) $dia->es_libre,
+                ]);
             }
 
             foreach ($origen->habitacionesFechas as $estadia) {

@@ -53,7 +53,7 @@
         'pasajeros' => ['paxs', 'paxs.*'],
         'alojamiento' => ['estadias', 'estadias.*'],
         'itinerario' => ['dias.*', 'servicios', 'servicios.*'],
-        'precios' => ['precioAdulto', 'precioChild', 'porcentaje_ganancia', 'tipo_cambio', 'suplemento_individual', 'habitaciones_individuales'],
+        'precios' => ['precioAdulto', 'precioChild', 'porcentaje_ganancia', 'porcentaje_igv', 'tipo_cambio', 'suplemento_individual', 'habitaciones_individuales'],
     ];
     $tabHasError = collect($tabFields)->map(fn ($fields) => collect($errors->keys())->contains(fn ($key) => collect($fields)->contains(fn ($f) => \Illuminate\Support\Str::is($f, $key))));
     $initialTab = $tabHasError->filter()->keys()->first()
@@ -694,19 +694,31 @@
                                     @if ($dia['hotel'])
                                         <span class="itin-day__hotel"><i class="fas fa-moon" aria-hidden="true"></i> {{ $dia['hotel'] }}</span>
                                     @endif
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto" data-dia-libre-badge @unless($dia['dia']?->es_libre) style="display:none;" @endunless>
+                                        <i class="fas fa-sun me-1"></i> Día libre
+                                    </span>
                                 </header>
                                 <div class="itin-day__body">
                                     <div class="row g-2 mb-3">
                                         <div class="col-md-5">
-                                            <label class="prog-label" for="dia-{{ $dia['clave'] }}-titulo">Título del día</label>
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="prog-label mb-0" for="dia-{{ $dia['clave'] }}-titulo">Título del día</label>
+                                                <label class="form-check form-check-inline mb-0 small cursor-pointer" title="Marcar como día libre para el viajero">
+                                                    <input type="checkbox" name="dias[{{ $dia['clave'] }}][es_libre]" value="1"
+                                                        id="dia-{{ $dia['clave'] }}-libre" class="form-check-input"
+                                                        @checked(old('dias.' . $dia['clave'] . '.es_libre', $dia['dia']?->es_libre))
+                                                        data-dia-libre-check>
+                                                    <span class="form-check-label fw-bold text-success"><i class="fas fa-sun me-1"></i> Día libre</span>
+                                                </label>
+                                            </div>
                                             <input id="dia-{{ $dia['clave'] }}-titulo" type="text" name="dias[{{ $dia['clave'] }}][titulo]" maxlength="255"
                                                 value="{{ old('dias.' . $dia['clave'] . '.titulo', $dia['dia']?->titulo) }}"
-                                                class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour">
+                                                class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour" data-dia-titulo-input>
                                         </div>
                                         <div class="col-md-7">
                                             <label class="prog-label" for="dia-{{ $dia['clave'] }}-desc">Descripción para el cliente</label>
                                             <textarea id="dia-{{ $dia['clave'] }}-desc" name="dias[{{ $dia['clave'] }}][descripcion]" rows="2" maxlength="3000"
-                                                class="form-control form-control-sm">{{ old('dias.' . $dia['clave'] . '.descripcion', $dia['dia']?->descripcion) }}</textarea>
+                                                class="form-control form-control-sm" placeholder="Detalles de las actividades o sugerencias para el día libre..." data-dia-desc-input>{{ old('dias.' . $dia['clave'] . '.descripcion', $dia['dia']?->descripcion) }}</textarea>
                                         </div>
                                     </div>
 
@@ -756,18 +768,29 @@
                             <header class="itin-day__header">
                                 <span class="itin-day__num" data-itin-day-num-label>Día __NUM__</span>
                                 <span class="itin-day__date" data-itin-day-date-label>__FECHA_LABEL__</span>
+                                <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto" data-dia-libre-badge style="display:none;">
+                                    <i class="fas fa-sun me-1"></i> Día libre
+                                </span>
                             </header>
                             <div class="itin-day__body">
                                 <div class="row g-2 mb-3">
                                     <div class="col-md-5">
-                                        <label class="prog-label" for="dia-__FECHA__-titulo">Título del día</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="prog-label mb-0" for="dia-__FECHA__-titulo">Título del día</label>
+                                            <label class="form-check form-check-inline mb-0 small cursor-pointer" title="Marcar como día libre para el viajero">
+                                                <input type="checkbox" name="dias[__FECHA__][es_libre]" value="1"
+                                                    id="dia-__FECHA__-libre" class="form-check-input"
+                                                    data-dia-libre-check>
+                                                <span class="form-check-label fw-bold text-success"><i class="fas fa-sun me-1"></i> Día libre</span>
+                                            </label>
+                                        </div>
                                         <input id="dia-__FECHA__-titulo" type="text" name="dias[__FECHA__][titulo]" maxlength="255"
-                                            class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour">
+                                            class="form-control form-control-sm" placeholder="Ej. Llegada a Cusco y city tour" data-dia-titulo-input>
                                     </div>
                                     <div class="col-md-7">
                                         <label class="prog-label" for="dia-__FECHA__-desc">Descripción para el cliente</label>
                                         <textarea id="dia-__FECHA__-desc" name="dias[__FECHA__][descripcion]" rows="2" maxlength="3000"
-                                            class="form-control form-control-sm" placeholder="Detalles de las actividades de este día..."></textarea>
+                                            class="form-control form-control-sm" placeholder="Detalles de las actividades de este día o sugerencias para el día libre..." data-dia-desc-input></textarea>
                                     </div>
                                 </div>
 
@@ -870,14 +893,14 @@
                                 </div>
 
                                 <div class="row g-3 align-items-center">
-                                    <div class="col-sm-4">
-                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Precio Venta Adulto (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Precio Adulto (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $verCotizacion ? old('precioAdulto', $programa->precioAdulto) : ($programa->exists ? $programa->presupuesto()['ventaAdulto'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg fw-bold @error('precioAdulto') is-invalid @enderror" data-precio-adulto>
                                         @error('precioAdulto')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label for="pf-ganancia" class="form-label fw-semibold small text-muted">Margen Comercial Agencia (%)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-ganancia" class="form-label fw-semibold small text-muted">Margen Ganancia (%)</label>
                                         <div class="input-group input-group-lg">
                                             <input id="pf-ganancia" type="number" name="porcentaje_ganancia" value="{{ old('porcentaje_ganancia', $programa->porcentaje_ganancia ?? 20) }}"
                                                 step="0.01" min="0" placeholder="20" class="form-control fw-bold text-primary @error('porcentaje_ganancia') is-invalid @enderror" data-ganancia>
@@ -885,8 +908,17 @@
                                         </div>
                                         @error('porcentaje_ganancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="col-sm-4">
-                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Precio Venta Niño 5–11 (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-igv" class="form-label fw-semibold small text-muted">IGV Comisión (%)</label>
+                                        <div class="input-group input-group-lg">
+                                            <input id="pf-igv" type="number" name="porcentaje_igv" value="{{ old('porcentaje_igv', $programa->porcentaje_igv ?? 18) }}"
+                                                step="0.1" min="0" max="100" placeholder="18" class="form-control fw-bold text-warning-emphasis @error('porcentaje_igv') is-invalid @enderror">
+                                            <span class="input-group-text fw-bold">%</span>
+                                        </div>
+                                        @error('porcentaje_igv')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Precio Niño (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $verCotizacion ? old('precioChild', $programa->precioChild) : ($programa->exists ? $programa->presupuesto()['ventaNino'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg @error('precioChild') is-invalid @enderror" data-precio-nino>
                                         @error('precioChild')<div class="invalid-feedback">{{ $message }}</div>@enderror

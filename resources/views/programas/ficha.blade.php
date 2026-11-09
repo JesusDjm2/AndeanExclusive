@@ -25,6 +25,34 @@
         'sin_fechas' => ['bg-dark', 'Sin fechas'],
         default => [$diasFaltantes <= 7 ? 'bg-danger' : 'bg-primary', $diasFaltantes === 0 ? 'Inicia hoy' : ($diasFaltantes === 1 ? 'Inicia mañana' : 'Inicia en ' . $diasFaltantes . ' días')],
     };
+    $itinerarioData = $programa->itinerario();
+    $tc = (float) ($programa->tipoCambio() ?: 3.75);
+    $pagantes = (int) ($cost['pagantes'] ?: $programa->paxs->count() ?: 1);
+    $totalPaxs = (int) ($programa->paxs->count() ?: 1);
+
+    // Cálculos iniciales para la Hoja de Costeo tipo Excel
+    $excelSubtotal = 0.0;
+    foreach ($itinerarioData['dias'] as $dItem) {
+        foreach ($dItem['servicios'] as $serv) {
+            $uCost = $serv->costo !== null ? (float)$serv->costo : (float)($serv->costo_estimado ?? 0);
+            $uUsd = $serv->moneda === 'PEN' ? ($tc > 0 ? $uCost / $tc : $uCost) : $uCost;
+            $qty = $serv->costo_por === 'persona' ? $pagantes : 1;
+            $excelSubtotal += ($uUsd * $qty);
+        }
+    }
+    foreach ($itinerarioData['fuera'] as $serv) {
+        $uCost = $serv->costo !== null ? (float)$serv->costo : (float)($serv->costo_estimado ?? 0);
+        $uUsd = $serv->moneda === 'PEN' ? ($tc > 0 ? $uCost / $tc : $uCost) : $uCost;
+        $qty = $serv->costo_por === 'persona' ? $pagantes : 1;
+        $excelSubtotal += ($uUsd * $qty);
+    }
+    $excelComisionPct = (float)($programa->porcentaje_ganancia ?? 11.0);
+    $excelIgvPct = (float)($programa->porcentaje_igv ?? 18.0);
+    $excelComisionMonto = $excelSubtotal * ($excelComisionPct / 100);
+    $excelCostoTotal = $excelSubtotal + $excelComisionMonto;
+    $excelIgvMonto = $excelComisionMonto * ($excelIgvPct / 100);
+    $excelTotal = $excelCostoTotal + $excelIgvMonto;
+    $excelPrecioPax = $pagantes > 0 ? ($excelTotal / $pagantes) : 0;
 @endphp
 
 @section('contenido')
@@ -63,6 +91,14 @@
 
         {{-- Botonera de Acciones Ejecutivas --}}
         <div class="d-flex flex-wrap gap-2">
+            @if ($verCotizacion)
+                <button type="button" class="btn btn-outline-success" onclick="document.querySelector('#tab-costeo-excel-btn')?.click(); window.scrollTo({top: (document.querySelector('#fichaTab')?.offsetTop || 200) - 80, behavior: 'smooth'});">
+                    <i class="fas fa-file-excel me-1 text-success"></i> Hoja de Costeo Excel
+                </button>
+                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalAjustarPrecios">
+                    <i class="fas fa-tags me-1 text-primary"></i> Precios & Márgenes
+                </button>
+            @endif
             <button type="button" class="btn btn-outline-secondary"
                 data-historial-modal
                 data-programa-nombre="{{ $programa->nombre }}"
@@ -158,7 +194,7 @@
                             <i class="fas fa-wallet"></i>
                         </span>
                     </div>
-                    <div class="h4 fw-bold mb-1">{{ $money($p['total']) }}</div>
+                    <div class="h4 fw-bold mb-1" id="kpi-total-venta">{{ $money($p['total']) }}</div>
                     <div class="progress mb-2" style="height: 6px;">
                         <div class="progress-bar {{ $c['estado'] === 'pagado' ? 'bg-success' : 'bg-primary' }}" style="width: {{ min(100, $c['porcentaje']) }}%;"></div>
                     </div>
@@ -207,6 +243,13 @@
                         <i class="fas fa-route me-2 text-primary"></i> Itinerario & Servicios ({{ $programa->servicios->count() }})
                     </button>
                 </li>
+                @if ($verCotizacion)
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link py-3 px-3 fw-semibold text-success" id="tab-costeo-excel-btn" data-bs-toggle="tab" data-bs-target="#tab-costeo-excel" type="button" role="tab">
+                            <i class="fas fa-file-excel me-2 text-success"></i> Hoja de Costeo & Cotizador (Excel)
+                        </button>
+                    </li>
+                @endif
                 <li class="nav-item" role="presentation">
                     <button class="nav-link py-3 px-3 fw-semibold" id="tab-pasajeros-btn" data-bs-toggle="tab" data-bs-target="#tab-pasajeros" type="button" role="tab">
                         <i class="fas fa-users me-2 text-primary"></i> Pasajeros & Rooming ({{ $programa->paxs->count() }})
@@ -246,7 +289,7 @@
                         <span class="badge text-bg-light border">{{ $duracion }} días de viaje</span>
                     </div>
 
-                    @forelse ($programa->itinerario()['dias'] as $itDia)
+                    @forelse ($itinerarioData['dias'] as $itDia)
                         @php $dia = $itDia['dia']; $serviciosDia = $itDia['servicios']; @endphp
                         <div class="card border mb-3 rounded-3 overflow-hidden">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center py-2 px-3">
@@ -254,6 +297,11 @@
                                     <strong class="text-primary me-2">Día {{ $itDia['numero'] }}:</strong>
                                     <span class="fw-bold">{{ $dia?->titulo }}</span>
                                     <small class="text-muted ms-2">({{ $itDia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM') }})</small>
+                                    @if ($itDia['es_libre'])
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle ms-2">
+                                            <i class="fas fa-leaf me-1"></i> Día libre
+                                        </span>
+                                    @endif
                                 </div>
                                 @if ($itDia['hotel'])
                                     <small class="text-muted"><i class="fas fa-bed me-1"></i>{{ $itDia['hotel'] }}</small>
@@ -262,6 +310,12 @@
                             <div class="card-body p-3">
                                 @if ($dia?->descripcion)
                                     <div class="text-muted small mb-3">{!! nl2br(e($dia->descripcion)) !!}</div>
+                                @endif
+
+                                @if ($itDia['es_libre'])
+                                    <div class="p-2 mb-3 bg-success-subtle rounded border border-success-subtle text-success small">
+                                        <i class="fas fa-umbrella-beach me-1"></i> <strong>Día Libre / Descanso:</strong> Jornada programada para descanso, compras o aclimatación sin servicios operativos fijos.
+                                    </div>
                                 @endif
 
                                 @if ($serviciosDia->isNotEmpty())
@@ -319,6 +373,505 @@
                         </div>
                     @endforelse
                 </div>
+
+                {{-- TAB COSTEO: Hoja de Costeo & Cotizador Excel --}}
+                @if ($verCotizacion)
+                    <div class="tab-pane fade" id="tab-costeo-excel" role="tabpanel">
+                        {{-- Cabecera y Barra de Herramientas de la Hoja de Costeo --}}
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3 p-3 bg-light rounded-3 border">
+                            <div>
+                                <h3 class="h5 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+                                    <i class="fas fa-file-excel text-success fs-4"></i>
+                                    <span>Planilla de Costeo y Liquidación de Servicios</span>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle fs-7">Estilo Excel</span>
+                                </h3>
+                                <p class="text-muted small mb-0">
+                                    Resumen día a día de costos netos a proveedores, cálculo de margen de ganancia de Andean Exclusive, IGV de intermediación y cotización por pasajero.
+                                </p>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-outline-success btn-sm shadow-sm" id="btn-export-excel-csv">
+                                    <i class="fas fa-file-csv me-1 text-success"></i> Exportar CSV Excel
+                                </button>
+                                <button type="button" class="btn btn-outline-dark btn-sm shadow-sm" onclick="window.print();">
+                                    <i class="fas fa-print me-1"></i> Imprimir Planilla
+                                </button>
+                                @if ($canEdit)
+                                    <a href="{{ route('programas.edit', $programa) }}#tab-itinerario" class="btn btn-outline-primary btn-sm shadow-sm">
+                                        <i class="fas fa-edit me-1"></i> Modificar Servicios
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Ficha Técnica Corporativa (Membrete de Cotización idéntico a Excel) --}}
+                        <div class="card border mb-4 rounded-3 shadow-sm bg-white">
+                            <div class="card-body p-3 p-md-4">
+                                <div class="row g-3">
+                                    <div class="col-12 col-md-4">
+                                        <div class="p-2 border rounded bg-light-subtle h-100">
+                                            <div class="text-muted small fw-semibold text-uppercase">Programa / File</div>
+                                            <div class="fw-bold text-dark fs-6">{{ $programa->nombre }}</div>
+                                            <div class="text-primary font-monospace small"><i class="fas fa-hashtag text-gold me-1"></i>{{ $programa->codigo }}</div>
+                                            @if ($programa->cliente)
+                                                <div class="small mt-1 text-muted">
+                                                    <i class="fas fa-user-tie me-1"></i> Cliente: <strong>{{ $programa->cliente->nombre }}</strong>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="p-2 border rounded bg-light-subtle h-100">
+                                            <div class="text-muted small fw-semibold text-uppercase">Grupo & Pasajeros</div>
+                                            <div class="fw-bold text-dark fs-6">{{ $totalPaxs }} personas</div>
+                                            <div class="small text-muted">
+                                                <strong>{{ $pagantes }} pagantes</strong> ({{ $p['adultos'] }} adultos
+                                                @if ($p['ninos']) · {{ $p['ninos'] }} niños @endif
+                                                @if ($p['infantes']) · {{ $p['infantes'] }} infantes @endif)
+                                            </div>
+                                            <div class="small mt-1 text-muted">
+                                                <i class="fas fa-calendar-alt me-1"></i>
+                                                {{ $inicio ? $inicio->format('d/m/Y') : 'Por definir' }} – {{ $fin ? $fin->format('d/m/Y') : 'Por definir' }}
+                                                ({{ $duracion }} días)
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="p-2 border rounded bg-light-subtle h-100">
+                                            <div class="text-muted small fw-semibold text-uppercase">Moneda & Conversión</div>
+                                            <div class="fw-bold text-dark fs-6">
+                                                {{ $programa->moneda ?? 'USD' }} ({{ $simbolo }})
+                                                <span class="badge bg-light text-dark border ms-1">T/C: S/ {{ number_format($tc, 2) }}</span>
+                                            </div>
+                                            <div class="small text-muted mt-1">
+                                                Precio adulto en base: <strong>US$ {{ number_format((float)$programa->precioAdulto, 2) }}</strong>
+                                                @if ($programa->porcentaje_ganancia)
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle ms-1">+{{ number_format($programa->porcentaje_ganancia, 1) }}% margen</span>
+                                                @endif
+                                            </div>
+                                            <div class="small text-success fw-semibold mt-1">
+                                                Venta total en sistema: <strong>{{ $money($p['total']) }}</strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Hoja de Cálculo Interactiva (Tabla Excel) --}}
+                        <div class="card border rounded-3 shadow-sm overflow-hidden mb-4">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered align-middle mb-0 excel-costeo-table" id="tabla-costeo-excel">
+                                    <thead class="table-dark text-nowrap small text-uppercase">
+                                        <tr>
+                                            <th style="width: 100px;">Hora / Ref.</th>
+                                            <th>Detalle del Servicio / Concepto</th>
+                                            <th style="width: 220px;">Proveedor</th>
+                                            <th style="width: 120px;">Modalidad</th>
+                                            <th class="text-end" style="width: 130px;">Costo Unit.</th>
+                                            <th class="text-center" style="width: 90px;">Cant.</th>
+                                            <th class="text-end" style="width: 140px;">Costo Total (US$)</th>
+                                            <th style="width: 150px;">Estado / Notas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($itinerarioData['dias'] as $itDia)
+                                            @php
+                                                $dia = $itDia['dia'];
+                                                $serviciosDia = $itDia['servicios'];
+                                                $subtotalDiaUsd = 0.0;
+                                                foreach ($serviciosDia as $s) {
+                                                    $uCost = $s->costo !== null ? (float)$s->costo : (float)($s->costo_estimado ?? 0);
+                                                    $uUsd = $s->moneda === 'PEN' ? ($tc > 0 ? $uCost / $tc : $uCost) : $uCost;
+                                                    $qty = $s->costo_por === 'persona' ? $pagantes : 1;
+                                                    $subtotalDiaUsd += ($uUsd * $qty);
+                                                }
+                                            @endphp
+
+                                            {{-- Fila de Título del Día --}}
+                                            <tr class="table-primary-subtle border-bottom border-primary-subtle excel-row-header-dia">
+                                                <td colspan="8" class="py-2 px-3">
+                                                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                        <div>
+                                                            <strong class="text-primary text-uppercase fs-7 me-2">Día {{ $itDia['numero'] }}:</strong>
+                                                            <span class="fw-bold text-dark">{{ $dia?->titulo ?: 'Ruta sin definir' }}</span>
+                                                            <span class="text-muted small ms-2">({{ $itDia['fecha']->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }})</span>
+                                                            @if ($itDia['es_libre'])
+                                                                <span class="badge bg-success text-white ms-2 shadow-xs">
+                                                                    <i class="fas fa-leaf me-1"></i> Día Libre / Descanso
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                        @if ($itDia['hotel'])
+                                                            <small class="text-dark fw-semibold">
+                                                                <i class="fas fa-hotel text-primary me-1"></i> {{ $itDia['hotel'] }}
+                                                            </small>
+                                                        @endif
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            {{-- Fila de Alojamiento si está registrado en ese día --}}
+                                            @if ($itDia['hotel'])
+                                                <tr class="excel-row-hotel bg-light-subtle small">
+                                                    <td class="text-center text-muted font-monospace"><i class="fas fa-bed text-primary"></i> Pernocte</td>
+                                                    <td colspan="2">
+                                                        <span class="fw-semibold text-dark"><i class="fas fa-hotel text-primary me-1"></i> Hotel: {{ $itDia['hotel'] }}</span>
+                                                        <small class="text-muted d-block ps-3">Alojamiento programado para este día</small>
+                                                    </td>
+                                                    <td><span class="badge text-bg-light border">Por grupo / noche</span></td>
+                                                    <td class="text-end text-muted font-monospace">—</td>
+                                                    <td class="text-center text-muted font-monospace">1 noche</td>
+                                                    <td class="text-end text-muted font-monospace">—</td>
+                                                    <td><span class="badge text-bg-light border text-muted">Incluido / Coordinado</span></td>
+                                                </tr>
+                                            @endif
+
+                                            {{-- Servicios del Día --}}
+                                            @forelse ($serviciosDia as $s)
+                                                @php
+                                                    $uCost = $s->costo !== null ? (float)$s->costo : (float)($s->costo_estimado ?? 0);
+                                                    $uUsd = $s->moneda === 'PEN' ? ($tc > 0 ? $uCost / $tc : $uCost) : $uCost;
+                                                    $qty = $s->costo_por === 'persona' ? $pagantes : 1;
+                                                    $totalUsd = $uUsd * $qty;
+                                                @endphp
+                                                <tr class="excel-row-servicio"
+                                                    data-dia="{{ $itDia['numero'] }}"
+                                                    data-fecha="{{ $itDia['fecha']->format('d/m/Y') }}"
+                                                    data-servicio="{{ $s->titulo }}"
+                                                    data-proveedor="{{ $s->proveedor?->nombre ?: 'Sin asignar' }}"
+                                                    data-modalidad="{{ $s->costo_por === 'persona' ? 'Por persona' : 'Por grupo' }}"
+                                                    data-costo-unit="{{ $uUsd }}"
+                                                    data-qty="{{ $qty }}"
+                                                    data-total-usd="{{ $totalUsd }}"
+                                                    data-notas="{{ $s->notas }}">
+                                                    <td class="small text-muted font-monospace text-nowrap">
+                                                        {{ $s->hora ? \Carbon\Carbon::parse($s->hora)->format('H:i') : '—' }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-bold text-dark">{{ $s->titulo }}</div>
+                                                        <div class="small text-muted">
+                                                            <span class="badge text-bg-light border me-1">{{ $s->tipo_etiqueta }}</span>
+                                                            @if ($s->descripcion)
+                                                                <span>{{ Str::limit($s->descripcion, 75) }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        @if ($s->proveedor)
+                                                            <span class="text-dark fw-semibold">{{ $s->proveedor->nombre }}</span>
+                                                        @else
+                                                            <span class="badge bg-warning-subtle text-warning-emphasis">Sin asignar</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge {{ $s->costo_por === 'persona' ? 'bg-info-subtle text-info border' : 'bg-secondary-subtle text-secondary border' }}">
+                                                            {{ $s->costo_por === 'persona' ? 'Por persona' : 'Por grupo' }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end font-monospace text-nowrap">
+                                                        @if ($s->moneda === 'PEN')
+                                                            <div class="fw-semibold">S/ {{ number_format($uCost, 2) }}</div>
+                                                            <small class="text-muted">(US$ {{ number_format($uUsd, 2) }})</small>
+                                                        @else
+                                                            <div class="fw-semibold">US$ {{ number_format($uUsd, 2) }}</div>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center font-monospace text-nowrap">
+                                                        <span class="badge text-bg-light border px-2 py-1">
+                                                            {{ $qty }} {{ $s->costo_por === 'persona' ? 'pax' : 'grp' }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end font-monospace fw-bold text-dark text-nowrap">
+                                                        US$ {{ number_format($totalUsd, 2) }}
+                                                    </td>
+                                                    <td class="small">
+                                                        <span class="badge {{ $s->estado === 'confirmado' ? 'bg-success-subtle text-success' : ($s->estado === 'cancelado' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
+                                                            {{ ucfirst($s->estado) }}
+                                                        </span>
+                                                        @if ($s->notas)
+                                                            <span class="text-muted ms-1 text-truncate d-inline-block" style="max-width: 140px;" title="{{ $s->notas }}">
+                                                                {{ $s->notas }}
+                                                            </span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                @if ($itDia['es_libre'])
+                                                    <tr class="table-light">
+                                                        <td colspan="8" class="text-center py-2 text-muted fst-italic">
+                                                            <i class="fas fa-leaf text-success me-1"></i> Día libre sin servicios operativos asignados (Descanso y aclimatación).
+                                                        </td>
+                                                    </tr>
+                                                @else
+                                                    <tr class="table-light">
+                                                        <td colspan="8" class="text-center py-2 text-muted fst-italic">
+                                                            Sin servicios operativos específicos asignados a este día.
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforelse
+
+                                            {{-- Subtotal Día --}}
+                                            <tr class="excel-subtotal-dia border-bottom-2 border-secondary-subtle bg-light">
+                                                <td colspan="6" class="text-end py-1 px-3 text-muted small fw-semibold">
+                                                    Sub-total Día {{ $itDia['numero'] }}:
+                                                </td>
+                                                <td class="text-end py-1 px-3 font-monospace fw-bold text-primary">
+                                                    US$ {{ number_format($subtotalDiaUsd, 2) }}
+                                                </td>
+                                                <td></td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-center py-4 text-muted">
+                                                    No hay días de itinerario cargados.
+                                                </td>
+                                            </tr>
+                                        @endforelse
+
+                                        {{-- Servicios Fuera de Fechas si los hubiera --}}
+                                        @if ($itinerarioData['fuera']->isNotEmpty())
+                                            <tr class="table-secondary fw-bold">
+                                                <td colspan="8" class="py-2 px-3">
+                                                    <i class="fas fa-exclamation-circle text-warning me-1"></i> Servicios Fuera de Rango de Fechas / Traslados Especiales
+                                                </td>
+                                            </tr>
+                                            @foreach ($itinerarioData['fuera'] as $s)
+                                                @php
+                                                    $uCost = $s->costo !== null ? (float)$s->costo : (float)($s->costo_estimado ?? 0);
+                                                    $uUsd = $s->moneda === 'PEN' ? ($tc > 0 ? $uCost / $tc : $uCost) : $uCost;
+                                                    $qty = $s->costo_por === 'persona' ? $pagantes : 1;
+                                                    $totalUsd = $uUsd * $qty;
+                                                @endphp
+                                                <tr class="excel-row-servicio"
+                                                    data-dia="Ext"
+                                                    data-fecha="{{ $s->fecha ? $s->fecha->format('d/m/Y') : 'Ext' }}"
+                                                    data-servicio="{{ $s->titulo }}"
+                                                    data-proveedor="{{ $s->proveedor?->nombre ?: 'Sin asignar' }}"
+                                                    data-modalidad="{{ $s->costo_por === 'persona' ? 'Por persona' : 'Por grupo' }}"
+                                                    data-costo-unit="{{ $uUsd }}"
+                                                    data-qty="{{ $qty }}"
+                                                    data-total-usd="{{ $totalUsd }}"
+                                                    data-notas="{{ $s->notas }}">
+                                                    <td class="small text-muted font-monospace text-nowrap">
+                                                        {{ $s->fecha ? $s->fecha->format('d/m') : '—' }} {{ $s->hora ? \Carbon\Carbon::parse($s->hora)->format('H:i') : '' }}
+                                                    </td>
+                                                    <td>
+                                                        <div class="fw-bold text-dark">{{ $s->titulo }}</div>
+                                                        <small class="text-muted">{{ $s->tipo_etiqueta }}</small>
+                                                    </td>
+                                                    <td>{{ $s->proveedor?->nombre ?: 'Sin asignar' }}</td>
+                                                    <td><span class="badge bg-secondary text-white">{{ $s->costo_por === 'persona' ? 'Por persona' : 'Por grupo' }}</span></td>
+                                                    <td class="text-end font-monospace">US$ {{ number_format($uUsd, 2) }}</td>
+                                                    <td class="text-center font-monospace">{{ $qty }}</td>
+                                                    <td class="text-end font-monospace fw-bold">US$ {{ number_format($totalUsd, 2) }}</td>
+                                                    <td><span class="badge bg-light text-dark border">{{ ucfirst($s->estado) }}</span></td>
+                                                </tr>
+                                            @endforeach
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {{-- Cuadro de Liquidación Financiera y Ganancia (Fórmulas Excel) --}}
+                        <div class="card border border-2 border-primary-subtle shadow-sm rounded-3 overflow-hidden">
+                            <div class="card-header bg-dark text-white py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div>
+                                    <h5 class="mb-0 fw-bold"><i class="fas fa-calculator text-warning me-2"></i> Liquidación de Costos & Cotización Final</h5>
+                                    <small class="text-white-50">Determine en tiempo real el porcentaje de ganancia de Andean Exclusive y el IGV aplicable</small>
+                                </div>
+                                <span class="badge bg-success fs-7 px-3 py-2"><i class="fas fa-users me-1"></i> Base: {{ $pagantes }} pasajeros pagantes</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="row g-4">
+                                    {{-- Columna Izquierda: Parámetros y Ajustes --}}
+                                    <div class="col-12 col-lg-5 border-end-lg">
+                                        <h6 class="fw-bold text-dark text-uppercase small mb-3">
+                                            <i class="fas fa-sliders-h text-primary me-1"></i> Parámetros de la Cotización
+                                        </h6>
+
+                                        {{-- Comisión Andean Exclusive --}}
+                                        <div class="mb-3 p-3 bg-light rounded-3 border">
+                                            <label for="costeo-comision-input" class="form-label fw-bold small text-dark d-flex justify-content-between align-items-center mb-1">
+                                                <span>% Comisión Andean Exclusive (Margen):</span>
+                                                <span class="badge bg-primary fs-7" id="costeo-badge-comision-pct">{{ number_format($excelComisionPct, 1) }}%</span>
+                                            </label>
+                                            <div class="input-group input-group-lg my-2">
+                                                <span class="input-group-text bg-white fw-bold text-primary"><i class="fas fa-percentage"></i></span>
+                                                <input type="number" step="0.5" min="0" max="100" class="form-control fw-bold text-primary text-center fs-4" id="costeo-comision-input" value="{{ number_format($excelComisionPct, 1, '.', '') }}">
+                                                <span class="input-group-text bg-white fw-bold text-muted">%</span>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="small text-muted align-self-center me-1">Atajos:</span>
+                                                @foreach ([10, 11, 12, 15, 18, 20, 25, 30] as $presetPct)
+                                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-preset-pct" data-pct="{{ $presetPct }}">{{ $presetPct }}%</button>
+                                                @endforeach
+                                            </div>
+                                        </div>
+
+                                        {{-- Input Manual IGV Comisión --}}
+                                        <div class="mb-3 p-3 bg-light rounded-3 border">
+                                            <label for="costeo-igv-input" class="form-label fw-bold small text-dark d-flex justify-content-between align-items-center mb-1">
+                                                <span>% IGV Comisión (Impuesto):</span>
+                                                <span class="badge bg-warning text-dark fs-7" id="costeo-badge-igv-pct">{{ number_format($excelIgvPct, 1) }}%</span>
+                                            </label>
+                                            <div class="input-group input-group-lg my-2">
+                                                <span class="input-group-text bg-white fw-bold text-warning-emphasis"><i class="fas fa-receipt"></i></span>
+                                                <input type="number" step="0.1" min="0" max="100" class="form-control fw-bold text-warning-emphasis text-center fs-4" id="costeo-igv-input" value="{{ number_format($excelIgvPct, 1, '.', '') }}">
+                                                <span class="input-group-text bg-white fw-bold text-muted">%</span>
+                                            </div>
+                                            <div class="d-flex flex-wrap gap-1 mt-2">
+                                                <span class="small text-muted align-self-center me-1">Atajos:</span>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary btn-preset-igv" data-pct="18">18% General</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary btn-preset-igv" data-pct="10">10% Turismo</button>
+                                                <button type="button" class="btn btn-xs btn-outline-secondary btn-preset-igv" data-pct="0">0% Exonerado</button>
+                                            </div>
+                                            <small class="text-muted d-block mt-2">
+                                                <i class="fas fa-info-circle me-1"></i> Se aplica sobre la ganancia de la agencia por intermediación conforme a ley.
+                                            </small>
+                                        </div>
+
+                                        {{-- Divisor de Pasajeros --}}
+                                        <div class="p-3 bg-light rounded-3 border">
+                                            <label class="form-label fw-bold small text-dark mb-2">
+                                                Dividir costo total entre:
+                                            </label>
+                                            <div class="btn-group w-100" role="group">
+                                                <input type="radio" class="btn-check" name="divisor_paxs" id="div-pagantes" value="{{ $pagantes }}" checked>
+                                                <label class="btn btn-outline-primary btn-sm py-2" for="div-pagantes">
+                                                    <i class="fas fa-user-check me-1"></i> {{ $pagantes }} Pasajeros Pagantes
+                                                </label>
+
+                                                <input type="radio" class="btn-check" name="divisor_paxs" id="div-totales" value="{{ $totalPaxs }}">
+                                                <label class="btn btn-outline-primary btn-sm py-2" for="div-totales">
+                                                    <i class="fas fa-users me-1"></i> {{ $totalPaxs }} Viajeros Totales
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- Columna Derecha: Hoja de Liquidación Contable (Excel) --}}
+                                    <div class="col-12 col-lg-7">
+                                        <h6 class="fw-bold text-dark text-uppercase small mb-3">
+                                            <i class="fas fa-file-invoice-dollar text-success me-1"></i> Resumen de Liquidación (Fórmulas Excel)
+                                        </h6>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered align-middle mb-0 shadow-sm rounded-3 overflow-hidden">
+                                                <tbody>
+                                                    {{-- Fila 1: Sub-Total --}}
+                                                    <tr>
+                                                        <td class="py-2 px-3 fw-bold text-secondary text-uppercase bg-light">
+                                                            <i class="fas fa-coins me-2 text-muted"></i> SUB -TOTAL PROVEEDORES
+                                                        </td>
+                                                        <td class="py-2 px-3 text-end font-monospace fw-bold fs-6 text-dark" style="width: 45%;">
+                                                            US$ <span id="val-subtotal" data-raw-subtotal="{{ $excelSubtotal }}">{{ number_format($excelSubtotal, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+
+                                                    {{-- Fila 2: Comisión Andean Exclusive --}}
+                                                    <tr>
+                                                        <td class="py-2 px-3 fw-semibold text-primary">
+                                                            <i class="fas fa-hand-holding-usd me-2"></i> Comisión Andean Exclusive (<span id="lbl-comision-pct">{{ number_format($excelComisionPct, 1) }}</span>%)
+                                                        </td>
+                                                        <td class="py-2 px-3 text-end font-monospace fw-bold text-primary">
+                                                            + US$ <span id="val-comision">{{ number_format($excelComisionMonto, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+
+                                                    {{-- Fila 3: Costo Total --}}
+                                                    <tr class="table-light">
+                                                        <td class="py-2 px-3 fw-bold text-dark">
+                                                            <i class="fas fa-calculator me-2 text-muted"></i> Costo Total (Subtotal + Comisión)
+                                                        </td>
+                                                        <td class="py-2 px-3 text-end font-monospace fw-bold text-dark">
+                                                            US$ <span id="val-costo-total">{{ number_format($excelCostoTotal, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+
+                                                    {{-- Fila 4: IGV Comisión --}}
+                                                    <tr id="row-igv">
+                                                        <td class="py-2 px-3 fw-semibold text-warning-emphasis">
+                                                            <i class="fas fa-receipt me-2"></i> IGV Comisión (<span id="lbl-igv-pct">{{ number_format($excelIgvPct, 1) }}</span>%)
+                                                        </td>
+                                                        <td class="py-2 px-3 text-end font-monospace fw-bold text-warning-emphasis">
+                                                            + US$ <span id="val-igv">{{ number_format($excelIgvMonto, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+
+                                                    {{-- Fila 5: TOTAL COTIZACIÓN --}}
+                                                    <tr class="bg-dark text-white">
+                                                        <td class="py-3 px-3 fs-5 fw-bold text-uppercase text-white">
+                                                            <i class="fas fa-gem me-2 text-warning"></i> TOTAL COTIZACIÓN
+                                                        </td>
+                                                        <td class="py-3 px-3 text-end font-monospace fs-4 fw-bold text-warning">
+                                                            US$ <span id="val-total-cotizacion">{{ number_format($excelTotal, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+
+                                                    {{-- Fila 6: PRECIO POR PASAJERO --}}
+                                                    <tr class="table-success border-top-2 border-success">
+                                                        <td class="py-3 px-3 fw-bold text-success fs-6">
+                                                            <i class="fas fa-user-tag me-2"></i> PRECIO POR PASAJERO (Venta sugerida)
+                                                        </td>
+                                                        <td class="py-3 px-3 text-end font-monospace fs-3 fw-bold text-success">
+                                                            US$ <span id="val-precio-pax">{{ number_format($excelPrecioPax, 2) }}</span>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        {{-- Panel de Tarifas Oficiales a Aplicar --}}
+                                        <div class="p-3 bg-light rounded-3 border mt-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="fw-bold small text-dark"><i class="fas fa-check-double text-success me-1"></i> Precios que se aplicarán al total del Programa:</span>
+                                                <small class="text-muted">Editables directamente aquí</small>
+                                            </div>
+                                            <div class="row g-2">
+                                                <div class="col-12 col-sm-6">
+                                                    <label class="form-label small text-muted mb-1">Precio Adulto a guardar (US$):</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-white fw-bold text-success">US$</span>
+                                                        <input type="number" step="0.01" min="0" class="form-control fw-bold text-success" id="costeo-precio-adulto-input" value="{{ number_format($excelPrecioPax, 2, '.', '') }}">
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-revert-calc-price" title="Restablecer al precio calculado">
+                                                            <i class="fas fa-sync-alt"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-6">
+                                                    <label class="form-label small text-muted mb-1">Precio Niño a guardar (US$):</label>
+                                                    <div class="input-group">
+                                                        <span class="input-group-text bg-white fw-bold">US$</span>
+                                                        <input type="number" step="0.01" min="0" class="form-control" id="costeo-precio-nino-input" value="{{ $programa->precioChild ? number_format((float)$programa->precioChild, 2, '.', '') : '' }}" placeholder="Opcional">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- Acciones y Guardado --}}
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3 pt-3 border-top">
+                                            <div>
+                                                <div class="small text-muted">
+                                                    Precio oficial guardado actualmente: <strong class="text-dark">US$ {{ number_format((float)$programa->precioAdulto, 2) }}</strong>
+                                                    (Total venta: <strong>{{ $money($p['total']) }}</strong>)
+                                                </div>
+                                                <div id="costeo-feedback-msg" class="small mt-1" style="display:none;"></div>
+                                            </div>
+                                            @if ($canEdit)
+                                                <button type="button" class="btn btn-success btn-lg px-4 shadow-sm" id="btn-guardar-cotizacion">
+                                                    <i class="fas fa-save me-2"></i> Guardar y Aplicar al Total
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- TAB 2: Pasajeros & Rooming List --}}
                 <div class="tab-pane fade" id="tab-pasajeros" role="tabpanel">
@@ -468,6 +1021,70 @@
                             @endcan
                         </div>
 
+                        {{-- Card de Ajuste Directo de Precios y Márgenes --}}
+                        @if ($canEdit)
+                            <div class="card border mb-4 rounded-3 shadow-sm bg-white">
+                                <div class="card-header bg-light py-2 px-3 d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0 fw-bold text-dark"><i class="fas fa-sliders-h text-primary me-2"></i> Ajustar Precios, Márgenes e Impuestos del Programa</h6>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">Edición Directa</span>
+                                </div>
+                                <div class="card-body p-3">
+                                    <form id="form-finanzas-precios">
+                                        <div class="row g-3 align-items-end">
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <label class="form-label small fw-semibold text-muted">Tarifa Adulto (<span data-currency-symbol>{{ $simbolo }}</span>):</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white fw-bold text-success">{{ $simbolo }}</span>
+                                                    <input type="number" step="0.01" min="0" class="form-control fw-bold" id="fin-precio-adulto" value="{{ number_format((float)$programa->precioAdulto, 2, '.', '') }}">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-2">
+                                                <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
+                                                <div class="input-group">
+                                                    <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-primary" id="fin-porcentaje-ganancia" value="{{ number_format((float)($programa->porcentaje_ganancia ?? 20), 1, '.', '') }}">
+                                                    <span class="input-group-text bg-white fw-bold">%</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-2">
+                                                <label class="form-label small fw-semibold text-muted">IGV Comisión (%):</label>
+                                                <div class="input-group">
+                                                    <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-warning-emphasis" id="fin-porcentaje-igv" value="{{ number_format((float)($programa->porcentaje_igv ?? 18), 1, '.', '') }}">
+                                                    <span class="input-group-text bg-white fw-bold">%</span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-3">
+                                                <label class="form-label small fw-semibold text-muted">Tarifa Niño (<span data-currency-symbol>{{ $simbolo }}</span>):</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white fw-bold">{{ $simbolo }}</span>
+                                                    <input type="number" step="0.01" min="0" class="form-control" id="fin-precio-nino" value="{{ $programa->precioChild ? number_format((float)$programa->precioChild, 2, '.', '') : '' }}" placeholder="0.00">
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-6 col-md-2">
+                                                <label class="form-label small fw-semibold text-muted">Tipo de Cambio:</label>
+                                                <div class="input-group">
+                                                    <span class="input-group-text bg-white small">S/</span>
+                                                    <input type="number" step="0.01" min="0.5" max="99" class="form-control text-center font-monospace" id="fin-tipo-cambio" value="{{ number_format((float)$tc, 2, '.', '') }}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mt-3 pt-3 border-top">
+                                            <div class="small text-muted" id="fin-simulacion-resumen">
+                                                Venta Adulto sugerida: <strong class="text-success fs-6" id="fin-lbl-venta-adulto">{{ $money($p['ventaAdulto']) }}</strong> / pax
+                                                · Total estimado: <strong class="text-dark fs-6" id="fin-lbl-total-programa">{{ $money($p['total']) }}</strong>
+                                            </div>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <div id="fin-feedback-msg" class="small" style="display:none;"></div>
+                                                <button type="button" class="btn btn-primary px-4 shadow-sm" id="btn-guardar-precios-finanzas">
+                                                    <i class="fas fa-save me-1"></i> Guardar Precios del Programa
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        @endif
+
                         <h4 class="h6 fw-bold text-muted text-uppercase mb-3">Historial de Cobros al Cliente</h4>
                         @if ($programa->pagos->isNotEmpty())
                             <div class="table-responsive">
@@ -578,6 +1195,517 @@
         </div>
     </div>
 
+    {{-- Modal Ajuste Rápido de Precios y Márgenes --}}
+    @if ($canEdit && $verCotizacion)
+        <div class="modal fade" id="modalAjustarPrecios" tabindex="-1" aria-labelledby="modalAjustarPreciosLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-3 shadow">
+                    <div class="modal-header bg-dark text-white py-3">
+                        <h5 class="modal-title fs-6 fw-bold" id="modalAjustarPreciosLabel">
+                            <i class="fas fa-tags text-warning me-2"></i> Ajustar Precios, Márgenes e Impuestos del Programa
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <p class="text-muted small mb-3">
+                            Modifique directamente las tarifas oficiales, el margen comercial de Andean Exclusive y el porcentaje de IGV sin salir de esta ficha. Los totales del programa se actualizarán automáticamente.
+                        </p>
+                        <form id="form-modal-precios">
+                            <div class="row g-3">
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">Tarifa Adulto ({{ $simbolo }}):</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-white fw-bold text-success">{{ $simbolo }}</span>
+                                        <input type="number" step="0.01" min="0" class="form-control fw-bold" id="modal-precio-adulto" value="{{ number_format((float)$programa->precioAdulto, 2, '.', '') }}">
+                                    </div>
+                                    <small class="text-muted">Tarifa por pasajero adulto (12+ años).</small>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <label class="form-label small fw-semibold text-muted">Tarifa Niño ({{ $simbolo }}):</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-white fw-bold">{{ $simbolo }}</span>
+                                        <input type="number" step="0.01" min="0" class="form-control" id="modal-precio-nino" value="{{ $programa->precioChild ? number_format((float)$programa->precioChild, 2, '.', '') : '' }}" placeholder="0.00">
+                                    </div>
+                                    <small class="text-muted">Tarifa para niños de 5 a 11 años.</small>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-primary" id="modal-porcentaje-ganancia" value="{{ number_format((float)($programa->porcentaje_ganancia ?? 20), 1, '.', '') }}">
+                                        <span class="input-group-text bg-white fw-bold">%</span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        @foreach ([10, 11, 12, 15, 18, 20, 25, 30] as $presetPct)
+                                            <button type="button" class="btn btn-xs btn-outline-secondary btn-modal-preset-ganancia" data-pct="{{ $presetPct }}">{{ $presetPct }}%</button>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="form-label small fw-semibold text-muted">IGV Comisión (%):</label>
+                                    <div class="input-group">
+                                        <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-warning-emphasis" id="modal-porcentaje-igv" value="{{ number_format((float)($programa->porcentaje_igv ?? 18), 1, '.', '') }}">
+                                        <span class="input-group-text bg-white fw-bold">%</span>
+                                    </div>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-modal-preset-igv" data-pct="18">18%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-modal-preset-igv" data-pct="10">10%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-secondary btn-modal-preset-igv" data-pct="0">0%</button>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="form-label small fw-semibold text-muted">Tipo de Cambio:</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white small">S/</span>
+                                        <input type="number" step="0.01" min="0.5" max="99" class="form-control text-center font-monospace" id="modal-tipo-cambio" value="{{ number_format((float)$tc, 2, '.', '') }}">
+                                    </div>
+                                    <small class="text-muted">Conversión PEN a USD.</small>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 border mt-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-muted small">Total estimado del Programa:</span>
+                                    <span class="fs-5 fw-bold text-dark" id="modal-lbl-total-programa">{{ $money($p['total']) }}</span>
+                                </div>
+                            </div>
+
+                            <div id="modal-feedback-msg" class="small mt-2" style="display:none;"></div>
+                        </form>
+                    </div>
+                    <div class="modal-footer bg-light py-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary px-4 shadow-sm" id="btn-guardar-precios-modal">
+                            <i class="fas fa-save me-1"></i> Guardar y Aplicar Precios
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Modal de Historial Reutilizable --}}
     @include('programas.partials.modal-historial')
+
+@push('styles')
+<style>
+.excel-costeo-table {
+    border-color: #dee2e6;
+    font-size: 0.86rem;
+}
+.excel-costeo-table th, .excel-costeo-table td {
+    vertical-align: middle;
+}
+.excel-row-header-dia {
+    background-color: #e9f2ff !important;
+}
+.excel-subtotal-dia {
+    background-color: #f8f9fa !important;
+}
+@media (min-width: 992px) {
+    .border-end-lg {
+        border-right: 1px solid #dee2e6;
+    }
+}
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #tab-costeo-excel, #tab-costeo-excel * {
+        visibility: visible !important;
+    }
+    #tab-costeo-excel {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .btn, .nav, .ae-admin-page-header, .card-header, #costeo-comision-input, #costeo-igv-input, .btn-preset-pct, .btn-preset-igv, input[name="divisor_paxs"], #btn-guardar-cotizacion, #btn-export-excel-csv {
+        display: none !important;
+    }
+    .excel-costeo-table {
+        font-size: 9pt !important;
+    }
+}
+</style>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const rawSubtotalEl = document.getElementById('val-subtotal');
+    const rawSubtotal = rawSubtotalEl ? (parseFloat(rawSubtotalEl.dataset.rawSubtotal) || 0) : 0;
+    const comisionInput = document.getElementById('costeo-comision-input');
+    const badgeComisionPct = document.getElementById('costeo-badge-comision-pct');
+    const lblComisionPct = document.getElementById('lbl-comision-pct');
+    const valComision = document.getElementById('val-comision');
+    const valCostoTotal = document.getElementById('val-costo-total');
+    const igvInput = document.getElementById('costeo-igv-input');
+    const badgeIgvPct = document.getElementById('costeo-badge-igv-pct');
+    const lblIgvPct = document.getElementById('lbl-igv-pct');
+    const rowIgv = document.getElementById('row-igv');
+    const valIgv = document.getElementById('val-igv');
+    const valTotalCotizacion = document.getElementById('val-total-cotizacion');
+    const valPrecioPax = document.getElementById('val-precio-pax');
+    const costeoPrecioAdultoInput = document.getElementById('costeo-precio-adulto-input');
+    const costeoPrecioNinoInput = document.getElementById('costeo-precio-nino-input');
+    const btnRevertCalc = document.getElementById('btn-revert-calc-price');
+    const btnGuardarCotizacion = document.getElementById('btn-guardar-cotizacion');
+    const feedbackMsg = document.getElementById('costeo-feedback-msg');
+    const btnExportCsv = document.getElementById('btn-export-excel-csv');
+
+    // Elementos de Tab Finanzas
+    const finPrecioAdulto = document.getElementById('fin-precio-adulto');
+    const finPorcentajeGanancia = document.getElementById('fin-porcentaje-ganancia');
+    const finPorcentajeIgv = document.getElementById('fin-porcentaje-igv');
+    const finPrecioNino = document.getElementById('fin-precio-nino');
+    const finTipoCambio = document.getElementById('fin-tipo-cambio');
+    const btnGuardarFinanzas = document.getElementById('btn-guardar-precios-finanzas');
+    const finFeedbackMsg = document.getElementById('fin-feedback-msg');
+    const finLblVentaAdulto = document.getElementById('fin-lbl-venta-adulto');
+    const finLblTotalPrograma = document.getElementById('fin-lbl-total-programa');
+
+    // Elementos de Modal
+    const modalPrecioAdulto = document.getElementById('modal-precio-adulto');
+    const modalPrecioNino = document.getElementById('modal-precio-nino');
+    const modalPorcentajeGanancia = document.getElementById('modal-porcentaje-ganancia');
+    const modalPorcentajeIgv = document.getElementById('modal-porcentaje-igv');
+    const modalTipoCambio = document.getElementById('modal-tipo-cambio');
+    const modalLblTotalPrograma = document.getElementById('modal-lbl-total-programa');
+    const btnGuardarModal = document.getElementById('btn-guardar-precios-modal');
+    const modalFeedbackMsg = document.getElementById('modal-feedback-msg');
+
+    const adultosCount = {{ (int) $p['adultos'] }};
+    const ninosCount = {{ (int) $p['ninos'] }};
+    const suplementoInd = {{ (float) $p['suplemento'] }};
+    const monedaSimbolo = "{{ $simbolo }} ";
+
+    function formatNumber(num) {
+        return Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    let userManuallyEditedPrice = false;
+
+    // Recalculo reactivo para la Hoja de Costeo
+    function recalcularCotizacion() {
+        const pct = Math.max(0, parseFloat(comisionInput ? comisionInput.value : 0) || 0);
+        if (badgeComisionPct) badgeComisionPct.textContent = pct.toFixed(1) + '%';
+        if (lblComisionPct) lblComisionPct.textContent = pct.toFixed(1);
+
+        const comisionMonto = rawSubtotal * (pct / 100);
+        const costoTotal = rawSubtotal + comisionMonto;
+
+        const igvPct = Math.max(0, parseFloat(igvInput ? igvInput.value : 0) || 0);
+        if (badgeIgvPct) badgeIgvPct.textContent = igvPct.toFixed(1) + '%';
+        if (lblIgvPct) lblIgvPct.textContent = igvPct.toFixed(1);
+
+        const igvMonto = comisionMonto * (igvPct / 100);
+        const totalCotizacion = costoTotal + igvMonto;
+
+        const divisorRadio = document.querySelector('input[name="divisor_paxs"]:checked');
+        const divisor = divisorRadio ? (parseFloat(divisorRadio.value) || 1) : 1;
+        const precioPax = divisor > 0 ? (totalCotizacion / divisor) : 0;
+
+        if (valComision) valComision.textContent = formatNumber(comisionMonto);
+        if (valCostoTotal) valCostoTotal.textContent = formatNumber(costoTotal);
+        if (valIgv) valIgv.textContent = formatNumber(igvMonto);
+        if (rowIgv) rowIgv.style.opacity = igvPct > 0 ? '1' : '0.45';
+        if (valTotalCotizacion) valTotalCotizacion.textContent = formatNumber(totalCotizacion);
+        if (valPrecioPax) valPrecioPax.textContent = formatNumber(precioPax);
+
+        if (costeoPrecioAdultoInput && !userManuallyEditedPrice) {
+            costeoPrecioAdultoInput.value = precioPax.toFixed(2);
+        }
+
+        return { pct, igvPct, comisionMonto, costoTotal, igvMonto, totalCotizacion, precioPax, divisor };
+    }
+
+    // Inicializar Hoja de Costeo si está presente
+    if (comisionInput || igvInput) {
+        recalcularCotizacion();
+        comisionInput?.addEventListener('input', () => { userManuallyEditedPrice = false; recalcularCotizacion(); });
+        igvInput?.addEventListener('input', () => { userManuallyEditedPrice = false; recalcularCotizacion(); });
+        document.querySelectorAll('input[name="divisor_paxs"]').forEach(r => {
+            r.addEventListener('change', () => { userManuallyEditedPrice = false; recalcularCotizacion(); });
+        });
+
+        document.querySelectorAll('.btn-preset-pct').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (comisionInput) {
+                    comisionInput.value = this.dataset.pct;
+                    userManuallyEditedPrice = false;
+                    recalcularCotizacion();
+                }
+            });
+        });
+
+        document.querySelectorAll('.btn-preset-igv').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (igvInput) {
+                    igvInput.value = this.dataset.pct;
+                    userManuallyEditedPrice = false;
+                    recalcularCotizacion();
+                }
+            });
+        });
+
+        costeoPrecioAdultoInput?.addEventListener('input', () => {
+            userManuallyEditedPrice = true;
+        });
+
+        btnRevertCalc?.addEventListener('click', () => {
+            userManuallyEditedPrice = false;
+            recalcularCotizacion();
+        });
+    }
+
+    // Función universal para guardar precios y sincronizar toda la Ficha
+    async function guardarPreciosPrograma(datos, btnEl, feedbackEl) {
+        const originalHtml = btnEl ? btnEl.innerHTML : '';
+        if (btnEl) {
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Guardando...';
+        }
+
+        try {
+            const resp = await fetch("{{ route('programas.actualizar-cotizacion', $programa) }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(datos)
+            });
+
+            const data = await resp.json();
+            if (data.ok) {
+                if (btnEl) {
+                    btnEl.innerHTML = '<i class="fas fa-check me-2"></i> ¡Guardado!';
+                    btnEl.classList.remove('btn-success', 'btn-primary');
+                    btnEl.classList.add('btn-dark');
+                }
+
+                if (feedbackEl) {
+                    feedbackEl.style.display = 'block';
+                    feedbackEl.className = 'small mt-1 text-success fw-bold';
+                    feedbackEl.innerHTML = '<i class="fas fa-check-circle me-1"></i> Precios guardados exitosamente: ' + (data.simbolo || '$') + ' ' + formatNumber(data.ventaAdulto) + ' / pax (Total: ' + (data.simbolo || '$') + ' ' + formatNumber(data.total) + ')';
+                }
+
+                // Sincronizar todos los indicadores y elementos de la página
+                const kpiTotal = document.getElementById('kpi-total-venta');
+                if (kpiTotal) kpiTotal.textContent = (data.simbolo || '$') + ' ' + formatNumber(data.total);
+
+                const tabFinanzasTotal = document.getElementById('tab-finanzas-total-venta');
+                if (tabFinanzasTotal) tabFinanzasTotal.textContent = (data.simbolo || '$') + ' ' + formatNumber(data.total);
+
+                // Sincronizar inputs en Tab Finanzas
+                if (finPrecioAdulto) finPrecioAdulto.value = Number(data.precioAdulto || 0).toFixed(2);
+                if (finPorcentajeGanancia) finPorcentajeGanancia.value = Number(data.porcentaje_ganancia || 0).toFixed(1);
+                if (finPorcentajeIgv) finPorcentajeIgv.value = Number(data.porcentaje_igv || 18).toFixed(1);
+                if (finPrecioNino) finPrecioNino.value = data.precioChild ? Number(data.precioChild).toFixed(2) : '';
+                if (finTipoCambio && data.tipo_cambio) finTipoCambio.value = Number(data.tipo_cambio).toFixed(2);
+                if (finLblVentaAdulto) finLblVentaAdulto.textContent = (data.simbolo || '$') + ' ' + formatNumber(data.ventaAdulto);
+                if (finLblTotalPrograma) finLblTotalPrograma.textContent = (data.simbolo || '$') + ' ' + formatNumber(data.total);
+
+                // Sincronizar inputs en Modal
+                if (modalPrecioAdulto) modalPrecioAdulto.value = Number(data.precioAdulto || 0).toFixed(2);
+                if (modalPorcentajeGanancia) modalPorcentajeGanancia.value = Number(data.porcentaje_ganancia || 0).toFixed(1);
+                if (modalPorcentajeIgv) modalPorcentajeIgv.value = Number(data.porcentaje_igv || 18).toFixed(1);
+                if (modalPrecioNino) modalPrecioNino.value = data.precioChild ? Number(data.precioChild).toFixed(2) : '';
+                if (modalTipoCambio && data.tipo_cambio) modalTipoCambio.value = Number(data.tipo_cambio).toFixed(2);
+                if (modalLblTotalPrograma) modalLblTotalPrograma.textContent = (data.simbolo || '$') + ' ' + formatNumber(data.total);
+
+                // Sincronizar inputs en Hoja de Costeo
+                if (costeoPrecioAdultoInput) costeoPrecioAdultoInput.value = Number(data.precioAdulto || 0).toFixed(2);
+                if (costeoPrecioNinoInput && data.precioChild) costeoPrecioNinoInput.value = Number(data.precioChild).toFixed(2);
+
+                setTimeout(() => {
+                    if (btnEl) {
+                        btnEl.disabled = false;
+                        btnEl.innerHTML = originalHtml;
+                        btnEl.classList.remove('btn-dark');
+                        btnEl.classList.add(btnEl.id === 'btn-guardar-cotizacion' ? 'btn-success' : 'btn-primary');
+                    }
+                }, 3000);
+
+                return data;
+            } else {
+                throw new Error(data.message || 'Error al guardar');
+            }
+        } catch (err) {
+            if (btnEl) {
+                btnEl.disabled = false;
+                btnEl.innerHTML = originalHtml;
+            }
+            if (feedbackEl) {
+                feedbackEl.style.display = 'block';
+                feedbackEl.className = 'small mt-1 text-danger fw-bold';
+                feedbackEl.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i> No se pudo guardar. Intente nuevamente.';
+            }
+            throw err;
+        }
+    }
+
+    // Botón Guardar en Hoja de Costeo
+    btnGuardarCotizacion?.addEventListener('click', function () {
+        const calc = recalcularCotizacion();
+        const precioAdulto = costeoPrecioAdultoInput ? (parseFloat(costeoPrecioAdultoInput.value) || calc.precioPax) : calc.precioPax;
+        const precioChild = costeoPrecioNinoInput ? (parseFloat(costeoPrecioNinoInput.value) || null) : null;
+
+        guardarPreciosPrograma({
+            precioAdulto: precioAdulto.toFixed(2),
+            precioChild: precioChild !== null ? precioChild.toFixed(2) : null,
+            porcentaje_ganancia: calc.pct.toFixed(2),
+            porcentaje_igv: calc.igvPct.toFixed(2),
+            tipo_cambio: {{ $tc }}
+        }, btnGuardarCotizacion, feedbackMsg);
+    });
+
+    // Simulación en tiempo real dentro de Tab Finanzas
+    function recalcularFinanzas() {
+        const pAdulto = parseFloat(finPrecioAdulto ? finPrecioAdulto.value : 0) || 0;
+        const pChild = parseFloat(finPrecioNino ? finPrecioNino.value : 0) || 0;
+        const pGanancia = parseFloat(finPorcentajeGanancia ? finPorcentajeGanancia.value : 0) || 0;
+        const factor = 1 + (pGanancia / 100);
+        const ventaAdulto = pAdulto * factor;
+        const ventaNino = pChild * factor;
+        const total = (adultosCount * ventaAdulto) + (ninosCount * ventaNino) + suplementoInd;
+
+        if (finLblVentaAdulto) finLblVentaAdulto.textContent = monedaSimbolo + formatNumber(ventaAdulto);
+        if (finLblTotalPrograma) finLblTotalPrograma.textContent = monedaSimbolo + formatNumber(total);
+    }
+
+    finPrecioAdulto?.addEventListener('input', recalcularFinanzas);
+    finPorcentajeGanancia?.addEventListener('input', recalcularFinanzas);
+    finPrecioNino?.addEventListener('input', recalcularFinanzas);
+
+    // Guardar desde Tab Finanzas
+    btnGuardarFinanzas?.addEventListener('click', function () {
+        const pAdulto = parseFloat(finPrecioAdulto ? finPrecioAdulto.value : 0) || 0;
+        const pChild = finPrecioNino && finPrecioNino.value !== '' ? parseFloat(finPrecioNino.value) : null;
+        const pGanancia = parseFloat(finPorcentajeGanancia ? finPorcentajeGanancia.value : 0) || 0;
+        const pIgv = parseFloat(finPorcentajeIgv ? finPorcentajeIgv.value : 18) || 0;
+        const tc = parseFloat(finTipoCambio ? finTipoCambio.value : {{ $tc }}) || {{ $tc }};
+
+        guardarPreciosPrograma({
+            precioAdulto: pAdulto.toFixed(2),
+            precioChild: pChild !== null ? pChild.toFixed(2) : null,
+            porcentaje_ganancia: pGanancia.toFixed(2),
+            porcentaje_igv: pIgv.toFixed(2),
+            tipo_cambio: tc
+        }, btnGuardarFinanzas, finFeedbackMsg);
+    });
+
+    // Simulación en tiempo real dentro del Modal
+    function recalcularModal() {
+        const pAdulto = parseFloat(modalPrecioAdulto ? modalPrecioAdulto.value : 0) || 0;
+        const pChild = parseFloat(modalPrecioNino ? modalPrecioNino.value : 0) || 0;
+        const pGanancia = parseFloat(modalPorcentajeGanancia ? modalPorcentajeGanancia.value : 0) || 0;
+        const factor = 1 + (pGanancia / 100);
+        const total = (adultosCount * pAdulto * factor) + (ninosCount * pChild * factor) + suplementoInd;
+
+        if (modalLblTotalPrograma) modalLblTotalPrograma.textContent = monedaSimbolo + formatNumber(total);
+    }
+
+    modalPrecioAdulto?.addEventListener('input', recalcularModal);
+    modalPorcentajeGanancia?.addEventListener('input', recalcularModal);
+    modalPrecioNino?.addEventListener('input', recalcularModal);
+
+    document.querySelectorAll('.btn-modal-preset-ganancia').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (modalPorcentajeGanancia) {
+                modalPorcentajeGanancia.value = this.dataset.pct;
+                recalcularModal();
+            }
+        });
+    });
+
+    document.querySelectorAll('.btn-modal-preset-igv').forEach(btn => {
+        btn.addEventListener('click', function () {
+            if (modalPorcentajeIgv) {
+                modalPorcentajeIgv.value = this.dataset.pct;
+            }
+        });
+    });
+
+    // Guardar desde el Modal
+    btnGuardarModal?.addEventListener('click', async function () {
+        const pAdulto = parseFloat(modalPrecioAdulto ? modalPrecioAdulto.value : 0) || 0;
+        const pChild = modalPrecioNino && modalPrecioNino.value !== '' ? parseFloat(modalPrecioNino.value) : null;
+        const pGanancia = parseFloat(modalPorcentajeGanancia ? modalPorcentajeGanancia.value : 0) || 0;
+        const pIgv = parseFloat(modalPorcentajeIgv ? modalPorcentajeIgv.value : 18) || 0;
+        const tc = parseFloat(modalTipoCambio ? modalTipoCambio.value : {{ $tc }}) || {{ $tc }};
+
+        try {
+            await guardarPreciosPrograma({
+                precioAdulto: pAdulto.toFixed(2),
+                precioChild: pChild !== null ? pChild.toFixed(2) : null,
+                porcentaje_ganancia: pGanancia.toFixed(2),
+                porcentaje_igv: pIgv.toFixed(2),
+                tipo_cambio: tc
+            }, btnGuardarModal, modalFeedbackMsg);
+
+            setTimeout(() => {
+                const modalEl = document.getElementById('modalAjustarPrecios');
+                if (modalEl && window.bootstrap?.Modal) {
+                    const inst = bootstrap.Modal.getInstance(modalEl);
+                    if (inst) inst.hide();
+                }
+            }, 1200);
+        } catch (e) {
+            // Error ya mostrado
+        }
+    });
+
+    // Exportar CSV compatible con Excel
+    btnExportCsv?.addEventListener('click', function () {
+        const rows = [];
+        rows.push(['ANDEAN EXCLUSIVE TOURS - HOJA DE COSTEO & COTIZACION']);
+        rows.push(['File / Programa:', "{{ $programa->codigo }} - {{ $programa->nombre }}"]);
+        rows.push(['Cliente:', "{{ $programa->cliente?->nombre ?: 'Sin asignar' }}"]);
+        rows.push(['Pasajeros:', "{{ $totalPaxs }} personas ({{ $pagantes }} pagantes)"]);
+        rows.push(['Fechas:', "{{ $inicio ? $inicio->format('d/m/Y') : '' }} - {{ $fin ? $fin->format('d/m/Y') : '' }}"]);
+        rows.push(['Tipo de Cambio:', "S/ {{ number_format($tc, 2) }} por US$ 1.00"]);
+        rows.push([]);
+        rows.push(['Dia', 'Fecha', 'Hora', 'Detalle del Servicio', 'Proveedor', 'Modalidad', 'Costo Unitario USD', 'Cantidad', 'Costo Total USD', 'Notas']);
+
+        document.querySelectorAll('#tabla-costeo-excel tbody tr.excel-row-servicio').forEach(tr => {
+            rows.push([
+                tr.dataset.dia || '',
+                tr.dataset.fecha || '',
+                tr.querySelector('td:nth-child(1)')?.innerText.trim() || '',
+                tr.dataset.servicio || '',
+                tr.dataset.proveedor || '',
+                tr.dataset.modalidad || '',
+                parseFloat(tr.dataset.costoUnit || 0).toFixed(2),
+                tr.dataset.qty || '1',
+                parseFloat(tr.dataset.totalUsd || 0).toFixed(2),
+                tr.dataset.notas || ''
+            ]);
+        });
+
+        const calc = recalcularCotizacion();
+        rows.push([]);
+        rows.push(['', '', '', '', '', '', 'SUB-TOTAL PROVEEDORES:', '', rawSubtotal.toFixed(2)]);
+        rows.push(['', '', '', '', '', '', 'Comision Andean Exclusive (' + calc.pct.toFixed(1) + '%):', '', calc.comisionMonto.toFixed(2)]);
+        rows.push(['', '', '', '', '', '', 'Costo Total:', '', calc.costoTotal.toFixed(2)]);
+        rows.push(['', '', '', '', '', '', 'IGV Comision (' + calc.igvPct.toFixed(1) + '%):', '', calc.igvMonto.toFixed(2)]);
+        rows.push(['', '', '', '', '', '', 'TOTAL COTIZACION:', '', calc.totalCotizacion.toFixed(2)]);
+        rows.push(['', '', '', '', '', '', 'PRECIO POR PASAJERO:', '', calc.precioPax.toFixed(2)]);
+
+        const csvContent = "\uFEFF" + rows.map(e => e.map(val => '"' + (val || '').toString().replace(/"/g, '""') + '"').join(',')).join("\r\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", "COTIZACION_{{ $programa->codigo }}.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+});
+</script>
+@endpush
 @endsection

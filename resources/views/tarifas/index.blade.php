@@ -130,7 +130,11 @@
                                     @if ($tarifa->notas)<small class="d-block text-muted">{{ $tarifa->notas }}</small>@endif
                                 </td>
                                 <td class="text-nowrap">
-                                    @if ($tarifa->es_fija || (! $tarifa->desde && ! $tarifa->hasta))
+                                    @if ($tarifa->es_especial)
+                                        <span class="badge bg-warning-subtle text-dark border border-warning" title="{{ $tarifa->nombre_especial ?: 'Fecha especial' }}">
+                                            <i class="fas fa-star text-warning me-1"></i> {{ $tarifa->nombre_especial ?: 'Especial' }}: {{ $tarifa->desde?->format('d/m/Y') }} – {{ $tarifa->hasta?->format('d/m/Y') }}
+                                        </span>
+                                    @elseif ($tarifa->es_fija || (! $tarifa->desde && ! $tarifa->hasta))
                                         <span class="badge bg-success-subtle text-success border border-success-subtle">
                                             <i class="fas fa-infinity me-1"></i> Fija todo el año
                                         </span>

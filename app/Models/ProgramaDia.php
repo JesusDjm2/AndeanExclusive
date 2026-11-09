@@ -11,9 +11,9 @@ class ProgramaDia extends Model
 
     protected $table = 'programa_dias';
 
-    protected $fillable = ['programa_id', 'fecha', 'titulo', 'descripcion'];
+    protected $fillable = ['programa_id', 'fecha', 'titulo', 'descripcion', 'es_libre'];
 
-    protected $casts = ['fecha' => 'date'];
+    protected $casts = ['fecha' => 'date', 'es_libre' => 'boolean'];
 
     public function programa()
     {

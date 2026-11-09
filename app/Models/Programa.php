@@ -37,6 +37,8 @@ class Programa extends Model
         'salida_at' => 'datetime',
         'cerrado_at' => 'datetime',
         'plantilla' => 'boolean',
+        'porcentaje_igv' => 'decimal:2',
+        'porcentaje_ganancia' => 'decimal:2',
     ];
 
     protected $fillable = [
@@ -52,6 +54,7 @@ class Programa extends Model
         'precioAdulto',
         'precioChild',
         'porcentaje_ganancia',
+        'porcentaje_igv',
         'tipo_cambio',
         'suplemento_individual',
         'habitaciones_individuales',
@@ -414,6 +417,7 @@ public function paxs()
             'subtotalNinos' => $subtotalNinos,
             'subtotal' => $subtotal,
             'pctGanancia' => $pct,
+            'pctIgv' => (float) ($this->porcentaje_igv ?? 18.0),
             'ganancia' => $ganancia,
             'suplementoIndividual' => (float) $this->suplemento_individual,
             'habitacionesIndividuales' => (int) $this->habitaciones_individuales,
@@ -521,11 +525,13 @@ public function paxs()
             $hoteles = $this->habitacionesFechas
                 ->filter(fn ($hf) => $hf->fecha_ingreso && $hf->fecha_salida && $hf->fecha_ingreso <= $clave && $hf->fecha_salida > $clave)
                 ->map(fn ($hf) => $hf->habitacion?->hotel?->nombre)->filter()->unique();
+            $registroDia = $diasPorFecha->get($clave);
             $dias->push([
                 'numero' => $n,
                 'fecha' => $fecha->copy(),
                 'clave' => $clave,
-                'dia' => $diasPorFecha->get($clave),
+                'dia' => $registroDia,
+                'es_libre' => (bool) ($registroDia?->es_libre),
                 'servicios' => $porFecha->get($clave, collect())->values(),
                 'hotel' => $hoteles->implode(' / ') ?: null,
             ]);

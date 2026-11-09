@@ -5,7 +5,8 @@
 @php
     $tipo = old('tipo', $tarifa->proveedor_id ? 'proveedor' : 'habitacion');
     $input = fn (string $campo, $defecto = null) => old($campo, $defecto ?? $tarifa->{$campo});
-    $esFija = old('es_fija', $tarifa->exists ? (bool)$tarifa->es_fija : true);
+    $esEspecial = old('es_especial', $tarifa->exists ? (bool)$tarifa->es_especial : false);
+    $esFija = old('es_fija', $tarifa->exists ? (bool)$tarifa->es_fija : (! $esEspecial && ! $tarifa->desde && ! $tarifa->hasta));
     $urlVolver = ($retorno === 'proveedor' && $tarifa->proveedor_id) ? route('proveedors.show', $tarifa->proveedor_id) : route('tarifas.index');
 @endphp
 
@@ -63,24 +64,74 @@
                     @error('concepto')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                {{-- Vigencia: Fija vs Temporada --}}
+                {{-- Vigencia: Fija vs Temporada vs Fecha Especial --}}
                 <div class="col-12">
-                    <div class="form-check form-switch p-2 bg-light rounded border">
-                        <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="t-es-fija" name="es_fija" value="1" @checked($esFija) data-tarifa-fija-toggle>
-                        <label class="form-check-label fw-bold text-dark cursor-pointer" for="t-es-fija">
-                            <i class="fas fa-infinity text-primary me-1"></i> Tarifa fija estándar (Aplica todo el año / Sin fechas de temporada)
-                        </label>
-                        <small class="d-block text-muted ms-4">Desmarca esta opción si es una tarifa que solo aplica en ciertas fechas del año (temporada alta, feriados, etc.).</small>
+                    <div class="p-3 bg-light rounded border">
+                        <label class="prog-label mb-2"><i class="fas fa-calendar-alt text-primary me-1"></i> Vigencia y Temporalidad de la Tarifa</label>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <div class="form-check p-2 bg-white rounded border h-100">
+                                    <input class="form-check-input ms-1" type="radio" name="modalidad_vigencia" id="vigencia-fija" value="fija" @checked($esFija && ! $esEspecial) data-vigencia-radio>
+                                    <label class="form-check-label fw-bold text-dark cursor-pointer ms-2" for="vigencia-fija">
+                                        <i class="fas fa-infinity text-primary me-1"></i> Tarifa Fija Estándar
+                                        <small class="d-block text-muted fw-normal">Aplica todo el año sin restricción de fechas.</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check p-2 bg-white rounded border h-100">
+                                    <input class="form-check-input ms-1" type="radio" name="modalidad_vigencia" id="vigencia-temporada" value="temporada" @checked(! $esFija && ! $esEspecial) data-vigencia-radio>
+                                    <label class="form-check-label fw-bold text-dark cursor-pointer ms-2" for="vigencia-temporada">
+                                        <i class="fas fa-calendar-week text-info me-1"></i> Tarifa de Temporada
+                                        <small class="d-block text-muted fw-normal">Rango regular de fechas (alta/baja).</small>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check p-2 bg-white rounded border border-warning h-100">
+                                    <input class="form-check-input ms-1" type="radio" name="modalidad_vigencia" id="vigencia-especial" value="especial" @checked($esEspecial) data-vigencia-radio>
+                                    <label class="form-check-label fw-bold text-dark cursor-pointer ms-2" for="vigencia-especial">
+                                        <i class="fas fa-star text-warning me-1"></i> Fecha Especial / Festividad
+                                        <small class="d-block text-muted fw-normal">Hoteles y trenes en fechas pico (Inti Raymi, etc.).</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="es_fija" id="input-es-fija" value="{{ $esFija && ! $esEspecial ? '1' : '0' }}">
+                        <input type="hidden" name="es_especial" id="input-es-especial" value="{{ $esEspecial ? '1' : '0' }}">
+
+                        <div class="row g-2 mt-2" data-tarifa-especial-box @unless ($esEspecial) style="display:none;" @endunless>
+                            <div class="col-md-7">
+                                <label for="t-nombre-especial" class="prog-label">Nombre del Evento / Festividad / Temporada Especial <span class="required">*</span></label>
+                                <input id="t-nombre-especial" type="text" name="nombre_especial" value="{{ $input('nombre_especial') }}"
+                                    list="lista-festividades" placeholder="Ej. Inti Raymi, Semana Santa, Año Nuevo..." class="form-control form-control-sm @error('nombre_especial') is-invalid @enderror">
+                                <datalist id="lista-festividades">
+                                    <option value="Inti Raymi">
+                                    <option value="Semana Santa">
+                                    <option value="Fiestas Patrias">
+                                    <option value="Navidad y Año Nuevo">
+                                    <option value="Virgen de la Candelaria">
+                                    <option value="Feriado Nacional / Puente Festivo">
+                                </datalist>
+                                @error('nombre_especial')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
+                            <div class="col-md-5 d-flex align-items-center">
+                                <div class="alert alert-warning py-1 px-2 mb-0 small text-dark border-0">
+                                    <i class="fas fa-star text-warning me-1"></i> Esta tarifa tendrá <strong>prioridad 1</strong> al cotizar en esas fechas.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija) style="display:none;" @endif>
-                    <label for="t-desde" class="prog-label">Desde</label>
+                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija && ! $esEspecial) style="display:none;" @endif>
+                    <label for="t-desde" class="prog-label">Fecha Desde</label>
                     <input id="t-desde" type="date" name="desde" value="{{ old('desde', $tarifa->desde?->toDateString()) }}" class="form-control @error('desde') is-invalid @enderror" data-tarifa-desde>
                     @error('desde')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija) style="display:none;" @endif>
-                    <label for="t-hasta" class="prog-label">Hasta</label>
+                <div class="col-sm-6 col-md-3" data-tarifa-fechas @if ($esFija && ! $esEspecial) style="display:none;" @endif>
+                    <label for="t-hasta" class="prog-label">Fecha Hasta</label>
                     <input id="t-hasta" type="date" name="hasta" value="{{ old('hasta', $tarifa->hasta?->toDateString()) }}" class="form-control @error('hasta') is-invalid @enderror" data-tarifa-hasta>
                     @error('hasta')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>

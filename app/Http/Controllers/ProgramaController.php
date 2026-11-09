@@ -379,6 +379,7 @@ class ProgramaController extends Controller
             'precioAdulto' => 'nullable|numeric|min:0',
             'precioChild' => 'nullable|numeric|min:0',
             'porcentaje_ganancia' => 'nullable|numeric|min:0|max:999.99',
+            'porcentaje_igv' => 'nullable|numeric|min:0|max:100',
             'tipo_cambio' => 'nullable|numeric|min:0.5|max:99',
             'suplemento_individual' => 'nullable|numeric|min:0',
             'habitaciones_individuales' => 'nullable|integer|min:0|max:50',
@@ -387,6 +388,7 @@ class ProgramaController extends Controller
             'dias' => 'nullable|array',
             'dias.*.titulo' => 'nullable|string|max:255',
             'dias.*.descripcion' => 'nullable|string|max:3000',
+            'dias.*.es_libre' => 'nullable|boolean',
             'servicios' => 'nullable|array',
             'servicios.*.fecha' => 'required|date',
             'servicios.*.hora' => 'nullable|date_format:H:i',
@@ -486,6 +488,7 @@ class ProgramaController extends Controller
             'precioAdulto' => $request->filled('precioAdulto') ? $request->input('precioAdulto') : 0,
             'precioChild' => $request->filled('precioChild') ? $request->input('precioChild') : 0,
             'porcentaje_ganancia' => $request->filled('porcentaje_ganancia') ? $request->input('porcentaje_ganancia') : null,
+            'porcentaje_igv' => $request->filled('porcentaje_igv') ? $request->input('porcentaje_igv') : 18.00,
             'tipo_cambio' => $request->filled('tipo_cambio') ? $request->input('tipo_cambio') : null,
             'suplemento_individual' => $request->filled('suplemento_individual') ? $request->input('suplemento_individual') : 0,
             'habitaciones_individuales' => $request->integer('habitaciones_individuales'),
@@ -538,11 +541,16 @@ class ProgramaController extends Controller
             }
             $titulo = trim((string) ($dia['titulo'] ?? ''));
             $descripcion = trim((string) ($dia['descripcion'] ?? ''));
+            $esLibre = ! empty($dia['es_libre']);
 
-            if ($titulo === '' && $descripcion === '') {
+            if ($titulo === '' && $descripcion === '' && ! $esLibre) {
                 $programa->dias()->whereDate('fecha', $fecha)->get()->each->delete();
             } else {
-                $programa->dias()->updateOrCreate(['fecha' => $fecha], ['titulo' => $titulo ?: null, 'descripcion' => $descripcion ?: null]);
+                $programa->dias()->updateOrCreate(['fecha' => $fecha], [
+                    'titulo' => $titulo ?: null,
+                    'descripcion' => $descripcion ?: null,
+                    'es_libre' => $esLibre,
+                ]);
             }
         }
 
@@ -695,6 +703,69 @@ class ProgramaController extends Controller
             'operacion',
             'tareasResumen'
         ));
+    }
+
+    /** Actualiza precios de cotización, porcentaje de margen, IGV y tipo de cambio desde la ficha u hoja de costeo. */
+    public function actualizarCotizacion(Request $request, Programa $programa)
+    {
+        $datos = $request->validate([
+            'precioAdulto' => 'required|numeric|min:0',
+            'porcentaje_ganancia' => 'nullable|numeric|min:0|max:999.99',
+            'porcentaje_igv' => 'nullable|numeric|min:0|max:100',
+            'precioChild' => 'nullable|numeric|min:0',
+            'tipo_cambio' => 'nullable|numeric|min:0.1|max:99',
+            'suplemento_individual' => 'nullable|numeric|min:0',
+            'habitaciones_individuales' => 'nullable|integer|min:0|max:50',
+        ]);
+
+        $update = ['precioAdulto' => $datos['precioAdulto']];
+        if (array_key_exists('porcentaje_ganancia', $datos)) {
+            $update['porcentaje_ganancia'] = $datos['porcentaje_ganancia'];
+        }
+        if (array_key_exists('porcentaje_igv', $datos)) {
+            $update['porcentaje_igv'] = $datos['porcentaje_igv'];
+        }
+        if (array_key_exists('precioChild', $datos)) {
+            $update['precioChild'] = $datos['precioChild'];
+        }
+        if (array_key_exists('tipo_cambio', $datos) && $datos['tipo_cambio'] !== null) {
+            $update['tipo_cambio'] = $datos['tipo_cambio'];
+        }
+        if (array_key_exists('suplemento_individual', $datos)) {
+            $update['suplemento_individual'] = $datos['suplemento_individual'];
+        }
+        if (array_key_exists('habitaciones_individuales', $datos)) {
+            $update['habitaciones_individuales'] = $datos['habitaciones_individuales'];
+        }
+
+        $programa->update($update);
+        $programa->refresh();
+        $presupuesto = $programa->presupuesto();
+        $costos = $programa->costeo();
+        $cobro = $programa->cobranza();
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'ok' => true,
+                'mensaje' => 'Precios y parámetros de cotización actualizados exitosamente.',
+                'total' => $presupuesto['total'],
+                'precioAdulto' => $programa->precioAdulto,
+                'ventaAdulto' => $presupuesto['ventaAdulto'],
+                'precioChild' => $programa->precioChild,
+                'ventaNino' => $presupuesto['ventaNino'],
+                'porcentaje_ganancia' => $programa->porcentaje_ganancia,
+                'porcentaje_igv' => $programa->porcentaje_igv,
+                'tipo_cambio' => $programa->tipo_cambio,
+                'simbolo' => $programa->simboloMoneda(),
+                'costo' => $costos['costo'],
+                'margen' => $costos['margen'],
+                'margenPct' => $costos['margenPct'],
+                'pagado' => $cobro['pagado'],
+                'saldo' => $cobro['saldo'],
+            ]);
+        }
+
+        return back()->with('success', 'Precios y parámetros de cotización actualizados exitosamente.');
     }
 
     /** PDF del programa: ?ver=1 lo muestra en el navegador (vista previa); sin parámetro, lo descarga. */

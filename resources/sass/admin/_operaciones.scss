@@ -140,12 +140,42 @@ $svc-info: #2563a8;
         display: grid;
         grid-template-columns: 12rem 7.5rem 8.5rem 8.5rem 1fr;
         gap: 0.5rem 0.6rem;
-        align-items: end;
+        align-items: start;
         margin-top: 0.65rem;
         padding: 0.6rem 0.8rem;
         background: var(--ae-surface);
         border: 1px solid var(--ae-border-soft);
         border-radius: 8px;
+
+        .prog-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.73rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--ae-plomo);
+            display: flex;
+            align-items: center;
+            min-height: 1.25rem;
+            white-space: nowrap;
+        }
+    }
+
+    .svc-fin__col {
+        display: flex;
+        flex-direction: column;
+
+        .input-group,
+        .form-select,
+        .form-control {
+            height: 31px;
+            font-size: 0.8125rem;
+        }
+
+        .input-group > .svc-fin__moneda,
+        .input-group > .form-control {
+            height: 100%;
+        }
     }
 
     &__estadia-bar {
