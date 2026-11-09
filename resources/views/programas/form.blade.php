@@ -131,8 +131,16 @@
         @endif
     @endforeach
     @if ($errors->any())
-        <div class="alert alert-danger" role="alert">
-            <strong>Revisa los campos marcados</strong> en las pestañas con <span class="pf-tab__dot pf-tab__dot--inline"></span>.
+        <div class="alert alert-danger shadow-sm border border-danger-subtle" role="alert">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="fas fa-exclamation-triangle fs-5 text-danger" aria-hidden="true"></i>
+                <strong class="fs-6">Por favor revisa los siguientes campos observados (marcados con <span class="pf-tab__dot pf-tab__dot--inline"></span>):</strong>
+            </div>
+            <ul class="mb-0 ps-3 small text-danger-emphasis">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -694,6 +702,19 @@
                         </div>
                     @endif
 
+                    @if ($serviciosPorDia->has('fuera'))
+                        <div class="alert alert-warning border border-warning-subtle d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                            <div>
+                                <i class="fas fa-calendar-times text-warning me-2 fs-5 align-middle"></i>
+                                <strong>Hay {{ $serviciosPorDia->get('fuera')->count() }} {{ $serviciosPorDia->get('fuera')->count() === 1 ? 'servicio' : 'servicios' }} con fecha fuera del rango de días del viaje.</strong>
+                                <span class="small d-block text-muted">Aparecen al final del itinerario para que puedas reasignarles fecha en «Detalles» o eliminarlos si ya no corresponden.</span>
+                            </div>
+                            <a href="#servicios-fuera-de-fecha" class="btn btn-sm btn-outline-warning text-dark fw-bold">
+                                <i class="fas fa-arrow-down me-1"></i> Ver servicios fuera de fecha
+                            </a>
+                        </div>
+                    @endif
+
                     <div class="itin-days-list" data-itin-days-list>
                         @foreach ($itinerario['dias'] as $dia)
                             @php $filas = $serviciosPorDia->get($dia['clave'], collect()); @endphp
@@ -758,7 +779,7 @@
                     </div>
 
                     @if ($serviciosPorDia->has('fuera'))
-                        <article class="itin-day itin-day--outside">
+                        <article class="itin-day itin-day--outside" id="servicios-fuera-de-fecha">
                             <header class="itin-day__header">
                                 <span class="itin-day__num"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Fuera de las fechas</span>
                                 <span class="itin-day__date">Cambia su fecha en «Detalles» o quítalos</span>

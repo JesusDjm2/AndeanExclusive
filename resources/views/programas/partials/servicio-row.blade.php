@@ -7,13 +7,14 @@
 @php
     $name = fn (string $campo) => "servicios[$i][$campo]";
     $err = fn (string $campo) => $errors->first("servicios.$i.$campo");
+    $hasAnyErr = $errors->has("servicios.$i.*");
     $v = fn (string $campo) => $s[$campo] ?? '';
     $estado = $v('estado') ?: 'pendiente';
     // Proveedor, estado, confirmación y costo real los gestiona Reservas (el servidor también lo impone).
     $bloqueado = ! auth()->user()?->can('servicios.gestionar');
     $bloqueadoMoneda = $bloqueado && filled($v('costo'));
     // Cerrado por defecto (el itinerario se vuelve largo); se abre si hay errores dentro.
-    $abierto = (bool) ($err('fecha') || $err('punto_encuentro') || $err('descripcion'));
+    $abierto = (bool) ($err('fecha') || $err('punto_encuentro') || $err('descripcion') || $err('notas') || $err('visible_cliente'));
     $esEstadia = ! empty($s['de_estadia']);
     $resumen = collect([
         filled($v('punto_encuentro')) ? 'punto: ' . \Illuminate\Support\Str::limit($v('punto_encuentro'), 25) : null,
@@ -22,7 +23,12 @@
         empty($s['visible_cliente'] ?? true) ? 'oculto al cliente' : null,
     ])->filter();
 @endphp
-<div class="svc-row" data-svc-item @if (! empty($s['id'])) id="servicio-{{ $s['id'] }}" @endif>
+<div class="svc-row {{ $hasAnyErr ? 'border-danger shadow-sm' : '' }}" data-svc-item @if (! empty($s['id'])) id="servicio-{{ $s['id'] }}" @endif>
+    @if ($hasAnyErr)
+        <div class="alert alert-danger py-1 px-2 mb-2 small d-flex align-items-center justify-content-between">
+            <span><i class="fas fa-exclamation-circle me-1"></i> <strong>Error en este servicio:</strong> {{ collect($errors->get("servicios.$i.*"))->flatten()->first() }}</span>
+        </div>
+    @endif
     @if (! empty($s['id']))
         <input type="hidden" name="{{ $name('id') }}" value="{{ $s['id'] }}">
     @endif
@@ -33,19 +39,21 @@
             <label class="prog-label" for="svc-{{ $i }}-hora">Hora</label>
             <input id="svc-{{ $i }}-hora" type="time" name="{{ $name('hora') }}" value="{{ $v('hora') }}"
                 class="form-control form-control-sm {{ $err('hora') ? 'is-invalid' : '' }}">
+            @if ($err('hora'))<div class="invalid-feedback">{{ $err('hora') }}</div>@endif
         </div>
         <div class="svc-row__tipo">
             <label class="prog-label" for="svc-{{ $i }}-tipo">Tipo</label>
-            <select id="svc-{{ $i }}-tipo" name="{{ $name('tipo') }}" class="form-select form-select-sm" data-svc-tipo>
+            <select id="svc-{{ $i }}-tipo" name="{{ $name('tipo') }}" class="form-select form-select-sm {{ $err('tipo') ? 'is-invalid' : '' }}" data-svc-tipo>
                 @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
                     <option value="{{ $clave }}" @selected(($v('tipo') ?: 'traslado') === $clave)>{{ $etiqueta }}</option>
                 @endforeach
             </select>
+            @if ($err('tipo'))<div class="invalid-feedback">{{ $err('tipo') }}</div>@endif
         </div>
         <div class="svc-row__proveedor">
             <label class="prog-label" for="svc-{{ $i }}-prov">Proveedor</label>
             @if ($bloqueado)<input type="hidden" name="{{ $name('proveedor_id') }}" value="{{ $v('proveedor_id') }}">@endif
-            <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm" data-svc-proveedor-select>
+            <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm {{ $err('proveedor_id') ? 'is-invalid' : '' }}" data-svc-proveedor-select>
                 <option value="">— Sin asignar —</option>
                 @foreach ($proveedoresPorCategoria as $categoria => $proveedores)
                     <optgroup label="{{ $categoria }}" data-tipos="{{ implode(' ', \App\Models\Servicio::tiposDeRubro($categoria)) }}">
@@ -55,6 +63,7 @@
                     </optgroup>
                 @endforeach
             </select>
+            @if ($err('proveedor_id'))<div class="invalid-feedback">{{ $err('proveedor_id') }}</div>@endif
         </div>
         {{-- Servicio: se elige del tarifario del proveedor (tarifas.js lo llena) o se escribe con "Otro servicio".
              El nombre elegido es el que ve el cliente en el PDF y en el itinerario. --}}
