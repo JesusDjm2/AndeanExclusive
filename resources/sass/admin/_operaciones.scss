@@ -138,11 +138,11 @@ $svc-info: #2563a8;
 
     &__finance-grid {
         display: grid;
-        grid-template-columns: 12.5rem 8rem 8.5rem 8.5rem 1fr;
-        gap: 0.5rem 0.6rem;
+        grid-template-columns: 14rem 10.5rem 10.5rem 1fr;
+        gap: 0.6rem 0.75rem;
         align-items: start;
         margin-top: 0.65rem;
-        padding: 0.65rem 0.8rem;
+        padding: 0.65rem 0.85rem;
         background: var(--ae-surface);
         border: 1px solid var(--ae-border-soft);
         border-radius: 8px;

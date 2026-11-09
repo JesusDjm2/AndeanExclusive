@@ -39,6 +39,7 @@ class Programa extends Model
         'plantilla' => 'boolean',
         'porcentaje_igv' => 'decimal:2',
         'porcentaje_ganancia' => 'decimal:2',
+        'cantidad_pax' => 'integer',
     ];
 
     protected $fillable = [
@@ -51,6 +52,7 @@ class Programa extends Model
         'fin',
         'lang',
         'moneda',
+        'cantidad_pax',
         'precioAdulto',
         'precioChild',
         'porcentaje_ganancia',
@@ -158,10 +160,26 @@ public function paxs()
         return $this->hasMany(Notificacion::class)->latest();
     }
 
-    /** Pasajeros que pagan (5 años o más a la fecha del viaje). */
+    /** Pasajeros que pagan (5 años o más a la fecha del viaje, o la cantidad de pasajeros del grupo si no hay lista detallada). */
     public function pagantes(): int
     {
-        return $this->paxs->filter(fn (Pax $pax) => $pax->edad === null || $pax->edad >= self::EDAD_NINO_MIN)->count();
+        $enLista = $this->paxs->filter(fn (Pax $pax) => $pax->edad === null || $pax->edad >= self::EDAD_NINO_MIN)->count();
+        if ($enLista > 0) {
+            return $enLista;
+        }
+
+        return max(1, (int) ($this->cantidad_pax ?: 1));
+    }
+
+    /** Total de personas en el grupo (desde la lista de paxs o la cantidad de pasajeros indicada en datos del grupo). */
+    public function totalPaxs(): int
+    {
+        $enLista = $this->paxs->count();
+        if ($enLista > 0) {
+            return $enLista;
+        }
+
+        return max(1, (int) ($this->cantidad_pax ?: 1));
     }
 
     public function tipoCambio(): float
@@ -396,6 +414,12 @@ public function paxs()
         $adultos = $paxs->where('edad', '>=', self::EDAD_ADULTO)->count();
         $ninos = $paxs->whereBetween('edad', [self::EDAD_NINO_MIN, self::EDAD_ADULTO - 1])->count();
         $infantes = $paxs->where('edad', '<', self::EDAD_NINO_MIN)->count();
+
+        // Si aún no se han ingresado pasajeros con nombre en la pestaña Pasajeros,
+        // usamos la cantidad de pasajeros del grupo como base para cotizar.
+        if ($paxs->isEmpty()) {
+            $adultos = max(1, (int) ($this->cantidad_pax ?: 1));
+        }
 
         $subtotalAdultos = $adultos * (float) $this->precioAdulto;
         $subtotalNinos = $ninos * (float) $this->precioChild;

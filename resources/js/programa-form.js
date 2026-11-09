@@ -525,8 +525,9 @@ function initBudget(root) {
         set('deposito', money(total * depositoPct / 100));
     };
 
-    root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles]').forEach((input) => {
+    root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles], [data-cantidad-pax]').forEach((input) => {
         input.addEventListener('input', compute);
+        input.addEventListener('change', compute);
     });
 
     return compute;
@@ -901,7 +902,13 @@ function initCotizacionCalculator(root, recomputeBudget) {
                 pagantes++;
             }
         });
-        if (pagantes <= 0) pagantes = Math.max(1, paxItems.length || 1);
+        const cantPaxInput = parseInt(root.querySelector('[data-cantidad-pax]')?.value, 10);
+        if (paxItems.length === 0 && !isNaN(cantPaxInput) && cantPaxInput > 0) {
+            pagantes = cantPaxInput;
+            adultos = cantPaxInput;
+        } else if (pagantes <= 0) {
+            pagantes = Math.max(1, (!isNaN(cantPaxInput) && cantPaxInput > 0) ? cantPaxInput : (paxItems.length || 1));
+        }
 
         // Servicios del itinerario
         let totalGrupales = 0;
@@ -919,7 +926,7 @@ function initCotizacionCalculator(root, recomputeBudget) {
             const estimadoInput = item.querySelector('input[name*="[costo_estimado]"]');
             const realInput = item.querySelector('input[name*="[costo]"]');
             const moneda = item.querySelector('select[name*="[moneda]"]')?.value || 'USD';
-            const por = item.querySelector('select[name*="[costo_por]"]')?.value || 'grupo';
+            const por = item.querySelector('[name*="[costo_por]"]')?.value || 'persona';
 
             let valor = parseFloat(estimadoInput?.value);
             if (isNaN(valor) || valor === null || valor === undefined) {
@@ -1154,7 +1161,12 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
     // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros, ganancia, moneda o tipo de cambio
     root.addEventListener('input', (e) => {
-        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], input[name="tipo_cambio"]')) {
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], [data-cantidad-pax], input[name="cantidad_pax"], input[name="tipo_cambio"]')) {
+            actualizarLive();
+        }
+    });
+    root.addEventListener('change', (e) => {
+        if (e.target.matches('[data-cantidad-pax], input[name="cantidad_pax"], [data-svc-por]')) {
             actualizarLive();
         }
     });

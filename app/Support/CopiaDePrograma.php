@@ -30,6 +30,8 @@ class CopiaDePrograma
                 'inicio' => $desplazar($origen->inicio),
                 'fin' => $desplazar($origen->fin),
                 'lang' => $origen->lang,
+                'moneda' => $origen->moneda ?? 'USD',
+                'cantidad_pax' => $origen->cantidad_pax ?? 1,
                 'precioAdulto' => $origen->precioAdulto,
                 'precioChild' => $origen->precioChild,
                 'porcentaje_ganancia' => $origen->porcentaje_ganancia,

@@ -27,8 +27,8 @@
     };
     $itinerarioData = $programa->itinerario();
     $tc = (float) ($programa->tipoCambio() ?: 3.75);
-    $pagantes = (int) ($cost['pagantes'] ?: $programa->paxs->count() ?: 1);
-    $totalPaxs = (int) ($programa->paxs->count() ?: 1);
+    $pagantes = (int) ($programa->pagantes() ?: 1);
+    $totalPaxs = (int) ($programa->totalPaxs() ?: 1);
 
     // Cálculos iniciales para la Hoja de Costeo tipo Excel
     $excelSubtotal = 0.0;
@@ -1212,21 +1212,29 @@
                         </p>
                         <form id="form-modal-precios">
                             <div class="row g-3">
-                                <div class="col-12 col-sm-6">
+                                <div class="col-12 col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">Tarifa Adulto ({{ $simbolo }}):</label>
                                     <div class="input-group input-group-lg">
                                         <span class="input-group-text bg-white fw-bold text-success">{{ $simbolo }}</span>
                                         <input type="number" step="0.01" min="0" class="form-control fw-bold" id="modal-precio-adulto" value="{{ number_format((float)$programa->precioAdulto, 2, '.', '') }}">
                                     </div>
-                                    <small class="text-muted">Tarifa por pasajero adulto (12+ años).</small>
+                                    <small class="text-muted">Tarifa por adulto (12+ años).</small>
                                 </div>
-                                <div class="col-12 col-sm-6">
+                                <div class="col-12 col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">Tarifa Niño ({{ $simbolo }}):</label>
                                     <div class="input-group input-group-lg">
                                         <span class="input-group-text bg-white fw-bold">{{ $simbolo }}</span>
                                         <input type="number" step="0.01" min="0" class="form-control" id="modal-precio-nino" value="{{ $programa->precioChild ? number_format((float)$programa->precioChild, 2, '.', '') : '' }}" placeholder="0.00">
                                     </div>
-                                    <small class="text-muted">Tarifa para niños de 5 a 11 años.</small>
+                                    <small class="text-muted">Tarifa niños (5-11 años).</small>
+                                </div>
+                                <div class="col-12 col-sm-4">
+                                    <label class="form-label small fw-semibold text-muted">Pasajeros del Grupo:</label>
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-white fw-bold text-primary"><i class="fas fa-users"></i></span>
+                                        <input type="number" step="1" min="1" max="999" class="form-control fw-bold text-center" id="modal-cantidad-pax" value="{{ $programa->cantidad_pax ?: $pagantes }}">
+                                    </div>
+                                    <small class="text-muted">Cantidad total para cotizar.</small>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
@@ -1636,6 +1644,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const pChild = modalPrecioNino && modalPrecioNino.value !== '' ? parseFloat(modalPrecioNino.value) : null;
         const pGanancia = parseFloat(modalPorcentajeGanancia ? modalPorcentajeGanancia.value : 0) || 0;
         const pIgv = parseFloat(modalPorcentajeIgv ? modalPorcentajeIgv.value : 18) || 0;
+        const cantPax = parseInt(document.getElementById('modal-cantidad-pax')?.value, 10) || {{ $pagantes }};
         const tc = parseFloat(modalTipoCambio ? modalTipoCambio.value : {{ $tc }}) || {{ $tc }};
 
         try {
@@ -1644,6 +1653,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 precioChild: pChild !== null ? pChild.toFixed(2) : null,
                 porcentaje_ganancia: pGanancia.toFixed(2),
                 porcentaje_igv: pIgv.toFixed(2),
+                cantidad_pax: cantPax,
                 tipo_cambio: tc
             }, btnGuardarModal, modalFeedbackMsg);
 
@@ -1652,6 +1662,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (modalEl && window.bootstrap?.Modal) {
                     const inst = bootstrap.Modal.getInstance(modalEl);
                     if (inst) inst.hide();
+                }
+                // Si cambió la cantidad de pasajeros, recargamos para refrescar la hoja de liquidación con las cantidades multiplicadas
+                if (cantPax !== {{ $pagantes }}) {
+                    window.location.reload();
                 }
             }, 1200);
         } catch (e) {

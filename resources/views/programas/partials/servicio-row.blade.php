@@ -138,15 +138,8 @@
                 </div>
                 <small class="svc-fin__origen" data-svc-origen hidden></small>
             </div>
-            <div class="svc-fin__col svc-fin__col--por">
-                <label class="prog-label" for="svc-{{ $i }}-por">Se cobra</label>
-                @if ($bloqueadoMoneda)<input type="hidden" name="{{ $name('costo_por') }}" value="{{ $v('costo_por') ?: 'grupo' }}">@endif
-                <select id="svc-{{ $i }}-por" @disabled($bloqueadoMoneda) name="{{ $name('costo_por') }}" class="form-select form-select-sm" data-svc-por>
-                    @foreach (\App\Models\Servicio::COSTO_POR as $clave => $etiqueta)
-                        <option value="{{ $clave }}" @selected(($v('costo_por') ?: 'grupo') === $clave)>{{ ucfirst($etiqueta) }}</option>
-                    @endforeach
-                </select>
-            </div>
+            {{-- Modalidad de cobro: por defecto siempre individual (por persona). No se pregunta en la línea principal. --}}
+            <input type="hidden" name="{{ $name('costo_por') }}" value="{{ $v('costo_por') ?: 'persona' }}" data-svc-por>
             <div class="svc-fin__col svc-fin__col--estado">
                 <label class="prog-label" for="svc-{{ $i }}-estado">Estado reserva</label>
                 @if ($bloqueado)<input type="hidden" name="{{ $name('estado') }}" value="{{ $estado }}">@endif
@@ -196,21 +189,29 @@
     <details class="pf-more svc-row__more" @if ($abierto) open @endif>
         <summary>Detalles @if ($resumen->isNotEmpty())<span class="svc-row__summary">· {{ $resumen->implode(', ') }}</span>@else<span class="svc-row__summary">· punto de encuentro, texto para el cliente y notas</span>@endif</summary>
         <div class="row g-2 mt-2">
-            <div class="col-6 col-md-3">
+            <div class="col-6 col-md-2">
                 <label class="prog-label" for="svc-{{ $i }}-fecha">Fecha</label>
                 <input id="svc-{{ $i }}-fecha" type="date" name="{{ $name('fecha') }}" value="{{ $v('fecha') }}"
                     class="form-control form-control-sm {{ $err('fecha') ? 'is-invalid' : '' }}" data-svc-fecha>
                 @if ($err('fecha'))<div class="invalid-feedback">{{ $err('fecha') }}</div>@endif
             </div>
-            <div class="col-6 col-md-5">
+            <div class="col-6 col-md-3">
+                <label class="prog-label" for="svc-{{ $i }}-por-sel">Modalidad</label>
+                <select id="svc-{{ $i }}-por-sel" class="form-select form-select-sm"
+                    onchange="const h = this.closest('[data-svc-item]').querySelector('[data-svc-por]'); if (h) { h.value = this.value; h.dispatchEvent(new Event('change', {bubbles: true})); }">
+                    <option value="persona" @selected(($v('costo_por') ?: 'persona') === 'persona')>Por persona</option>
+                    <option value="grupo" @selected($v('costo_por') === 'grupo')>Por grupo</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-4">
                 <label class="prog-label" for="svc-{{ $i }}-punto">Punto de encuentro / recojo</label>
                 <input id="svc-{{ $i }}-punto" type="text" name="{{ $name('punto_encuentro') }}" value="{{ $v('punto_encuentro') }}" maxlength="255"
                     class="form-control form-control-sm" placeholder="Lobby del hotel, puerta 3 del aeropuerto…">
             </div>
-            <div class="col-md-4 d-flex align-items-end">
+            <div class="col-md-3 d-flex align-items-end">
                 <label class="form-check mb-1">
                     <input type="checkbox" class="form-check-input" name="{{ $name('visible_cliente') }}" value="1" @checked($s['visible_cliente'] ?? true)>
-                    <span class="form-check-label small">Mostrar en el itinerario del cliente</span>
+                    <span class="form-check-label small">Mostrar al cliente</span>
                 </label>
             </div>
             <div class="col-md-6">

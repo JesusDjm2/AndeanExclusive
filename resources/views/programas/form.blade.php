@@ -262,8 +262,18 @@
                                 </select>
                                 @error('moneda')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
+                            <div class="col-sm-6 col-lg-3">
+                                <label for="pf-cantidad-pax" class="prog-label">
+                                    <i class="fas fa-users text-primary me-1"></i> Pasajeros del grupo
+                                </label>
+                                <input id="pf-cantidad-pax" type="number" name="cantidad_pax" min="1" max="999"
+                                    value="{{ old('cantidad_pax', $programa->cantidad_pax ?: ($programa->paxs->count() ?: 1)) }}"
+                                    class="form-control @error('cantidad_pax') is-invalid @enderror" placeholder="Ej. 24"
+                                    title="Cantidad total de pasajeros para cotizar y multiplicar los precios individuales" data-cantidad-pax>
+                                @error('cantidad_pax')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            </div>
                             {{-- Solo hace falta si algún servicio u hotel se cobra en otra moneda (lo muestra programa-form.js). --}}
-                            <div class="col-sm-6 col-lg-3" data-tipo-cambio-campo>
+                            <div class="col-sm-6 col-lg-4" data-tipo-cambio-campo>
                                 <label for="pf-tc" class="prog-label"><i class="fas fa-exchange-alt text-primary me-1"></i> Tipo de cambio (S/ por US$)</label>
                                 <input id="pf-tc" type="number" name="tipo_cambio" value="{{ old('tipo_cambio', $programa->tipo_cambio ?: \App\Models\Programa::TIPO_CAMBIO_DEFECTO) }}" step="0.001" min="0.5"
                                     placeholder="{{ number_format(\App\Models\Programa::TIPO_CAMBIO_DEFECTO, 3) }}" class="form-control @error('tipo_cambio') is-invalid @enderror" data-tipo-cambio>
