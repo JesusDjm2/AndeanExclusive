@@ -194,6 +194,90 @@ $svc-info: #2563a8;
         }
     }
 
+    // Tarifario del proveedor: un control discreto bajo el proveedor que abre la lista de tarifas.
+    .svc-tarifario { margin-top: 0.35rem; }
+
+    .svc-tarifario__toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.2rem 0.55rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--ae-gold);
+        background: rgba(180, 140, 88, 0.08);
+        border: 1px solid rgba(180, 140, 88, 0.35);
+        border-radius: 999px;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+
+        &:hover,
+        &[aria-expanded="true"] { background: rgba(180, 140, 88, 0.16); border-color: var(--ae-gold); }
+        &:focus-visible { outline: 2px solid var(--ae-gold); outline-offset: 2px; }
+
+        &.is-warning { color: var(--ae-warn, #b7791f); border-color: rgba(183, 121, 31, 0.45); background: rgba(183, 121, 31, 0.08); }
+    }
+
+    .svc-tarifario__count {
+        min-width: 1.15rem;
+        padding: 0 0.3rem;
+        font-size: 0.68rem;
+        text-align: center;
+        color: var(--ae-surface);
+        background: var(--ae-gold);
+        border-radius: 999px;
+
+        .is-warning & { background: var(--ae-warn, #b7791f); }
+    }
+
+    .svc-tarifario__caret { font-size: 0.6rem; opacity: 0.7; transition: transform 0.2s ease; }
+    .svc-tarifario__toggle[aria-expanded="true"] .svc-tarifario__caret { transform: rotate(180deg); }
+
+    .svc-tarifario__menu {
+        min-width: 20rem;
+        max-width: min(28rem, 92vw);
+        max-height: 18rem;
+        overflow-y: auto;
+        padding: 0.35rem;
+        border-radius: 10px;
+        box-shadow: 0 12px 28px -8px rgba(8, 15, 26, 0.35);
+    }
+
+    .svc-tarifario__aviso {
+        margin: 0 0 0.35rem;
+        padding: 0.4rem 0.55rem;
+        font-size: 0.74rem;
+        color: var(--ae-warn, #b7791f);
+        background: rgba(183, 121, 31, 0.08);
+        border-radius: 6px;
+    }
+
+    .svc-tarifario__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.45rem 0.55rem;
+        white-space: normal;
+        border-radius: 6px;
+
+        &.active,
+        &:active { color: inherit; background: rgba(180, 140, 88, 0.14); }
+        &.active .svc-tarifario__concepto::before {
+            content: "\f00c";
+            margin-right: 0.35rem;
+            font-family: "Font Awesome 5 Free", "Font Awesome 6 Free";
+            font-weight: 900;
+            color: var(--ae-success, #198754);
+        }
+    }
+
+    .svc-tarifario__texto { display: flex; flex-direction: column; min-width: 0; }
+    .svc-tarifario__concepto { font-size: 0.82rem; font-weight: 600; line-height: 1.3; }
+    .svc-tarifario__meta { font-size: 0.72rem; color: var(--ae-plomo); }
+    .svc-tarifario__precio { flex: 0 0 auto; font-size: 0.85rem; font-weight: 700; color: var(--ae-gold); font-variant-numeric: tabular-nums; }
+
     // De dónde salió el precio (tarifa del proveedor aplicada sola o elegida).
     .svc-fin__origen {
         display: block;

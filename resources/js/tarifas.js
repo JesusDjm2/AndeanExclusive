@@ -153,12 +153,18 @@ function aplicarTarifa(row, tarifa, automatica = false) {
         disparar(porSelect);
     }
 
+    // Bajo el precio solo el origen y la vigencia: el nombre ya está en el campo del servicio.
     const origen = row.querySelector('[data-svc-origen]');
     if (origen) {
+        const fuera = Boolean(tarifa.fuera_de_temporada);
         origen.hidden = false;
-        origen.classList.toggle('is-warning', Boolean(tarifa.fuera_de_temporada));
-        const cuando = tarifa.fuera_de_temporada ? `de otra temporada (${tarifa.temporada}), confírmala` : tarifa.temporada;
-        origen.innerHTML = `<i class="fas ${tarifa.fuera_de_temporada ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-1" aria-hidden="true"></i>${automatica ? 'Del tarifario' : 'Tarifa aplicada'}: ${tarifa.concepto} · ${cuando}`;
+        origen.classList.toggle('is-warning', fuera);
+        origen.title = `${tarifa.concepto}${tarifa.unidad_detalle ? ` (${tarifa.unidad_detalle})` : ''} · ${tarifa.temporada}`;
+        const icono = document.createElement('i');
+        icono.className = `fas ${fuera ? 'fa-exclamation-triangle' : 'fa-check-circle'} me-1`;
+        icono.setAttribute('aria-hidden', 'true');
+        const vigencia = fuera ? 'otra temporada, confírmala' : (tarifa.es_fija ? 'tarifa fija' : `hasta ${tarifa.hasta}`);
+        origen.replaceChildren(icono, `${automatica ? 'Del tarifario' : 'Tarifa aplicada'} · ${vigencia}`);
     }
 }
 
@@ -197,7 +203,7 @@ async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
         const hint = document.createElement('small');
         hint.className = 'text-muted d-block mt-1';
         hint.style.fontSize = '0.74rem';
-        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Este proveedor aún no tiene tarifas en el tarifario: escribe el precio cotizado.';
+        hint.innerHTML = '<i class="fas fa-info-circle me-1"></i> Sin tarifas en el tarifario';
         contenedor.appendChild(hint);
         return;
     }
@@ -207,49 +213,69 @@ async function cargarTarifasFila(row, proveedorId, autoAplicar = false) {
     const unica = autoAplicar && estInput && estInput.value === '' ? tarifaUnica(row, tarifas) : null;
     if (unica) aplicarTarifa(row, unica, true);
 
-    // El tarifario del proveedor queda siempre a la vista; la tarifa en uso se marca.
-    const box = document.createElement('div');
-    box.className = 'd-flex flex-wrap gap-1 align-items-center mt-1';
-
-    const label = document.createElement('span');
-    label.className = 'badge bg-gold-subtle text-gold-text border small';
-    label.style.fontSize = '0.72rem';
-    label.innerHTML = '<i class="fas fa-tags me-1"></i>Tarifario del proveedor:';
-    box.appendChild(label);
-
-    if (tarifas[0].fuera_de_temporada) {
-        const aviso = document.createElement('small');
-        aviso.className = 'text-warning-emphasis d-block w-100';
-        aviso.style.fontSize = '0.72rem';
-        aviso.innerHTML = '<i class="fas fa-exclamation-triangle me-1"></i>Ninguna tarifa cubre esta fecha: son de otra temporada, confirma el precio con el proveedor.';
-        box.appendChild(aviso);
-    }
-
-    const claseBoton = tarifas[0].fuera_de_temporada ? 'btn-outline-warning' : 'btn-outline-primary';
-    const estilo = (btn, enUso) => {
-        btn.className = `btn btn-xs ${enUso ? 'btn-success' : claseBoton} text-truncate py-0 px-2 fw-medium`;
-        btn.setAttribute('aria-pressed', String(enUso));
-    };
-    // En uso: la recién aplicada, o la que coincide con el precio y la moneda ya guardados.
+    // Tarifario compacto: "Tarifario · N" abre la lista; la tarifa en uso queda marcada.
+    const fuera = tarifas[0].fuera_de_temporada;
     const monedaFila = row.querySelector('[data-svc-moneda]')?.value;
     const enUso = unica ?? tarifas.find((t) => estInput?.value !== '' && Number(estInput?.value) === t.precio && t.moneda === monedaFila);
 
-    tarifas.forEach((tarifa) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.style.fontSize = '0.75rem';
-        btn.title = `Aplicar tarifa: ${tarifa.concepto} (${tarifa.simbolo} ${tarifa.precio.toFixed(2)} ${tarifa.por}) · ${tarifa.temporada}`;
-        btn.textContent = `${tarifa.concepto}: ${tarifa.simbolo}${tarifa.precio.toFixed(2)} (${tarifa.por_raw || tarifa.por})`;
-        estilo(btn, tarifa === enUso);
+    const box = document.createElement('div');
+    box.className = 'dropdown svc-tarifario';
 
-        btn.addEventListener('click', () => {
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = `svc-tarifario__toggle${fuera ? ' is-warning' : ''}${enUso ? ' is-applied' : ''}`;
+    toggle.dataset.bsToggle = 'dropdown';
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.title = fuera ? 'Ninguna tarifa cubre esta fecha: son de otra temporada' : 'Ver y aplicar las tarifas de este proveedor';
+    toggle.innerHTML = `<i class="fas ${fuera ? 'fa-exclamation-triangle' : 'fa-tags'}" aria-hidden="true"></i> Tarifario <span class="svc-tarifario__count">${tarifas.length}</span><i class="fas fa-chevron-down svc-tarifario__caret" aria-hidden="true"></i>`;
+
+    const menu = document.createElement('ul');
+    menu.className = 'dropdown-menu svc-tarifario__menu';
+    if (fuera) {
+        const aviso = document.createElement('li');
+        aviso.className = 'svc-tarifario__aviso';
+        aviso.textContent = 'Ninguna tarifa cubre esta fecha: son de otra temporada, confirma el precio con el proveedor.';
+        menu.append(aviso);
+    }
+
+    const marcar = (item, activo) => {
+        item.classList.toggle('active', activo);
+        item.setAttribute('aria-current', activo ? 'true' : 'false');
+    };
+
+    tarifas.forEach((tarifa) => {
+        const li = document.createElement('li');
+        const item = document.createElement('button');
+        item.type = 'button';
+        item.className = 'dropdown-item svc-tarifario__item';
+
+        const texto = document.createElement('span');
+        texto.className = 'svc-tarifario__texto';
+        const concepto = document.createElement('span');
+        concepto.className = 'svc-tarifario__concepto';
+        concepto.textContent = tarifa.concepto;
+        const meta = document.createElement('span');
+        meta.className = 'svc-tarifario__meta';
+        meta.textContent = [tarifa.unidad_detalle, tarifa.por, tarifa.es_fija ? 'fija' : tarifa.temporada].filter(Boolean).join(' · ');
+        texto.append(concepto, meta);
+
+        const precio = document.createElement('span');
+        precio.className = 'svc-tarifario__precio';
+        precio.textContent = `${tarifa.simbolo} ${tarifa.precio.toFixed(2)}`;
+
+        item.append(texto, precio);
+        marcar(item, tarifa === enUso);
+        item.addEventListener('click', () => {
             aplicarTarifa(row, tarifa);
-            box.querySelectorAll('button').forEach((b) => estilo(b, b === btn));
+            menu.querySelectorAll('.svc-tarifario__item').forEach((i) => marcar(i, i === item));
+            toggle.classList.add('is-applied');
         });
 
-        box.appendChild(btn);
+        li.append(item);
+        menu.append(li);
     });
 
+    box.append(toggle, menu);
     contenedor.appendChild(box);
 }
 
