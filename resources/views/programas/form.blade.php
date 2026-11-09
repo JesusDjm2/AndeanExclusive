@@ -8,6 +8,8 @@
     $isEdit = $programa->exists;
     $canEdit = auth()->user()?->can('programas.gestionar');
     $canCobros = auth()->user()?->can('cobros.gestionar');
+    $canPagos = auth()->user()?->can('pagos.registrar');
+    $canSolicitarPago = auth()->user()?->can('pagos.solicitar');
     $canTareas = auth()->user()?->can('tareas.gestionar');
     $verCotizacion = auth()->user()?->can('cotizacion.ver');
     $verMargen = auth()->user()?->can('margen.ver');
@@ -72,7 +74,7 @@
         'precios' => ['Precios & Cotización', 'fa-dollar-sign'],
     ];
     if ($isEdit) {
-        $tabs['pagos'] = ['Pagos', 'fa-wallet'];
+        $tabs['pagos'] = ['Cobranzas & Pagos', 'fa-cash-register'];
         $tabs['tareas'] = ['Tareas', 'fa-tasks'];
         $tabs['historial'] = ['Historial', 'fa-stream'];
         $cobro = $programa->cobranza();
@@ -582,19 +584,6 @@
                             <div class="alert alert-warning py-2">
                                 <strong><i class="fas fa-passport" aria-hidden="true"></i> Pasaportes por revisar:</strong>
                                 {{ $alertas->map(fn ($a) => $a[0] . ' (' . ['falta' => 'sin número', 'vencido' => 'vencido', 'por_vencer' => 'vence antes de 6 meses del viaje'][$a[1]] . ')')->implode(' · ') }}
-                            </div>
-                        @endif
-                        @if ($isEdit && $programa->estado !== 'cancelado')
-                            <div class="pf-client-link">
-                                <span><i class="fas fa-user-edit" aria-hidden="true"></i> El cliente puede completar pasaportes, dietas y contactos de emergencia desde su enlace.</span>
-                                <span class="pf-client-link__actions">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="{{ route('itinerario.pasajeros', $programa) }}"><i class="fas fa-link" aria-hidden="true"></i> Copiar enlace</button>
-                                    @if ($canEdit && $programa->email)
-                                        <button type="submit" form="notif-form" name="tipo" value="datos_pax" class="btn btn-sm btn-outline-primary" data-notif-from="pasajeros">
-                                            <i class="fas fa-paper-plane" aria-hidden="true"></i> Pedírselo por correo
-                                        </button>
-                                    @endif
-                                </span>
                             </div>
                         @endif
                         <p class="prog-input-hint mb-3">La edad se calcula a la fecha de inicio del viaje. Tarifas: adulto desde {{ \App\Models\Programa::EDAD_ADULTO }} años · niño de {{ \App\Models\Programa::EDAD_NINO_MIN }} a {{ \App\Models\Programa::EDAD_ADULTO - 1 }} · menores de {{ \App\Models\Programa::EDAD_NINO_MIN }} sin costo.</p>
@@ -1135,174 +1124,559 @@
     @if ($isEdit)
         <div class="tab-content">
             <section class="tab-pane fade {{ $initialTab === 'pagos' ? 'show active' : '' }}" id="pf-pagos" role="tabpanel" aria-labelledby="pf-tab-pagos">
-                <div class="pf-cobro">
-                    <div class="pf-cobro__kpi">
-                        <span>Total</span><strong>{{ $money($cobro['total']) }}</strong>
+                @php
+                    // Servicios contratados del programa (excluye cancelados)
+                    $serviciosFinanzas = $programa->servicios->where('estado', '!=', 'cancelado')->sortBy('fecha')->values();
+                    $tc = $programa->tipoCambio();
+                    $aUsd = fn ($monto, $moneda) => $moneda === 'PEN' ? round(((float) $monto) / $tc, 2) : (float) $monto;
+
+                    // Costos y egresos a proveedores en USD
+                    $costoTotalProvUsd = $serviciosFinanzas->sum(fn ($s) => $aUsd($s->importe, $s->moneda));
+                    $totalPagadoProvUsd = $serviciosFinanzas->sum(fn ($s) => $aUsd($s->pagado_proveedor, $s->moneda));
+                    $totalSaldoProvUsd = max(0, round($costoTotalProvUsd - $totalPagadoProvUsd, 2));
+
+                    // Flujo neto en cuenta (Cobrado al cliente − Pagado a proveedores)
+                    $flujoNeto = round($cobro['pagado'] - $totalPagadoProvUsd, 2);
+
+                    // Utilidad comercial proyectada
+                    $utilidadProyectada = round($cobro['total'] - $costoTotalProvUsd, 2);
+                    $pctMargenProyectado = $cobro['total'] > 0 ? round(($utilidadProyectada / $cobro['total']) * 100, 1) : 0;
+
+                    // Conteos de estado en proveedores
+                    $countSvcTotal = $serviciosFinanzas->count();
+                    $countSvcPagados = $serviciosFinanzas->where('situacion_pago', 'pagado')->count();
+                    $countSvcParcial = $serviciosFinanzas->where('situacion_pago', 'parcial')->count();
+                    $countSvcPendientes = $serviciosFinanzas->whereIn('situacion_pago', ['pendiente', 'sin_costo'])->count();
+
+                    // Pagos registrados a proveedores para los servicios de este programa
+                    $todosPagosProveedores = $serviciosFinanzas->flatMap(fn ($s) => $s->pagos)->sortByDesc('fecha')->values();
+                    $todosPagosAnuladosProveedores = \App\Models\ProveedorPago::onlyTrashed()
+                        ->whereIn('servicio_id', $serviciosFinanzas->pluck('id'))
+                        ->with(['servicio', 'anuladoPor'])
+                        ->latest('deleted_at')
+                        ->get();
+                @endphp
+
+                {{-- ── TABLERO DE CONTROL FINANCIERO CONSOLIDADO ── --}}
+                <div class="row g-3 mb-4">
+                    {{-- Tarjeta 1: Cobranzas al Cliente (Ingresos) --}}
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="pf-cobro__kpi h-100 border-start border-4 border-success shadow-sm">
+                            <span class="text-success"><i class="fas fa-hand-holding-usd me-1"></i> Cobranzas al Cliente</span>
+                            <strong class="d-block my-1 text-success">{{ $money($cobro['pagado']) }}</strong>
+                            <small class="text-muted d-block">
+                                Total venta: <strong>{{ $money($cobro['total']) }}</strong>
+                            </small>
+                            <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-light">
+                                <span class="badge {{ $cobro['porcentaje'] >= 100 ? 'bg-success' : 'bg-primary' }}">{{ $cobro['porcentaje'] }}% cobrado</span>
+                                <small class="fw-semibold {{ $cobro['saldo'] > 0 ? 'text-danger' : 'text-muted' }}">
+                                    Saldo: {{ $money($cobro['saldo']) }}
+                                </small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pf-cobro__kpi">
-                        <span>Pagado</span><strong class="text-success">{{ $money($cobro['pagado']) }}</strong>
+
+                    {{-- Tarjeta 2: Pagos a Proveedores (Egresos) --}}
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="pf-cobro__kpi h-100 border-start border-4 border-warning shadow-sm">
+                            <span class="text-warning"><i class="fas fa-truck-loading me-1"></i> Pagos a Proveedores</span>
+                            <strong class="d-block my-1 text-primary">{{ $money($totalPagadoProvUsd) }}</strong>
+                            <small class="text-muted d-block">
+                                Costo total: <strong>{{ $money($costoTotalProvUsd) }}</strong>
+                            </small>
+                            <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top border-light">
+                                <span class="badge {{ $totalSaldoProvUsd <= 0.01 && $costoTotalProvUsd > 0 ? 'bg-success' : 'bg-secondary' }}">
+                                    {{ $costoTotalProvUsd > 0 ? round(($totalPagadoProvUsd / $costoTotalProvUsd) * 100) : 0 }}% pagado
+                                </span>
+                                <small class="fw-semibold {{ $totalSaldoProvUsd > 0 ? 'text-warning' : 'text-muted' }}">
+                                    Por pagar: {{ $money($totalSaldoProvUsd) }}
+                                </small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pf-cobro__kpi {{ $cobro['saldoVencido'] ? 'is-overdue' : '' }}">
-                        <span>Saldo</span><strong>{{ $money($cobro['saldo']) }}</strong>
-                        @if ($cobro['vencimientoSaldo'] && $cobro['saldo'] > 0)
-                            <small>{{ $cobro['saldoVencido'] ? 'Vencido el' : 'Vence el' }} {{ $cobro['vencimientoSaldo']->locale('es')->isoFormat('D MMM YYYY') }}</small>
-                        @endif
+
+                    {{-- Tarjeta 3: Flujo Neto de Caja --}}
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="pf-cobro__kpi h-100 border-start border-4 {{ $flujoNeto >= 0 ? 'border-success' : 'border-danger' }} shadow-sm">
+                            <span class="{{ $flujoNeto >= 0 ? 'text-success' : 'text-danger' }}">
+                                <i class="fas fa-balance-scale me-1"></i> Flujo Neto en Caja
+                            </span>
+                            <strong class="d-block my-1 {{ $flujoNeto >= 0 ? 'text-success' : 'text-danger' }}">
+                                {{ ($flujoNeto >= 0 ? '+' : '') . $money($flujoNeto) }}
+                            </strong>
+                            <small class="text-muted d-block">
+                                Dinero en cuenta (Cobros − Egresos)
+                            </small>
+                            <div class="mt-2 pt-2 border-top border-light">
+                                <small class="{{ $flujoNeto >= 0 ? 'text-success' : 'text-danger' }} fw-semibold">
+                                    <i class="fas {{ $flujoNeto >= 0 ? 'fa-arrow-circle-up' : 'fa-exclamation-circle' }} me-1"></i>
+                                    {{ $flujoNeto >= 0 ? 'Flujo neto a favor' : 'Déficit temporal de caja' }}
+                                </small>
+                            </div>
+                        </div>
                     </div>
-                    <div class="pf-cobro__progress" role="progressbar" aria-label="Porcentaje pagado"
-                        aria-valuenow="{{ $cobro['porcentaje'] }}" aria-valuemin="0" aria-valuemax="100">
-                        <span class="pf-cobro__bar" data-fill="{{ (int) (round($cobro['porcentaje'] / 5) * 5) }}"></span>
-                        <small>{{ $cobro['porcentaje'] }}% pagado · depósito {{ $cobro['depositoCubierto'] ? 'cubierto' : 'pendiente (' . $money($cobro['deposito']) . ')' }}
-                            @if (! $cobro['depositoCubierto'] && $cobro['vencimientoDeposito'])
-                                · <span class="{{ $cobro['depositoVencido'] ? 'text-danger fw-semibold' : '' }}">{{ $cobro['depositoVencido'] ? 'venció' : 'vence' }} el {{ $cobro['vencimientoDeposito']->locale('es')->isoFormat('D MMM') }}</span>
+
+                    {{-- Tarjeta 4: Margen / Utilidad Proyectada --}}
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="pf-cobro__kpi h-100 border-start border-4 border-info shadow-sm">
+                            <span class="text-info"><i class="fas fa-chart-line me-1"></i> Margen Comercial</span>
+                            <strong class="d-block my-1 text-dark">{{ $money($utilidadProyectada) }}</strong>
+                            <small class="text-muted d-block">
+                                Utilidad estimada: <strong>{{ $pctMargenProyectado }}%</strong>
+                            </small>
+                            <div class="mt-2 pt-2 border-top border-light">
+                                <small class="text-muted">
+                                    {{ $countSvcTotal }} {{ $countSvcTotal === 1 ? 'servicio cotizado' : 'servicios cotizados' }}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ── PESTAÑAS SECUNDARIAS (INGRESOS vs EGRESOS) ── --}}
+                <ul class="nav nav-pills mb-4 gap-2" id="finanzasSubTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold" id="subtab-ingresos-btn" data-bs-toggle="pill" data-bs-target="#subtab-ingresos-pane" type="button" role="tab" aria-controls="subtab-ingresos-pane" aria-selected="true">
+                            <i class="fas fa-hand-holding-usd me-1"></i> Cobranzas al Cliente (Ingresos)
+                            @if ($cobro['saldo'] > 0)
+                                <span class="badge bg-danger ms-1">Saldo: {{ $money($cobro['saldo']) }}</span>
+                            @else
+                                <span class="badge bg-success ms-1">100% Cobrado</span>
                             @endif
-                        </small>
-                    </div>
-                </div>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold" id="subtab-egresos-btn" data-bs-toggle="pill" data-bs-target="#subtab-egresos-pane" type="button" role="tab" aria-controls="subtab-egresos-pane" aria-selected="false">
+                            <i class="fas fa-truck-loading me-1"></i> Pagos a Proveedores (Egresos)
+                            @if ($totalSaldoProvUsd > 0.01)
+                                <span class="badge bg-warning text-dark ms-1">{{ $countSvcPendientes + $countSvcParcial }} pendientes</span>
+                            @else
+                                <span class="badge bg-success ms-1">Al día</span>
+                            @endif
+                        </button>
+                    </li>
+                </ul>
 
-                <div class="prog-section">
-                    <div class="prog-section__header">
-                        <span class="prog-section__title">Pagos registrados</span>
-                    </div>
-                    @if ($programa->pagos->isEmpty())
-                        <div class="admin-empty"><i class="fas fa-receipt" aria-hidden="true"></i> Todavía no hay pagos.</div>
-                    @else
-                        <div class="table-responsive">
-                            <table class="table ae-admin-data-table mb-0">
-                                <thead>
-                                    <tr><th>Fecha</th><th>Tipo</th><th>Método</th><th>Referencia</th><th class="text-end">Monto</th><th></th></tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($programa->pagos as $pago)
-                                        <tr>
-                                            <td>{{ $pago->fecha->format('d/m/Y') }}</td>
-                                            <td>{{ \App\Models\Pago::TIPOS[$pago->tipo] ?? $pago->tipo }}</td>
-                                            <td>{{ \App\Models\Pago::METODOS[$pago->metodo] ?? '—' }}</td>
-                                            <td>{{ $pago->referencia ?: '—' }}@if ($pago->nota)<small class="d-block text-muted">{{ $pago->nota }}</small>@endif</td>
-                                            <td class="text-end fw-semibold">{{ $money($pago->monto) }}</td>
-                                            <td class="text-end">
-                                                @if ($canCobros)
-                                                    <form action="{{ route('programas.pagos.destroy', [$programa, $pago]) }}" method="POST"
-                                                        data-confirm-motivo data-confirm="Se anulará el pago de {{ $money($pago->monto) }}. Dejará de contar para el saldo y quedará como constancia." data-confirm-title="¿Anular pago?"
-                                                        data-confirm-button="Sí, anular" data-confirm-danger>
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Anular pago" title="Anular pago"><i class="fas fa-undo" aria-hidden="true"></i></button>
-                                                    </form>
-                                                @endif
-                                            </td>
-                                        </tr>
+                <div class="tab-content" id="finanzasSubTabsContent">
+                    {{-- ── SUB-PANEL 1: COBRANZAS AL CLIENTE ── --}}
+                    <div class="tab-pane fade show active" id="subtab-ingresos-pane" role="tabpanel" aria-labelledby="subtab-ingresos-btn">
+                        <div class="pf-cobro mb-3">
+                            <div class="pf-cobro__progress" role="progressbar" aria-label="Porcentaje pagado"
+                                aria-valuenow="{{ $cobro['porcentaje'] }}" aria-valuemin="0" aria-valuemax="100">
+                                <span class="pf-cobro__bar" data-fill="{{ (int) (round($cobro['porcentaje'] / 5) * 5) }}"></span>
+                                <small>{{ $cobro['porcentaje'] }}% pagado · depósito {{ $cobro['depositoCubierto'] ? 'cubierto' : 'pendiente (' . $money($cobro['deposito']) . ')' }}
+                                    @if (! $cobro['depositoCubierto'] && $cobro['vencimientoDeposito'])
+                                        · <span class="{{ $cobro['depositoVencido'] ? 'text-danger fw-semibold' : '' }}">{{ $cobro['depositoVencido'] ? 'venció' : 'vence' }} el {{ $cobro['vencimientoDeposito']->locale('es')->isoFormat('D MMM') }}</span>
+                                    @endif
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="prog-section mb-4">
+                            <div class="prog-section__header">
+                                <span class="prog-section__title">Pagos recibidos del cliente</span>
+                            </div>
+                            @if ($programa->pagos->isEmpty())
+                                <div class="admin-empty"><i class="fas fa-receipt" aria-hidden="true"></i> Todavía no hay pagos registrados para este cliente.</div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table ae-admin-data-table mb-0">
+                                        <thead>
+                                            <tr><th>Fecha</th><th>Tipo</th><th>Método</th><th>Referencia</th><th class="text-end">Monto</th><th></th></tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($programa->pagos as $pago)
+                                                <tr>
+                                                    <td>{{ $pago->fecha->format('d/m/Y') }}</td>
+                                                    <td>{{ \App\Models\Pago::TIPOS[$pago->tipo] ?? $pago->tipo }}</td>
+                                                    <td>{{ \App\Models\Pago::METODOS[$pago->metodo] ?? '—' }}</td>
+                                                    <td>{{ $pago->referencia ?: '—' }}@if ($pago->nota)<small class="d-block text-muted">{{ $pago->nota }}</small>@endif</td>
+                                                    <td class="text-end fw-semibold">{{ $money($pago->monto) }}</td>
+                                                    <td class="text-end">
+                                                        @if ($canCobros)
+                                                            <form action="{{ route('programas.pagos.destroy', [$programa, $pago]) }}" method="POST"
+                                                                data-confirm-motivo data-confirm="Se anulará el pago de {{ $money($pago->monto) }}. Dejará de contar para el saldo y quedará como constancia." data-confirm-title="¿Anular pago?"
+                                                                data-confirm-button="Sí, anular" data-confirm-danger>
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" aria-label="Anular pago" title="Anular pago"><i class="fas fa-undo" aria-hidden="true"></i></button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+
+                        @php $cobrosAnulados = $programa->pagos()->onlyTrashed()->with('anuladoPor')->latest('deleted_at')->get(); @endphp
+                        @if ($cobrosAnulados->isNotEmpty())
+                            <details class="pagos-anulados mb-3">
+                                <summary>Pagos anulados ({{ $cobrosAnulados->count() }})</summary>
+                                <ul>
+                                    @foreach ($cobrosAnulados as $anulado)
+                                        <li>
+                                            <del>{{ $money($anulado->monto) }}</del> · {{ $anulado->fecha->format('d/m/Y') }} · {{ \App\Models\Pago::TIPOS[$anulado->tipo] ?? $anulado->tipo }}
+                                            <small>Motivo: {{ $anulado->motivo_anulacion ?: 'no indicado' }}</small>
+                                            <small>Anuló {{ $anulado->anuladoPor?->name ?? '—' }} el {{ $anulado->deleted_at->format('d/m/Y H:i') }}</small>
+                                        </li>
                                     @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
+                                </ul>
+                            </details>
+                        @endif
 
-                @php $cobrosAnulados = $programa->pagos()->onlyTrashed()->with('anuladoPor')->latest('deleted_at')->get(); @endphp
-                @if ($cobrosAnulados->isNotEmpty())
-                    <details class="pagos-anulados mb-3">
-                        <summary>Pagos anulados ({{ $cobrosAnulados->count() }})</summary>
-                        <ul>
-                            @foreach ($cobrosAnulados as $anulado)
-                                <li>
-                                    <del>{{ $money($anulado->monto) }}</del> · {{ $anulado->fecha->format('d/m/Y') }} · {{ \App\Models\Pago::TIPOS[$anulado->tipo] ?? $anulado->tipo }}
-                                    <small>Motivo: {{ $anulado->motivo_anulacion ?: 'no indicado' }}</small>
-                                    <small>Anuló {{ $anulado->anuladoPor?->name ?? '—' }} el {{ $anulado->deleted_at->format('d/m/Y H:i') }}</small>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </details>
-                @endif
+                        @error('motivo', 'pago')
+                            <div class="alert alert-danger" role="alert">{{ $message }}</div>
+                        @enderror
 
-                @error('motivo', 'pago')
-                    <div class="alert alert-danger" role="alert">{{ $message }}</div>
-                @enderror
-
-                @if ($canCobros)
-                    <form action="{{ route('programas.pagos.store', $programa) }}" method="POST" class="prog-section">
-                        @csrf
-                        <div class="prog-section__header">
-                            <span class="prog-section__title">Registrar pago</span>
-                        </div>
-                        <div class="prog-section__body">
-                            <div class="row g-3">
-                                <div class="col-sm-6 col-lg-2">
-                                    <label for="pago-fecha" class="prog-label">Fecha <span class="required">*</span></label>
-                                    <input id="pago-fecha" type="date" name="fecha" value="{{ old('fecha', now()->toDateString()) }}" required
-                                        class="form-control @error('fecha', 'pago') is-invalid @enderror">
-                                    @error('fecha', 'pago')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @if ($canCobros)
+                            <form action="{{ route('programas.pagos.store', $programa) }}" method="POST" class="prog-section mb-4">
+                                @csrf
+                                <div class="prog-section__header">
+                                    <span class="prog-section__title">Registrar cobro al cliente</span>
                                 </div>
-                                <div class="col-sm-6 col-lg-2">
-                                    <label for="pago-monto" class="prog-label">Monto ($) <span class="required">*</span></label>
-                                    <input id="pago-monto" type="number" name="monto" step="0.01" min="0.01" required
-                                        value="{{ old('monto', $cobro['saldo'] > 0 ? number_format(! $cobro['depositoCubierto'] ? $cobro['deposito'] - $cobro['pagado'] : $cobro['saldo'], 2, '.', '') : '') }}"
-                                        class="form-control @error('monto', 'pago') is-invalid @enderror">
-                                    @error('monto', 'pago')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <div class="prog-section__body">
+                                    <div class="row g-3">
+                                        <div class="col-sm-6 col-lg-2">
+                                            <label for="pago-fecha" class="prog-label">Fecha <span class="required">*</span></label>
+                                            <input id="pago-fecha" type="date" name="fecha" value="{{ old('fecha', now()->toDateString()) }}" required
+                                                class="form-control @error('fecha', 'pago') is-invalid @enderror">
+                                            @error('fecha', 'pago')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <label for="pago-monto" class="prog-label">Monto ($) <span class="required">*</span></label>
+                                            <input id="pago-monto" type="number" name="monto" step="0.01" min="0.01" required
+                                                value="{{ old('monto', $cobro['saldo'] > 0 ? number_format(! $cobro['depositoCubierto'] ? $cobro['deposito'] - $cobro['pagado'] : $cobro['saldo'], 2, '.', '') : '') }}"
+                                                class="form-control @error('monto', 'pago') is-invalid @enderror">
+                                            @error('monto', 'pago')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <label for="pago-tipo" class="prog-label">Tipo</label>
+                                            <select id="pago-tipo" name="tipo" class="form-select">
+                                                @foreach (\App\Models\Pago::TIPOS as $value => $label)
+                                                    <option value="{{ $value }}" @selected(old('tipo', $cobro['depositoCubierto'] ? 'saldo' : 'deposito') === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-6 col-lg-2">
+                                            <label for="pago-metodo" class="prog-label">Método</label>
+                                            <select id="pago-metodo" name="metodo" class="form-select">
+                                                <option value="">—</option>
+                                                @foreach (\App\Models\Pago::METODOS as $value => $label)
+                                                    <option value="{{ $value }}" @selected(old('metodo') === $value)>{{ $label }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <label for="pago-ref" class="prog-label">Referencia / nota</label>
+                                            <input id="pago-ref" type="text" name="referencia" value="{{ old('referencia') }}" maxlength="255"
+                                                class="form-control" placeholder="N.º de operación, banco…">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-plus" aria-hidden="true"></i> Registrar cobro</button>
                                 </div>
-                                <div class="col-sm-6 col-lg-2">
-                                    <label for="pago-tipo" class="prog-label">Tipo</label>
-                                    <select id="pago-tipo" name="tipo" class="form-select">
-                                        @foreach (\App\Models\Pago::TIPOS as $value => $label)
-                                            <option value="{{ $value }}" @selected(old('tipo', $cobro['depositoCubierto'] ? 'saldo' : 'deposito') === $value)>{{ $label }}</option>
+                            </form>
+                        @endif
+
+                        <div class="prog-section">
+                            <div class="prog-section__header">
+                                <span class="prog-section__title">Correos al cliente</span>
+                                <span class="prog-section__subtitle">Se envían solo desde aquí; el sistema marca el que corresponde según los plazos</span>
+                            </div>
+                            <div class="prog-section__body">
+                                @if ($canEdit)
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        @foreach (\App\Models\Notificacion::TIPOS as $tipo => $etiqueta)
+                                            @php $sugerido = in_array($tipo, $correosSugeridos, true); @endphp
+                                            <button type="submit" form="notif-form" name="tipo" value="{{ $tipo }}" @disabled(! $programa->email)
+                                                class="btn btn-sm {{ $sugerido ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                                <i class="fas fa-paper-plane" aria-hidden="true"></i> {{ $etiqueta }}
+                                                @if ($sugerido)<span class="badge text-bg-light ms-1">Sugerido</span>@endif
+                                            </button>
                                         @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 col-lg-2">
-                                    <label for="pago-metodo" class="prog-label">Método</label>
-                                    <select id="pago-metodo" name="metodo" class="form-select">
-                                        <option value="">—</option>
-                                        @foreach (\App\Models\Pago::METODOS as $value => $label)
-                                            <option value="{{ $value }}" @selected(old('metodo') === $value)>{{ $label }}</option>
+                                    </div>
+                                    @unless ($programa->email)
+                                        <p class="prog-input-hint text-warning">El cliente no tiene correo: agrégalo en su ficha para poder enviar recordatorios.</p>
+                                    @endunless
+                                @endif
+                                @if ($programa->notificaciones->isEmpty())
+                                    <p class="text-muted small mb-0">Todavía no se enviaron correos.</p>
+                                @else
+                                    <ul class="pf-notifs">
+                                        @foreach ($programa->notificaciones as $notificacion)
+                                            <li>
+                                                <strong>{{ \App\Models\Notificacion::TIPOS[$notificacion->tipo] ?? $notificacion->tipo }}</strong>
+                                                <span>{{ $notificacion->created_at->locale('es')->isoFormat('D MMM YYYY, HH:mm') }} · {{ $notificacion->email }}
+                                                    · enviado por {{ $notificacion->enviadaPor?->name ?? 'el equipo' }}</span>
+                                            </li>
                                         @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-lg-4">
-                                    <label for="pago-ref" class="prog-label">Referencia / nota</label>
-                                    <input id="pago-ref" type="text" name="referencia" value="{{ old('referencia') }}" maxlength="255"
-                                        class="form-control" placeholder="N.º de operación, banco…">
+                                    </ul>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── SUB-PANEL 2: PAGOS A PROVEEDORES (EGRESOS) ── --}}
+                    <div class="tab-pane fade" id="subtab-egresos-pane" role="tabpanel" aria-labelledby="subtab-egresos-btn">
+                        {{-- Resumen rápido de servicios --}}
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 p-3 bg-light rounded-3 border">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="badge bg-dark fs-6">{{ $countSvcTotal }} {{ $countSvcTotal === 1 ? 'servicio' : 'servicios' }}</span>
+                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> {{ $countSvcPagados }} pagados</span>
+                                @if ($countSvcParcial > 0)
+                                    <span class="badge bg-warning text-dark"><i class="fas fa-adjust me-1"></i> {{ $countSvcParcial }} pago parcial</span>
+                                @endif
+                                <span class="badge bg-secondary"><i class="fas fa-clock me-1"></i> {{ $countSvcPendientes }} pendientes</span>
+                            </div>
+                            <div class="text-end">
+                                <span class="text-muted small">Saldo total por pagar a proveedores:</span>
+                                <strong class="fs-5 text-danger ms-1">{{ $money($totalSaldoProvUsd) }}</strong>
+                            </div>
+                        </div>
+
+                        {{-- Tabla de servicios contratados y estado de pago --}}
+                        <div class="prog-section mb-4">
+                            <div class="prog-section__header d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="prog-section__title">Servicios & Proveedores Contratados</span>
+                                    <span class="prog-section__subtitle">Control de costos, pagos directos a proveedores y vouchers de servicio</span>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-plus" aria-hidden="true"></i> Registrar pago</button>
+                            @if ($serviciosFinanzas->isEmpty())
+                                <div class="admin-empty"><i class="fas fa-concierge-bell" aria-hidden="true"></i> No hay servicios activos en el itinerario.</div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table ae-admin-data-table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha / Hora</th>
+                                                <th>Servicio</th>
+                                                <th>Proveedor</th>
+                                                <th>Estado Reserva</th>
+                                                <th class="text-end">Costo Acordado</th>
+                                                <th class="text-end">Pagado</th>
+                                                <th class="text-end">Saldo</th>
+                                                <th>Situación</th>
+                                                <th class="text-end">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($serviciosFinanzas as $s)
+                                                @php
+                                                    $simboloSvc = \App\Models\Servicio::MONEDAS[$s->moneda] ?? '$';
+                                                    $saldoSvc = $s->saldo_proveedor;
+                                                    $puedePagarSvc = $s->estado !== 'cancelado' && (float) $s->costo > 0 && $saldoSvc > 0;
+                                                    $nombreSvc = $s->titulo . ' · ' . $programa->codigo . ' · ' . $s->fecha->format('d/m');
+                                                @endphp
+                                                <tr id="fin-servicio-{{ $s->id }}">
+                                                    <td class="text-nowrap">
+                                                        <strong>{{ $s->fecha->format('d/m/Y') }}</strong>
+                                                        @if ($s->hora_corta)<small class="d-block text-muted">{{ $s->hora_corta }}</small>@endif
+                                                    </td>
+                                                    <td>
+                                                        <i class="fas {{ $s->icono }} text-muted me-1" aria-hidden="true"></i>
+                                                        <strong>{{ $s->titulo }}</strong>
+                                                        <small class="d-block text-muted">{{ $s->tipo_etiqueta }}</small>
+                                                    </td>
+                                                    <td>
+                                                        @if ($s->proveedor)
+                                                            <strong>{{ $s->proveedor->nombre }}</strong>
+                                                            @if ($s->proveedor->telefono || $s->proveedor->correo)
+                                                                <small class="d-block text-muted">{{ collect([$s->proveedor->telefono, $s->proveedor->correo])->filter()->implode(' · ') }}</small>
+                                                            @endif
+                                                        @else
+                                                            <span class="badge bg-secondary">Sin asignar</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($s->estado === 'confirmado')
+                                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Confirmado</span>
+                                                            @if ($s->confirmacion)<small class="d-block text-muted font-monospace">N° {{ $s->confirmacion }}</small>@endif
+                                                        @elseif ($s->estado === 'solicitado')
+                                                            <span class="badge bg-info text-dark"><i class="fas fa-paper-plane me-1"></i> Solicitado</span>
+                                                        @else
+                                                            <span class="badge bg-secondary"><i class="fas fa-hourglass-start me-1"></i> Por reservar</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        <strong class="d-block">{{ \App\Models\Servicio::formatoMonto($s->importe, $s->moneda) }}</strong>
+                                                        @if ($s->costo_por === 'persona')
+                                                            <small class="d-block text-muted">{{ $simboloSvc }} {{ number_format((float) $s->costo, 2) }} × {{ $s->programa->pagantes() }} pax</small>
+                                                        @endif
+                                                        @if ($s->moneda === 'PEN')
+                                                            <small class="d-block text-muted">≈ ${{ number_format($s->importe_usd, 2) }} USD</small>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        <span class="{{ $s->pagado_proveedor > 0 ? 'text-success fw-semibold' : 'text-muted' }}">
+                                                            {{ \App\Models\Servicio::formatoMonto($s->pagado_proveedor, $s->moneda) }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        @if ($saldoSvc > 0)
+                                                            <strong class="text-danger">{{ \App\Models\Servicio::formatoMonto($saldoSvc, $s->moneda) }}</strong>
+                                                        @else
+                                                            <span class="text-success"><i class="fas fa-check-circle me-1"></i> $0.00</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($s->situacion_pago === 'pagado')
+                                                            <span class="badge bg-success"><i class="fas fa-check-double me-1"></i> Pagado</span>
+                                                            @if ($s->pagado_at)<small class="d-block text-muted">{{ $s->pagado_at->format('d/m/Y') }}</small>@endif
+                                                        @elseif ($s->situacion_pago === 'parcial')
+                                                            <span class="badge bg-warning text-dark"><i class="fas fa-adjust me-1"></i> Parcial</span>
+                                                        @elseif ($s->situacion_pago === 'sin_costo')
+                                                            <span class="badge bg-light text-muted border">Sin costo</span>
+                                                        @else
+                                                            <span class="badge bg-danger"><i class="fas fa-clock me-1"></i> Pendiente</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end text-nowrap">
+                                                        <div class="btn-group btn-group-sm" role="group">
+                                                            @if ($puedePagarSvc)
+                                                                @if ($canPagos)
+                                                                    <button type="button" class="btn btn-outline-primary" data-svc-accion="pago"
+                                                                        data-url="{{ route('servicios.pagar', $s) }}"
+                                                                        data-nombre="{{ $nombreSvc }}"
+                                                                        data-moneda="{{ $s->moneda }}"
+                                                                        data-simbolo="{{ $simboloSvc }}"
+                                                                        data-importe="{{ number_format($s->importe, 2, '.', '') }}"
+                                                                        data-pagado="{{ number_format($s->pagado_proveedor, 2, '.', '') }}"
+                                                                        data-saldo="{{ number_format($saldoSvc, 2, '.', '') }}"
+                                                                        title="Registrar pago al proveedor">
+                                                                        <i class="fas fa-hand-holding-usd me-1"></i> Pagar
+                                                                    </button>
+                                                                @elseif ($canSolicitarPago)
+                                                                    <form action="{{ route('servicios.solicitar-pago', $s) }}" method="POST" class="d-inline">
+                                                                        @csrf
+                                                                        <button type="submit" class="btn {{ $s->pago_solicitado_at ? 'btn-link' : 'btn-outline-primary' }}"
+                                                                            title="{{ $s->pago_solicitado_at ? 'Pago solicitado. Click para retirar' : 'Pedir a contabilidad que pague este servicio' }}">
+                                                                            <i class="fas {{ $s->pago_solicitado_at ? 'fa-undo' : 'fa-paper-plane' }} me-1"></i>
+                                                                            {{ $s->pago_solicitado_at ? 'Retirar' : 'Solicitar' }}
+                                                                        </button>
+                                                                    </form>
+                                                                @endif
+                                                            @endif
+                                                            <button type="button" class="btn btn-light" data-svc-accion="historial"
+                                                                data-url="{{ route('servicios.historial', $s) }}"
+                                                                data-nombre="{{ $nombreSvc }}"
+                                                                title="Historial de pagos y eventos del servicio">
+                                                                <i class="fas fa-history" aria-hidden="true"></i>
+                                                            </button>
+                                                            @if ($s->proveedor_id)
+                                                                <a href="{{ route('servicios.voucher', $s) }}" target="_blank" rel="noopener"
+                                                                    class="btn btn-light" title="Ver orden de servicio / voucher">
+                                                                    <i class="fas fa-file-invoice" aria-hidden="true"></i>
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
                         </div>
-                    </form>
-                @endif
 
-                <div class="prog-section">
-                    <div class="prog-section__header">
-                        <span class="prog-section__title">Correos al cliente</span>
-                        <span class="prog-section__subtitle">Se envían solo desde aquí; el sistema marca el que corresponde según los plazos</span>
-                    </div>
-                    <div class="prog-section__body">
-                        @if ($canEdit)
-                            <div class="d-flex flex-wrap gap-2 mb-3">
-                                @foreach (\App\Models\Notificacion::TIPOS as $tipo => $etiqueta)
-                                    @php $sugerido = in_array($tipo, $correosSugeridos, true); @endphp
-                                    <button type="submit" form="notif-form" name="tipo" value="{{ $tipo }}" @disabled(! $programa->email)
-                                        class="btn btn-sm {{ $sugerido ? 'btn-primary' : 'btn-outline-secondary' }}">
-                                        <i class="fas fa-paper-plane" aria-hidden="true"></i> {{ $etiqueta }}
-                                        @if ($sugerido)<span class="badge text-bg-light ms-1">Sugerido</span>@endif
-                                    </button>
-                                @endforeach
+                        {{-- Historial Consolidado de Egresos a Proveedores --}}
+                        <div class="prog-section mb-4">
+                            <div class="prog-section__header">
+                                <span class="prog-section__title">Historial de Egresos a Proveedores</span>
+                                <span class="prog-section__subtitle">Todos los pagos realizados a proveedores para este programa</span>
                             </div>
-                            @unless ($programa->email)
-                                <p class="prog-input-hint text-warning">El cliente no tiene correo: agrégalo en su ficha para poder enviar recordatorios.</p>
-                            @endunless
-                        @endif
-                        @if ($programa->notificaciones->isEmpty())
-                            <p class="text-muted small mb-0">Todavía no se enviaron correos.</p>
-                        @else
-                            <ul class="pf-notifs">
-                                @foreach ($programa->notificaciones as $notificacion)
-                                    <li>
-                                        <strong>{{ \App\Models\Notificacion::TIPOS[$notificacion->tipo] ?? $notificacion->tipo }}</strong>
-                                        <span>{{ $notificacion->created_at->locale('es')->isoFormat('D MMM YYYY, HH:mm') }} · {{ $notificacion->email }}
-                                            · enviado por {{ $notificacion->enviadaPor?->name ?? 'el equipo' }}</span>
-                                    </li>
-                                @endforeach
-                            </ul>
+                            @if ($todosPagosProveedores->isEmpty())
+                                <div class="admin-empty"><i class="fas fa-receipt" aria-hidden="true"></i> Todavía no se han registrado pagos a proveedores para este viaje.</div>
+                            @else
+                                <div class="table-responsive">
+                                    <table class="table ae-admin-data-table align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <th>Proveedor</th>
+                                                <th>Servicio</th>
+                                                <th>Método</th>
+                                                <th>Referencia / Comprobante</th>
+                                                <th>Registrado por</th>
+                                                <th class="text-end">Monto Pagado</th>
+                                                <th></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($todosPagosProveedores as $pagoProv)
+                                                <tr>
+                                                    <td class="text-nowrap">
+                                                        <strong>{{ $pagoProv->fecha->format('d/m/Y') }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        <strong>{{ $pagoProv->servicio->proveedor?->nombre ?? 'Sin proveedor' }}</strong>
+                                                    </td>
+                                                    <td>
+                                                        {{ $pagoProv->servicio->titulo }}
+                                                        <small class="d-block text-muted">{{ $pagoProv->servicio->fecha->format('d/m/Y') }}</small>
+                                                    </td>
+                                                    <td>
+                                                        {{ \App\Models\ProveedorPago::METODOS[$pagoProv->metodo] ?? ($pagoProv->metodo ?: '—') }}
+                                                    </td>
+                                                    <td>
+                                                        <span>{{ $pagoProv->referencia ?: '—' }}</span>
+                                                        @if ($pagoProv->comprobante)
+                                                            <a href="{{ route('servicios.pagos.comprobante', [$pagoProv->servicio, $pagoProv]) }}" target="_blank"
+                                                                class="badge bg-primary-subtle text-primary text-decoration-none ms-1">
+                                                                <i class="fas fa-paperclip me-1"></i> Comprobante
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-muted small">
+                                                        {{ $pagoProv->usuario?->name ?? 'Equipo' }}
+                                                    </td>
+                                                    <td class="text-end fw-semibold text-nowrap">
+                                                        {{ \App\Models\Servicio::formatoMonto((float) $pagoProv->monto, $pagoProv->moneda) }}
+                                                    </td>
+                                                    <td class="text-end">
+                                                        @if ($canPagos)
+                                                            <form action="{{ route('servicios.pagos.anular', [$pagoProv->servicio, $pagoProv]) }}" method="POST"
+                                                                data-confirm-motivo data-confirm="Se anulará el pago de {{ \App\Models\Servicio::formatoMonto((float) $pagoProv->monto, $pagoProv->moneda) }}. Dejará de contar para el saldo y quedará como constancia."
+                                                                data-confirm-title="¿Anular pago a proveedor?" data-confirm-button="Sí, anular" data-confirm-danger class="d-inline">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Anular pago a proveedor"><i class="fas fa-undo"></i></button>
+                                                            </form>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        </div>
+
+                        {{-- Pagos a proveedores anulados --}}
+                        @if ($todosPagosAnuladosProveedores->isNotEmpty())
+                            <details class="pagos-anulados mb-3">
+                                <summary>Pagos a proveedores anulados ({{ $todosPagosAnuladosProveedores->count() }})</summary>
+                                <ul>
+                                    @foreach ($todosPagosAnuladosProveedores as $anulado)
+                                        <li>
+                                            <del>{{ \App\Models\Servicio::formatoMonto((float) $anulado->monto, $anulado->moneda) }}</del>
+                                            · {{ $anulado->servicio->proveedor?->nombre ?? 'Proveedor' }} ({{ $anulado->servicio->titulo }})
+                                            · {{ $anulado->fecha->format('d/m/Y') }}
+                                            <small>Motivo: {{ $anulado->motivo_anulacion ?: 'no indicado' }}</small>
+                                            <small>Anuló {{ $anulado->anuladoPor?->name ?? '—' }} el {{ $anulado->deleted_at->format('d/m/Y H:i') }}</small>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </details>
                         @endif
                     </div>
                 </div>
+
+                {{-- Modales de servicios (Asignar, Estado, Pagar e Historial) --}}
+                @include('servicios.partials.modales')
+
                 <form id="notif-form" action="{{ route('programas.notificaciones.store', $programa) }}" method="POST" hidden
                     data-confirm="Se enviará un correo a {{ $programa->email }}." data-confirm-title="¿Enviar correo al cliente?" data-confirm-button="Sí, enviar">
                     @csrf

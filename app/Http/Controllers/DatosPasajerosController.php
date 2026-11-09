@@ -19,6 +19,7 @@ class DatosPasajerosController extends Controller
 
     public function edit(Programa $programa)
     {
+        abort_unless(auth()->check() && auth()->user()->can('programas.gestionar'), 403, 'El registro de pasajeros está restringido al equipo de operaciones y ventas.');
         abort_unless($this->abierto($programa), 404);
         $programa->load('paxs');
 
@@ -27,6 +28,7 @@ class DatosPasajerosController extends Controller
 
     public function update(Request $request, Programa $programa)
     {
+        abort_unless(auth()->check() && auth()->user()->can('programas.gestionar'), 403, 'El registro de pasajeros está restringido al equipo de operaciones y ventas.');
         abort_unless($this->abierto($programa), 404);
 
         $isEn = $programa->lang === 'en';

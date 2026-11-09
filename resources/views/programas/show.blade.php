@@ -162,19 +162,6 @@
     </nav>
 
     <main id="contenido" class="container itin-main" tabindex="-1">
-        @if ($abierto)
-            <aside class="itin-cta {{ $faltanDatos ? 'itin-cta--pending' : '' }}">
-                <span class="itin-cta__icon" aria-hidden="true"><i class="fa {{ $faltanDatos ? 'fa-id-card-o' : 'fa-check' }}"></i></span>
-                <div class="itin-cta__body">
-                    <p class="itin-cta__title">{{ $t['cta_title'] }}</p>
-                    <p class="itin-cta__text">{{ $faltanDatos ? $t['cta_text'] : $t['cta_done'] }}</p>
-                </div>
-                <a href="{{ route('itinerario.pasajeros', $programa) }}" class="itin-btn {{ $faltanDatos ? '' : 'itin-btn--ghost' }}">
-                    {{ $faltanDatos ? $t['cta_button'] : $t['cta_review'] }} <i class="fa fa-arrow-right" aria-hidden="true"></i>
-                </a>
-            </aside>
-        @endif
-
         @if ($programa->aceptable())
             @php
                 $vigenteCliente = $programa->aceptacionVigente();

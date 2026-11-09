@@ -571,6 +571,33 @@
     .pf-cobro__bar[data-fill="#{$i * 5}"] { width: #{$i * 5%}; }
 }
 
+#finanzasSubTabs {
+    .nav-link {
+        border-radius: $border-radius-pill;
+        padding: 0.5rem 1.25rem;
+        background: var(--ae-surface);
+        border: 1px solid $card-border-color;
+        color: var(--ae-ink);
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background: var(--ae-chip);
+            color: var(--ae-ink);
+        }
+
+        &.active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: #fff;
+
+            .badge {
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+        }
+    }
+}
+
 // ---- Barra fija de acciones ----
 .pf-actionbar {
     position: fixed;
