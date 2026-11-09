@@ -87,7 +87,8 @@
             </div>
         </div>
         @php
-            $esCeroCliente = (isset($v('costo_estimado')) && (float) $v('costo_estimado') === 0.0 && (float) ($v('costo') ?? 0) === 0.0 && filled($v('costo_estimado')));
+            $valCostoEst = $v('costo_estimado');
+            $esCeroCliente = ($valCostoEst !== null && filled($valCostoEst) && (float) $valCostoEst === 0.0 && (float) ($v('costo') ?? 0) === 0.0);
         @endphp
         <div class="svc-row__actions">
             @unless ($esEstadia)
