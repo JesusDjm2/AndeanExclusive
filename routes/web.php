@@ -40,6 +40,7 @@ use App\Http\Controllers\RespaldoController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TarifaController;
+use App\Http\Controllers\TarifarioCategoriaController;
 use App\Http\Controllers\TarifarioServicioController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
@@ -94,6 +95,11 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::post('notificaciones/{aviso}/marcar', [AvisoController::class, 'marcar'])->whereNumber('aviso')->name('avisos.marcar');
         Route::get('tarifario/sugerir', [TarifaController::class, 'sugerir'])->name('tarifas.sugerir');
         Route::resource('tarifario', TarifaController::class)->except('show')->parameters(['tarifario' => 'tarifa'])->names('tarifas');
+        Route::post('tarifario-maestro/tipo-cambio', [TarifarioServicioController::class, 'actualizarTipoCambio'])->name('tarifario-maestro.tipo-cambio');
+        Route::resource('tarifario-maestro/categorias', TarifarioCategoriaController::class)
+            ->names('tarifario-categorias')
+            ->parameters(['categorias' => 'categoria'])
+            ->except(['show', 'create', 'edit']);
         Route::get('tarifario-maestro/cotizar', [TarifarioServicioController::class, 'cotizar'])->name('tarifario-maestro.cotizar');
         Route::get('tarifario-maestro/buscar', [TarifarioServicioController::class, 'buscar'])->name('tarifario-maestro.buscar');
         Route::get('tarifario-maestro/{tarifarioServicio}/componentes', [TarifarioServicioController::class, 'componentes'])

@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\TarifarioAjuste;
+use App\Models\TarifarioCategoria;
 use App\Models\TarifarioServicio;
 use App\Support\DesgloseTarifario;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class TarifarioServicioController extends Controller
@@ -26,7 +30,9 @@ class TarifarioServicioController extends Controller
             });
         }
 
-        if ($cat !== '' && array_key_exists($cat, TarifarioServicio::CATEGORIAS)) {
+        $listaCategorias = TarifarioCategoria::mapa();
+
+        if ($cat !== '' && array_key_exists($cat, $listaCategorias)) {
             $query->where('categoria', $cat);
         }
 
@@ -39,13 +45,17 @@ class TarifarioServicioController extends Controller
             'total'        => TarifarioServicio::count(),
             'traslados'    => TarifarioServicio::where('categoria', 'traslado')->count(),
             'tours'        => TarifarioServicio::where('categoria', 'tour')->count(),
+            'ceremonias'   => TarifarioServicio::where('categoria', 'ceremonia')->count(),
             'treks'        => TarifarioServicio::where('categoria', 'trek')->count(),
             'boletos'      => TarifarioServicio::where('categoria', 'boleto')->count(),
             'alimentacion' => TarifarioServicio::where('categoria', 'alimentacion')->count(),
             'componentes'  => TarifarioServicio::where('categoria', 'componente')->count(),
         ];
 
-        return view('tarifario-maestro.index', compact('servicios', 'q', 'cat', 'stats'));
+        $tipoCambio = TarifarioAjuste::tipoCambio();
+        $categoriasLista = TarifarioCategoria::ordenadas();
+
+        return view('tarifario-maestro.index', compact('servicios', 'q', 'cat', 'stats', 'tipoCambio', 'categoriasLista', 'listaCategorias'));
     }
 
     public function show(TarifarioServicio $tarifarioServicio): View
@@ -58,15 +68,18 @@ class TarifarioServicioController extends Controller
     public function edit(TarifarioServicio $tarifarioServicio): View
     {
         return view('tarifario-maestro.form', [
-            'servicio' => $tarifarioServicio,
+            'servicio'   => $tarifarioServicio,
+            'categorias' => TarifarioCategoria::mapa(),
         ]);
     }
 
-    public function update(Request $request, TarifarioServicio $tarifarioServicio)
+    public function update(Request $request, TarifarioServicio $tarifarioServicio): RedirectResponse
     {
+        $categoriasValidas = array_keys(TarifarioCategoria::mapa());
+
         $data = $request->validate([
             'nombre'              => ['required', 'string', 'max:255'],
-            'categoria'           => ['required', 'string', 'in:' . implode(',', array_keys(TarifarioServicio::CATEGORIAS))],
+            'categoria'           => ['required', 'string', Rule::in($categoriasValidas)],
             'descripcion'         => ['nullable', 'string'],
             'lugares_visita'      => ['nullable', 'string'],
             'duracion_horas'      => ['nullable', 'numeric', 'min:0'],
@@ -74,6 +87,7 @@ class TarifarioServicioController extends Controller
             'aplica_igv_comision' => ['nullable', 'boolean'],
             'precio_adulto'       => ['nullable', 'numeric', 'min:0'],
             'precio_nino'         => ['nullable', 'numeric', 'min:0'],
+            'costo_grupo'         => ['nullable', 'numeric', 'min:0'],
             'notas'               => ['nullable', 'string'],
         ]);
 
@@ -83,6 +97,63 @@ class TarifarioServicioController extends Controller
 
         return redirect()->route('tarifario-maestro.show', $tarifarioServicio)
                          ->with('exito', "Servicio maestro [{$tarifarioServicio->codigo}] actualizado correctamente.");
+    }
+
+    /**
+     * Actualiza el tipo de cambio oficial de referencia del Tarifario Maestro
+     * y opcionalmente recalcula los costos en USD de boletos oficiales expresados en Soles.
+     */
+    public function actualizarTipoCambio(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'tipo_cambio'        => ['required', 'numeric', 'min:0.1', 'max:100'],
+            'recalcular_boletos' => ['nullable', 'boolean'],
+        ]);
+
+        $nuevoTc = (float) $validated['tipo_cambio'];
+        TarifarioAjuste::set('tipo_cambio', number_format($nuevoTc, 2, '.', ''), 'Tipo de cambio oficial de referencia (Soles por Dólar)');
+
+        $mensajeExtra = '';
+
+        if ($request->boolean('recalcular_boletos')) {
+            // Boletos oficiales con precio fijado por el Estado Peruano en Soles (PEN)
+            $boletosSoles = [
+                'BTG'                          => ['adulto' => 130.00, 'nino' => 70.00],
+                'BTP-I'                        => ['adulto' => 70.00,  'nino' => 40.00],
+                'BTP-II'                       => ['adulto' => 70.00,  'nino' => 40.00],
+                'BTP-III'                      => ['adulto' => 70.00,  'nino' => 40.00],
+                'ENT-CATEDRAL'                 => ['adulto' => 40.00,  'nino' => 20.00],
+                'ENT-QORIKANCHA'               => ['adulto' => 20.00,  'nino' => 10.00],
+                'ENT-MARAS'                    => ['adulto' => 20.00,  'nino' => null],
+                'ENT-SAN-PEDRO'                => ['adulto' => 20.00,  'nino' => 10.00],
+                'ENT-MUSEO-INKA'               => ['adulto' => 20.00,  'nino' => null],
+                'ENT-ANDAHUAYLILLAS'           => ['adulto' => 15.00,  'nino' => null],
+                'ENT-MACHUPICCHU-CIRCUITO'     => ['adulto' => 152.00, 'nino' => 70.00],
+                'ENT-MACHUPICCHU-HUAYNAPICCHU' => ['adulto' => 200.00, 'nino' => null],
+                'ENT-TIPON-PIKILLAQTA'         => ['adulto' => 20.00,  'nino' => null],
+                'ENT-CHOQUEQUIRAO'             => ['adulto' => 60.00,  'nino' => 30.00],
+            ];
+
+            $actualizados = 0;
+            foreach ($boletosSoles as $codigo => $precios) {
+                $servicio = TarifarioServicio::where('codigo', $codigo)->first();
+                if ($servicio) {
+                    $precioAdultoUsd = round($precios['adulto'] / $nuevoTc, 2);
+                    $precioNinoUsd = $precios['nino'] !== null ? round($precios['nino'] / $nuevoTc, 2) : null;
+
+                    $servicio->update([
+                        'precio_adulto' => $precioAdultoUsd,
+                        'precio_nino'   => $precioNinoUsd,
+                        'notas'         => "Tarifa oficial en Soles convertida a T/C {$nuevoTc}. Requiere pasaporte original en ingreso.",
+                    ]);
+                    $actualizados++;
+                }
+            }
+            $mensajeExtra = " y se recalcularon {$actualizados} boletos oficiales en Soles";
+        }
+
+        return redirect()->route('tarifario-maestro.index')
+            ->with('exito', "Tipo de cambio oficial actualizado a S/ " . number_format($nuevoTc, 2) . "{$mensajeExtra}.");
     }
 
     /**

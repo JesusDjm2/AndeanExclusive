@@ -284,7 +284,7 @@ class Ayuda
             'notas' => ['Al cotizar, el costo por noche se llena solo si hay tarifa vigente. Al asignar un proveedor, sus tarifas aparecen como botones.', 'Siempre puedes escribir otro precio: la tarifa es solo una sugerencia.'],
         ],
         'tarifario-maestro' => [
-            'grupo' => 'programas', 'rutas' => ['tarifario-maestro.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Tarifario Maestro Oficial 2027',
+            'grupo' => 'programas', 'rutas' => ['tarifario-maestro.*', 'tarifario-categorias.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Tarifario Maestro Oficial 2027',
             'resumen' => 'Catálogo maestro de tours, traslados, boletos oficiales y experiencias escalonadas de 1 a 20 pasajeros con fórmula financiera de cotización.',
             'pasos' => [
                 'Consulta la lista de servicios por categoría o busca por código (ej. FDAWA, BTG, APTHTL).',

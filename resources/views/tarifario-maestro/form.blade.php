@@ -49,7 +49,10 @@
                     <div class="col-12 col-md-4">
                         <label class="form-label small fw-semibold text-dark">Categoría <span class="text-danger">*</span></label>
                         <select name="categoria" class="form-select" required>
-                            @foreach (\App\Models\TarifarioServicio::CATEGORIAS as $slug => $nom)
+                            @php
+                                $listaCat = $categorias ?? \App\Models\TarifarioCategoria::mapa();
+                            @endphp
+                            @foreach ($listaCat as $slug => $nom)
                                 <option value="{{ $slug }}" @selected(old('categoria', $servicio->categoria) === $slug)>{{ $nom }}</option>
                             @endforeach
                         </select>
@@ -104,6 +107,15 @@
                                 <span class="input-group-text">$</span>
                                 <input type="number" step="0.01" min="0" name="precio_nino" class="form-control" value="{{ old('precio_nino', $servicio->precio_nino) }}">
                             </div>
+                        </div>
+                    @elseif ($servicio->tipo_calculo === 'por_grupo')
+                        <div class="col-12 col-md-6">
+                            <label class="form-label small fw-semibold text-dark">Costo Total del Grupo (USD) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" min="0" name="costo_grupo" class="form-control" value="{{ old('costo_grupo', $servicio->costo_grupo) }}" required>
+                            </div>
+                            <small class="text-muted" style="font-size: 0.72rem;">Costo total fijo del grupo (se prorratea automáticamente entre la cantidad de pasajeros).</small>
                         </div>
                     @endif
 

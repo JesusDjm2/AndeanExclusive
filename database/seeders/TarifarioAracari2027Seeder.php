@@ -6171,7 +6171,7 @@ class TarifarioAracari2027Seeder extends Seeder
             // ==========================================
             [
                 'codigo' => 'CEREM-CUSCO',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Ceremonia de Pago a la Tierra en Cusco (Chamán + Ofrenda + Guía Traductor)',
                 'duracion_horas' => 3,
                 'tipo_calculo' => 'por_grupo',
@@ -6183,7 +6183,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-CUSCO-MUSICA',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Ceremonia de Pago a la Tierra en Cusco + Acompañamiento de Música Andina',
                 'duracion_horas' => 3,
                 'tipo_calculo' => 'por_grupo',
@@ -6195,7 +6195,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-VALLE',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Ceremonia de Pago a la Tierra en Valle Sagrado (Chamán + Ofrenda + Guía Traductor)',
                 'duracion_horas' => 3.5,
                 'tipo_calculo' => 'por_grupo',
@@ -6207,7 +6207,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-VALLE-MUSICA',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Ceremonia de Pago a la Tierra en Valle Sagrado + Acompañamiento de Música Andina',
                 'duracion_horas' => 3.5,
                 'tipo_calculo' => 'por_grupo',
@@ -6219,7 +6219,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-MAPI-SANCTUARY',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Pago a la Tierra en Terraza Belmond Sanctuary Lodge (Machu Picchu con Visita)',
                 'duracion_horas' => 3,
                 'tipo_calculo' => 'por_grupo',
@@ -6231,7 +6231,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-MAPI-HOTEL',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Pago a la Tierra en Terraza Hotel Aguas Calientes / Mariposario (Machu Picchu con Visita)',
                 'duracion_horas' => 3,
                 'tipo_calculo' => 'por_grupo',
@@ -6243,7 +6243,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-MAPI-SINVISITA-SANC',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Pago a la Tierra en Terraza Sanctuary Lodge (Machu Picchu Sin Visita)',
                 'duracion_horas' => 2.5,
                 'tipo_calculo' => 'por_grupo',
@@ -6255,7 +6255,7 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
             [
                 'codigo' => 'CEREM-MAPI-SINVISITA-HOTEL',
-                'categoria' => 'tour',
+                'categoria' => 'ceremonia',
                 'nombre' => 'Pago a la Tierra en Terraza Hotel Aguas Calientes / Mariposario (Machu Picchu Sin Visita)',
                 'duracion_horas' => 2.5,
                 'tipo_calculo' => 'por_grupo',

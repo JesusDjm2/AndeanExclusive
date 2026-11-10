@@ -170,8 +170,20 @@ class TarifarioServicio extends Model
         ];
     }
 
+    public function categoriaRelacion()
+    {
+        return $this->belongsTo(TarifarioCategoria::class, 'categoria', 'slug');
+    }
+
+    public function getCategoriaNombreAttribute(): string
+    {
+        return TarifarioCategoria::mapa()[$this->categoria]
+            ?? self::CATEGORIAS[$this->categoria]
+            ?? ucfirst($this->categoria);
+    }
+
     public function getCategoriaEtiquetaAttribute(): string
     {
-        return self::CATEGORIAS[$this->categoria] ?? ucfirst($this->categoria);
+        return $this->categoria_nombre;
     }
 }

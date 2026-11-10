@@ -7,13 +7,18 @@
     {{-- Encabezado Principal --}}
     <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
         <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                 <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1 fw-semibold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.72rem;">
                     <i class="fas fa-crown me-1"></i> Catálogo Oficial Andean Aracari
                 </span>
-                <span class="badge bg-light text-muted border px-2 py-1" style="font-size: 0.72rem;">
-                    Tipo de Cambio: S/ 3.30 · Vigencia 2027
-                </span>
+                <button type="button" class="btn btn-sm btn-light border px-2 py-1 text-muted shadow-sm d-inline-flex align-items-center gap-1"
+                        data-bs-toggle="modal" data-bs-target="#modalTipoCambio" title="Clic para consultar o editar el Tipo de Cambio de referencia">
+                    <span class="fw-semibold text-dark"><i class="fas fa-exchange-alt text-primary me-1"></i>Tipo de Cambio: S/ {{ number_format($tipoCambio, 2) }}</span>
+                    <span class="text-muted small">· Vigencia 2027</span>
+                    @can('proveedores.gestionar')
+                        <i class="fas fa-pen text-primary ms-1" style="font-size: 0.7rem;"></i>
+                    @endcan
+                </button>
             </div>
             <h1 class="h3 fw-bold text-dark mb-1 d-flex align-items-center gap-2">
                 <i class="fas fa-calculator text-primary"></i> Tarifario Maestro de Servicios
@@ -23,7 +28,12 @@
             </p>
         </div>
 
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
+            @can('proveedores.gestionar')
+                <a href="{{ route('tarifario-categorias.index') }}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1 shadow-sm">
+                    <i class="fas fa-tags"></i> Gestionar Categorías
+                </a>
+            @endcan
             <a href="{{ route('programas.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1 shadow-sm">
                 <i class="fas fa-suitcase-rolling"></i> Programas y Cotizaciones
             </a>
@@ -43,8 +53,8 @@
     @endif
 
     {{-- Tarjetas KPI / Métricas Rápidas --}}
-    <div class="row g-3 mb-4">
-        <div class="col-6 col-md-4 col-xl-2">
+    <div class="row g-2 g-md-3 mb-4">
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-primary">
                 <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Total Servicios</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
@@ -53,7 +63,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-xl-2">
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-info">
                 <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Tours Exclusivos</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
@@ -62,7 +72,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-xl-2">
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-success">
                 <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Traslados</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
@@ -71,7 +81,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-xl-2">
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-warning">
                 <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Boletos Oficiales</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
@@ -80,7 +90,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-xl-2">
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-danger">
                 <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Treks de Altura</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
@@ -89,9 +99,18 @@
                 </div>
             </div>
         </div>
-        <div class="col-6 col-md-4 col-xl-2">
+        <div class="col-6 col-md-3 col-xl">
+            <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4" style="border-color: #6f42c1 !important;">
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Ceremonias</span>
+                <div class="d-flex align-items-baseline justify-content-between mt-1">
+                    <span class="fs-4 fw-bold text-dark">{{ $stats['ceremonias'] ?? 0 }}</span>
+                    <i class="fas fa-fire opacity-50" style="color: #6f42c1;"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3 col-xl">
             <div class="card border-0 shadow-sm rounded-3 h-100 p-3 bg-white border-start border-4 border-secondary">
-                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Alimentación & Picnics</span>
+                <span class="text-muted small text-uppercase fw-semibold" style="font-size: 0.7rem;">Alimentación</span>
                 <div class="d-flex align-items-baseline justify-content-between mt-1">
                     <span class="fs-4 fw-bold text-dark">{{ $stats['alimentacion'] }}</span>
                     <i class="fas fa-utensils text-secondary opacity-50"></i>
@@ -120,8 +139,8 @@
                 <div class="col-12 col-md-4 col-lg-3">
                     <select name="cat" class="form-select form-select-sm" onchange="this.form.submit()">
                         <option value="">Todas las categorías ({{ $stats['total'] }})</option>
-                        @foreach (\App\Models\TarifarioServicio::CATEGORIAS as $slug => $nombre)
-                            <option value="{{ $slug }}" @selected($cat === $slug)>{{ $nombre }}</option>
+                        @foreach ($categoriasLista as $c)
+                            <option value="{{ $c->slug }}" @selected($cat === $c->slug)>{{ $c->nombre }} ({{ $c->servicios_count }})</option>
                         @endforeach
                     </select>
                 </div>
@@ -140,10 +159,10 @@
                    class="tm-filter-pill {{ $cat === '' ? 'is-active' : '' }}">
                     Todos
                 </a>
-                @foreach (\App\Models\TarifarioServicio::CATEGORIAS as $slug => $nombre)
-                    <a href="{{ route('tarifario-maestro.index', array_filter(['cat' => $slug, 'q' => $q])) }}"
-                       class="tm-filter-pill {{ $cat === $slug ? 'is-active' : '' }}">
-                        {{ $nombre }}
+                @foreach ($categoriasLista as $c)
+                    <a href="{{ route('tarifario-maestro.index', array_filter(['cat' => $c->slug, 'q' => $q])) }}"
+                       class="tm-filter-pill {{ $cat === $c->slug ? 'is-active' : '' }}">
+                        <i class="fas {{ $c->icono ?: 'fa-tag' }} me-1 opacity-75"></i>{{ $c->nombre }}
                     </a>
                 @endforeach
             </div>
@@ -257,10 +276,15 @@
                                         <small class="d-block text-muted" style="font-size: 0.7rem;">+ IGV fee</small>
                                     @endif
                                 </td>
-                                <td class="text-end pe-3">
+                                <td class="text-end pe-3 text-nowrap">
                                     <a href="{{ route('tarifario-maestro.show', $s) }}" class="btn btn-outline-primary btn-sm px-2 py-1 shadow-sm" title="Ver matriz detallada y simulador de cotización">
                                         <i class="fas fa-calculator me-1"></i> Matriz
                                     </a>
+                                    @can('proveedores.gestionar')
+                                        <a href="{{ route('tarifario-maestro.edit', $s) }}" class="btn btn-outline-secondary btn-sm px-2 py-1 shadow-sm ms-1" title="Editar parámetros y categoría">
+                                            <i class="fas fa-edit me-1"></i> Editar
+                                        </a>
+                                    @endcan
                                 </td>
                             </tr>
                         @endforeach
@@ -282,6 +306,59 @@
         @endif
     </div>
 
+</div>
+
+{{-- Modal Tipo de Cambio --}}
+<div class="modal fade" id="modalTipoCambio" tabindex="-1" aria-labelledby="modalTipoCambioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form method="POST" action="{{ route('tarifario-maestro.tipo-cambio') }}">
+                @csrf
+                <div class="modal-header bg-light border-bottom">
+                    <h6 class="modal-title fw-bold text-dark" id="modalTipoCambioLabel">
+                        <i class="fas fa-exchange-alt text-primary me-2"></i>Tipo de Cambio Oficial (Tarifario Maestro)
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="small text-muted mb-3">
+                        Tasa de conversión contable utilizada para convertir a Dólares Americanos (USD) los servicios y boletos oficiales fijados en Soles peruanos (PEN).
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-semibold text-dark">Tipo de Cambio Oficial (S/ por cada US$ 1.00) <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-secondary">S/</span>
+                            <input type="number" step="0.01" min="0.10" max="100.00" name="tipo_cambio" class="form-control form-control-lg fw-bold text-dark font-monospace" value="{{ old('tipo_cambio', number_format($tipoCambio, 2, '.', '')) }}" required>
+                        </div>
+                        <small class="text-muted" style="font-size: 0.72rem;">Referencia original de la hoja oficial Aracari: S/ 3.30.</small>
+                    </div>
+
+                    <div class="p-3 bg-light rounded-3 border mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="recalcular_boletos" value="1" id="recalcular_boletos" checked>
+                            <label class="form-check-label small fw-semibold text-dark" for="recalcular_boletos">
+                                Recalcular automáticamente tarifas de boletos oficiales en Soles
+                            </label>
+                        </div>
+                        <small class="text-muted d-block mt-1 ps-4" style="font-size: 0.72rem;">
+                            Actualiza el costo en USD de los boletos del Estado (BTG: S/ 130, Maras: S/ 20, Catedral: S/ 40, Qorikancha: S/ 20, Machu Picchu: S/ 152) dividiendo su valor en Soles entre este nuevo tipo de cambio.
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-top">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                    @can('proveedores.gestionar')
+                        <button type="submit" class="btn btn-primary btn-sm fw-semibold">
+                            <i class="fas fa-save me-1"></i> Guardar Tipo de Cambio
+                        </button>
+                    @else
+                        <button type="button" class="btn btn-secondary btn-sm" disabled>Solo lectura</button>
+                    @endcan
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <style>

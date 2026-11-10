@@ -203,4 +203,97 @@ class TarifarioServicioTest extends TestCase
         // Consultar el desglose no modifica el catálogo.
         $this->assertSame($antes, TarifarioServicio::query()->get(['codigo', 'desglose', 'precios_escalonados'])->toJson());
     }
+
+    public function test_tipo_cambio_y_recalculo_de_boletos_soles(): void
+    {
+        $this->seed(\Database\Seeders\TarifarioAracari2027Seeder::class);
+        $user = $this->usuario('reservas');
+
+        // Actualizar tipo de cambio a 3.80 y recalcular boletos
+        $response = $this->actingAs($user)->post(route('tarifario-maestro.tipo-cambio'), [
+            'tipo_cambio'        => 3.80,
+            'recalcular_boletos' => '1',
+        ]);
+
+        $response->assertRedirect(route('tarifario-maestro.index'));
+        $this->assertEquals(3.80, \App\Models\TarifarioAjuste::tipoCambio());
+
+        // BTG (S/ 130 adulto, S/ 70 niño) recalculado a 3.80:
+        // 130 / 3.80 = 34.21, 70 / 3.80 = 18.42
+        $btg = TarifarioServicio::where('codigo', 'BTG')->firstOrFail();
+        $this->assertEquals(34.21, (float) $btg->precio_adulto);
+        $this->assertEquals(18.42, (float) $btg->precio_nino);
+    }
+
+    public function test_crud_de_categorias_del_tarifario_maestro(): void
+    {
+        $this->seed(\Database\Seeders\TarifarioAracari2027Seeder::class);
+        $user = $this->usuario('reservas');
+
+        // 1. Ver listado de categorías
+        $this->actingAs($user)
+            ->get(route('tarifario-categorias.index'))
+            ->assertOk()
+            ->assertSee('Categorías del Tarifario Maestro')
+            ->assertSee('Ceremonias Místicas');
+
+        // 2. Crear nueva categoría
+        $this->actingAs($user)
+            ->post(route('tarifario-categorias.store'), [
+                'nombre' => 'Experiencias de Lujo',
+                'slug'   => 'xp-lujo',
+                'icono'  => 'fa-gem',
+                'orden'  => 15,
+            ])
+            ->assertRedirect(route('tarifario-categorias.index'));
+
+        $cat = \App\Models\TarifarioCategoria::where('slug', 'xp-lujo')->firstOrFail();
+        $this->assertSame('Experiencias de Lujo', $cat->nombre);
+
+        // 3. Actualizar categoría
+        $this->actingAs($user)
+            ->put(route('tarifario-categorias.update', $cat), [
+                'nombre' => 'Experiencias de Ultra Lujo',
+                'slug'   => 'xp-ultra-lujo',
+                'icono'  => 'fa-crown',
+                'orden'  => 16,
+                'activo' => '1',
+            ])
+            ->assertRedirect(route('tarifario-categorias.index'));
+
+        $cat->refresh();
+        $this->assertSame('Experiencias de Ultra Lujo', $cat->nombre);
+        $this->assertSame('xp-ultra-lujo', $cat->slug);
+
+        // 4. Eliminar categoría sin servicios
+        $this->actingAs($user)
+            ->delete(route('tarifario-categorias.destroy', $cat))
+            ->assertRedirect(route('tarifario-categorias.index'));
+
+        $this->assertNull(\App\Models\TarifarioCategoria::where('slug', 'xp-ultra-lujo')->first());
+    }
+
+    public function test_edicion_de_servicio_con_costo_grupo_y_categoria(): void
+    {
+        $this->seed(\Database\Seeders\TarifarioAracari2027Seeder::class);
+        $user = $this->usuario('reservas');
+
+        $ceremonia = TarifarioServicio::where('codigo', 'CEREM-CUSCO')->firstOrFail();
+
+        $this->actingAs($user)
+            ->put(route('tarifario-maestro.update', $ceremonia), [
+                'nombre'         => 'Ceremonia de Pago a la Tierra en Cusco (Edición Especial)',
+                'categoria'      => 'ceremonia',
+                'comision_pct'   => 12.00,
+                'duracion_horas' => 4.0,
+                'costo_grupo'    => 420.00,
+            ])
+            ->assertRedirect(route('tarifario-maestro.show', $ceremonia));
+
+        $ceremonia->refresh();
+        $this->assertSame('Ceremonia de Pago a la Tierra en Cusco (Edición Especial)', $ceremonia->nombre);
+        $this->assertSame('ceremonia', $ceremonia->categoria);
+        $this->assertEquals(420.00, (float) $ceremonia->costo_grupo);
+        $this->assertEquals(12.00, (float) $ceremonia->comision_pct);
+    }
 }
