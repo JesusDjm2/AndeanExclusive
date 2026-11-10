@@ -1251,12 +1251,15 @@
                                     <small class="text-muted">Tarifa niños (5-11 años).</small>
                                 </div>
                                 <div class="col-12 col-sm-4">
-                                    <label class="form-label small fw-semibold text-muted">Pasajeros del Grupo:</label>
+                                    <label class="form-label small fw-semibold text-muted">Pasajeros (Adultos / Niños):</label>
                                     <div class="input-group input-group-lg">
-                                        <span class="input-group-text bg-white fw-bold text-primary"><i class="fas fa-users"></i></span>
-                                        <input type="number" step="1" min="1" max="999" class="form-control fw-bold text-center" id="modal-cantidad-pax" value="{{ $programa->cantidad_pax ?: $pagantes }}">
+                                        <span class="input-group-text bg-white fw-bold text-primary" title="Adultos"><i class="fas fa-user"></i></span>
+                                        <input type="number" step="1" min="1" max="999" class="form-control fw-bold text-center" id="modal-cantidad-adultos" value="{{ $programa->cantidad_adultos ?: 2 }}" placeholder="Adt">
+                                        <span class="input-group-text bg-white fw-bold text-info" title="Niños"><i class="fas fa-child"></i></span>
+                                        <input type="number" step="1" min="0" max="999" class="form-control fw-bold text-center" id="modal-cantidad-ninos" value="{{ $programa->cantidad_ninos ?: 0 }}" placeholder="Chd">
                                     </div>
-                                    <small class="text-muted">Cantidad total para cotizar.</small>
+                                    <input type="hidden" id="modal-cantidad-pax" value="{{ $programa->cantidad_pax ?: $pagantes }}">
+                                    <small class="text-muted d-block mt-1">Total: <strong id="modal-total-pax-lbl">{{ $programa->cantidad_pax ?: $pagantes }}</strong> personas</small>
                                 </div>
                                 <div class="col-12 col-sm-4">
                                     <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
@@ -1689,12 +1692,25 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Guardar desde el Modal
+    const syncModalTotal = () => {
+        const adt = Math.max(1, parseInt(document.getElementById('modal-cantidad-adultos')?.value, 10) || 1);
+        const chd = Math.max(0, parseInt(document.getElementById('modal-cantidad-ninos')?.value, 10) || 0);
+        const total = adt + chd;
+        const hiddenPax = document.getElementById('modal-cantidad-pax');
+        const lbl = document.getElementById('modal-total-pax-lbl');
+        if (hiddenPax) hiddenPax.value = total;
+        if (lbl) lbl.textContent = total;
+        return { adt, chd, total };
+    };
+    document.getElementById('modal-cantidad-adultos')?.addEventListener('input', syncModalTotal);
+    document.getElementById('modal-cantidad-ninos')?.addEventListener('input', syncModalTotal);
+
     btnGuardarModal?.addEventListener('click', async function () {
         const pAdulto = parseFloat(modalPrecioAdulto ? modalPrecioAdulto.value : 0) || 0;
         const pChild = modalPrecioNino && modalPrecioNino.value !== '' ? parseFloat(modalPrecioNino.value) : null;
         const pGanancia = parseFloat(modalPorcentajeGanancia ? modalPorcentajeGanancia.value : 0) || 0;
         const pIgv = parseFloat(modalPorcentajeIgv ? modalPorcentajeIgv.value : 18) || 0;
-        const cantPax = parseInt(document.getElementById('modal-cantidad-pax')?.value, 10) || {{ $pagantes }};
+        const { adt, chd, total: cantPax } = syncModalTotal();
         const tc = parseFloat(modalTipoCambio ? modalTipoCambio.value : {{ $tc }}) || {{ $tc }};
 
         try {
@@ -1703,6 +1719,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 precioChild: pChild !== null ? pChild.toFixed(2) : null,
                 porcentaje_ganancia: pGanancia.toFixed(2),
                 porcentaje_igv: pIgv.toFixed(2),
+                cantidad_adultos: adt,
+                cantidad_ninos: chd,
                 cantidad_pax: cantPax,
                 tipo_cambio: tc
             }, btnGuardarModal, modalFeedbackMsg);

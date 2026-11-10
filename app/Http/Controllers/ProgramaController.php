@@ -371,6 +371,8 @@ class ProgramaController extends Controller
             'lang' => 'nullable|in:es,en',
             'moneda' => 'nullable|in:USD,PEN',
             'cantidad_pax' => 'nullable|integer|min:1|max:999',
+            'cantidad_adultos' => 'nullable|integer|min:1|max:999',
+            'cantidad_ninos' => 'nullable|integer|min:0|max:999',
             'llegada_vuelo' => 'nullable|string|max:40',
             'llegada_at' => 'nullable|date',
             'salida_vuelo' => 'nullable|string|max:40',
@@ -404,6 +406,7 @@ class ProgramaController extends Controller
             'servicios.*.notas' => 'nullable|string|max:2000',
             'servicios.*.costo' => 'nullable|numeric|min:0',
             'servicios.*.costo_estimado' => 'nullable|numeric|min:0',
+            'servicios.*.tarifario_codigo' => 'nullable|string|max:30',
             'servicios.*.moneda' => ['nullable', Rule::in(array_keys(Servicio::MONEDAS))],
             'servicios.*.costo_por' => ['nullable', Rule::in(array_keys(Servicio::COSTO_POR))],
             'estadias' => 'nullable|array',
@@ -481,7 +484,9 @@ class ProgramaController extends Controller
             'fin' => $request->fin,
             'lang' => $request->lang,
             'moneda' => $request->input('moneda', 'USD'),
-            'cantidad_pax' => $request->filled('cantidad_pax') ? max(1, (int) $request->input('cantidad_pax')) : 1,
+            'cantidad_adultos' => $request->filled('cantidad_adultos') ? max(1, (int) $request->input('cantidad_adultos')) : ($request->filled('cantidad_pax') ? max(1, (int) $request->input('cantidad_pax')) : 2),
+            'cantidad_ninos' => $request->filled('cantidad_ninos') ? max(0, (int) $request->input('cantidad_ninos')) : 0,
+            'cantidad_pax' => max(1, ($request->filled('cantidad_adultos') ? max(1, (int) $request->input('cantidad_adultos')) : ($request->filled('cantidad_pax') ? max(1, (int) $request->input('cantidad_pax')) : 2)) + ($request->filled('cantidad_ninos') ? max(0, (int) $request->input('cantidad_ninos')) : 0)),
             'llegada_vuelo' => $request->llegada_vuelo,
             'llegada_at' => $request->llegada_at,
             'salida_vuelo' => $request->salida_vuelo,
@@ -580,6 +585,7 @@ class ProgramaController extends Controller
                 'visible_cliente' => ! empty($datos['visible_cliente']),
                 'costo' => isset($datos['costo']) && $datos['costo'] !== '' ? $datos['costo'] : null,
                 'costo_estimado' => isset($datos['costo_estimado']) && $datos['costo_estimado'] !== '' ? $datos['costo_estimado'] : null,
+                'tarifario_codigo' => ($datos['tarifario_codigo'] ?? null) ?: null,
                 'moneda' => ($datos['moneda'] ?? null) ?: 'USD',
                 'costo_por' => ($datos['costo_por'] ?? null) ?: 'grupo',
             ];
@@ -715,6 +721,8 @@ class ProgramaController extends Controller
             'porcentaje_ganancia' => 'nullable|numeric|min:0|max:999.99',
             'porcentaje_igv' => 'nullable|numeric|min:0|max:100',
             'cantidad_pax' => 'nullable|integer|min:1|max:999',
+            'cantidad_adultos' => 'nullable|integer|min:1|max:999',
+            'cantidad_ninos' => 'nullable|integer|min:0|max:999',
             'precioChild' => 'nullable|numeric|min:0',
             'tipo_cambio' => 'nullable|numeric|min:0.1|max:99',
             'suplemento_individual' => 'nullable|numeric|min:0',
@@ -728,8 +736,19 @@ class ProgramaController extends Controller
         if (array_key_exists('porcentaje_igv', $datos)) {
             $update['porcentaje_igv'] = $datos['porcentaje_igv'];
         }
-        if (array_key_exists('cantidad_pax', $datos) && $datos['cantidad_pax'] !== null) {
+        if (array_key_exists('cantidad_adultos', $datos) && $datos['cantidad_adultos'] !== null) {
+            $update['cantidad_adultos'] = max(1, (int) $datos['cantidad_adultos']);
+        }
+        if (array_key_exists('cantidad_ninos', $datos) && $datos['cantidad_ninos'] !== null) {
+            $update['cantidad_ninos'] = max(0, (int) $datos['cantidad_ninos']);
+        }
+        if (array_key_exists('cantidad_pax', $datos) && $datos['cantidad_pax'] !== null && !isset($update['cantidad_adultos'])) {
             $update['cantidad_pax'] = max(1, (int) $datos['cantidad_pax']);
+        }
+        if (isset($update['cantidad_adultos']) || isset($update['cantidad_ninos'])) {
+            $adt = $update['cantidad_adultos'] ?? ($programa->cantidad_adultos ?: 1);
+            $chd = $update['cantidad_ninos'] ?? ($programa->cantidad_ninos ?: 0);
+            $update['cantidad_pax'] = max(1, $adt + $chd);
         }
         if (array_key_exists('precioChild', $datos)) {
             $update['precioChild'] = $datos['precioChild'];
@@ -762,6 +781,8 @@ class ProgramaController extends Controller
                 'porcentaje_ganancia' => $programa->porcentaje_ganancia,
                 'porcentaje_igv' => $programa->porcentaje_igv,
                 'cantidad_pax' => $programa->cantidad_pax,
+                'cantidad_adultos' => $programa->cantidad_adultos,
+                'cantidad_ninos' => $programa->cantidad_ninos,
                 'pagantes' => $programa->pagantes(),
                 'tipo_cambio' => $programa->tipo_cambio,
                 'simbolo' => $programa->simboloMoneda(),

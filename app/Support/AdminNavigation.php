@@ -27,6 +27,7 @@ class AdminNavigation
             'items' => [
                 ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
                 ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.*']],
+                ['label' => 'Tarifario Maestro', 'icon' => 'fa-calculator', 'route' => 'tarifario-maestro.index', 'active' => ['tarifario-maestro.*']],
                 ['label' => 'Clientes', 'icon' => 'fa-address-book', 'route' => 'clientes.index', 'active' => ['clientes.*']],
                 ['label' => 'Pasajeros', 'icon' => 'fa-users', 'route' => 'paxs.index', 'active' => ['paxs.*']],
                 ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],

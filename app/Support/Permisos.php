@@ -61,6 +61,7 @@ class Permisos
             'categoriasproveedor.create', 'categoriasproveedor.store', 'categoriasproveedor.edit', 'categoriasproveedor.update', 'categoriasproveedor.destroy',
             'hotel.create', 'hotel.store', 'hotel.edit', 'hotel.update', 'hotel.destroy',
             'tarifas.create', 'tarifas.store', 'tarifas.edit', 'tarifas.update', 'tarifas.destroy',
+            'tarifario-maestro.create', 'tarifario-maestro.store', 'tarifario-maestro.edit', 'tarifario-maestro.update', 'tarifario-maestro.destroy',
             'habitacion.create', 'habitacion.store', 'habitacion.edit', 'habitacion.update', 'habitacion.destroy',
         ],
         'pagos.solicitar' => ['servicios.solicitar-pago'],

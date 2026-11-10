@@ -1,0 +1,778 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\TarifarioServicio;
+use Illuminate\Database\Seeder;
+
+class TarifarioAracari2027Seeder extends Seeder
+{
+    /**
+     * Carga el Tarifario Maestro Oficial de la agencia (acuerdo Aracari 2027).
+     * Incluye boletos oficiales, traslados escalonados 1-20 paxs, experiencias, treks, picnics y propinas.
+     */
+    public function run(): void
+    {
+        TarifarioServicio::query()->delete();
+
+        $servicios = [
+            // ==========================================
+            // 1. BOLETOS Y ENTRADAS OFICIALES
+            // ==========================================
+            [
+                'codigo' => 'BTG',
+                'categoria' => 'boleto',
+                'nombre' => 'Boleto Turístico General (BTG)',
+                'descripcion' => 'Válido por 10 días para 16 atractivos en Cusco, Valle Sagrado y circuitos arqueológicos (Sacsayhuamán, Qenqo, Puka Pukara, Tambomachay, Pisac, Ollantaytambo, Chinchero, Moray, Tipón, Pikillacta, etc.).',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 39.39, // S/ 130 @ 3.3
+                'precio_nino' => 21.21,   // S/ 70 @ 3.3
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Tarifa oficial en Soles convertida a T/C 3.3. Requiere pasaporte original en ingreso.',
+            ],
+            [
+                'codigo' => 'BTP',
+                'categoria' => 'boleto',
+                'nombre' => 'Boleto Turístico Parcial (BTP)',
+                'descripcion' => 'Válido por 1 a 2 días para un circuito específico (Circuito I: Sacsayhuamán, Circuito II: Valle Sur/Museos, o Circuito III: Valle Sagrado).',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 21.21, // S/ 70 @ 3.3
+                'precio_nino' => 21.21,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Válido para un solo circuito por 1 o 2 días.',
+            ],
+            [
+                'codigo' => 'ENT-CATEDRAL',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Catedral Basílica del Cusco',
+                'descripcion' => 'Acceso a la Catedral, Templo del Triunfo y Sagrada Familia.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 12.12, // S/ 40 @ 3.3
+                'precio_nino' => 6.06,    // S/ 20 @ 3.3
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-QORICANCHA',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Templo del Sol Qoricancha',
+                'descripcion' => 'Templo inca del Sol sobre el cual se edificó el convento de Santo Domingo.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 6.06, // S/ 20 @ 3.3
+                'precio_nino' => 3.03,   // S/ 10 @ 3.3
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-SAN-BLAS',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Templo de San Blas',
+                'descripcion' => 'Famoso púlpito tallado en cedro barroco y vistas del barrio tradicional de artesanos.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 6.06,
+                'precio_nino' => 3.03,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-CASA-CONCHA',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Museo Machu Picchu - Casa Concha',
+                'descripcion' => 'Colección de piezas de Machu Picchu repatriadas por la Universidad de Yale.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 6.06,
+                'precio_nino' => 3.03,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-MAP',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Museo de Arte Precolombino (MAP)',
+                'descripcion' => 'Casona colonial Cabrera con curaduría de piezas preincaicas y patio colonial.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 5.45,
+                'precio_nino' => 5.45,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-ARTE-RELIGIOSO',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Museo de Arte Religioso (Palacio Arzobispal)',
+                'descripcion' => 'Colección de lienzos de la escuela cusqueña frente a la piedra de los 12 ángulos.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 3.03,
+                'precio_nino' => 3.03,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-SANTA-CATALINA',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Museo Monasterio de Santa Catalina',
+                'descripcion' => 'Claustro colonial y pinacoteca virreinal.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 2.42,
+                'precio_nino' => 2.42,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ENT-MARAS',
+                'categoria' => 'boleto',
+                'nombre' => 'Derecho Comunal Ingreso Salineras de Maras',
+                'descripcion' => 'Pago directo a la comunidad campesina de Maras.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 6.06,
+                'precio_nino' => 6.06,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'MP-INC',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Oficial Machu Picchu Llaqta (INC)',
+                'descripcion' => 'Boleto oficial de ingreso al Santuario Histórico de Machu Picchu (Circuito clásico).',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 46.06, // S/ 152 @ 3.3
+                'precio_nino' => 23.33,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Boleto nominal intransferible emitido por Ministerio de Cultura.',
+            ],
+            [
+                'codigo' => 'MP-HUAYNA',
+                'categoria' => 'boleto',
+                'nombre' => 'Entrada Machu Picchu + Huayna Picchu o Montaña (INC)',
+                'descripcion' => 'Ingreso combinado a la Llaqta y ascenso a Huayna Picchu o Montaña Machu Picchu.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 60.61, // S/ 200 @ 3.3
+                'precio_nino' => 35.76,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Cupos muy limitados; reservar con meses de anticipación.',
+            ],
+            [
+                'codigo' => 'BUS-CONSETTUR-RT',
+                'categoria' => 'boleto',
+                'nombre' => 'Bus Consettur Aguas Calientes – Machu Picchu (Round Trip)',
+                'descripcion' => 'Subida y bajada en autobús ecológico por la carretera Hiram Bingham.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 24.00,
+                'precio_nino' => 15.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'BUS-CONSETTUR-OW',
+                'categoria' => 'boleto',
+                'nombre' => 'Bus Consettur Aguas Calientes – Machu Picchu (One Way)',
+                'descripcion' => 'Solo subida o solo bajada en autobús oficial Consettur.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 12.00,
+                'precio_nino' => 8.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'BUS-CONSETTUR-GUIA',
+                'categoria' => 'boleto',
+                'nombre' => 'Bus Consettur Round Trip Tarifa Guía',
+                'descripcion' => 'Tarifa preferencial de transporte en bus para el guía de turismo acompañante.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 3.64,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+
+            // ==========================================
+            // 2. VIÁTICOS Y PROPINAS
+            // ==========================================
+            [
+                'codigo' => 'VIAT-MAPI',
+                'categoria' => 'viatico',
+                'nombre' => 'Viáticos de Almuerzo en Machu Picchu (Guía / Especialista)',
+                'tipo_calculo' => 'por_grupo',
+                'costo_grupo' => 16.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'VIAT-VALLE',
+                'categoria' => 'viatico',
+                'nombre' => 'Viáticos de Almuerzo en Valle Sagrado (Guía)',
+                'tipo_calculo' => 'por_grupo',
+                'costo_grupo' => 16.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'PERN-VALLE-GUIA',
+                'categoria' => 'viatico',
+                'nombre' => 'Viáticos Pernocte Valle Sagrado - Guía (Hotel $55 + Cena $16)',
+                'tipo_calculo' => 'por_grupo',
+                'costo_grupo' => 71.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Aplica cuando el guía pernocta en el Valle para servicio al día siguiente.',
+            ],
+            [
+                'codigo' => 'PERN-MAPI-GUIA',
+                'categoria' => 'viatico',
+                'nombre' => 'Viáticos Pernocte Machu Picchu - Guía (Hotel $60 + Cena $16)',
+                'tipo_calculo' => 'por_grupo',
+                'costo_grupo' => 76.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'notas' => 'Aplica en tours de 2 días a Machu Picchu con pernocte de guía.',
+            ],
+            [
+                'codigo' => 'PROP-MALETEROS',
+                'categoria' => 'propina',
+                'nombre' => 'Propina Sugerida Maleteros Aeropuerto / Estación',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 2.00,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
+                'moneda' => 'USD',
+                'notas' => 'Sin comisión ni impuestos.',
+            ],
+            [
+                'codigo' => 'PROP-SARAPAMPA-PRIV',
+                'categoria' => 'propina',
+                'nombre' => 'Propina Almuerzo Privado Hacienda Sarapampa',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 9.00,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'PROP-HUAYOCCARI',
+                'categoria' => 'propina',
+                'nombre' => 'Propina Hacienda Huayoccari / Albergue Ollantaytambo',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 5.15, // S/ 17 @ 3.3
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
+                'moneda' => 'USD',
+            ],
+
+            // ==========================================
+            // 3. TRASLADOS ESCALONADOS (1 a 20 PAX)
+            // ==========================================
+            [
+                'codigo' => 'APTHTL',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Aeropuerto Cusco <-> Hotel Cusco (y viceversa)',
+                'descripcion' => 'Incluye vehículo privado con chofer profesional, representante bilingüe, agua embotellada y propina maleteros.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 36.30, '2' => 18.80, '3' => 14.63, '4' => 11.30, '5' => 9.30,
+                        '6' => 7.97,  '7' => 7.01,  '8' => 7.55,  '9' => 8.52,  '10' => 7.80,
+                        '11' => 7.21, '12' => 6.72, '13' => 7.45, '14' => 7.01, '15' => 7.30,
+                        '16' => 7.55, '17' => 7.18, '18' => 6.86, '19' => 6.56, '20' => 6.30,
+                    ],
+                    'feriado' => [
+                        '1' => 51.30, '2' => 26.30, '3' => 19.63, '4' => 15.05, '5' => 12.30,
+                        '6' => 10.47, '7' => 9.16,  '8' => 9.43,  '9' => 10.19, '10' => 9.30,
+                        '11' => 8.57, '12' => 7.97, '13' => 8.61, '14' => 8.09, '15' => 8.30,
+                        '16' => 8.49, '17' => 8.06, '18' => 7.69, '19' => 7.35, '20' => 7.05,
+                    ],
+                ],
+                'notas' => 'A partir de 9 pasajeros se considera automáticamente 2do representante.',
+            ],
+            [
+                'codigo' => 'CUSOLL',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Cusco <-> Urubamba o Estación Ollantaytambo',
+                'descripcion' => 'Traslado privado interprovincial entre Cusco y Valle Sagrado.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 122.60, '2' => 61.95, '3' => 48.40, '4' => 36.63, '5' => 29.56,
+                        '6' => 24.85,  '7' => 21.49, '8' => 21.46, '9' => 22.00, '10' => 19.93,
+                        '11' => 18.24, '12' => 16.83, '13' => 22.95, '14' => 21.41, '15' => 21.41,
+                        '16' => 21.41, '17' => 20.23, '18' => 19.19, '19' => 18.25, '20' => 17.41,
+                    ],
+                    'feriado' => [
+                        '1' => 147.60, '2' => 74.45, '3' => 56.73, '4' => 42.88, '5' => 34.56,
+                        '6' => 29.02,  '7' => 25.06, '8' => 24.59, '9' => 24.78, '10' => 22.43,
+                        '11' => 20.51, '12' => 18.91, '13' => 24.87, '14' => 23.19, '15' => 23.08,
+                        '16' => 22.97, '17' => 21.70, '18' => 20.58, '19' => 19.57, '20' => 18.66,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'CUSPOR',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Cusco <-> Estación de Tren Poroy',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 46.30, '2' => 23.80, '3' => 19.30, '4' => 14.80, '5' => 12.10,
+                        '6' => 10.30, '7' => 9.01,  '8' => 9.43,  '9' => 10.74, '10' => 9.80,
+                        '11' => 9.03, '12' => 8.38, '13' => 9.86, '14' => 9.49, '15' => 9.90,
+                        '16' => 10.26, '17' => 9.93, '18' => 9.63, '19' => 9.37, '20' => 9.13,
+                    ],
+                    'feriado' => [
+                        '1' => 66.30, '2' => 33.80, '3' => 25.97, '4' => 19.80, '5' => 16.10,
+                        '6' => 13.63, '7' => 11.87, '8' => 11.93, '9' => 12.97, '10' => 11.80,
+                        '11' => 10.85, '12' => 10.05, '13' => 11.53, '14' => 11.16, '15' => 11.57,
+                        '16' => 11.93, '17' => 11.59, '18' => 11.30, '19' => 11.04, '20' => 10.80,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'RESTRT',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Hotel <-> Restaurante Cusco (Round Trip - 2 hrs)',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 30.00, '2' => 17.50, '3' => 13.33, '4' => 10.00, '5' => 8.00,
+                        '6' => 6.67,  '7' => 5.71,  '8' => 6.88,  '9' => 6.11,  '10' => 5.50,
+                        '11' => 5.00, '12' => 4.58, '13' => 6.15, '14' => 5.71, '15' => 6.33,
+                        '16' => 6.88, '17' => 6.47, '18' => 6.11, '19' => 5.79, '20' => 5.50,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'RESVRT',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Hotel <-> Restaurante en Valle Sagrado (Round Trip)',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 85.00, '2' => 42.50, '3' => 31.67, '4' => 23.75, '5' => 19.00,
+                        '6' => 15.83, '7' => 13.57, '8' => 12.50, '9' => 11.11, '10' => 10.00,
+                        '11' => 9.09, '12' => 8.33, '13' => 14.62, '14' => 13.57, '15' => 13.00,
+                        '16' => 12.50, '17' => 11.76, '18' => 11.11, '19' => 10.53, '20' => 10.00,
+                    ],
+                ],
+            ],
+
+            // ==========================================
+            // 4. TOURS Y EXPERIENCIAS CLÁSICAS
+            // ==========================================
+            [
+                'codigo' => 'HINARC',
+                'categoria' => 'tour',
+                'nombre' => 'In and Around Cusco (City Tour 4 hrs)',
+                'descripcion' => 'Recorrido privado por Plaza de Armas, Catedral, Qoricancha, Sacsayhuamán y Mercado de San Pedro. Incluye vehículo, guía, snacks gourmet y entradas.',
+                'lugares_visita' => 'Plaza de Armas, Catedral, Koricancha, Sacsayhuamán, San Pedro Market',
+                'duracion_horas' => 4.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 152.78, '2' => 88.13, '3' => 71.58, '4' => 59.56, '5' => 52.34,
+                        '6' => 47.53,  '7' => 44.10, '8' => 42.14, '9' => 47.29, '10' => 44.91,
+                        '11' => 42.96, '12' => 41.34, '13' => 45.68, '14' => 44.10, '15' => 43.06,
+                        '16' => 42.14, '17' => 44.87, '18' => 43.68, '19' => 42.62, '20' => 41.66,
+                    ],
+                    'feriado' => [
+                        '1' => 217.78, '2' => 120.63, '3' => 93.25, '4' => 75.81, '5' => 65.34,
+                        '6' => 58.37,  '7' => 53.38, '8' => 50.27, '9' => 61.74, '10' => 57.91,
+                        '11' => 54.78, '12' => 52.17, '13' => 55.68, '14' => 53.38, '15' => 51.72,
+                        '16' => 50.27, '17' => 56.34, '18' => 54.52, '19' => 52.88, '20' => 51.41,
+                    ],
+                ],
+                'desglose' => [
+                    'transporte_base' => 60.0,
+                    'guia_base' => 65.0,
+                    'snack_pax' => 5.3,
+                    'snack_guia' => 4.3,
+                    'entradas' => 18.18,
+                ],
+            ],
+            [
+                'codigo' => '4CUZCH',
+                'categoria' => 'tour',
+                'nombre' => 'Cusco Challenge (4 hrs)',
+                'descripcion' => 'Experiencia dinámica por Koricancha, Catedral y barrio de San Blas con agua, snacks y degustación.',
+                'lugares_visita' => 'Koricancha, Catedral, San Blas',
+                'duracion_horas' => 4.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 13.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 161.14, '2' => 95.84, '3' => 79.08, '4' => 66.94, '5' => 59.66,
+                        '6' => 54.81,  '7' => 51.34, '8' => 49.37, '9' => 54.50, '10' => 52.10,
+                        '11' => 50.14, '12' => 48.51, '13' => 52.87, '14' => 51.28, '15' => 50.24,
+                        '16' => 49.33, '17' => 48.23, '18' => 47.25, '19' => 46.37, '20' => 45.59,
+                    ],
+                    'feriado' => [
+                        '1' => 226.14, '2' => 128.34, '3' => 100.74, '4' => 83.19, '5' => 72.66,
+                        '6' => 65.64,  '7' => 60.63,  '8' => 57.49,  '9' => 68.94, '10' => 65.10,
+                        '11' => 61.96, '12' => 59.34, '13' => 62.87, '14' => 60.57, '15' => 58.91,
+                        '16' => 57.45, '17' => 55.87, '18' => 54.47, '19' => 53.22, '20' => 52.09,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'HOUTSK',
+                'categoria' => 'tour',
+                'nombre' => 'Around the Outskirts (4 Ruinas + San Pedro)',
+                'lugares_visita' => 'Sacsayhuamán, Qenqo, Puka Pukara, Tambomachay, San Pedro Market',
+                'duracion_horas' => 4.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 139.90, '2' => 75.10, '3' => 58.50, '4' => 46.45, '5' => 39.22,
+                        '6' => 34.40,  '7' => 30.96, '8' => 29.00, '9' => 34.14, '10' => 31.76,
+                        '11' => 29.81, '12' => 28.18, '13' => 32.55, '14' => 30.96, '15' => 29.91,
+                        '16' => 29.00, '17' => 31.72, '18' => 30.53, '19' => 29.47, '20' => 28.51,
+                    ],
+                    'feriado' => [
+                        '1' => 204.90, '2' => 107.60, '3' => 80.17, '4' => 62.70, '5' => 52.22,
+                        '6' => 45.23,  '7' => 40.24,  '8' => 37.13, '9' => 48.59, '10' => 44.76,
+                        '11' => 41.63, '12' => 39.02, '13' => 42.55, '14' => 40.24, '15' => 38.58,
+                        '16' => 37.13, '17' => 43.19, '18' => 41.37, '19' => 39.73, '20' => 38.26,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'HFOOT',
+                'categoria' => 'tour',
+                'nombre' => 'Cusco on Foot (Walking Tour 4 hrs)',
+                'lugares_visita' => 'Catedral, Koricancha, Choco Museo, MAP, San Pedro Market, San Blas, Casa Concha',
+                'duracion_horas' => 4.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 110.96, '2' => 76.31, '3' => 64.76, '4' => 58.99, '5' => 55.52,
+                        '6' => 53.21,  '7' => 51.56, '8' => 50.33, '9' => 56.59, '10' => 55.09,
+                        '11' => 53.87, '12' => 52.86, '13' => 52.33, '14' => 51.56, '15' => 50.90,
+                        '16' => 50.33, '17' => 53.64, '18' => 52.97, '19' => 52.38, '20' => 51.84,
+                    ],
+                    'feriado' => [
+                        '1' => 175.96, '2' => 108.81, '3' => 86.43, '4' => 75.24, '5' => 68.52,
+                        '6' => 64.05,  '7' => 60.85,  '8' => 58.45, '9' => 71.03, '10' => 68.09,
+                        '11' => 65.69, '12' => 63.69, '13' => 62.33, '14' => 60.85, '15' => 59.57,
+                        '16' => 58.45, '17' => 65.11, '18' => 63.81, '19' => 62.64, '20' => 61.59,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'FDAWA',
+                'categoria' => 'tour',
+                'nombre' => 'Awanacancha, Pisac Market & Ruins & Ollantaytambo (FD Valle)',
+                'descripcion' => 'Día completo en Valle Sagrado: tejedoras y camélidos en Awanacancha, mercado artesanal o ruinas de Pisac, y fortaleza inca de Ollantaytambo.',
+                'lugares_visita' => 'Awanacancha, Pisac Market / Ruins, Ollantaytambo',
+                'duracion_horas' => 8.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 234.90, '2' => 122.75, '3' => 93.70, '4' => 75.43, '5' => 62.46,
+                        '6' => 53.82,  '7' => 47.64,  '8' => 44.89, '9' => 51.63, '10' => 47.53,
+                        '11' => 44.17, '12' => 41.38, '13' => 50.49, '14' => 47.64, '15' => 46.17,
+                        '16' => 44.89, '17' => 48.46, '18' => 46.36, '19' => 44.47, '20' => 42.78,
+                    ],
+                    'feriado' => [
+                        '1' => 329.90, '2' => 170.25, '3' => 125.37, '4' => 99.18, '5' => 81.46,
+                        '6' => 69.65,  '7' => 61.21,  '8' => 56.76,  '9' => 72.74, '10' => 66.53,
+                        '11' => 61.45, '12' => 57.21, '13' => 65.11, '14' => 61.21, '15' => 58.84,
+                        '16' => 56.76, '17' => 65.22, '18' => 62.19, '19' => 59.47, '20' => 57.03,
+                    ],
+                ],
+                'desglose' => [
+                    'transporte' => 115.0,
+                    'viatico_chofer' => 10.0,
+                    'guia' => 95.0,
+                    'snack_agua' => 5.6,
+                    'bastones' => 5.0,
+                    'snack_guia' => 4.3,
+                ],
+            ],
+            [
+                'codigo' => 'FDCHIM',
+                'categoria' => 'tour',
+                'nombre' => 'Chinchero, Maras & Moray (Full Day Valle Sagrado)',
+                'descripcion' => 'Terrazas concéntricas de Moray, salineras de Maras y taller textil tradicional en Chinchero.',
+                'lugares_visita' => 'Chinchero, Salineras de Maras, Terrazas de Moray',
+                'duracion_horas' => 7.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 239.96, '2' => 130.31, '3' => 102.09, '4' => 81.74, '5' => 69.52,
+                        '6' => 61.38,  '7' => 55.56,  '8' => 54.32,  '9' => 61.14, '10' => 57.09,
+                        '11' => 53.78, '12' => 51.02, '13' => 59.01, '14' => 56.27, '15' => 55.23,
+                        '16' => 54.32, '17' => 57.93, '18' => 55.86, '19' => 54.01, '20' => 52.34,
+                    ],
+                    'feriado' => [
+                        '1' => 334.96, '2' => 177.81, '3' => 133.76, '4' => 105.49, '5' => 88.52,
+                        '6' => 77.21,  '7' => 69.13,  '8' => 66.20,  '9' => 82.25,  '10' => 76.09,
+                        '11' => 71.05, '12' => 66.85, '13' => 73.63, '14' => 69.85, '15' => 67.90,
+                        '16' => 66.20, '17' => 74.70, '18' => 71.69, '19' => 69.01, '20' => 66.59,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'CUSPUC',
+                'categoria' => 'tour',
+                'nombre' => 'The Scenic Route - Conventional (Cusco -> Puno Ruta del Sol)',
+                'descripcion' => 'Ruta escénica del Altiplano con paradas en Andahuaylillas, Raqchi, La Raya y Pucará.',
+                'lugares_visita' => 'Andahuaylillas, Raqchi, La Raya, Pucará',
+                'duracion_horas' => 10.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 576.75, '2' => 298.45, '3' => 242.35, '4' => 186.80, '5' => 153.47,
+                        '6' => 131.25, '7' => 115.37, '8' => 112.22, '9' => 123.32, '10' => 113.01,
+                        '11' => 104.56, '12' => 97.53, '13' => 122.70, '14' => 115.37, '15' => 113.69,
+                        '16' => 112.22, '17' => 118.10, '18' => 112.66, '19' => 107.79, '20' => 103.41,
+                    ],
+                    'feriado' => [
+                        '1' => 773.75, '2' => 399.45, '3' => 311.35, '4' => 239.80, '5' => 196.87,
+                        '6' => 168.25, '7' => 147.80, '8' => 141.22, '9' => 170.99, '10' => 156.41,
+                        '11' => 144.47, '12' => 89.53, '13' => 84.93, '14' => 80.66, '15' => 76.96,
+                        '16' => 73.72, '17' => 93.45, '18' => 89.66, '19' => 86.26, '20' => 83.21,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'FMAPI',
+                'categoria' => 'tour',
+                'nombre' => 'A Day at the Ruins (Full Day Machu Picchu)',
+                'descripcion' => 'Visita guiada privada a la Llaqta inca de Machu Picchu con autobús Consettur, entradas, guía y refrigerios.',
+                'duracion_horas' => 5.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 204.00, '2' => 140.85, '3' => 119.80, '4' => 109.28, '5' => 102.96,
+                        '6' => 98.75,  '7' => 95.75,  '8' => 95.99,  '9' => 105.63, '10' => 102.83,
+                        '11' => 100.55, '12' => 98.64, '13' => 97.13, '14' => 95.75, '15' => 94.54,
+                        '16' => 93.49, '17' => 99.91, '18' => 98.68, '19' => 97.58, '20' => 96.58,
+                    ],
+                    'feriado' => [
+                        '1' => 309.00, '2' => 193.35, '3' => 154.80, '4' => 135.53, '5' => 123.96,
+                        '6' => 116.25, '7' => 110.75, '8' => 109.12, '9' => 128.96, '10' => 123.83,
+                        '11' => 119.64, '12' => 116.14, '13' => 113.29, '14' => 110.75, '15' => 108.54,
+                        '16' => 106.62, '17' => 117.74, '18' => 116.18, '19' => 114.16, '20' => 112.33,
+                    ],
+                ],
+            ],
+
+            // ==========================================
+            // 5. TREKS & CAMINATAS DE AVENTURA
+            // ==========================================
+            [
+                'codigo' => 'HUMANTAY',
+                'categoria' => 'trek',
+                'nombre' => 'Laguna Humantay Full Day Trek',
+                'descripcion' => 'Caminata de alta montaña hacia la laguna turquesa al pie del nevado Salkantay. Incluye transporte, guía de montaña, bastones, oxígeno, box lunch y entradas.',
+                'duracion_horas' => 12.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 425.23, '2' => 221.43, '3' => 190.16, '4' => 147.03, '5' => 121.15,
+                        '6' => 114.73, '7' => 100.86, '8' => 97.33,  '9' => 99.03,  '10' => 90.89,
+                        '11' => 88.00, '12' => 85.00, '13' => 83.00, '14' => 81.00, '15' => 79.00,
+                        '16' => 78.00, '17' => 76.00, '18' => 75.00, '19' => 74.00, '20' => 73.00,
+                    ],
+                    'feriado' => [
+                        '1' => 560.23, '2' => 299.93, '3' => 249.83, '4' => 197.28, '5' => 165.75,
+                        '6' => 155.56, '7' => 139.00, '8' => 133.46, '9' => 144.14, '10' => 133.69,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'PALCOYO',
+                'categoria' => 'trek',
+                'nombre' => 'Montaña de Colores Palcoyo Full Day',
+                'descripcion' => 'Alternativa suave y panorámica a Vinicunca: 3 montañas de colores, bosque de piedras y puente colonial de Checacupe.',
+                'duracion_horas' => 10.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 416.26, '2' => 228.46, '3' => 180.86, '4' => 165.81, '5' => 136.78,
+                        '6' => 128.26, '7' => 112.89, '8' => 107.61, '9' => 108.51, '10' => 99.72,
+                    ],
+                    'feriado' => [
+                        '1' => 511.26, '2' => 275.96, '3' => 212.53, '4' => 189.56, '5' => 155.78,
+                        '6' => 144.09, '7' => 126.46, '8' => 119.49, '9' => 129.62, '10' => 118.72,
+                    ],
+                ],
+            ],
+            [
+                'codigo' => 'KM104-MP2SA',
+                'categoria' => 'trek',
+                'nombre' => 'Camino Inca Corto KM 104 (2D/1N Pernocte Sanctuary Lodge)',
+                'descripcion' => 'Caminata por Chachabamba y Wiñay Wayna entrando por la Puerta del Sol (Inti Punku) con pernocte de lujo en Belmond Sanctuary Lodge.',
+                'duracion_horas' => 24.0,
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 728.04, '2' => 510.97, '3' => 438.62, '4' => 402.44, '5' => 380.74,
+                        '6' => 366.27, '7' => 373.77, '8' => 402.44, '9' => 390.38, '10' => 380.74,
+                        '11' => 372.84, '12' => 366.27, '13' => 370.30, '14' => 364.85, '15' => 360.12,
+                        '16' => 355.98, '17' => 370.52, '18' => 366.27, '19' => 362.46, '20' => 359.03,
+                    ],
+                    'feriado' => [
+                        '1' => 833.04, '2' => 563.47, '3' => 473.62, '4' => 417.44, '5' => 401.74,
+                        '6' => 383.77, '7' => 388.77, '8' => 428.69, '9' => 413.72, '10' => 401.74,
+                    ],
+                ],
+                'notas' => 'Incluye porteador de apoyo (1 porter 1-6 pax, 2 porters 7-12 pax, 3 porters 13-20 pax), permisos SERNANP e ingresos.',
+            ],
+
+            // ==========================================
+            // 6. ALIMENTACIÓN, PICNICS Y BOX LUNCH
+            // ==========================================
+            [
+                'codigo' => 'ALM-CUCHARA-PALO',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Almuerzo Gourmet en Cuchara de Palo (Pisac)',
+                'descripcion' => 'Menú a la carta gourmet con insumos orgánicos del Valle Sagrado. Incluye bebida (cerveza artesanal o gaseosa).',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 35.00,
+                'precio_nino' => 25.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'ALM-CHUNCHO',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Almuerzo Tradicional en Chuncho (Ollantaytambo)',
+                'descripcion' => 'Gastronomía autóctona y destilados andinos en la plaza de Ollantaytambo.',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 35.00,
+                'precio_nino' => 25.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'PICNIC-NORMAL',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Picnic Lunch Standard al aire libre (Valle Sagrado / Tipón)',
+                'descripcion' => 'Mesa rústica campestre con mantas andinas, ensaladas frescas, quiches, quesos y postre.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 168.00, '2' => 90.00, '3' => 77.33, '4' => 71.00, '5' => 67.20,
+                        '6' => 64.67,  '7' => 62.86, '8' => 61.50, '9' => 60.44, '10' => 59.60,
+                        '11' => 58.91, '12' => 58.33,
+                    ],
+                ],
+                'notas' => 'Costo unitario pax $52.00 + alimentación guía y chofer prorrateada.',
+            ],
+            [
+                'codigo' => 'PICNIC-LUJO',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Picnic Lunch de Lujo con Montaje Privado & Vino',
+                'descripcion' => 'Montaje exclusivo con carpas ligeras o parasoles, vajilla fina, maridaje de vino Trapiche Malbec y servicio personalizado.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => [
+                        '1' => 228.00, '2' => 119.00, '3' => 101.00, '4' => 92.00, '5' => 86.60,
+                        '6' => 83.00,  '7' => 80.43,  '8' => 78.50,  '9' => 77.00, '10' => 75.80,
+                        '11' => 74.82, '12' => 74.00,
+                    ],
+                ],
+                'notas' => 'Costo unitario pax $65.00 + montaje de lujo + alimentación guía y chofer.',
+            ],
+            [
+                'codigo' => 'BOX-LUNCH-SIMPLE',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Box Lunch Simple para Caminatas / Rutas',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 25.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+            [
+                'codigo' => 'BOX-LUNCH-SUPER',
+                'categoria' => 'alimentacion',
+                'nombre' => 'Box Lunch Super Gourmet (Cicciolina o similar)',
+                'tipo_calculo' => 'por_persona',
+                'precio_adulto' => 30.00,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+            ],
+        ];
+
+        foreach ($servicios as $s) {
+            TarifarioServicio::create($s);
+        }
+    }
+}

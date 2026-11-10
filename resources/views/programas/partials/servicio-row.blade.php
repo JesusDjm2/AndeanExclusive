@@ -32,6 +32,7 @@
     @if (! empty($s['id']))
         <input type="hidden" name="{{ $name('id') }}" value="{{ $s['id'] }}">
     @endif
+    <input type="hidden" name="{{ $name('tarifario_codigo') }}" value="{{ $v('tarifario_codigo') }}" data-svc-tarifario-codigo>
 
     {{-- Línea 1: Identificación y Proveedor --}}
     <div class="svc-row__grid">
@@ -76,11 +77,14 @@
                 @else
                     <option value="">{{ blank($v('proveedor_id')) ? 'Elige primero el proveedor' : 'Elige el servicio…' }}</option>
                 @endif
+                <option value="__maestro">⚡ Del Tarifario Maestro 2027…</option>
                 <option value="__otro">Otro servicio (escribir)…</option>
             </select>
             <div class="input-group input-group-sm" data-svc-titulo-libre @unless ($libre) hidden @endunless>
                 <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $titulo }}" maxlength="255"
                     class="form-control {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Escribe el servicio" data-svc-titulo>
+                <button type="button" class="btn btn-outline-primary" data-svc-abrir-maestro
+                    title="Elegir del Tarifario Maestro 2027" aria-label="Tarifario Maestro 2027"><i class="fas fa-calculator" aria-hidden="true"></i></button>
                 <button type="button" class="btn btn-outline-secondary" data-svc-volver-lista hidden
                     title="Elegir del tarifario del proveedor" aria-label="Elegir del tarifario del proveedor"><i class="fas fa-list-ul" aria-hidden="true"></i></button>
                 @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
@@ -92,6 +96,10 @@
         @endphp
         <div class="svc-row__actions">
             @unless ($esEstadia)
+                <button type="button" class="btn btn-sm btn-outline-primary" data-svc-abrir-maestro
+                    title="Cotizar desde Tarifario Maestro 2027" aria-label="Tarifario Maestro 2027">
+                    <i class="fas fa-calculator" aria-hidden="true"></i>
+                </button>
                 <button type="button" class="btn btn-sm {{ $esCeroCliente ? 'btn-info text-white' : 'btn-outline-info' }}" data-svc-toggle-cliente-pax
                     title="{{ $esCeroCliente ? 'Servicio reservado por el cliente (Costo $0)' : 'Marcar si este servicio fue contratado/reservado directamente por el cliente (Costo US$ 0.00)' }}">
                     <i class="fas fa-user-check" aria-hidden="true"></i>
@@ -159,7 +167,11 @@
                     <input id="svc-{{ $i }}-estimado" type="number" name="{{ $name('costo_estimado') }}" value="{{ $v('costo_estimado') }}" step="0.01" min="0"
                         class="form-control form-control-sm {{ $err('costo_estimado') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-estimado>
                 </div>
-                <small class="svc-fin__origen" data-svc-origen hidden></small>
+                <small class="svc-fin__origen" data-svc-origen @if(blank($v('tarifario_codigo'))) hidden @endif>
+                    @if(filled($v('tarifario_codigo')))
+                        <i class="fas fa-calculator text-primary me-1" aria-hidden="true"></i>Catálogo [{{ $v('tarifario_codigo') }}]
+                    @endif
+                </small>
             </div>
             {{-- Modalidad de cobro: por defecto siempre individual (por persona). No se pregunta en la línea principal. --}}
             <input type="hidden" name="{{ $name('costo_por') }}" value="{{ $v('costo_por') ?: 'persona' }}" data-svc-por>

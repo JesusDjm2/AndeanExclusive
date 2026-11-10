@@ -283,6 +283,19 @@ class Ayuda
             'pasos' => ['Pulsa «Nueva tarifa» y elige si es una habitación de hotel o un servicio de un proveedor.', 'Indica la temporada con sus fechas y el precio.', 'Crea una tarifa por cada temporada.'],
             'notas' => ['Al cotizar, el costo por noche se llena solo si hay tarifa vigente. Al asignar un proveedor, sus tarifas aparecen como botones.', 'Siempre puedes escribir otro precio: la tarifa es solo una sugerencia.'],
         ],
+        'tarifario-maestro' => [
+            'grupo' => 'programas', 'rutas' => ['tarifario-maestro.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Tarifario Maestro Oficial 2027',
+            'resumen' => 'Catálogo maestro de tours, traslados, boletos oficiales y experiencias escalonadas de 1 a 20 pasajeros con fórmula financiera de cotización.',
+            'pasos' => [
+                'Consulta la lista de servicios por categoría o busca por código (ej. FDAWA, BTG, APTHTL).',
+                'Pulsa «Matriz» para ver la escala de 1 a 20 pasajeros, tarifas de adulto y niño, y el simulador en tiempo real.',
+                'Al armar un programa, usa el botón de calculadora en cualquier fila para aplicar el costo oficial según el número de adultos y niños.',
+            ],
+            'notas' => [
+                'La fórmula calcula costo neto + comisión de agencia + IGV sobre la comisión.',
+                'Las tarifas de feriados aplican un suplemento oficial en servicios guiados.',
+            ],
+        ],
         'hoteles' => [
             'grupo' => 'reservas', 'rutas' => ['hotel.*', 'habitacion.*'], 'permiso' => 'proveedores.gestionar', 'titulo' => 'Hoteles y habitaciones',
             'resumen' => 'Los hoteles que Operaciones puede elegir en los programas, con sus tipos de habitación.',

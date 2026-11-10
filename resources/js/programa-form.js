@@ -572,16 +572,26 @@ function initBudget(root) {
                 if (referencia < cumpleaños) edad -= 1;
                 return edad;
             });
+        const cantAdultosInput = root.querySelector('[data-cantidad-adultos]');
+        const cantNinosInput = root.querySelector('[data-cantidad-ninos]');
         const cantPaxInput = root.querySelector('[data-cantidad-pax]');
-        const cantPaxVal = Math.max(1, parseInt(cantPaxInput?.value, 10) || 1);
+        const totalBadge = root.querySelector('#pf-total-pax-badge');
+
+        const adtVal = cantAdultosInput ? Math.max(1, parseInt(cantAdultosInput.value, 10) || 1) : Math.max(1, parseInt(cantPaxInput?.value, 10) || 1);
+        const chdVal = cantNinosInput ? Math.max(0, parseInt(cantNinosInput.value, 10) || 0) : 0;
+        const totalPaxVal = adtVal + chdVal;
+
+        if (cantPaxInput) cantPaxInput.value = totalPaxVal;
+        if (totalBadge) totalBadge.textContent = `${totalPaxVal} Pax`;
 
         let adultos = edades.filter((e) => e >= edadAdulto).length;
         let ninos = edades.filter((e) => e >= edadNino && e < edadAdulto).length;
         let infantes = edades.filter((e) => e < edadNino).length;
 
-        // Si aún no se han registrado pasajeros individuales en la lista, usamos la cantidad de pasajeros del grupo como adultos
+        // Si aún no se han registrado pasajeros individuales en la lista, usamos la cantidad de adultos y niños del grupo
         if (edades.length === 0) {
-            adultos = cantPaxVal;
+            adultos = adtVal;
+            ninos = chdVal;
         }
 
         const factor = 1 + num(root.querySelector('[data-ganancia]')) / 100;
@@ -607,7 +617,7 @@ function initBudget(root) {
         set('deposito', money(total * depositoPct / 100));
     };
 
-    root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles], [data-cantidad-pax]').forEach((input) => {
+    root.querySelectorAll('[data-precio-adulto], [data-precio-nino], [data-ganancia], [data-fecha-inicio], [data-suplemento], [data-singles], [data-cantidad-pax], [data-cantidad-adultos], [data-cantidad-ninos]').forEach((input) => {
         input.addEventListener('input', compute);
         input.addEventListener('change', compute);
     });
@@ -984,10 +994,16 @@ function initCotizacionCalculator(root, recomputeBudget) {
                 pagantes++;
             }
         });
+        const cantAdultosInput = parseInt(root.querySelector('[data-cantidad-adultos]')?.value, 10);
+        const cantNinosInput = parseInt(root.querySelector('[data-cantidad-ninos]')?.value, 10);
         const cantPaxInput = parseInt(root.querySelector('[data-cantidad-pax]')?.value, 10);
-        if (paxItems.length === 0 && !isNaN(cantPaxInput) && cantPaxInput > 0) {
-            pagantes = cantPaxInput;
-            adultos = cantPaxInput;
+
+        if (paxItems.length === 0) {
+            const adt = !isNaN(cantAdultosInput) && cantAdultosInput > 0 ? cantAdultosInput : (!isNaN(cantPaxInput) && cantPaxInput > 0 ? cantPaxInput : 1);
+            const chd = !isNaN(cantNinosInput) && cantNinosInput >= 0 ? cantNinosInput : 0;
+            adultos = adt;
+            ninos = chd;
+            pagantes = adt + chd;
         } else if (pagantes <= 0) {
             pagantes = Math.max(1, (!isNaN(cantPaxInput) && cantPaxInput > 0) ? cantPaxInput : (paxItems.length || 1));
         }
@@ -1243,12 +1259,12 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
     // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros, ganancia, moneda o tipo de cambio
     root.addEventListener('input', (e) => {
-        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], [data-cantidad-pax], input[name="cantidad_pax"], input[name="tipo_cambio"]')) {
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], [data-cantidad-pax], [data-cantidad-adultos], [data-cantidad-ninos], input[name="cantidad_pax"], input[name="cantidad_adultos"], input[name="cantidad_ninos"], input[name="tipo_cambio"]')) {
             actualizarLive();
         }
     });
     root.addEventListener('change', (e) => {
-        if (e.target.matches('[data-cantidad-pax], input[name="cantidad_pax"], [data-svc-por]')) {
+        if (e.target.matches('[data-cantidad-pax], [data-cantidad-adultos], [data-cantidad-ninos], input[name="cantidad_pax"], input[name="cantidad_adultos"], input[name="cantidad_ninos"], [data-svc-por]')) {
             actualizarLive();
         }
     });

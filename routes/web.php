@@ -40,6 +40,7 @@ use App\Http\Controllers\RespaldoController;
 use App\Http\Controllers\RobotsController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\TarifaController;
+use App\Http\Controllers\TarifarioServicioController;
 use App\Http\Controllers\TourController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
@@ -93,6 +94,11 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::post('notificaciones/{aviso}/marcar', [AvisoController::class, 'marcar'])->whereNumber('aviso')->name('avisos.marcar');
         Route::get('tarifario/sugerir', [TarifaController::class, 'sugerir'])->name('tarifas.sugerir');
         Route::resource('tarifario', TarifaController::class)->except('show')->parameters(['tarifario' => 'tarifa'])->names('tarifas');
+        Route::get('tarifario-maestro/cotizar', [TarifarioServicioController::class, 'cotizar'])->name('tarifario-maestro.cotizar');
+        Route::get('tarifario-maestro/buscar', [TarifarioServicioController::class, 'buscar'])->name('tarifario-maestro.buscar');
+        Route::resource('tarifario-maestro', TarifarioServicioController::class)
+            ->names('tarifario-maestro')
+            ->parameters(['tarifario-maestro' => 'tarifarioServicio']);
         Route::resource('proveedors', ProveedorController::class)->names('proveedors');
         Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
         Route::resource('agentes', AgenteController::class)->names('agentes');

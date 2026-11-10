@@ -320,6 +320,11 @@ function initItinerarioServicios() {
 
         if (evento.target.matches('[data-svc-servicio]')) {
             const valor = evento.target.value;
+            if (valor === '__maestro') {
+                abrirModalTarifarioMaestro(row);
+                evento.target.value = '';
+                return;
+            }
             if (valor === OTRO_SERVICIO) {
                 modoLibre(row, true, true);
             } else if (valor !== '' && row.svcTarifas?.[valor]) {
@@ -328,8 +333,17 @@ function initItinerarioServicios() {
         }
     });
 
-    // Volver del texto libre al tarifario del proveedor.
+    // Clics en el itinerario
     document.addEventListener('click', (evento) => {
+        // Abrir modal Tarifario Maestro
+        const btnMaestro = evento.target.closest('[data-svc-abrir-maestro]');
+        if (btnMaestro) {
+            const row = btnMaestro.closest('[data-svc-item]');
+            if (row) abrirModalTarifarioMaestro(row);
+            return;
+        }
+
+        // Volver del texto libre al tarifario del proveedor.
         const volver = evento.target.closest('[data-svc-volver-lista]');
         if (!volver) return;
         const row = volver.closest('[data-svc-item]');
@@ -358,9 +372,269 @@ function initItinerarioServicios() {
     });
 }
 
+// ---- Integración con Modal de Tarifario Maestro Oficial 2027 ----
+let filaObjetivoMaestro = null;
+let categoriaMaestroActiva = '';
+
+function abrirModalTarifarioMaestro(row) {
+    filaObjetivoMaestro = row;
+    const modalEl = document.getElementById('modalTarifarioMaestro');
+    if (modalEl && window.bootstrap) {
+        const bsModal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
+        bsModal.show();
+    }
+}
+
+function aplicarServicioMaestro(item, pax, esFeriado) {
+    if (!filaObjetivoMaestro) return;
+    const row = filaObjetivoMaestro;
+
+    const disparar = (el) => {
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+
+    // Nombre del servicio
+    const tituloInput = row.querySelector('[data-svc-titulo]');
+    if (tituloInput) {
+        tituloInput.value = item.nombre;
+        disparar(tituloInput);
+    }
+
+    // Código maestro
+    const codigoInput = row.querySelector('[data-svc-tarifario-codigo]');
+    if (codigoInput) {
+        codigoInput.value = item.codigo;
+        disparar(codigoInput);
+    }
+
+    // Costo estimado
+    const estInput = row.querySelector('[data-svc-estimado]');
+    if (estInput) {
+        estInput.value = item.costo_pax.toFixed(2);
+        disparar(estInput);
+    }
+
+    // Moneda
+    const monedaInput = row.querySelector('[data-svc-moneda]');
+    if (monedaInput) {
+        monedaInput.value = item.moneda || 'USD';
+        disparar(monedaInput);
+    }
+
+    // Costo por (persona vs grupo)
+    const porSelect = row.querySelector('[data-svc-por]');
+    if (porSelect) {
+        porSelect.value = item.tipo_calculo === 'por_grupo' ? 'grupo' : 'persona';
+        disparar(porSelect);
+    }
+
+    // Modo libre activo para que se vea el nombre
+    modoLibre(row, true);
+
+    // Origen visual
+    const origen = row.querySelector('[data-svc-origen]');
+    if (origen) {
+        origen.hidden = false;
+        origen.classList.remove('is-warning');
+        const iconoFeriado = esFeriado ? ' · ⭐ Feriado' : '';
+        origen.innerHTML = `<i class="fas fa-calculator text-primary me-1" aria-hidden="true"></i>Catálogo [${item.codigo}] · $${item.costo_pax.toFixed(2)} (${pax} pax${iconoFeriado})`;
+    }
+
+    // Cerrar modal
+    const modalEl = document.getElementById('modalTarifarioMaestro');
+    if (modalEl && window.bootstrap) {
+        const bsModal = window.bootstrap.Modal.getInstance(modalEl);
+        bsModal?.hide();
+    }
+}
+
+function initModalTarifarioMaestro() {
+    const modalEl = document.getElementById('modalTarifarioMaestro');
+    if (!modalEl) return;
+
+    const searchInput = modalEl.querySelector('[data-maestro-search]');
+    const clearBtn = modalEl.querySelector('[data-maestro-clear-search]');
+    const adtInput = modalEl.querySelector('[data-maestro-adt]');
+    const chdInput = modalEl.querySelector('[data-maestro-chd]');
+    const paxInput = modalEl.querySelector('[data-maestro-pax]');
+    const totalBadge = modalEl.querySelector('#maestro-total-pax-badge');
+    const feriadoSwitch = modalEl.querySelector('[data-maestro-feriado]');
+    const catContainer = modalEl.querySelector('[data-maestro-categorias]');
+    const listaResultados = modalEl.querySelector('[data-maestro-resultados]');
+    const loadingEl = document.getElementById('maestro-loading');
+    const emptyEl = document.getElementById('maestro-empty');
+
+    const syncModalPax = () => {
+        const adt = Math.max(1, parseInt(adtInput?.value, 10) || 1);
+        const chd = Math.max(0, parseInt(chdInput?.value, 10) || 0);
+        const total = adt + chd;
+        if (paxInput) paxInput.value = total;
+        if (totalBadge) totalBadge.textContent = `Total: ${total} Pax (${adt} Adt, ${chd} Chd)`;
+        return { adt, chd, total };
+    };
+
+    const renderizarItems = async () => {
+        if (!listaResultados) return;
+        if (loadingEl) loadingEl.hidden = false;
+        if (emptyEl) emptyEl.hidden = true;
+        listaResultados.replaceChildren();
+
+        const q = searchInput?.value.trim() || '';
+        const { adt, chd, total } = syncModalPax();
+        const feriado = feriadoSwitch?.checked ? 'true' : 'false';
+
+        const params = { q, pax: total, adultos: adt, ninos: chd, feriado };
+        if (categoriaMaestroActiva) params.categoria = categoriaMaestroActiva;
+
+        let items = [];
+        try {
+            const res = await fetch(`/tarifario-maestro/buscar?${new URLSearchParams(params)}`, {
+                headers: { Accept: 'application/json' }
+            });
+            if (res.ok) {
+                const json = await res.json();
+                items = json.items || [];
+            }
+        } catch {
+            items = [];
+        }
+
+        if (loadingEl) loadingEl.hidden = true;
+
+        if (!items.length) {
+            if (emptyEl) emptyEl.hidden = false;
+            return;
+        }
+
+        items.forEach((item) => {
+            const div = document.createElement('div');
+            div.className = 'list-group-item list-group-item-action d-flex align-items-center justify-content-between p-3 gap-3';
+            div.style.cursor = 'pointer';
+
+            const badgeCatClass = {
+                tour: 'bg-info-subtle text-info border border-info-subtle',
+                traslado: 'bg-success-subtle text-success border border-success-subtle',
+                trek: 'bg-danger-subtle text-danger border border-danger-subtle',
+                boleto: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
+                alimentacion: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
+                viatico: 'bg-dark-subtle text-dark border',
+            }[item.categoria] || 'bg-light text-dark border';
+
+            let detalleTarifa = '';
+            if (item.tipo_calculo === 'por_persona' && item.precio_nino) {
+                if (chd > 0) {
+                    detalleTarifa = `<span class="badge bg-warning-subtle text-dark border me-1">Adt: $${item.precio_adulto.toFixed(2)}</span><span class="badge bg-info-subtle text-info border">Chd: $${item.precio_nino.toFixed(2)}</span> · Tarifa ponderada`;
+                } else {
+                    detalleTarifa = `<span class="badge bg-light text-dark border">Adulto: $${item.precio_adulto.toFixed(2)}</span>`;
+                }
+            } else if (item.tipo_calculo === 'escala_pax') {
+                detalleTarifa = `<i class="fas fa-chart-line text-primary me-1"></i>Escala para ${total} pax`;
+            } else {
+                detalleTarifa = `<i class="fas fa-users text-secondary me-1"></i>Tarifa grupal`;
+            }
+
+            div.innerHTML = `
+                <div class="flex-grow-1 min-w-0">
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <span class="badge bg-dark font-monospace text-white px-2 py-1">${item.codigo}</span>
+                        <span class="badge ${badgeCatClass} px-2 py-1 text-capitalize">${item.categoria}</span>
+                        ${item.duracion_horas ? `<span class="badge bg-light text-muted border px-2 py-1"><i class="far fa-clock me-1"></i>${item.duracion_horas}h</span>` : ''}
+                    </div>
+                    <div class="fw-bold text-dark text-truncate" title="${item.nombre}">${item.nombre}</div>
+                    <small class="text-muted d-block" style="font-size: 0.75rem;">
+                        ${detalleTarifa} · Comisión ${item.comision_pct}%
+                    </small>
+                </div>
+                <div class="text-end flex-shrink-0">
+                    <div class="fs-5 fw-bold text-primary font-monospace">${item.moneda} ${item.costo_pax.toFixed(2)}</div>
+                    <small class="text-muted d-block" style="font-size: 0.72rem;">costo neto unitario</small>
+                    <button type="button" class="btn btn-primary btn-sm mt-1 px-3 py-1 fw-semibold shadow-sm">
+                        <i class="fas fa-check me-1"></i> Aplicar
+                    </button>
+                </div>
+            `;
+
+            div.addEventListener('click', () => {
+                aplicarServicioMaestro(item, total, feriado === 'true');
+            });
+
+            listaResultados.append(div);
+        });
+    };
+
+    let debounceTimer = null;
+    searchInput?.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(renderizarItems, 250);
+    });
+
+    clearBtn?.addEventListener('click', () => {
+        if (searchInput) {
+            searchInput.value = '';
+            renderizarItems();
+        }
+    });
+
+    modalEl.querySelector('[data-maestro-adt-inc]')?.addEventListener('click', () => {
+        if (adtInput) {
+            adtInput.value = Math.min(20, (parseInt(adtInput.value, 10) || 1) + 1);
+            renderizarItems();
+        }
+    });
+
+    modalEl.querySelector('[data-maestro-adt-dec]')?.addEventListener('click', () => {
+        if (adtInput) {
+            adtInput.value = Math.max(1, (parseInt(adtInput.value, 10) || 1) - 1);
+            renderizarItems();
+        }
+    });
+
+    modalEl.querySelector('[data-maestro-chd-inc]')?.addEventListener('click', () => {
+        if (chdInput) {
+            chdInput.value = Math.min(20, (parseInt(chdInput.value, 10) || 0) + 1);
+            renderizarItems();
+        }
+    });
+
+    modalEl.querySelector('[data-maestro-chd-dec]')?.addEventListener('click', () => {
+        if (chdInput) {
+            chdInput.value = Math.max(0, (parseInt(chdInput.value, 10) || 0) - 1);
+            renderizarItems();
+        }
+    });
+
+    adtInput?.addEventListener('change', renderizarItems);
+    chdInput?.addEventListener('change', renderizarItems);
+    feriadoSwitch?.addEventListener('change', renderizarItems);
+
+    catContainer?.querySelectorAll('[data-maestro-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            categoriaMaestroActiva = btn.dataset.maestroCat;
+            catContainer.querySelectorAll('[data-maestro-cat]').forEach((b) => {
+                b.className = b === btn ? 'btn btn-xs btn-dark py-1 px-2 fw-semibold' : 'btn btn-xs btn-outline-secondary py-1 px-2';
+            });
+            renderizarItems();
+        });
+    });
+
+    modalEl.addEventListener('show.bs.modal', () => {
+        // Inicializar número de adultos y niños según el programa
+        const progAdt = document.querySelector('input[name="cantidad_adultos"]')?.value;
+        const progChd = document.querySelector('input[name="cantidad_ninos"]')?.value;
+        const progPax = document.querySelector('input[name="cantidad_pax"]')?.value;
+
+        if (adtInput) adtInput.value = progAdt ? Math.max(1, parseInt(progAdt, 10)) : (progPax ? Math.max(1, parseInt(progPax, 10)) : 2);
+        if (chdInput) chdInput.value = progChd !== undefined && progChd !== null ? Math.max(0, parseInt(progChd, 10) || 0) : 0;
+        syncModalPax();
+        renderizarItems();
+    });
+}
+
 export function initTarifas() {
     initFormulario();
     initEstadias();
     initAsignar();
     initItinerarioServicios();
+    initModalTarifarioMaestro();
 }

@@ -40,6 +40,8 @@ class Programa extends Model
         'porcentaje_igv' => 'decimal:2',
         'porcentaje_ganancia' => 'decimal:2',
         'cantidad_pax' => 'integer',
+        'cantidad_adultos' => 'integer',
+        'cantidad_ninos' => 'integer',
     ];
 
     protected $fillable = [
@@ -53,6 +55,8 @@ class Programa extends Model
         'lang',
         'moneda',
         'cantidad_pax',
+        'cantidad_adultos',
+        'cantidad_ninos',
         'precioAdulto',
         'precioChild',
         'porcentaje_ganancia',
@@ -98,6 +102,13 @@ class Programa extends Model
 
         // Año y mes se derivan siempre de la fecha de inicio (antes se elegían a mano y podían no coincidir).
         static::saving(function (Programa $programa) {
+            // Sincronizar adultos, niños y total de pasajeros
+            $adultos = max(1, (int) ($programa->cantidad_adultos ?: ($programa->cantidad_pax ?: 1)));
+            $ninos = max(0, (int) ($programa->cantidad_ninos ?: 0));
+            $programa->cantidad_adultos = $adultos;
+            $programa->cantidad_ninos = $ninos;
+            $programa->cantidad_pax = $adultos + $ninos;
+
             // Fecha de confirmación: desde ahí corre el plazo del depósito.
             if ($programa->isDirty('estado')) {
                 $programa->confirmado_at = $programa->estado === 'confirmado' ? ($programa->confirmado_at ?? now()) : null;
@@ -168,7 +179,7 @@ public function paxs()
             return $enLista;
         }
 
-        return max(1, (int) ($this->cantidad_pax ?: 1));
+        return max(1, (int) (($this->cantidad_adultos ?: 1) + ($this->cantidad_ninos ?: 0)));
     }
 
     /** Total de personas en el grupo (desde la lista de paxs o la cantidad de pasajeros indicada en datos del grupo). */
@@ -179,7 +190,7 @@ public function paxs()
             return $enLista;
         }
 
-        return max(1, (int) ($this->cantidad_pax ?: 1));
+        return max(1, (int) (($this->cantidad_adultos ?: 1) + ($this->cantidad_ninos ?: 0)));
     }
 
     public function tipoCambio(): float
@@ -418,7 +429,8 @@ public function paxs()
         // Si aún no se han ingresado pasajeros con nombre en la pestaña Pasajeros,
         // usamos la cantidad de pasajeros del grupo como base para cotizar.
         if ($paxs->isEmpty()) {
-            $adultos = max(1, (int) ($this->cantidad_pax ?: 1));
+            $adultos = max(1, (int) ($this->cantidad_adultos ?: ($this->cantidad_pax ?: 1)));
+            $ninos = max(0, (int) ($this->cantidad_ninos ?: 0));
         }
 
         $subtotalAdultos = $adultos * (float) $this->precioAdulto;

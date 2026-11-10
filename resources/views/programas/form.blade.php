@@ -35,7 +35,7 @@
         'id' => $s->id, 'de_estadia' => $s->estadia()->exists(), 'fecha' => $s->fecha->toDateString(), 'hora' => $s->hora_corta, 'tipo' => $s->tipo, 'titulo' => $s->titulo,
         'proveedor_id' => $s->proveedor_id, 'estado' => $s->estado, 'confirmacion' => $s->confirmacion,
         'punto_encuentro' => $s->punto_encuentro, 'descripcion' => $s->descripcion, 'notas' => $s->notas, 'visible_cliente' => $s->visible_cliente,
-        'costo' => $s->costo, 'costo_estimado' => $s->costo_estimado, 'moneda' => $s->moneda, 'costo_por' => $s->costo_por, 'pagado_at' => $s->pagado_at?->toDateString(), 'situacion_pago' => $s->situacion_pago, 'saldo' => $s->saldo_proveedor,
+        'costo' => $s->costo, 'costo_estimado' => $s->costo_estimado, 'tarifario_codigo' => $s->tarifario_codigo, 'moneda' => $s->moneda, 'costo_por' => $s->costo_por, 'pagado_at' => $s->pagado_at?->toDateString(), 'situacion_pago' => $s->situacion_pago, 'saldo' => $s->saldo_proveedor,
     ])->all();
     if (old('servicios') !== null) {
         // Checkbox sin marcar = no llega en el envío.
@@ -273,14 +273,30 @@
                                 @error('moneda')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             </div>
                             <div class="col-sm-6 col-lg-3">
-                                <label for="pf-cantidad-pax" class="prog-label">
-                                    <i class="fas fa-users text-primary me-1"></i> Pasajeros del grupo
-                                </label>
-                                <input id="pf-cantidad-pax" type="number" name="cantidad_pax" min="1" max="999"
-                                    value="{{ old('cantidad_pax', $programa->cantidad_pax ?: ($programa->paxs->count() ?: 1)) }}"
-                                    class="form-control @error('cantidad_pax') is-invalid @enderror" placeholder="Ej. 24"
-                                    title="Cantidad total de pasajeros para cotizar y multiplicar los precios individuales" data-cantidad-pax>
-                                @error('cantidad_pax')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="prog-label mb-0"><i class="fas fa-users text-primary me-1"></i> Pasajeros</label>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-1.5 py-0.5 font-monospace fw-bold" id="pf-total-pax-badge" style="font-size: 0.7rem;">
+                                        {{ old('cantidad_pax', ($programa->cantidad_adultos ?? $programa->cantidad_pax ?? 2) + ($programa->cantidad_ninos ?? 0)) }} Pax
+                                    </span>
+                                </div>
+                                <div class="input-group input-group-sm">
+                                    <span class="input-group-text bg-light text-dark fw-bold px-1.5" title="Adultos"><i class="fas fa-user text-primary me-1"></i>Adt</span>
+                                    <input id="pf-cantidad-adultos" type="number" name="cantidad_adultos" min="1" max="999"
+                                        value="{{ old('cantidad_adultos', $programa->cantidad_adultos ?? ($programa->cantidad_pax ?: 2)) }}"
+                                        class="form-control text-center font-monospace fw-bold px-1 @error('cantidad_adultos') is-invalid @enderror"
+                                        placeholder="Adt" data-cantidad-adultos title="Adultos (tarifa completa)">
+
+                                    <span class="input-group-text bg-light text-dark fw-bold px-1.5" title="Niños"><i class="fas fa-child text-info me-1"></i>Chd</span>
+                                    <input id="pf-cantidad-ninos" type="number" name="cantidad_ninos" min="0" max="999"
+                                        value="{{ old('cantidad_ninos', $programa->cantidad_ninos ?? 0) }}"
+                                        class="form-control text-center font-monospace fw-bold px-1 @error('cantidad_ninos') is-invalid @enderror"
+                                        placeholder="Chd" data-cantidad-ninos title="Niños (tarifa reducida/estudiante)">
+                                </div>
+                                <input type="hidden" id="pf-cantidad-pax" name="cantidad_pax"
+                                    value="{{ old('cantidad_pax', ($programa->cantidad_adultos ?? $programa->cantidad_pax ?? 2) + ($programa->cantidad_ninos ?? 0)) }}"
+                                    data-cantidad-pax>
+                                @error('cantidad_adultos')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                @error('cantidad_ninos')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                             </div>
                             {{-- Solo hace falta si algún servicio u hotel se cobra en otra moneda (lo muestra programa-form.js). --}}
                             <div class="col-sm-6 col-lg-4" data-tipo-cambio-campo>
@@ -1084,8 +1100,8 @@
 
                     @php
                         $pres = $isEdit ? $programa->presupuesto() : [
-                            'adultos' => max(1, (int) (old('cantidad_pax', $programa->cantidad_pax) ?: 1)),
-                            'ninos' => 0,
+                            'adultos' => max(1, (int) (old('cantidad_adultos', $programa->cantidad_adultos ?? old('cantidad_pax', $programa->cantidad_pax)) ?: 2)),
+                            'ninos' => max(0, (int) (old('cantidad_ninos', $programa->cantidad_ninos) ?: 0)),
                             'infantes' => 0,
                             'ventaAdulto' => 0,
                             'ventaNino' => 0,
@@ -1824,4 +1840,7 @@
 
     {{-- Modal rápido para registrar nuevo hotel y habitación sin salir del formulario --}}
     @include('programas.partials.modal-nuevo-hotel')
+
+    {{-- Modal para cotizar y aplicar servicios del Tarifario Maestro 2027 --}}
+    @include('programas.partials.modal-tarifario-maestro')
 </div>
