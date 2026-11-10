@@ -13,8 +13,8 @@
 
 const MIN_DESKTOP_WIDTH = 992;
 const IDLE_TIMEOUT_MS = 2500;
-const MOUSE_RADIUS = 160;
-const MOUSE_MIN_DIST = 38;
+const MOUSE_RADIUS = 165;
+const MOUSE_MIN_DIST = 55;
 const LINK_MAX_DIST = 115;
 const SPRITE_SIZE = 32;
 
@@ -373,7 +373,7 @@ class AdminConstellation {
     }
 
     createParticles() {
-        const count = Math.floor(Math.min(Math.max(this.width / 55, 20), 32));
+        const count = Math.floor(Math.min(Math.max(this.width / 65, 18), 26));
         const types = ['chakana', 'montana', 'inti', 'llama', 'brujula', 'chaska', 'estrella'];
         const colorKeys = ['gold', 'gold', 'teal', 'silver'];
 
@@ -381,13 +381,13 @@ class AdminConstellation {
         for (let i = 0; i < count; i++) {
             const type = types[i % types.length];
             const colorKey = colorKeys[i % colorKeys.length];
-            const size = type === 'estrella' ? 14 : Math.floor(18 + Math.random() * 6);
+            const size = type === 'estrella' ? 14 : Math.floor(18 + Math.random() * 5);
 
             this.particles.push({
-                x: Math.random() * (this.width - 60) + 30,
-                y: Math.random() * (this.height - 60) + 30,
-                vx: (Math.random() - 0.5) * 0.35,
-                vy: (Math.random() - 0.5) * 0.35,
+                x: Math.random() * (this.width - 80) + 40,
+                y: Math.random() * (this.height - 80) + 40,
+                vx: (Math.random() - 0.5) * 0.3,
+                vy: (Math.random() - 0.5) * 0.3,
                 type,
                 colorKey,
                 size,
@@ -447,10 +447,10 @@ class AdminConstellation {
         const mouseY = this.mouse.y;
         const hasMouse = this.mouse.active && mouseX > 0 && mouseY > 0;
 
+        // 1. Interacción con el cursor (Atracción y formación de constelación)
         for (let i = 0; i < this.particles.length; i++) {
             const p = this.particles[i];
 
-            // Atracción interactiva del mouse (efecto constelación)
             if (hasMouse) {
                 const dx = mouseX - p.x;
                 const dy = mouseY - p.y;
@@ -461,44 +461,85 @@ class AdminConstellation {
                     const normY = dy / dist;
 
                     if (dist > MOUSE_MIN_DIST) {
-                        // Fuerza de gravedad suave hacia el cursor
-                        const pull = ((MOUSE_RADIUS - dist) / MOUSE_RADIUS) * 0.55;
+                        // Atracción elástica suave hacia el anillo exterior del cursor
+                        const pull = ((MOUSE_RADIUS - dist) / MOUSE_RADIUS) * 0.48;
                         p.vx += normX * pull;
                         p.vy += normY * pull;
                     } else {
-                        // Repulsión elástica para que no se apelmacen sobre el puntero
-                        const push = ((MOUSE_MIN_DIST - dist) / MOUSE_MIN_DIST) * 0.85;
+                        // Repulsión cuando entran al círculo interior del cursor
+                        const push = ((MOUSE_MIN_DIST - dist) / MOUSE_MIN_DIST) * 0.95;
                         p.vx -= normX * push;
                         p.vy -= normY * push;
+
+                        // Leve empuje tangencial para que orbiten de forma armónica
+                        p.vx += -normY * 0.18;
+                        p.vy += normX * 0.18;
                     }
                 }
             }
 
-            // Fricción suave
-            p.vx *= 0.94;
-            p.vy *= 0.94;
+            // Fricción suave para desaceleraciones naturales
+            p.vx *= 0.93;
+            p.vy *= 0.93;
 
             // Mantener un sutil movimiento ambiente mínimo
             const currentSpeed = Math.hypot(p.vx, p.vy);
-            if (currentSpeed < 0.12) {
+            if (currentSpeed < 0.10) {
                 const angle = p.pulsePhase + (i * 0.7);
-                p.vx += Math.cos(angle) * 0.03;
-                p.vy += Math.sin(angle) * 0.03;
+                p.vx += Math.cos(angle) * 0.025;
+                p.vy += Math.sin(angle) * 0.025;
             }
 
-            // Actualizar posición
+            // Actualización de posición
             p.x += p.vx;
             p.y += p.vy;
 
-            // Rebote elástico en los bordes de la pantalla
-            const pad = 20;
-            if (p.x < pad) { p.x = pad; p.vx *= -1; }
-            if (p.x > this.width - pad) { p.x = this.width - pad; p.vx *= -1; }
-            if (p.y < pad) { p.y = pad; p.vy *= -1; }
-            if (p.y > this.height - pad) { p.y = this.height - pad; p.vy *= -1; }
-
-            // Fase de pulso lumínico
             p.pulsePhase += p.pulseSpeed;
+        }
+
+        // 2. Anti-solapamiento estricto entre partículas (Separación elástica Boids / Soft-body)
+        // Cada ícono conserva siempre su propio espacio vital y nunca se sobrepone con otro
+        for (let i = 0; i < this.particles.length; i++) {
+            const p1 = this.particles[i];
+            for (let j = i + 1; j < this.particles.length; j++) {
+                const p2 = this.particles[j];
+                const dx = p1.x - p2.x;
+                const dy = p1.y - p2.y;
+                const dist = Math.hypot(dx, dy) || 0.001;
+
+                // Distancia mínima requerida entre centros para evitar cualquier toque o cruce
+                const minSpace = (p1.size + p2.size) * 0.75 + 14;
+
+                if (dist < minSpace) {
+                    const overlap = minSpace - dist;
+                    const nx = dx / dist;
+                    const ny = dy / dist;
+
+                    // Fuerza de repulsión mutua proporcional al solapamiento
+                    const repForce = (overlap / minSpace) * 0.75;
+                    p1.vx += nx * repForce;
+                    p1.vy += ny * repForce;
+                    p2.vx -= nx * repForce;
+                    p2.vy -= ny * repForce;
+
+                    // Corrección posicional directa para asegurar separación inmediata
+                    const pushHalf = overlap * 0.35;
+                    p1.x += nx * pushHalf;
+                    p1.y += ny * pushHalf;
+                    p2.x -= nx * pushHalf;
+                    p2.y -= ny * pushHalf;
+                }
+            }
+        }
+
+        // 3. Contención elástica en los márgenes de la pantalla
+        const pad = 24;
+        for (let i = 0; i < this.particles.length; i++) {
+            const p = this.particles[i];
+            if (p.x < pad) { p.x = pad; p.vx = Math.abs(p.vx) * 0.6; }
+            if (p.x > this.width - pad) { p.x = this.width - pad; p.vx = -Math.abs(p.vx) * 0.6; }
+            if (p.y < pad) { p.y = pad; p.vy = Math.abs(p.vy) * 0.6; }
+            if (p.y > this.height - pad) { p.y = this.height - pad; p.vy = -Math.abs(p.vy) * 0.6; }
         }
     }
 
