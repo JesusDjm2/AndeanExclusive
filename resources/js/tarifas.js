@@ -153,9 +153,9 @@ function aplicarTarifa(row, tarifa, automatica = false) {
         disparar(estInput);
     }
 
-    // El costo real lo confirma Reservas; solo se propone si el campo está habilitado y vacío.
+    // El costo real lo confirma Reservas; solo se propone si el campo es visible, está habilitado y vacío.
     const realInput = row.querySelector('[data-svc-costo]');
-    if (realInput && !realInput.disabled && realInput.value === '') {
+    if (realInput && realInput.type !== 'hidden' && !realInput.disabled && realInput.value === '') {
         realInput.value = tarifa.precio;
         disparar(realInput);
     }

@@ -203,13 +203,8 @@
                     @endforeach
                 </select>
             </div>
-            <div class="svc-fin__col svc-fin__col--costo">
-                <label class="prog-label" for="svc-{{ $i }}-costo">Costo real prov.</label>
-                @if ($bloqueado)<input type="hidden" name="{{ $name('costo') }}" value="{{ $v('costo') }}">@endif
-                <input id="svc-{{ $i }}-costo" type="number" @disabled($bloqueado) name="{{ $name('costo') }}" value="{{ $v('costo') }}" step="0.01" min="0"
-                    class="form-control form-control-sm {{ $err('costo') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-costo>
-            </div>
-            {{-- Confirmación se conserva como campo oculto para el flujo de reservas sin estorbar la cotización --}}
+            {{-- Costo real prov. y confirmación se conservan como campos ocultos para el flujo de reservas y finanzas sin estorbar la cotización --}}
+            <input type="hidden" id="svc-{{ $i }}-costo" name="{{ $name('costo') }}" value="{{ $v('costo') }}" data-svc-costo>
             <input type="hidden" name="{{ $name('confirmacion') }}" value="{{ $v('confirmacion') }}">
         </div>
 
