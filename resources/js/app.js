@@ -8,6 +8,7 @@ import { initBlogRails } from './blog-carousel';
 import { initTourDetail } from './tour-detail';
 import { initToc } from './toc';
 import { initCollectionFilter } from './collection-filter';
+import { initHeroVideo } from './hero-video';
 
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.remove('no-js');
@@ -21,4 +22,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initTourDetail();
     initToc();
     initCollectionFilter();
+    initHeroVideo();
 });

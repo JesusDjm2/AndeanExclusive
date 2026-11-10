@@ -145,7 +145,7 @@ class TarifarioServicio extends Model
     public function calcularFinanciero(int $pax = 1, bool $esFeriado = false, ?string $tipoPax = 'adulto'): array
     {
         $costoNeto = $this->calcularCosto($pax, $esFeriado, $tipoPax);
-        $comisionPct = (float) ($this->comision_pct ?? 11.0);
+        $comisionPct = (float) ($this->comision_pct ?? 0.0);
         $comisionMonto = $comisionPct > 0 ? ($costoNeto * ($comisionPct / 100)) : 0.0;
         $igvMonto = ($this->aplica_igv_comision && $comisionMonto > 0) ? ($comisionMonto * 0.18) : 0.0;
         $totalVenta = $costoNeto + $comisionMonto + $igvMonto;

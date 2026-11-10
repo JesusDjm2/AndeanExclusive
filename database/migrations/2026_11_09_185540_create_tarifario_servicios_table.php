@@ -21,8 +21,8 @@ return new class extends Migration
                 $table->decimal('precio_adulto', 10, 2)->nullable();
                 $table->decimal('precio_nino', 10, 2)->nullable();
                 $table->decimal('costo_grupo', 10, 2)->nullable();
-                $table->decimal('comision_pct', 5, 2)->default(11.00);
-                $table->boolean('aplica_igv_comision')->default(true);
+                $table->decimal('comision_pct', 5, 2)->default(0.00);
+                $table->boolean('aplica_igv_comision')->default(false);
                 $table->char('moneda', 3)->default('USD');
                 $table->json('precios_escalonados')->nullable(); // {'normal': {'1': 152.78, ...}, 'feriado': {'1': 217.78, ...}}
                 $table->json('desglose')->nullable(); // {'transporte': 60, 'guia': 65, 'snack': 5.3, ...}

@@ -99,8 +99,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 39.39, // S/ 130 @ 3.3
                 'precio_nino' => 21.21,   // S/ 70 @ 3.3
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Tarifa oficial en Soles convertida a T/C 3.3. Requiere pasaporte original en ingreso.',
             ],
@@ -112,8 +112,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 21.21, // S/ 70 @ 3.3
                 'precio_nino' => 21.21,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Válido para un solo circuito por 1 o 2 días.',
             ],
@@ -125,8 +125,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 12.12, // S/ 40 @ 3.3
                 'precio_nino' => 6.06,    // S/ 20 @ 3.3
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -137,8 +137,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06, // S/ 20 @ 3.3
                 'precio_nino' => 3.03,   // S/ 10 @ 3.3
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -149,8 +149,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -161,8 +161,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -173,8 +173,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -185,8 +185,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06, // S/ 20 @ 3.3
                 'precio_nino' => 6.06,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Cobrado directamente por la comunidad campesina de Maras.',
             ],
@@ -198,8 +198,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 4.55, // S/ 15 @ 3.3
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -210,8 +210,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 4.55,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -222,8 +222,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 4.55,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -234,8 +234,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 6.06,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -246,8 +246,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 24.00,
                 'precio_nino' => 15.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -258,8 +258,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 46.06, // S/ 152 @ 3.3
                 'precio_nino' => 23.33,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Boleto nominal intransferible emitido por Ministerio de Cultura.',
             ],
@@ -271,8 +271,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 60.60, // S/ 200 @ 3.3
                 'precio_nino' => 35.75,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -283,8 +283,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 3.03,
                 'precio_nino' => 3.03,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -295,8 +295,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 2.42,
                 'precio_nino' => 2.42,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
 
@@ -309,8 +309,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Viáticos de Almuerzo en Machu Picchu (Guía / Especialista)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 16.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -319,8 +319,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Viáticos de Almuerzo en Valle Sagrado (Guía)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 16.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -329,8 +329,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Viáticos Pernocte Valle Sagrado - Guía (Hotel $55 + Cena $16)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 71.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Aplica cuando el guía pernocta en el Valle para servicio al día siguiente.',
             ],
@@ -340,8 +340,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Viáticos Pernocte Machu Picchu - Guía (Hotel $60 + Cena $16)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 76.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Aplica en tours de 2 días a Machu Picchu con pernocte de guía.',
             ],
@@ -389,8 +389,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Aeropuerto Cusco <-> Hotel Cusco (y viceversa)',
                 'descripcion' => 'Vehículo privado con chofer profesional, representante bilingüe y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([36.30, 18.80, 14.63, 11.30, 9.30, 7.97, 7.01, 7.55, 8.52, 7.80, 7.21, 6.72, 7.45, 7.01, 7.30, 7.55, 7.18, 6.86, 6.56, 6.30]),
@@ -405,8 +405,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Hotel Cusco <-> Estación Wanchaq (y viceversa)',
                 'descripcion' => 'Vehículo privado con chofer profesional, representante bilingüe y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([36.30, 18.80, 14.63, 11.30, 9.30, 7.97, 7.01, 7.55, 8.52, 7.80, 7.21, 6.72, 7.45, 7.01, 7.30, 7.55, 7.18, 6.86, 6.56, 6.30]),
@@ -421,8 +421,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Cusco <-> Urubamba o Estación Ollantaytambo',
                 'descripcion' => 'Traslado privado interprovincial entre Cusco y Valle Sagrado, con representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([122.60, 61.95, 48.40, 36.63, 29.56, 24.85, 21.49, 21.46, 22.00, 19.93, 18.24, 16.83, 22.95, 21.41, 21.41, 21.41, 20.23, 19.19, 18.25, 17.41]),
@@ -437,8 +437,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Aeropuerto Cusco <-> Urubamba o Estación Ollantaytambo',
                 'descripcion' => 'Traslado privado del aeropuerto al Valle Sagrado (o viceversa), con representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([122.60, 61.95, 48.40, 36.63, 29.56, 24.85, 21.49, 21.46, 22.00, 19.93, 18.24, 16.83, 22.95, 21.41, 21.41, 21.41, 20.23, 19.19, 18.25, 17.41]),
@@ -453,8 +453,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Urubamba <-> Estación de Tren Poroy',
                 'descripcion' => 'Traslado privado entre el Valle Sagrado y la estación de Poroy, con representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([121.30, 61.30, 47.97, 36.30, 29.30, 24.63, 21.30, 21.30, 21.86, 19.80, 18.12, 16.72, 22.84, 21.30, 21.30, 21.30, 20.12, 19.08, 18.14, 17.30]),
@@ -469,8 +469,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Urubamba <-> Ollantaytambo (y viceversa)',
                 'descripcion' => 'Traslado privado dentro del Valle Sagrado, con representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([121.30, 61.30, 47.97, 36.30, 29.30, 24.63, 21.30, 21.30, 21.86, 19.80, 18.12, 16.72, 22.84, 21.30, 21.30, 21.30, 20.12, 19.08, 18.14, 17.30]),
@@ -485,8 +485,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Cusco <-> Estación de Tren Poroy',
                 'descripcion' => 'Vehículo privado con chofer profesional, representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([46.30, 23.80, 19.30, 14.80, 12.10, 10.30, 9.01, 9.43, 10.74, 9.80, 9.03, 8.38, 9.86, 9.49, 9.90, 10.26, 9.93, 9.63, 9.37, 9.13]),
@@ -506,8 +506,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Hotel <-> Restaurante Cusco (Round Trip - 2 hrs)',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 2.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => ['normal' => $tptCuscoCorto],
                 'desglose' => [$parte('traslado', 'Transporte', $tptCuscoCorto)],
@@ -519,8 +519,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'descripcion' => 'Para la experiencia de 2 horas con fotografía de Totemiq.',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 2.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => ['normal' => $tptCuscoCorto],
                 'desglose' => [$parte('traslado', 'Transporte', $tptCuscoCorto)],
@@ -532,8 +532,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Traslado Hotel <-> Restaurante en Valle Sagrado (Round Trip)',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 2.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => ['normal' => $tptValleCorto],
                 'desglose' => [$parte('traslado', 'Transporte', $tptValleCorto)],
@@ -545,8 +545,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'descripcion' => 'Traslado ida y vuelta al restaurante con guía que acompaña a los pasajeros durante la cena.',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 2.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([150.00, 75.00, 53.33, 40.00, 32.00, 26.67, 22.86, 20.63, 25.56, 23.00, 20.91, 19.17, 24.62, 22.86, 21.67, 20.63, 23.24, 21.94, 20.79, 19.75]),
@@ -564,8 +564,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'descripcion' => 'Traslado con guía que cena con los pasajeros; incluye hotel del guía y del conductor. Tarifa para cuando complementa otro servicio del día en el Valle Sagrado.',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 3.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([250.00, 125.00, 86.68, 65.00, 52.00, 43.32, 37.14, 33.13, 42.22, 38.00, 34.55, 31.66, 40.00, 37.14, 35.01, 33.13, 37.93, 35.83, 33.94, 32.25]),
@@ -586,8 +586,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'descripcion' => 'Traslado con guía que cena con los pasajeros; incluye hotel del guía y del conductor. Tarifa para cuando es el único servicio del día en el Valle Sagrado.',
                 'tipo_calculo' => 'escala_pax',
                 'duracion_horas' => 3.0,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => $escala([275.00, 137.50, 98.34, 73.75, 59.00, 49.16, 42.14, 39.38, 49.45, 44.50, 40.46, 37.08, 45.38, 42.14, 40.67, 39.38, 39.99, 37.78, 35.78, 34.00]),
@@ -609,8 +609,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'lugares_visita' => 'Awanacancha, Pisac Market / Ruins, Ollantaytambo',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -635,8 +635,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'lugares_visita' => 'Chinchero, Salineras de Maras, Terrazas de Moray',
                 'duracion_horas' => 7.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -663,8 +663,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'In and Around Cusco',
                 'duracion_horas' => 4.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -699,8 +699,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'CUSCO CHALLENGE',
                 'duracion_horas' => 4.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 13.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -723,8 +723,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Around the Outskirts',
                 'duracion_horas' => 4.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -759,8 +759,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Cusco on foot',
                 'duracion_horas' => 4.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -795,8 +795,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'TIPON + ANDAHUAYLILLAS',
                 'duracion_horas' => 5.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -831,8 +831,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Southeast Cusco',
                 'duracion_horas' => 6.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -867,8 +867,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'The Scenic Route - Conventional',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -903,8 +903,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'The Scenic Route - Highland',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -939,8 +939,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'The Scenic Route - Conventional ending in Titilaka',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -963,8 +963,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Cusco Unseen',
                 'duracion_horas' => 4.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -985,8 +985,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'BIRD WATCHING AT HUACARPAY  SOLO TRANSPORTE NO INCLUYE GUIA',
                 'duracion_horas' => 6.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1006,8 +1006,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Two Days at the Ruins (Paxs Sanctuary Lodge, Guía no pernocta)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1042,8 +1042,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Two Days at the Ruins (Paxs Aguas Calientes, Guía no pernocta)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1078,8 +1078,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Two Days at the Ruins (Paxs Sanctuary Lodge, Guía pernocta)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1114,8 +1114,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Two Days at the Ruins (Paxs Aguas Calientes, Guía pernocta)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1150,8 +1150,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'A Day at the Ruins (Full Day Machu Picchu)',
                 'duracion_horas' => 5.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1186,8 +1186,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Camino Inca Km 104 2D/1N (Pernocte Sanctuary Lodge)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1222,8 +1222,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Camino Inca Km 104 2D/1N (Pernocte Aguas Calientes)',
                 'duracion_horas' => 24.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1258,8 +1258,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Servicio de Guía Local en Machu Picchu (01 Día)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 121.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $121.00 | Venta sugerida $136.71 (inc. fee e impuestos).',
             ],
@@ -1269,8 +1269,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Servicio de Guía Local en Machu Picchu (02 Días)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 242.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $242.00 | Venta sugerida $273.41 (inc. fee e impuestos).',
             ],
@@ -1283,8 +1283,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Patabamba to Huchuy Qosqo Trek',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1305,8 +1305,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Chinchero - Huayllabamba Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1327,8 +1327,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Maras & Moray Trek',
                 'duracion_horas' => 7.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1349,8 +1349,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Tipón Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [],
@@ -1367,8 +1367,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Pumamarca Hike',
                 'duracion_horas' => 6.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1387,8 +1387,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Journey to the Heart of the Andes',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1407,8 +1407,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Patacancha o Willoq Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1427,8 +1427,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'FD Palcoyo (Montaña de Colores)',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1447,8 +1447,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Hike to Humantay - Full Day',
                 'duracion_horas' => 12.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1467,8 +1467,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'The Real Sacred Valley',
                 'duracion_horas' => 9.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1489,8 +1489,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Ancasmarca Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1507,8 +1507,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'FD Maukallacta',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1531,8 +1531,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Journey to the Heart of the Andes (Ruta Alternativa)',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1551,8 +1551,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Full Day Mirador de Chonta',
                 'duracion_horas' => 12.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1571,8 +1571,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Patakancha Experience FD',
                 'duracion_horas' => 9.0,
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1595,8 +1595,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'TPT & Guía para Experiencias con Base Lamay (Chichería, Cuyes & Abejas / Community Day)',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1611,8 +1611,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'TPT & Guía Lamay To Pisac Mountain Hike con llamas, staff y picnic ParuParu',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1627,8 +1627,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'TPT & Guía para Llama Path Experience',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1648,8 +1648,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'TPT a Disposición para Cuatrimotos Sol y Luna (Half Day & Full Day)',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1664,8 +1664,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'TPT & Guía para Cabalgata con Huayoccari (Half Day & Full Day)',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1685,8 +1685,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'categoria' => 'componente',
                 'nombre' => 'Inti Raymi FD - Koricancha General y Sacsayhuamán Zona Inti Super VIP',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1709,8 +1709,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Carro Maletero Privado Aeropuerto <-> Valle Sagrado (1 a 12 pax)',
                 'descripcion' => 'Vehículo exclusivo para el equipaje con representante. Tarifa por grupo (US$ 140) prorrateada por pasajero.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => ['normal' => $porGrupo(140.00, 12)],
                 'desglose' => [
@@ -1724,8 +1724,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Carro Maletero Privado Aeropuerto <-> Hotel Cusco (1 a 12 pax)',
                 'descripcion' => 'Vehículo exclusivo para el equipaje con representante. Tarifa por grupo (US$ 65) prorrateada por pasajero.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => ['normal' => $porGrupo(65.00, 12)],
                 'desglose' => [
@@ -1739,8 +1739,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Auto Privado para Servicios Adicionales de Último Minuto',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 69.36,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1749,8 +1749,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Servicio de Fotografía Profesional 1/2 Día en Cusco',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 128.32,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1759,8 +1759,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Servicio de Asistencia en Cusco (Hotel - Inicio Experiencia - Hotel)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 28.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1769,8 +1769,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Servicio de Asistencia en Cusco Feriado (Hotel - Inicio Experiencia - Hotel)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 42.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1780,8 +1780,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 5.00,
                 'precio_nino' => 5.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1791,8 +1791,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 5.30,
                 'precio_nino' => 5.30,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -1801,8 +1801,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Snack Guía de Ruta',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 4.30,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             // ==========================================
@@ -1814,8 +1814,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Ceremonia de Pago a la Tierra en Cusco (Chamán + Ofrenda + Guía Traductor)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 398.23, // Venta final $450
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $450.00 USD por grupo.',
             ],
@@ -1825,8 +1825,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Ceremonia de Pago a la Tierra en Cusco + Acompañamiento de Música Andina',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 703.54, // Venta final $795
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $795.00 USD por grupo.',
             ],
@@ -1836,8 +1836,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Ceremonia de Pago a la Tierra en Valle Sagrado (Chamán + Ofrenda + Guía Traductor)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 504.42, // Venta final $570
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $570.00 USD por grupo.',
             ],
@@ -1847,8 +1847,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Ceremonia de Pago a la Tierra en Valle Sagrado + Acompañamiento de Música Andina',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 792.03, // Venta final $895
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $895.00 USD por grupo.',
             ],
@@ -1858,8 +1858,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Pago a la Tierra en Terraza Belmond Sanctuary Lodge (Machu Picchu con Visita)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 1747.78, // Venta final $1,975 inc IGV
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Incluye chamán con viáticos, tickets tren/bus/ingresos chamán y guía traductor. Venta $1,975 USD.',
             ],
@@ -1869,8 +1869,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Pago a la Tierra en Terraza Hotel Aguas Calientes / Mariposario (Machu Picchu con Visita)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 1723.89, // Venta final $1,948 inc IGV
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $1,948.00 USD.',
             ],
@@ -1880,8 +1880,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Pago a la Tierra en Terraza Sanctuary Lodge (Machu Picchu Sin Visita)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 1506.19, // Venta final $1,702
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $1,702.00 USD.',
             ],
@@ -1891,8 +1891,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Pago a la Tierra en Terraza Hotel Aguas Calientes / Mariposario (Machu Picchu Sin Visita)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 1482.30, // Venta final $1,675
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Venta final oficial $1,675.00 USD.',
             ],
@@ -1905,8 +1905,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Almuerzo Guía en Cuchara de Palo (cuando paxs tienen almuerzo)',
                 'tipo_calculo' => 'por_grupo',
                 'costo_grupo' => 30.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $30.00 | Total con fee $33.89 USD.',
             ],
@@ -1918,8 +1918,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 35.00,
                 'precio_nino' => 25.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $35.00 | Total con fee $39.54 USD.',
             ],
@@ -1931,8 +1931,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 35.00,
                 'precio_nino' => 25.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $35.00 | Total con fee $39.54 USD.',
             ],
@@ -1944,8 +1944,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 35.00,
                 'precio_nino' => 25.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'notas' => 'Costo neto $35.00 | Total con fee $39.54 USD.',
             ],
@@ -1955,8 +1955,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Picnic Lunch Standard al aire libre (Valle Sagrado / Tipón)',
                 'descripcion' => 'Mesa rústica campestre con mantas andinas, ensaladas frescas, quiches, quesos y postre.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1973,8 +1973,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'nombre' => 'Picnic Lunch de Lujo con Montaje Privado & Vino',
                 'descripcion' => 'Montaje exclusivo con carpas ligeras o parasoles, vajilla fina, maridaje de vino Trapiche Malbec y servicio personalizado.',
                 'tipo_calculo' => 'escala_pax',
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
                     'normal' => [
@@ -1992,8 +1992,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 25.00,
                 'precio_nino' => 25.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
             [
@@ -2003,8 +2003,8 @@ class TarifarioAracari2027Seeder extends Seeder
                 'tipo_calculo' => 'por_persona',
                 'precio_adulto' => 30.00,
                 'precio_nino' => 30.00,
-                'comision_pct' => 11.00,
-                'aplica_igv_comision' => true,
+                'comision_pct' => 0.00,
+                'aplica_igv_comision' => false,
                 'moneda' => 'USD',
             ],
         ];

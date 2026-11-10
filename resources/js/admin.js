@@ -262,4 +262,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initAuthVideo();
     initHistorialModal(bootstrap);
     initAdminConstellation();
+
+    // Reubicar cualquier modal al <body> antes de mostrarse para evitar que quede atrapado
+    // detrás del backdrop por el stacking context (z-index) de .admin-main
+    document.addEventListener('show.bs.modal', (e) => {
+        if (e.target && e.target.classList.contains('modal') && e.target.parentElement !== document.body) {
+            document.body.appendChild(e.target);
+        }
+    });
 });

@@ -174,17 +174,13 @@
                             <span class="input-group-text" data-parte-moneda>US$</span>
                             <input type="number" step="0.01" min="0" class="form-control" data-parte-costo aria-label="Costo neto por pasajero" placeholder="Sin precio">
                         </div>
-                        <div class="input-group input-group-sm tm-parte__com" title="Comisión de esta parte (la del tarifario)">
-                            <input type="number" step="0.01" min="0" max="100" class="form-control" data-parte-comision aria-label="Comisión (%)">
-                            <span class="input-group-text">%</span>
-                        </div>
                         <button type="button" class="btn btn-sm tm-parte__cliente" data-parte-cliente aria-pressed="false" title="Mostrar al cliente en el itinerario">
                             <i class="fas fa-eye-slash" aria-hidden="true"></i>
                         </button>
                         <button type="button" class="btn btn-sm btn-outline-danger tm-parte__quitar" data-parte-quitar title="Quitar parte" aria-label="Quitar parte">
                             <i class="fas fa-times" aria-hidden="true"></i>
                         </button>
-                        <small class="tm-parte__origen"><span data-parte-origen></span> <strong class="tm-parte__venta" data-parte-venta></strong></small>
+                        <small class="tm-parte__origen"><span data-parte-origen></span></small>
                     </div>
                 </template>
             </div>

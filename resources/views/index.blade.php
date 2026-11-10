@@ -9,12 +9,15 @@
 @endsection
 
 @section('contenido')
-    <section class="hero">
+    <section class="hero" data-hero-video-id="9mS_91IgqbA">
         <div class="hero__media" data-parallax-container>
-            <picture>
+            <picture class="hero__poster">
                 <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/machupicchu-mobile.webp') }}" type="image/webp">
                 <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Peru" loading="eager" fetchpriority="high" decoding="async" data-parallax="12" data-breathe>
             </picture>
+            <div class="hero__video-wrap" id="hero-video-wrap" aria-hidden="true">
+                <div id="hero-yt-player"></div>
+            </div>
         </div>
         <div class="hero__content">
             <h1 class="hero__title">Luxury Peru tours, made exclusively for you</h1>
@@ -25,6 +28,16 @@
             </p>
 
             @include('layouts.partials.form-consulta-rapida', ['locale' => 'en'])
+        </div>
+
+        {{-- Controles discretos del video de fondo (solo PC) --}}
+        <div class="hero-video-controls" id="hero-video-controls" aria-label="Background video controls" hidden>
+            <button type="button" class="hero-video-btn" id="hero-video-toggle" title="Pause video" aria-label="Pause or resume video" data-label-play="Resume video" data-label-pause="Pause video">
+                <i class="fa fa-pause" id="hero-video-icon" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="hero-video-btn" id="hero-audio-toggle" title="Enable audio" aria-label="Enable or mute audio" data-label-mute="Mute audio" data-label-unmute="Enable audio">
+                <i class="fa fa-volume-off" id="hero-audio-icon" aria-hidden="true"></i>
+            </button>
         </div>
     </section>
 

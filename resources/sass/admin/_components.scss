@@ -816,10 +816,10 @@
 
 .tm-parte {
     display: grid;
-    grid-template-columns: auto 10.5rem minmax(0, 1fr) 8.5rem 5.75rem auto auto;
+    grid-template-columns: auto 10.5rem minmax(0, 1fr) 9rem auto auto;
     grid-template-areas:
-        "usar tipo nombre costo com cliente quitar"
-        ". origen origen origen origen origen origen";
+        "usar tipo nombre costo cliente quitar"
+        ". origen origen origen origen origen";
     align-items: center;
     gap: 0.35rem 0.5rem;
     padding: 0.6rem 0.75rem;
@@ -835,8 +835,6 @@
     &__tipo { grid-area: tipo; }
     &__nombre { grid-area: nombre; }
     &__costo { grid-area: costo; }
-    &__com { grid-area: com; }
-    &__venta { color: var(--ae-ink); font-weight: 600; }
     &__cliente { grid-area: cliente; }
     &__quitar { grid-area: quitar; }
 
@@ -858,12 +856,11 @@
     }
 
     @include media-breakpoint-down(md) {
-        grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) auto auto;
+        grid-template-columns: auto minmax(0, 1fr) auto auto;
         grid-template-areas:
-            "usar nombre nombre cliente quitar"
-            ". tipo tipo tipo tipo"
-            ". costo com com com"
-            ". origen origen origen origen";
+            "usar nombre cliente quitar"
+            ". tipo costo costo"
+            ". origen origen origen";
     }
 }
 

@@ -186,8 +186,14 @@
                     @endif
                 </small>
             </div>
-            {{-- Modalidad de cobro: por defecto siempre individual (por persona). No se pregunta en la línea principal. --}}
-            <input type="hidden" name="{{ $name('costo_por') }}" value="{{ $v('costo_por') ?: 'persona' }}" data-svc-por>
+            {{-- Modalidad de cobro visible directamente para cotización: por persona o por grupo --}}
+            <div class="svc-fin__col svc-fin__col--por">
+                <label class="prog-label" for="svc-{{ $i }}-por">Cobro del precio</label>
+                <select id="svc-{{ $i }}-por" name="{{ $name('costo_por') }}" class="form-select form-select-sm" data-svc-por>
+                    <option value="persona" @selected(($v('costo_por') ?: 'persona') === 'persona')>Por persona</option>
+                    <option value="grupo" @selected($v('costo_por') === 'grupo')>Por grupo</option>
+                </select>
+            </div>
             <div class="svc-fin__col svc-fin__col--estado">
                 <label class="prog-label" for="svc-{{ $i }}-estado">Estado reserva</label>
                 @if ($bloqueado)<input type="hidden" name="{{ $name('estado') }}" value="{{ $estado }}">@endif
@@ -203,12 +209,8 @@
                 <input id="svc-{{ $i }}-costo" type="number" @disabled($bloqueado) name="{{ $name('costo') }}" value="{{ $v('costo') }}" step="0.01" min="0"
                     class="form-control form-control-sm {{ $err('costo') ? 'is-invalid' : '' }}" placeholder="0.00" data-svc-costo>
             </div>
-            <div class="svc-fin__col svc-fin__col--conf">
-                <label class="prog-label" for="svc-{{ $i }}-conf">N.º confirmación</label>
-                @if ($bloqueado)<input type="hidden" name="{{ $name('confirmacion') }}" value="{{ $v('confirmacion') }}">@endif
-                <input id="svc-{{ $i }}-conf" type="text" @disabled($bloqueado) name="{{ $name('confirmacion') }}" value="{{ $v('confirmacion') }}" maxlength="80"
-                    class="form-control form-control-sm" autocomplete="off" placeholder="Ej. CONF-102">
-            </div>
+            {{-- Confirmación se conserva como campo oculto para el flujo de reservas sin estorbar la cotización --}}
+            <input type="hidden" name="{{ $name('confirmacion') }}" value="{{ $v('confirmacion') }}">
         </div>
 
         @if (filled($v('costo')) && filled($v('costo_estimado')) && (float) $v('costo') > (float) $v('costo_estimado') + 0.009)
@@ -237,48 +239,24 @@
     <details class="pf-more svc-row__more" @if ($abierto) open @endif>
         <summary>Detalles @if ($resumen->isNotEmpty())<span class="svc-row__summary">· {{ $resumen->implode(', ') }}</span>@else<span class="svc-row__summary">· punto de encuentro, texto para el cliente y notas</span>@endif</summary>
         <div class="row g-2 mt-2">
-            <div class="col-6 col-md-2">
+            <div class="col-6 col-md-3">
                 <label class="prog-label" for="svc-{{ $i }}-fecha">Fecha</label>
                 <input id="svc-{{ $i }}-fecha" type="date" name="{{ $name('fecha') }}" value="{{ $v('fecha') }}"
                     class="form-control form-control-sm {{ $err('fecha') ? 'is-invalid' : '' }}" data-svc-fecha>
                 @if ($err('fecha'))<div class="invalid-feedback">{{ $err('fecha') }}</div>@endif
             </div>
-            <div class="col-6 col-md-3">
-                <label class="prog-label" for="svc-{{ $i }}-por-sel">Modalidad</label>
-                <select id="svc-{{ $i }}-por-sel" class="form-select form-select-sm"
-                    onchange="const h = this.closest('[data-svc-item]').querySelector('[data-svc-por]'); if (h) { h.value = this.value; h.dispatchEvent(new Event('change', {bubbles: true})); }">
-                    <option value="persona" @selected(($v('costo_por') ?: 'persona') === 'persona')>Por persona</option>
-                    <option value="grupo" @selected($v('costo_por') === 'grupo')>Por grupo</option>
-                </select>
-            </div>
-            {{-- Comisión de este servicio (la trae el Tarifario Maestro); vacía = la comisión por defecto del programa. --}}
-            @php
-                $igvComision = ($s['igv_comision'] ?? null) === null || filter_var($s['igv_comision'], FILTER_VALIDATE_BOOLEAN);
-                $comisionDefecto = (float) ($programa->comision_defecto ?? 11);
-            @endphp
-            <div class="col-6 col-md-2">
-                <label class="prog-label" for="svc-{{ $i }}-comision">Comisión (%)</label>
-                <input id="svc-{{ $i }}-comision" type="number" name="{{ $name('comision_pct') }}" value="{{ $v('comision_pct') }}" step="0.01" min="0" max="100"
-                    class="form-control form-control-sm {{ $err('comision_pct') ? 'is-invalid' : '' }}" placeholder="{{ rtrim(rtrim(number_format($comisionDefecto, 2), '0'), '.') }} (programa)"
-                    title="Vacía = la comisión por defecto del programa" data-svc-comision>
-            </div>
-            <div class="col-6 col-md-2 d-flex align-items-end">
-                <input type="hidden" name="{{ $name('igv_comision') }}" value="0">
-                <label class="form-check mb-1" title="Se suma el IGV del programa sobre la comisión (las propinas no llevan)">
-                    <input type="checkbox" class="form-check-input" name="{{ $name('igv_comision') }}" value="1" @checked($igvComision) data-svc-igv>
-                    <span class="form-check-label small">IGV a la comisión</span>
-                </label>
-            </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <label class="prog-label" for="svc-{{ $i }}-punto">Punto de encuentro / recojo</label>
                 <input id="svc-{{ $i }}-punto" type="text" name="{{ $name('punto_encuentro') }}" value="{{ $v('punto_encuentro') }}" maxlength="255"
                     class="form-control form-control-sm" placeholder="Lobby del hotel, puerta 3 del aeropuerto…">
             </div>
-            <div class="col-md-3 d-flex align-items-end">
+            <div class="col-6 col-md-3 d-flex align-items-end">
                 <label class="form-check mb-1">
                     <input type="checkbox" class="form-check-input" name="{{ $name('visible_cliente') }}" value="1" @checked($s['visible_cliente'] ?? true)>
                     <span class="form-check-label small">Mostrar al cliente</span>
                 </label>
+                <input type="hidden" name="{{ $name('comision_pct') }}" value="{{ $v('comision_pct') }}" data-svc-comision>
+                <input type="hidden" name="{{ $name('igv_comision') }}" value="0" data-svc-igv>
             </div>
             <div class="col-md-6">
                 <label class="prog-label" for="svc-{{ $i }}-desc">Descripción para el cliente (aparece en web y PDF)</label>

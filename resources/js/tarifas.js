@@ -393,16 +393,6 @@ let desgloseMaestro = null;
 let servicioMaestro = null;
 
 const SIMBOLO_MONEDA = { USD: 'US$', PEN: 'S/' };
-// IGV que se suma a la comisión: el del programa (Precios & Cotización), 18 % si no está.
-const igvPrograma = () => {
-    const v = parseFloat(document.querySelector('input[name="porcentaje_igv"]')?.value);
-    return Number.isFinite(v) ? v : 18;
-};
-// Neto + comisión + IGV de la comisión (como la columna «Total» de la hoja del tarifario).
-const conComision = (neto, pct, igv) => {
-    const comision = (Number(neto) || 0) * ((Number(pct) || 0) / 100);
-    return { comision, igv: igv ? comision * (igvPrograma() / 100) : 0 };
-};
 const dosDecimales = (n) => (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
 
 function mostrarPasoMaestro(modalEl, paso) {
@@ -422,6 +412,9 @@ function abrirModalTarifarioMaestro(row) {
     filaObjetivoMaestro = row;
     const modalEl = document.getElementById('modalTarifarioMaestro');
     if (modalEl && window.bootstrap) {
+        if (modalEl.parentElement !== document.body) {
+            document.body.appendChild(modalEl);
+        }
         const tituloActual = row.querySelector('[data-svc-titulo]')?.value.trim() ?? '';
         const searchInput = modalEl.querySelector('[data-maestro-search]');
         if (searchInput) {
@@ -480,13 +473,6 @@ function rellenarFilaConParte(row, parte, ctx) {
     poner('[data-svc-tarifario-codigo]', (parte.codigo || ctx.codigo).slice(0, 30));
     poner('[data-svc-tipo]', parte.tipo);
     poner('[data-svc-estimado]', parte.costo === null ? '' : dosDecimales(parte.costo));
-    // Comisión del tarifario en la fila: la Hoja de Costeo la suma al neto para el precio de venta.
-    poner('[data-svc-comision]', Number.isFinite(Number(parte.comision_pct)) ? String(Number(parte.comision_pct)) : '');
-    const igvCheck = row.querySelector('[data-svc-igv]');
-    if (igvCheck) {
-        igvCheck.checked = !!parte.igv_comision;
-        igvCheck.dispatchEvent(new Event('change', { bubbles: true }));
-    }
     const moneda = poner('[data-svc-moneda]', ctx.moneda);
     if (moneda) moneda.dataset.monedaAuto = '0';
 
@@ -518,8 +504,7 @@ function rellenarFilaConParte(row, parte, ctx) {
         icono.setAttribute('aria-hidden', 'true');
         const codigoParte = parte.codigo && parte.codigo !== ctx.codigo ? ` · ${parte.codigo}` : '';
         const estado = parte.costo === null ? 'sin precio' : (parte.incluido ? 'incluido' : 'adicional');
-        const comision = `com. ${Number(parte.comision_pct) || 0}%${parte.igv_comision && Number(parte.comision_pct) ? ' + IGV' : ''}`;
-        origen.replaceChildren(icono, `Catálogo [${ctx.codigo}]${codigoParte} · ${estado} · ${comision} · ${ctx.pax} pax${ctx.feriado ? ' · ⭐ Feriado' : ''}`);
+        origen.replaceChildren(icono, `Catálogo [${ctx.codigo}]${codigoParte} · ${estado} · ${ctx.pax} pax${ctx.feriado ? ' · ⭐ Feriado' : ''}`);
     }
 }
 
@@ -558,8 +543,6 @@ function crearParteMaestro(modalEl, parte, moneda) {
     el.dataset.incluido = parte.incluido ? '1' : '0';
     el.dataset.descripcion = parte.descripcion || '';
     el.dataset.nota = parte.nota || '';
-    el.dataset.igv = parte.igv_comision ? '1' : '0';
-    el.querySelector('[data-parte-comision]').value = Number.isFinite(Number(parte.comision_pct)) ? String(Number(parte.comision_pct)) : '0';
     el.classList.toggle('is-adicional', !parte.incluido);
     el.querySelector('[data-parte-origen]').textContent = textoOrigenParte(parte);
     marcarClienteParte(el, !!parte.visible_cliente);
@@ -579,8 +562,6 @@ function leerPartesMaestro(modalEl) {
             visible_cliente: el.querySelector('[data-parte-cliente]').getAttribute('aria-pressed') === 'true',
             descripcion: el.dataset.descripcion || null,
             nota: el.dataset.nota || null,
-            comision_pct: Math.max(0, parseFloat(el.querySelector('[data-parte-comision]').value) || 0),
-            igv_comision: el.dataset.igv === '1',
         };
     });
 }
@@ -594,33 +575,11 @@ function actualizarResumenMaestro(modalEl) {
     const simbolo = SIMBOLO_MONEDA[desgloseMaestro.moneda] ?? desgloseMaestro.moneda;
     const dinero = (n) => `${simbolo} ${dosDecimales(n)}`;
 
-    // Precio con comisión de cada parte, junto a su origen.
-    modalEl.querySelectorAll('[data-maestro-partes] [data-parte]').forEach((el) => {
-        const destino = el.querySelector('[data-parte-venta]');
-        if (!destino) return;
-        const costoTxt = el.querySelector('[data-parte-costo]').value.trim();
-        const pct = parseFloat(el.querySelector('[data-parte-comision]').value) || 0;
-        if (costoTxt === '' || !pct) {
-            destino.textContent = '';
-            return;
-        }
-        const { comision, igv } = conComision(parseFloat(costoTxt), pct, el.dataset.igv === '1');
-        destino.textContent = `· con comisión ${dinero((parseFloat(costoTxt) || 0) + comision + igv)}`;
-    });
-
     const partes = leerPartesMaestro(modalEl).filter((p) => p.usar);
     const tarifa = Number(desgloseMaestro.total) || 0;
     const incluidas = partes.filter((p) => p.incluido).reduce((s, p) => s + (p.costo ?? 0), 0);
     const adicionales = partes.filter((p) => !p.incluido).reduce((s, p) => s + (p.costo ?? 0), 0);
-    const totalPax = incluidas + adicionales;
-    let comisionPax = 0;
-    let igvPax = 0;
-    partes.forEach((p) => {
-        const r = conComision(p.costo ?? 0, p.comision_pct, p.igv_comision);
-        comisionPax += r.comision;
-        igvPax += r.igv;
-    });
-    const ventaPax = totalPax + comisionPax + igvPax;
+    const totalPax = Math.round((incluidas + adicionales) * 100) / 100;
     const pax = (desgloseMaestro.adultos || 0) + (desgloseMaestro.ninos || 0);
     const diferencia = Math.round((incluidas - tarifa) * 100) / 100;
     const sinPrecio = partes.filter((p) => p.costo === null).length;
@@ -636,8 +595,11 @@ function actualizarResumenMaestro(modalEl) {
         return div;
     };
 
-    const nodos = [fila('Tarifa del catálogo (por pasajero)', dinero(tarifa))];
-    nodos.push(fila('Partes incluidas en la tarifa', dinero(incluidas)));
+    const nodos = [fila('Tarifa base del catálogo (por pasajero)', dinero(tarifa))];
+    if (adicionales > 0) {
+        nodos.push(fila('Partes incluidas', dinero(incluidas)));
+        nodos.push(fila('Adicionales', `+ ${dinero(adicionales)}`));
+    }
     if (Math.abs(diferencia) >= 0.01) {
         const aviso = document.createElement('div');
         aviso.className = 'tm-desglose__aviso';
@@ -646,12 +608,8 @@ function actualizarResumenMaestro(modalEl) {
             : `Faltan ${dinero(-diferencia)} por repartir para llegar a la tarifa.`;
         nodos.push(aviso);
     }
-    if (adicionales > 0) nodos.push(fila('Adicionales', `+ ${dinero(adicionales)}`));
-    nodos.push(fila('Costo neto por pasajero', dinero(totalPax), 'is-neto'));
-    nodos.push(fila('Comisión', `+ ${dinero(comisionPax)}`));
-    if (igvPax > 0) nodos.push(fila(`IGV de la comisión (${igvPrograma()}%)`, `+ ${dinero(igvPax)}`));
-    nodos.push(fila('Precio con comisión por pasajero', dinero(ventaPax), 'is-total'));
-    if (pax > 1) nodos.push(fila(`Total para ${pax} pasajeros`, dinero(ventaPax * pax), 'is-sub'));
+    nodos.push(fila('Costo neto por pasajero', dinero(totalPax), 'is-total'));
+    if (pax > 1) nodos.push(fila(`Costo neto total (${pax} pasajeros)`, dinero(totalPax * pax), 'is-sub'));
     if (sinPrecio) {
         const nota = document.createElement('div');
         nota.className = 'tm-desglose__nota';
@@ -698,6 +656,10 @@ function aplicarDesgloseMaestro(modalEl) {
 function initModalTarifarioMaestro() {
     const modalEl = document.getElementById('modalTarifarioMaestro');
     if (!modalEl) return;
+
+    if (modalEl.parentElement !== document.body) {
+        document.body.appendChild(modalEl);
+    }
 
     const searchInput = modalEl.querySelector('[data-maestro-search]');
     const clearBtn = modalEl.querySelector('[data-maestro-clear-search]');
@@ -839,7 +801,7 @@ function initModalTarifarioMaestro() {
                     </div>
                     <div class="fw-bold text-dark tm-modal__item-titulo" title="${item.nombre}">${item.nombre}</div>
                     <small class="text-muted d-block" style="font-size: 0.75rem;">
-                        ${detalleTarifa} · Comisión ${item.comision_pct}%
+                        ${detalleTarifa}
                     </small>
                 </div>
                 <div class="text-end flex-shrink-0">

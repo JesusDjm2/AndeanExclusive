@@ -915,12 +915,6 @@
                                         </div>
                                         <div class="fs-4 fw-bold text-white"><span data-cost-neto-total>$0.00</span> <small class="fs-6 fw-normal text-light opacity-75">/ pax</small></div>
                                         <small class="text-light opacity-75 d-block mt-1" data-pax-count-label>Calculando para el grupo...</small>
-                                        {{-- Neto + comisión + IGV de la comisión = precio base (columna «Total» del tarifario) --}}
-                                        <div class="small text-light mt-2 pt-2 border-top border-secondary">
-                                            <div class="d-flex justify-content-between"><span class="opacity-75">Comisión</span><span data-cost-comision>+$0.00</span></div>
-                                            <div class="d-flex justify-content-between"><span class="opacity-75">IGV de la comisión</span><span data-cost-igv>+$0.00</span></div>
-                                            <div class="d-flex justify-content-between fw-bold text-warning"><span>Precio base</span><span data-tarifa-base>$0.00</span></div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -932,45 +926,36 @@
                                         <h6 class="fw-bold mb-0 text-dark">
                                             <i class="fas fa-sliders-h text-primary me-2"></i>Simulador de Margen Comercial (Markup de Agencia)
                                         </h6>
-                                        <small class="text-muted">Cada servicio suma su comisión del tarifario (11 % en la mayoría, 0 % en propinas) más el IGV de esa comisión. Los servicios sin comisión propia y los hoteles usan la comisión por defecto. El margen extra se suma encima del precio base.</small>
+                                        <small class="text-muted">Calcula el precio de venta agregando un margen porcentual de ganancia sobre los costos netos de los itinerarios y hoteles.</small>
                                     </div>
                                     <div class="d-flex gap-1 align-items-center">
-                                        <span class="small text-muted me-1 fw-bold">Margen extra:</span>
-                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="0">0%</button>
-                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="5">5%</button>
+                                        <span class="small text-muted me-1 fw-bold">Margen:</span>
                                         <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="10">10%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="11">11%</button>
                                         <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="15">15%</button>
                                         <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="20">20%</button>
+                                        <button type="button" class="btn btn-xs btn-outline-warning btn-margen-preset" data-pct="25">25%</button>
                                     </div>
                                 </div>
 
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-sm-6 col-lg">
-                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Precio base adulto, con comisión (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-precio-adulto" class="form-label fw-semibold small text-muted">Precio Adulto (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-adulto" type="number" name="precioAdulto" value="{{ $verCotizacion ? old('precioAdulto', $programa->precioAdulto) : ($programa->exists ? $programa->presupuesto()['ventaAdulto'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg fw-bold @error('precioAdulto') is-invalid @enderror" data-precio-adulto>
                                         @error('precioAdulto')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="col-sm-6 col-lg">
-                                        <label for="pf-comision-defecto" class="form-label fw-semibold small text-muted" title="Para servicios sin comisión del tarifario y para los hoteles">Comisión por defecto (%)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-ganancia" class="form-label fw-semibold small text-muted">Margen Comercial (%)</label>
                                         <div class="input-group input-group-lg">
-                                            <input id="pf-comision-defecto" type="number" name="comision_defecto" value="{{ old('comision_defecto', $programa->exists ? (float) ($programa->comision_defecto ?? 0) : 11) }}"
-                                                step="0.01" min="0" max="100" placeholder="11" class="form-control fw-bold @error('comision_defecto') is-invalid @enderror" data-comision-defecto>
-                                            <span class="input-group-text fw-bold">%</span>
-                                        </div>
-                                        @error('comision_defecto')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    </div>
-                                    <div class="col-sm-6 col-lg">
-                                        <label for="pf-ganancia" class="form-label fw-semibold small text-muted">Margen extra (%)</label>
-                                        <div class="input-group input-group-lg">
-                                            <input id="pf-ganancia" type="number" name="porcentaje_ganancia" value="{{ old('porcentaje_ganancia', $programa->exists ? ($programa->porcentaje_ganancia ?? 0) : 0) }}"
-                                                step="0.01" min="0" placeholder="0" class="form-control fw-bold text-primary @error('porcentaje_ganancia') is-invalid @enderror" data-ganancia>
+                                            <input id="pf-ganancia" type="number" name="porcentaje_ganancia" value="{{ old('porcentaje_ganancia', $programa->exists ? ($programa->porcentaje_ganancia ?? 15) : 15) }}"
+                                                step="0.01" min="0" placeholder="15" class="form-control fw-bold text-primary @error('porcentaje_ganancia') is-invalid @enderror" data-ganancia>
                                             <span class="input-group-text fw-bold">%</span>
                                         </div>
                                         @error('porcentaje_ganancia')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="col-sm-6 col-lg">
-                                        <label for="pf-igv" class="form-label fw-semibold small text-muted">IGV de la comisión (%)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-igv" class="form-label fw-semibold small text-muted">IGV (%)</label>
                                         <div class="input-group input-group-lg">
                                             <input id="pf-igv" type="number" name="porcentaje_igv" value="{{ old('porcentaje_igv', $programa->porcentaje_igv ?? 18) }}"
                                                 step="0.1" min="0" max="100" placeholder="18" class="form-control fw-bold text-warning-emphasis @error('porcentaje_igv') is-invalid @enderror">
@@ -978,8 +963,8 @@
                                         </div>
                                         @error('porcentaje_igv')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                     </div>
-                                    <div class="col-sm-6 col-lg">
-                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Precio base niño (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label for="pf-precio-nino" class="form-label fw-semibold small text-muted">Precio Niño (<span data-currency-symbol>{{ $programa->simboloMoneda() }}</span>)</label>
                                         <input id="pf-precio-nino" type="number" name="precioChild" value="{{ $verCotizacion ? old('precioChild', $programa->precioChild) : ($programa->exists ? $programa->presupuesto()['ventaNino'] : '') }}"
                                             step="0.01" min="0" placeholder="0.00" class="form-control form-control-lg @error('precioChild') is-invalid @enderror" data-precio-nino>
                                         @error('precioChild')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -990,7 +975,7 @@
                                 <div class="mt-4 p-3 bg-light rounded border d-flex justify-content-between align-items-center flex-wrap gap-3">
                                     <div>
                                         <div class="small text-muted mb-1">
-                                            Ganancia agencia (comisión + margen extra): <strong class="text-primary fs-6" data-ganancia-pax>+$0.00</strong> / pax
+                                            Ganancia agencia (margen comercial): <strong class="text-primary fs-6" data-ganancia-pax>+$0.00</strong> / pax
                                             · Ganancia total grupo: <strong class="text-primary fs-6" data-ganancia-total>$0.00</strong>
                                         </div>
                                         <div class="d-flex align-items-baseline gap-2">

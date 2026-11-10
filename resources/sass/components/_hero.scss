@@ -19,11 +19,22 @@
     position: absolute;
     inset: 0;
     z-index: 0;
+    overflow: hidden;
 
-    picture {
+    picture, .hero__poster {
         display: block;
         width: 100%;
         height: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        will-change: opacity;
+        transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+
+        .hero.is-video-active & {
+            opacity: 0;
+            pointer-events: none;
+        }
     }
 
     img, video, picture img {
@@ -44,21 +55,129 @@
         content: '';
         position: absolute;
         inset: 0;
+        z-index: 3;
+        pointer-events: none;
         // Barely-there tint: the photo is the protagonist and legibility is
         // carried by the %hero-text-shadow halos, so this stays light.
-        background: linear-gradient(180deg, rgba(24, 34, 41, 0.2) 0%, rgba(24, 34, 41, 0.05) 45%, rgba(24, 34, 41, 0.38) 100%);
+        background: linear-gradient(180deg, rgba(24, 34, 41, 0.25) 0%, rgba(24, 34, 41, 0.08) 45%, rgba(24, 34, 41, 0.42) 100%);
+    }
+}
+
+// Reproductor de video cinemático para Hero (exclusivo para pantallas de escritorio PC)
+.hero__video-wrap {
+    display: none;
+
+    @media (min-width: 992px) {
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw;
+        height: 100vh;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
+        will-change: opacity;
+        transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+
+        .hero.is-video-active & {
+            opacity: 1;
+        }
+
+        // Adaptación matemática para cubrir 100% del contenedor sin franjas negras
+        @media (min-aspect-ratio: 16/9) {
+            width: 100vw;
+            height: 56.25vw;
+        }
+
+        @media (max-aspect-ratio: 16/9) {
+            width: 177.78vh;
+            height: 100vh;
+        }
+
+        iframe, #hero-yt-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            transform: scale(1.18);
+            pointer-events: none;
+        }
     }
 }
 
 .hero__content {
     position: relative;
-    z-index: 1;
+    z-index: 4;
     width: 100%;
     max-width: var(--container-max);
     margin-inline: auto;
     margin-block: auto;
     padding-inline: var(--space-md);
     text-align: center;
+}
+
+// Controles flotantes discretos del video de fondo (solo PC)
+.hero-video-controls {
+    display: none;
+
+    @media (min-width: 992px) {
+        .hero.is-video-active & {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: absolute;
+            bottom: 1.5rem;
+            right: 1.75rem;
+            z-index: 5;
+            animation: heroControlsFadeIn 0.8s ease 0.3s forwards;
+            opacity: 0;
+        }
+    }
+}
+
+@keyframes heroControlsFadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+.hero-video-btn {
+    width: 2.35rem;
+    height: 2.35rem;
+    border-radius: var(--radius-pill, 9999px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(14, 22, 28, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease, color 0.2s ease;
+
+    &:hover {
+        background: rgba(9, 204, 189, 0.85);
+        border-color: #09ccbd;
+        transform: scale(1.08);
+        color: #ffffff;
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &:focus-visible {
+        outline: 2px solid #09ccbd;
+        outline-offset: 2px;
+    }
 }
 
 // Legibility over photos of any brightness: a strong halo shadow behind the
