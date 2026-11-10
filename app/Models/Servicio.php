@@ -14,6 +14,7 @@ class Servicio extends Model
         'traslado' => ['Traslado', 'Transfer', 'fa-shuttle-van', 'fa-car'],
         'tour' => ['Tour / excursión', 'Tour', 'fa-map-signs', 'fa-map-signs'],
         'guia' => ['Guía', 'Guide', 'fa-user-tie', 'fa-user'],
+        'representante' => ['Representante / asistencia', 'Assistance', 'fa-user-check', 'fa-user'],
         'tren' => ['Tren', 'Train', 'fa-train', 'fa-train'],
         'vuelo' => ['Vuelo', 'Flight', 'fa-plane', 'fa-plane'],
         'entrada' => ['Entrada / ticket', 'Entrance ticket', 'fa-ticket-alt', 'fa-ticket'],
@@ -33,6 +34,7 @@ class Servicio extends Model
         'traslado' => ['transporte', 'traslado', 'movilidad'],
         'tour' => ['transporte', 'tour', 'operador', 'agencia'],
         'guia' => ['guia', 'guía'],
+        'representante' => ['representante', 'asistencia', 'asistente'],
         'tren' => ['tren', 'bus'],
         'vuelo' => ['vuelo', 'aerol'],
         'entrada' => ['entrada', 'boleto', 'ticket'],
@@ -75,7 +77,7 @@ class Servicio extends Model
     protected $fillable = [
         'programa_id', 'fecha', 'hora', 'tipo', 'titulo', 'descripcion', 'proveedor_id',
         'punto_encuentro', 'estado', 'confirmacion', 'notas', 'visible_cliente',
-        'costo', 'costo_estimado', 'moneda', 'costo_por', 'tarifario_codigo', 'pagado_at', 'pago_solicitado_at', 'pago_solicitado_por', 'orden_enviada_at',
+        'costo', 'costo_estimado', 'moneda', 'costo_por', 'tarifario_codigo', 'comision_pct', 'igv_comision', 'pagado_at', 'pago_solicitado_at', 'pago_solicitado_por', 'orden_enviada_at',
     ];
 
     protected $casts = [
@@ -84,6 +86,8 @@ class Servicio extends Model
         'visible_cliente' => 'boolean',
         'costo' => 'decimal:2',
         'costo_estimado' => 'decimal:2',
+        'comision_pct' => 'decimal:2',
+        'igv_comision' => 'boolean',
         'pagado_at' => 'date',
         'pago_solicitado_at' => 'datetime',
     ];

@@ -281,6 +281,15 @@ function initItinerario(root) {
         }
     });
 
+    // El Tarifario Maestro agrega las partes de un servicio (guía, transporte, entradas…) como filas seguidas del mismo día.
+    section.addEventListener('svc:crear-despues', (event) => {
+        const ref = event.target.closest('[data-svc-item]');
+        if (!ref) return;
+        const fecha = ref.querySelector('[data-svc-fecha]')?.value || ref.closest('[data-itin-day-item]')?.dataset.fecha || '';
+        ref.insertAdjacentHTML('afterend', template.innerHTML.replaceAll('__INDEX__', nextIndex++).replaceAll('__FECHA__', fecha));
+        event.detail.fila = ref.nextElementSibling;
+    });
+
     section.addEventListener('change', (event) => {
         const select = event.target.closest('[data-svc-estado]');
         if (!select) return;
@@ -377,9 +386,11 @@ function initItinerario(root) {
         if (!select || select.disabled || !opcionesProveedor || !tipo) return;
         const grupos = [...opcionesProveedor.querySelectorAll('optgroup')];
         const delTipo = grupos.filter((g) => g.dataset.tipos.split(' ').includes(tipo));
+        // Rubros que no se reconocen por su nombre (los crea el usuario: Seguros, Equipamiento…) sirven para cualquier tipo.
+        const sinTipo = grupos.filter((g) => !g.dataset.tipos.trim());
         const actual = select.value;
         // Sin rubros del tipo (actividad, otro…) se ofrecen todos.
-        const visibles = delTipo.length ? delTipo : grupos;
+        const visibles = delTipo.length ? [...delTipo, ...sinTipo] : grupos;
         const corresponde = !actual || visibles.some((g) => g.querySelector(`option[value="${actual}"]`));
         select.replaceChildren(opcionesProveedor.querySelector('option[value=""]').cloneNode(true));
         visibles.forEach((g) => select.append(g.cloneNode(true)));
@@ -1011,6 +1022,20 @@ function initCotizacionCalculator(root, recomputeBudget) {
             pagantes = Math.max(1, (!isNaN(cantPaxInput) && cantPaxInput > 0) ? cantPaxInput : (paxItems.length || 1));
         }
 
+        // Comisión: cada servicio la suya (la del tarifario); los que no la traen y los hoteles, la del programa.
+        // Venta = neto + comisión + IGV de la comisión, como la columna «Total» de la hoja del tarifario.
+        const comisionDefecto = parseFloat(root.querySelector('[data-comision-defecto]')?.value) || 0;
+        const igvPct = (() => {
+            const v = parseFloat(root.querySelector('input[name="porcentaje_igv"]')?.value);
+            return Number.isFinite(v) ? v : 18;
+        })();
+        let comisionGrupales = 0;
+        let comisionIndividuales = 0;
+        let comisionHoteles = 0;
+        let igvGrupales = 0;
+        let igvIndividuales = 0;
+        let igvHoteles = 0;
+
         // Servicios del itinerario
         let totalGrupales = 0;
         let totalIndividuales = 0;
@@ -1036,10 +1061,19 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
             if (valor > 0) {
                 const valorConvertido = toMonedaPrograma(valor, moneda);
+                const comisionTxt = item.querySelector('[data-svc-comision]')?.value ?? '';
+                const pct = comisionTxt.trim() === '' ? comisionDefecto : (parseFloat(comisionTxt) || 0);
+                const conIgv = item.querySelector('[data-svc-igv]')?.checked ?? true;
+                const comision = valorConvertido * (pct / 100);
+                const igv = conIgv ? comision * (igvPct / 100) : 0;
                 if (por === 'persona') {
                     totalIndividuales += valorConvertido;
+                    comisionIndividuales += comision;
+                    igvIndividuales += igv;
                 } else {
                     totalGrupales += valorConvertido;
+                    comisionGrupales += comision;
+                    igvGrupales += igv;
                 }
                 numServicios++;
             }
@@ -1065,6 +1099,9 @@ function initCotizacionCalculator(root, recomputeBudget) {
                 if (noches > 0) {
                     const totalEstadia = toMonedaPrograma(costoNoche * cant * noches, moneda);
                     totalHoteles += totalEstadia;
+                    const comisionHotel = totalEstadia * (comisionDefecto / 100);
+                    comisionHoteles += comisionHotel;
+                    igvHoteles += comisionHotel * (igvPct / 100);
                     totalNoches += noches;
                 }
             }
@@ -1077,9 +1114,17 @@ function initCotizacionCalculator(root, recomputeBudget) {
         const totalServicios = totalGrupales + (totalIndividuales * pagantes);
         const totalPaquete = totalServicios + totalHoteles;
 
+        // Comisión e IGV por pasajero (grupales y hoteles prorrateados entre los que pagan).
+        const porPagante = (n) => (pagantes > 0 ? n / pagantes : n);
+        const comisionPax = porPagante(comisionGrupales) + comisionIndividuales + porPagante(comisionHoteles);
+        const igvPax = porPagante(igvGrupales) + igvIndividuales + porPagante(igvHoteles);
+        // Precio base por pasajero = neto + comisión + IGV de la comisión. El margen extra del programa va encima.
+        const tarifaBasePorPax = costoNetoTotalPorPax + comisionPax + igvPax;
         const margenPct = parseFloat(root.querySelector('[data-ganancia]')?.value) || 0;
-        const gananciaPax = costoNetoTotalPorPax * (margenPct / 100);
-        const precioVentaSugerido = costoNetoTotalPorPax + gananciaPax;
+        const margenExtraPax = tarifaBasePorPax * (margenPct / 100);
+        const precioVentaSugerido = tarifaBasePorPax + margenExtraPax;
+        // Lo que gana la agencia: comisión + margen extra (el IGV es impuesto).
+        const gananciaPax = comisionPax + margenExtraPax;
         const gananciaTotalGrupo = gananciaPax * pagantes;
 
         return {
@@ -1102,6 +1147,10 @@ function initCotizacionCalculator(root, recomputeBudget) {
             adultos,
             ninos,
             margenPct,
+            comisionPax,
+            igvPax,
+            tarifaBasePorPax: Math.round(tarifaBasePorPax * 100) / 100,
+            margenExtraPax,
             gananciaPax,
             precioVentaSugerido,
             gananciaTotalGrupo,
@@ -1142,6 +1191,12 @@ function initCotizacionCalculator(root, recomputeBudget) {
         if (elGananciaPax) elGananciaPax.textContent = `+${m(res.gananciaPax)}`;
         if (elGananciaTotal) elGananciaTotal.textContent = m(res.gananciaTotalGrupo);
         if (elVentaSugerido) elVentaSugerido.textContent = m(res.precioVentaSugerido);
+        const elComision = root.querySelector('[data-cost-comision]');
+        const elIgv = root.querySelector('[data-cost-igv]');
+        const elTarifaBase = root.querySelector('[data-tarifa-base]');
+        if (elComision) elComision.textContent = `+${m(res.comisionPax)}`;
+        if (elIgv) elIgv.textContent = `+${m(res.igvPax)}`;
+        if (elTarifaBase) elTarifaBase.textContent = m(res.tarifaBasePorPax);
 
         // Retrocompatibilidad con alerta superior si existe
         if (liveTotal) liveTotal.textContent = m(res.costoPorPax);
@@ -1178,12 +1233,12 @@ function initCotizacionCalculator(root, recomputeBudget) {
     const aplicarPrecios = () => {
         const res = calcular();
         if (adultoInput) {
-            adultoInput.value = res.costoNetoTotalPorPax.toFixed(2);
+            adultoInput.value = res.tarifaBasePorPax.toFixed(2);
             adultoInput.dispatchEvent(new Event('input', { bubbles: true }));
             adultoInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
         if (ninoInput && res.ninos > 0 && (!parseFloat(ninoInput.value) || parseFloat(ninoInput.value) === 0)) {
-            ninoInput.value = (Math.round(res.costoNetoTotalPorPax * 0.75 * 100) / 100).toFixed(2);
+            ninoInput.value = (Math.round(res.tarifaBasePorPax * 0.75 * 100) / 100).toFixed(2);
             ninoInput.dispatchEvent(new Event('input', { bubbles: true }));
             ninoInput.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -1194,9 +1249,9 @@ function initCotizacionCalculator(root, recomputeBudget) {
                 icon: 'success',
                 title: '¡Tarifas oficiales aplicadas!',
                 html: `
-                    <p class="mb-2">Se fijó el costo base en <strong>${money(res.costoNetoTotalPorPax)}</strong>.</p>
+                    <p class="mb-2">Se fijó el precio base con comisión en <strong>${money(res.tarifaBasePorPax)}</strong> (neto ${money(res.costoNetoTotalPorPax)}).</p>
                     <div class="small text-muted border-top pt-2">
-                        <div>• Precio venta al pasajero: <strong>${money(res.precioVentaSugerido)}</strong> (${res.margenPct}% margen)</div>
+                        <div>• Precio venta al pasajero: <strong>${money(res.precioVentaSugerido)}</strong> (${res.margenPct}% margen extra)</div>
                         <div>• Ganancia neta para la agencia: <strong>${money(res.gananciaTotalGrupo)}</strong> (${res.pagantes} pasajeros)</div>
                     </div>
                 `,
@@ -1239,12 +1294,20 @@ function initCotizacionCalculator(root, recomputeBudget) {
                             <span>Hoteles (${res.totalNoches} noches):</span>
                             <strong>${money(res.totalHotelesUsd)}</strong>
                         </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Costo neto por pasajero:</span>
+                            <strong>${money(res.costoNetoTotalPorPax)}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span>Comisión + IGV de la comisión:</span>
+                            <strong>+${money(res.comisionPax + res.igvPax)}</strong>
+                        </div>
                         <div class="d-flex justify-content-between py-2 text-primary fw-bold fs-5">
-                            <span>Costo neto base por adulto:</span>
-                            <span>${money(res.costoNetoTotalPorPax)}</span>
+                            <span>Precio base con comisión:</span>
+                            <span>${money(res.tarifaBasePorPax)}</span>
                         </div>
                     </div>
-                    <small class="text-muted d-block mt-2">Se actualizará el costo base y la venta estimada con tu margen actual.</small>
+                    <small class="text-muted d-block mt-2">Se fija el precio base con comisión; el margen extra del programa se suma encima.</small>
                 `,
                 icon: 'question',
                 showCancelButton: true,
@@ -1262,7 +1325,7 @@ function initCotizacionCalculator(root, recomputeBudget) {
 
     // Actualizar live al cambiar precios de servicios, alojamiento, pasajeros, ganancia, moneda o tipo de cambio
     root.addEventListener('input', (e) => {
-        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], [data-cantidad-pax], [data-cantidad-adultos], [data-cantidad-ninos], input[name="cantidad_pax"], input[name="cantidad_adultos"], input[name="cantidad_ninos"], input[name="tipo_cambio"]')) {
+        if (e.target.matches('[data-svc-estimado], [data-svc-costo], [data-svc-comision], [data-comision-defecto], input[name="porcentaje_igv"], [data-estadia-costo], [data-estadia-cantidad], [data-ganancia], [data-cantidad-pax], [data-cantidad-adultos], [data-cantidad-ninos], input[name="cantidad_pax"], input[name="cantidad_adultos"], input[name="cantidad_ninos"], input[name="tipo_cambio"]')) {
             actualizarLive();
         }
     });
@@ -1272,7 +1335,7 @@ function initCotizacionCalculator(root, recomputeBudget) {
         }
     });
     root.addEventListener('change', (e) => {
-        if (e.target.matches('[data-svc-moneda], [data-svc-por], [data-svc-estado], [data-estadia-moneda], [data-estadia-ingreso], [data-estadia-salida], [data-estadia-reservado-switch], [data-ganancia], [data-programa-moneda]')) {
+        if (e.target.matches('[data-svc-moneda], [data-svc-por], [data-svc-igv], [data-svc-estado], [data-estadia-moneda], [data-estadia-ingreso], [data-estadia-salida], [data-estadia-reservado-switch], [data-ganancia], [data-programa-moneda]')) {
             actualizarLive();
         }
     });

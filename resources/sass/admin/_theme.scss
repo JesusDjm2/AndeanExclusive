@@ -170,6 +170,10 @@
     .text-warning { color: #fde047 !important; }
     .text-danger { color: #fca5a5 !important; }
     .bg-light { background-color: #1e293b !important; color: #f1f5f9 !important; }
+    // --bs-dark y --bs-light se invierten arriba para los textos; las cabeceras oscuras (.bg-dark .text-white, como
+    // la Hoja de Costeo o la ficha) deben seguir oscuras y su texto .text-light seguir claro.
+    .bg-dark { background-color: var(--ae-inverse) !important; }
+    .text-light { color: #e2e8f0 !important; }
     .bg-light-subtle { background-color: #1e293b !important; }
     .bg-secondary-subtle { background-color: rgba(148, 163, 184, 0.22) !important; color: #e2e8f0 !important; }
     .bg-primary-subtle { background-color: rgba(96, 165, 250, 0.22) !important; color: #93c5fd !important; }

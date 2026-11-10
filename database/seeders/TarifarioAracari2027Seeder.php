@@ -23,6 +23,69 @@ class TarifarioAracari2027Seeder extends Seeder
     public function run(): void
     {
         TarifarioServicio::query()->delete();
+        // ---- Ayudantes para las escalas de la hoja (costo por pasajero de 1 a 20 pax) ----
+        // $escala([...], 9) → ['9' => …, '10' => …]: valores desde N pasajeros (antes de N la parte no aplica).
+        $escala = fn (array $valores, int $desde = 1) => array_combine(
+            array_map('strval', range($desde, $desde + count($valores) - 1)),
+            $valores
+        );
+        $suma = function (array ...$escalas): array {
+            $total = [];
+            foreach ($escalas as $e) {
+                foreach ($e as $pax => $valor) {
+                    $total[$pax] = round(($total[$pax] ?? 0) + $valor, 2);
+                }
+            }
+
+            return $total;
+        };
+        $porGrupo = fn (float $total, int $hasta) => $escala(array_map(fn ($n) => round($total / $n, 2), range(1, $hasta)));
+        // Una parte del desglose; en feriado usa su propia escala si la tiene.
+        $parte = fn (string $tipo, string $nombre, array $normal, ?array $feriado = null) => array_filter(
+            ['tipo' => $tipo, 'nombre' => $nombre, 'normal' => $normal, 'feriado' => $feriado],
+            fn ($v) => $v !== null
+        );
+
+        $agua = $escala(array_fill(0, 20, 1.30));
+        $propinaAeropuerto = ['tipo' => 'otro', 'nombre' => 'Propina maleteros aeropuerto', 'codigo' => 'PROP-MALETEROS', 'adicional' => true];
+
+        // Traslados dentro de Cusco (aeropuerto, Wanchaq): en feriado se paga doble el representante.
+        $tptCusco = $escala([20.00, 10.00, 8.33, 6.25, 5.00, 4.17, 3.57, 4.38, 3.89, 3.50, 3.18, 2.92, 3.85, 3.57, 4.00, 4.38, 4.12, 3.89, 3.68, 3.50]);
+        $repCusco = $escala([15.00, 7.50, 5.00, 3.75, 3.00, 2.50, 2.14, 1.88, 1.67, 1.50, 1.36, 1.25, 1.15, 1.07, 1.00, 0.94, 0.88, 0.83, 0.79, 0.75]);
+        $rep2Cusco = $escala([1.67, 1.50, 1.36, 1.25, 1.15, 1.07, 1.00, 0.94, 0.88, 0.83, 0.79, 0.75], 9);
+        $trasladoUrbano = fn (bool $conPropina) => array_values(array_filter([
+            $parte('traslado', 'Transporte', $tptCusco),
+            $parte('representante', 'Representante', $repCusco, $suma($repCusco, $repCusco)),
+            $parte('representante', '2.º representante', $rep2Cusco),
+            $parte('otro', 'Agua embotellada', $agua),
+            $conPropina ? $propinaAeropuerto : null,
+        ]));
+
+        // Traslados Cusco / aeropuerto / Poroy <-> Valle Sagrado.
+        $tptValle = $escala([95.00, 47.50, 38.33, 28.75, 23.00, 19.17, 16.43, 16.88, 15.00, 13.50, 12.27, 11.25, 17.69, 16.43, 16.67, 16.88, 15.88, 15.00, 14.21, 13.50]);
+        $repValle = $escala([25.00, 12.50, 8.33, 6.25, 5.00, 4.17, 3.57, 3.13, 2.78, 2.50, 2.27, 2.08, 1.92, 1.79, 1.67, 1.56, 1.47, 1.39, 1.32, 1.25]);
+        $rep2Valle = $escala([2.78, 2.50, 2.27, 2.08, 1.92, 1.79, 1.67, 1.56, 1.47, 1.39, 1.32, 1.25], 9);
+        $aguaRep = $escala([1.30, 0.65, 0.43, 0.33, 0.26, 0.22, 0.19, 0.16, 0.14, 0.13, 0.12, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11]);
+        $trasladoValle = fn (bool $aguaRepresentante, bool $conPropina) => array_values(array_filter([
+            $parte('traslado', 'Transporte', $tptValle),
+            $parte('representante', 'Representante', $repValle, $suma($repValle, $repValle)),
+            $parte('representante', '2.º representante', $rep2Valle),
+            $parte('otro', 'Agua embotellada', $agua),
+            $aguaRepresentante ? $parte('otro', 'Agua del representante', $aguaRep) : null,
+            $conPropina ? $propinaAeropuerto : null,
+        ]));
+
+        $tptPoroy = $escala([25.00, 12.50, 11.33, 8.50, 6.80, 5.67, 4.86, 5.63, 5.00, 4.50, 4.09, 3.75, 5.23, 4.86, 5.27, 5.63, 5.29, 5.00, 4.74, 4.50]);
+        $repPoroy = $escala([20.00, 10.00, 6.67, 5.00, 4.00, 3.33, 2.86, 2.50, 2.22, 2.00, 1.82, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67]);
+
+        // Traslados cortos (round trip de 2 horas) y con guía en la cena.
+        $tptCuscoCorto = $escala([30.00, 17.50, 13.33, 10.00, 8.00, 6.67, 5.71, 6.88, 6.11, 5.50, 5.00, 4.58, 6.15, 5.71, 6.33, 6.88, 6.47, 6.11, 5.79, 5.50]);
+        $tptValleCorto = $escala([85.00, 42.50, 31.67, 23.75, 19.00, 15.83, 13.57, 12.50, 11.11, 10.00, 9.09, 8.33, 14.62, 13.57, 13.00, 12.50, 11.76, 11.11, 10.53, 10.00]);
+        $guiaCena = $escala([65.00, 32.50, 21.67, 16.25, 13.00, 10.83, 9.29, 8.13, 14.44, 13.00, 11.82, 10.83, 10.00, 9.29, 8.67, 8.13, 11.47, 10.83, 10.26, 9.75]);
+        $guiaCenaInd = $escala([80.00, 40.00, 26.67, 20.00, 16.00, 13.33, 11.43, 10.00, 17.78, 16.00, 14.55, 13.33, 12.31, 11.43, 10.67, 10.00, 9.41, 8.89, 8.42, 8.00]);
+        $hotelGuia = $escala([50.00, 25.00, 16.67, 12.50, 10.00, 8.33, 7.14, 6.25, 11.11, 10.00, 9.09, 8.33, 7.69, 7.14, 6.67, 6.25, 8.82, 8.33, 7.89, 7.50]);
+        $hotelConductor = $escala([50.00, 25.00, 16.67, 12.50, 10.00, 8.33, 7.14, 6.25, 5.56, 5.00, 4.55, 4.17, 7.69, 7.14, 6.67, 6.25, 5.88, 5.56, 5.26, 5.00]);
+
 
         $servicios = [
             // ==========================================
@@ -315,113 +378,228 @@ class TarifarioAracari2027Seeder extends Seeder
             ],
 
             // ==========================================
-            // 3. TRASLADOS ESCALONADOS (1 a 20 PAX)
+            // 3. TRASLADOS ESCALONADOS (1 a 20 PAX) — hoja TRFS del Tarifario Aracari 2027
+            // Precio = subtotal neto de la hoja (la comisión e IGV se calculan aparte). `desglose` guarda cada parte
+            // (transporte, representante, agua…) para agregarlas como servicios separados en el itinerario.
+            // La propina de maleteros de aeropuerto no comisiona: va como adicional (PROP-MALETEROS).
             // ==========================================
             [
                 'codigo' => 'APTHTL',
                 'categoria' => 'traslado',
                 'nombre' => 'Traslado Aeropuerto Cusco <-> Hotel Cusco (y viceversa)',
-                'descripcion' => 'Incluye vehículo privado con chofer profesional, representante bilingüe, agua embotellada y propina maleteros.',
+                'descripcion' => 'Vehículo privado con chofer profesional, representante bilingüe y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 36.30, '2' => 18.80, '3' => 14.63, '4' => 11.30, '5' => 9.30,
-                        '6' => 7.97,  '7' => 7.01,  '8' => 7.55,  '9' => 8.52,  '10' => 7.80,
-                        '11' => 7.21, '12' => 6.72, '13' => 7.45, '14' => 7.01, '15' => 7.30,
-                        '16' => 7.55, '17' => 7.18, '18' => 6.86, '19' => 6.56, '20' => 6.30,
-                    ],
-                    'feriado' => [
-                        '1' => 51.30, '2' => 26.30, '3' => 19.63, '4' => 15.05, '5' => 12.30,
-                        '6' => 10.47, '7' => 9.16,  '8' => 9.43,  '9' => 10.19, '10' => 9.30,
-                        '11' => 8.57, '12' => 7.97, '13' => 8.61, '14' => 8.09, '15' => 8.30,
-                        '16' => 8.49, '17' => 8.06, '18' => 7.69, '19' => 7.35, '20' => 7.05,
-                    ],
+                    'normal' => $escala([36.30, 18.80, 14.63, 11.30, 9.30, 7.97, 7.01, 7.55, 8.52, 7.80, 7.21, 6.72, 7.45, 7.01, 7.30, 7.55, 7.18, 6.86, 6.56, 6.30]),
+                    'feriado' => $escala([51.30, 26.30, 19.63, 15.05, 12.30, 10.47, 9.16, 9.43, 10.19, 9.30, 8.57, 7.97, 8.61, 8.09, 8.30, 8.49, 8.06, 7.69, 7.35, 7.05]),
                 ],
-                'notas' => 'A partir de 9 pasajeros se considera automáticamente 2do representante.',
+                'desglose' => $trasladoUrbano(true),
+                'notas' => 'Códigos APTHTL / HTLAPT. Desde 9 pasajeros se considera 2.º representante. Propina de maleteros (US$ 2 por pasajero) aparte, sin comisión.',
+            ],
+            [
+                'codigo' => 'HTLWAN',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Hotel Cusco <-> Estación Wanchaq (y viceversa)',
+                'descripcion' => 'Vehículo privado con chofer profesional, representante bilingüe y agua embotellada.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([36.30, 18.80, 14.63, 11.30, 9.30, 7.97, 7.01, 7.55, 8.52, 7.80, 7.21, 6.72, 7.45, 7.01, 7.30, 7.55, 7.18, 6.86, 6.56, 6.30]),
+                    'feriado' => $escala([51.30, 26.30, 19.63, 15.05, 12.30, 10.47, 9.16, 9.43, 10.19, 9.30, 8.57, 7.97, 8.61, 8.09, 8.30, 8.49, 8.06, 7.69, 7.35, 7.05]),
+                ],
+                'desglose' => $trasladoUrbano(false),
+                'notas' => 'Códigos HTLWAN / WANHTL. Desde 9 pasajeros se considera 2.º representante.',
             ],
             [
                 'codigo' => 'CUSOLL',
                 'categoria' => 'traslado',
                 'nombre' => 'Traslado Cusco <-> Urubamba o Estación Ollantaytambo',
-                'descripcion' => 'Traslado privado interprovincial entre Cusco y Valle Sagrado.',
+                'descripcion' => 'Traslado privado interprovincial entre Cusco y Valle Sagrado, con representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 122.60, '2' => 61.95, '3' => 48.40, '4' => 36.63, '5' => 29.56,
-                        '6' => 24.85,  '7' => 21.49, '8' => 21.46, '9' => 22.00, '10' => 19.93,
-                        '11' => 18.24, '12' => 16.83, '13' => 22.95, '14' => 21.41, '15' => 21.41,
-                        '16' => 21.41, '17' => 20.23, '18' => 19.19, '19' => 18.25, '20' => 17.41,
-                    ],
-                    'feriado' => [
-                        '1' => 147.60, '2' => 74.45, '3' => 56.73, '4' => 42.88, '5' => 34.56,
-                        '6' => 29.02,  '7' => 25.06, '8' => 24.59, '9' => 24.78, '10' => 22.43,
-                        '11' => 20.51, '12' => 18.91, '13' => 24.87, '14' => 23.19, '15' => 23.08,
-                        '16' => 22.97, '17' => 21.70, '18' => 20.58, '19' => 19.57, '20' => 18.66,
-                    ],
+                    'normal' => $escala([122.60, 61.95, 48.40, 36.63, 29.56, 24.85, 21.49, 21.46, 22.00, 19.93, 18.24, 16.83, 22.95, 21.41, 21.41, 21.41, 20.23, 19.19, 18.25, 17.41]),
+                    'feriado' => $escala([147.60, 74.45, 56.73, 42.88, 34.56, 29.02, 25.06, 24.59, 24.78, 22.43, 20.51, 18.91, 24.87, 23.19, 23.08, 22.97, 21.70, 20.58, 19.57, 18.66]),
                 ],
+                'desglose' => $trasladoValle(true, false),
+                'notas' => 'Códigos CUSOLL / OLLCUS · CUSURU / URUCUS. Desde 9 pasajeros se considera 2.º representante.',
+            ],
+            [
+                'codigo' => 'APTOLL',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Aeropuerto Cusco <-> Urubamba o Estación Ollantaytambo',
+                'descripcion' => 'Traslado privado del aeropuerto al Valle Sagrado (o viceversa), con representante y agua embotellada.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([122.60, 61.95, 48.40, 36.63, 29.56, 24.85, 21.49, 21.46, 22.00, 19.93, 18.24, 16.83, 22.95, 21.41, 21.41, 21.41, 20.23, 19.19, 18.25, 17.41]),
+                    'feriado' => $escala([147.60, 74.45, 56.73, 42.88, 34.56, 29.02, 25.06, 24.59, 24.78, 22.43, 20.51, 18.91, 24.87, 23.19, 23.08, 22.97, 21.70, 20.58, 19.57, 18.66]),
+                ],
+                'desglose' => $trasladoValle(true, true),
+                'notas' => 'Códigos APTOLL / OLLAPT · APTURU / URUAPT. Desde 9 pasajeros se considera 2.º representante. Propina de maleteros (US$ 2 por pasajero) aparte, sin comisión.',
+            ],
+            [
+                'codigo' => 'URUPOR',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Urubamba <-> Estación de Tren Poroy',
+                'descripcion' => 'Traslado privado entre el Valle Sagrado y la estación de Poroy, con representante y agua embotellada.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([121.30, 61.30, 47.97, 36.30, 29.30, 24.63, 21.30, 21.30, 21.86, 19.80, 18.12, 16.72, 22.84, 21.30, 21.30, 21.30, 20.12, 19.08, 18.14, 17.30]),
+                    'feriado' => $escala([146.30, 73.80, 56.30, 42.55, 34.30, 28.80, 24.87, 24.43, 24.63, 22.30, 20.39, 18.80, 24.76, 23.09, 22.97, 22.86, 21.59, 20.47, 19.46, 18.55]),
+                ],
+                'desglose' => $trasladoValle(false, false),
+                'notas' => 'Código URUPOR. Desde 9 pasajeros se considera 2.º representante.',
+            ],
+            [
+                'codigo' => 'URUOLL',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Urubamba <-> Ollantaytambo (y viceversa)',
+                'descripcion' => 'Traslado privado dentro del Valle Sagrado, con representante y agua embotellada.',
+                'tipo_calculo' => 'escala_pax',
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([121.30, 61.30, 47.97, 36.30, 29.30, 24.63, 21.30, 21.30, 21.86, 19.80, 18.12, 16.72, 22.84, 21.30, 21.30, 21.30, 20.12, 19.08, 18.14, 17.30]),
+                    'feriado' => $escala([146.30, 73.80, 56.30, 42.55, 34.30, 28.80, 24.87, 24.43, 24.63, 22.30, 20.39, 18.80, 24.76, 23.09, 22.97, 22.86, 21.59, 20.47, 19.46, 18.55]),
+                ],
+                'desglose' => $trasladoValle(false, false),
+                'notas' => 'Códigos URUOLL / OLLURU. Desde 9 pasajeros se considera 2.º representante.',
             ],
             [
                 'codigo' => 'CUSPOR',
                 'categoria' => 'traslado',
                 'nombre' => 'Traslado Cusco <-> Estación de Tren Poroy',
+                'descripcion' => 'Vehículo privado con chofer profesional, representante y agua embotellada.',
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 46.30, '2' => 23.80, '3' => 19.30, '4' => 14.80, '5' => 12.10,
-                        '6' => 10.30, '7' => 9.01,  '8' => 9.43,  '9' => 10.74, '10' => 9.80,
-                        '11' => 9.03, '12' => 8.38, '13' => 9.86, '14' => 9.49, '15' => 9.90,
-                        '16' => 10.26, '17' => 9.93, '18' => 9.63, '19' => 9.37, '20' => 9.13,
-                    ],
-                    'feriado' => [
-                        '1' => 66.30, '2' => 33.80, '3' => 25.97, '4' => 19.80, '5' => 16.10,
-                        '6' => 13.63, '7' => 11.87, '8' => 11.93, '9' => 12.97, '10' => 11.80,
-                        '11' => 10.85, '12' => 10.05, '13' => 11.53, '14' => 11.16, '15' => 11.57,
-                        '16' => 11.93, '17' => 11.59, '18' => 11.30, '19' => 11.04, '20' => 10.80,
-                    ],
+                    'normal' => $escala([46.30, 23.80, 19.30, 14.80, 12.10, 10.30, 9.01, 9.43, 10.74, 9.80, 9.03, 8.38, 9.86, 9.49, 9.90, 10.26, 9.93, 9.63, 9.37, 9.13]),
+                    'feriado' => $escala([66.30, 33.80, 25.97, 19.80, 16.10, 13.63, 11.87, 11.93, 12.97, 11.80, 10.85, 10.05, 11.53, 11.16, 11.57, 11.93, 11.59, 11.30, 11.04, 10.80]),
                 ],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $tptPoroy),
+                    $parte('representante', 'Representante', $repPoroy, $suma($repPoroy, $repPoroy)),
+                    $parte('representante', '2.º representante', $escala([2.22, 2.00, 1.82, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67, 1.67], 9)),
+                    $parte('otro', 'Agua embotellada', $agua),
+                ],
+                'notas' => 'Códigos CUSPOR / PORCUS. Desde 9 pasajeros se considera 2.º representante.',
             ],
             [
                 'codigo' => 'RESTRT',
                 'categoria' => 'traslado',
                 'nombre' => 'Traslado Hotel <-> Restaurante Cusco (Round Trip - 2 hrs)',
                 'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 2.0,
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
-                'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 30.00, '2' => 17.50, '3' => 13.33, '4' => 10.00, '5' => 8.00,
-                        '6' => 6.67,  '7' => 5.71,  '8' => 6.88,  '9' => 6.11,  '10' => 5.50,
-                        '11' => 5.00, '12' => 4.58, '13' => 6.15, '14' => 5.71, '15' => 6.33,
-                        '16' => 6.88, '17' => 6.47, '18' => 6.11, '19' => 5.79, '20' => 5.50,
-                    ],
-                ],
+                'precios_escalonados' => ['normal' => $tptCuscoCorto],
+                'desglose' => [$parte('traslado', 'Transporte', $tptCuscoCorto)],
+            ],
+            [
+                'codigo' => 'SABART',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Hotel <-> Plaza de Armas o San Blas (Round Trip - 2 hrs)',
+                'descripcion' => 'Para la experiencia de 2 horas con fotografía de Totemiq.',
+                'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 2.0,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => ['normal' => $tptCuscoCorto],
+                'desglose' => [$parte('traslado', 'Transporte', $tptCuscoCorto)],
+                'notas' => 'Código SABART.',
             ],
             [
                 'codigo' => 'RESVRT',
                 'categoria' => 'traslado',
                 'nombre' => 'Traslado Hotel <-> Restaurante en Valle Sagrado (Round Trip)',
                 'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 2.0,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => ['normal' => $tptValleCorto],
+                'desglose' => [$parte('traslado', 'Transporte', $tptValleCorto)],
+            ],
+            [
+                'codigo' => 'RESGUI',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado Hotel <-> Restaurante con guía acompañando la cena (Round Trip)',
+                'descripcion' => 'Traslado ida y vuelta al restaurante con guía que acompaña a los pasajeros durante la cena.',
+                'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 2.0,
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
                 'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 85.00, '2' => 42.50, '3' => 31.67, '4' => 23.75, '5' => 19.00,
-                        '6' => 15.83, '7' => 13.57, '8' => 12.50, '9' => 11.11, '10' => 10.00,
-                        '11' => 9.09, '12' => 8.33, '13' => 14.62, '14' => 13.57, '15' => 13.00,
-                        '16' => 12.50, '17' => 11.76, '18' => 11.11, '19' => 10.53, '20' => 10.00,
-                    ],
+                    'normal' => $escala([150.00, 75.00, 53.33, 40.00, 32.00, 26.67, 22.86, 20.63, 25.56, 23.00, 20.91, 19.17, 24.62, 22.86, 21.67, 20.63, 23.24, 21.94, 20.79, 19.75]),
                 ],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $tptValleCorto),
+                    $parte('guia', 'Guía durante la cena', $guiaCena),
+                ],
+                'notas' => 'Código provisional RESGUI (la hoja no trae código). Sin tarifa de feriado en la hoja.',
+            ],
+            [
+                'codigo' => 'RESGUI-VALLE',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado con guía durante la cena en Valle Sagrado (complemento de un servicio en el Valle)',
+                'descripcion' => 'Traslado con guía que cena con los pasajeros; incluye hotel del guía y del conductor. Tarifa para cuando complementa otro servicio del día en el Valle Sagrado.',
+                'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 3.0,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([250.00, 125.00, 86.68, 65.00, 52.00, 43.32, 37.14, 33.13, 42.22, 38.00, 34.55, 31.66, 40.00, 37.14, 35.01, 33.13, 37.93, 35.83, 33.94, 32.25]),
+                    'feriado' => $escala([315.00, 157.50, 108.35, 81.25, 65.00, 54.15, 46.43, 41.26, 56.66, 51.00, 46.37, 42.49, 50.00, 46.43, 43.68, 41.26, 49.40, 46.66, 44.20, 42.00]),
+                ],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $tptValleCorto),
+                    $parte('guia', 'Guía durante la cena', $guiaCena, $suma($guiaCena, $guiaCena)),
+                    $parte('alojamiento', 'Hotel del guía', $hotelGuia),
+                    $parte('alojamiento', 'Hotel del conductor', $hotelConductor),
+                ],
+                'notas' => 'Código provisional RESGUI-VALLE (la hoja no trae código). En feriado se duplica el servicio de guía.',
+            ],
+            [
+                'codigo' => 'RESGUI-VALLE-IND',
+                'categoria' => 'traslado',
+                'nombre' => 'Traslado con guía durante la cena en Valle Sagrado (servicio independiente)',
+                'descripcion' => 'Traslado con guía que cena con los pasajeros; incluye hotel del guía y del conductor. Tarifa para cuando es el único servicio del día en el Valle Sagrado.',
+                'tipo_calculo' => 'escala_pax',
+                'duracion_horas' => 3.0,
+                'comision_pct' => 11.00,
+                'aplica_igv_comision' => true,
+                'moneda' => 'USD',
+                'precios_escalonados' => [
+                    'normal' => $escala([275.00, 137.50, 98.34, 73.75, 59.00, 49.16, 42.14, 39.38, 49.45, 44.50, 40.46, 37.08, 45.38, 42.14, 40.67, 39.38, 39.99, 37.78, 35.78, 34.00]),
+                    'feriado' => $escala([355.00, 177.50, 125.01, 93.75, 75.00, 62.49, 53.57, 49.38, 67.23, 60.50, 55.00, 50.42, 57.69, 53.57, 51.34, 49.38, 49.41, 46.67, 44.20, 42.00]),
+                ],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $tptValle),
+                    $parte('guia', 'Guía durante la cena', $guiaCenaInd, $suma($guiaCenaInd, $guiaCenaInd)),
+                    $parte('alojamiento', 'Hotel del guía', $hotelGuia),
+                    $parte('alojamiento', 'Hotel del conductor', $hotelConductor),
+                ],
+                'notas' => 'Código provisional RESGUI-VALLE-IND (la hoja no trae código). En feriado se duplica el servicio de guía.',
             ],
             [
                 'codigo' => 'FDAWA',
@@ -1528,33 +1706,31 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'COMP-CARRO-MALETERO-VALLE',
                 'categoria' => 'componente',
-                'nombre' => 'Carro Maletero Privado al Valle Sagrado (1 a 12 pax)',
+                'nombre' => 'Carro Maletero Privado Aeropuerto <-> Valle Sagrado (1 a 12 pax)',
+                'descripcion' => 'Vehículo exclusivo para el equipaje con representante. Tarifa por grupo (US$ 140) prorrateada por pasajero.',
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
-                'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 117.50, '2' => 58.75, '3' => 39.17, '4' => 29.38, '5' => 23.50,
-                        '6' => 19.58, '7' => 16.79, '8' => 14.69, '9' => 13.06, '10' => 11.75,
-                        '11' => 10.68, '12' => 9.79,
-                    ],
+                'precios_escalonados' => ['normal' => $porGrupo(140.00, 12)],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $porGrupo(120.00, 12)),
+                    $parte('representante', 'Representante', $porGrupo(20.00, 12)),
                 ],
             ],
             [
                 'codigo' => 'COMP-CARRO-MALETERO-CUSCO',
                 'categoria' => 'componente',
-                'nombre' => 'Carro Maletero Privado en Cusco (1 a 12 pax)',
+                'nombre' => 'Carro Maletero Privado Aeropuerto <-> Hotel Cusco (1 a 12 pax)',
+                'descripcion' => 'Vehículo exclusivo para el equipaje con representante. Tarifa por grupo (US$ 65) prorrateada por pasajero.',
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
                 'aplica_igv_comision' => true,
                 'moneda' => 'USD',
-                'precios_escalonados' => [
-                    'normal' => [
-                        '1' => 65.00, '2' => 32.50, '3' => 21.67, '4' => 16.25, '5' => 13.00,
-                        '6' => 10.83, '7' => 9.29, '8' => 8.12, '9' => 7.22, '10' => 6.50,
-                        '11' => 5.91, '12' => 5.42,
-                    ],
+                'precios_escalonados' => ['normal' => $porGrupo(65.00, 12)],
+                'desglose' => [
+                    $parte('traslado', 'Transporte', $porGrupo(50.00, 12)),
+                    $parte('representante', 'Representante', $porGrupo(15.00, 12)),
                 ],
             ],
             [

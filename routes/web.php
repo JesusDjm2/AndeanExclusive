@@ -96,6 +96,8 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::resource('tarifario', TarifaController::class)->except('show')->parameters(['tarifario' => 'tarifa'])->names('tarifas');
         Route::get('tarifario-maestro/cotizar', [TarifarioServicioController::class, 'cotizar'])->name('tarifario-maestro.cotizar');
         Route::get('tarifario-maestro/buscar', [TarifarioServicioController::class, 'buscar'])->name('tarifario-maestro.buscar');
+        Route::get('tarifario-maestro/{tarifarioServicio}/componentes', [TarifarioServicioController::class, 'componentes'])
+            ->whereNumber('tarifarioServicio')->name('tarifario-maestro.componentes');
         Route::resource('tarifario-maestro', TarifarioServicioController::class)
             ->names('tarifario-maestro')
             ->parameters(['tarifario-maestro' => 'tarifarioServicio']);

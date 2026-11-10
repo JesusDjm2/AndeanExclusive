@@ -383,6 +383,7 @@ class ProgramaController extends Controller
             'precioChild' => 'nullable|numeric|min:0',
             'porcentaje_ganancia' => 'nullable|numeric|min:0|max:999.99',
             'porcentaje_igv' => 'nullable|numeric|min:0|max:100',
+            'comision_defecto' => 'nullable|numeric|min:0|max:100',
             'tipo_cambio' => 'nullable|numeric|min:0.5|max:99',
             'suplemento_individual' => 'nullable|numeric|min:0',
             'habitaciones_individuales' => 'nullable|integer|min:0|max:50',
@@ -407,6 +408,8 @@ class ProgramaController extends Controller
             'servicios.*.costo' => 'nullable|numeric|min:0',
             'servicios.*.costo_estimado' => 'nullable|numeric|min:0',
             'servicios.*.tarifario_codigo' => 'nullable|string|max:30',
+            'servicios.*.comision_pct' => 'nullable|numeric|min:0|max:100',
+            'servicios.*.igv_comision' => 'nullable|boolean',
             'servicios.*.moneda' => ['nullable', Rule::in(array_keys(Servicio::MONEDAS))],
             'servicios.*.costo_por' => ['nullable', Rule::in(array_keys(Servicio::COSTO_POR))],
             'estadias' => 'nullable|array',
@@ -501,7 +504,11 @@ class ProgramaController extends Controller
             'habitaciones_individuales' => $request->integer('habitaciones_individuales'),
             'presentacion' => $request->presentacion,
             'portada' => $request->input('portada') ?: null,
-        ];
+        ] + (
+            // Comisión de los servicios sin comisión propia del tarifario y de los hoteles. Solo la envía la Hoja de
+            // Costeo: si no llega (usuario sin cotización) se conserva la guardada; en un programa nuevo, la de la BD (11 %).
+            $request->has('comision_defecto') ? ['comision_defecto' => $request->filled('comision_defecto') ? $request->input('comision_defecto') : 0] : []
+        );
     }
 
     /** Cliente elegido o, si se pidió, creado al vuelo con los datos de "cliente_nuevo". */
@@ -586,6 +593,9 @@ class ProgramaController extends Controller
                 'costo' => isset($datos['costo']) && $datos['costo'] !== '' ? $datos['costo'] : null,
                 'costo_estimado' => isset($datos['costo_estimado']) && $datos['costo_estimado'] !== '' ? $datos['costo_estimado'] : null,
                 'tarifario_codigo' => ($datos['tarifario_codigo'] ?? null) ?: null,
+                // Vacía = la comisión por defecto del programa.
+                'comision_pct' => isset($datos['comision_pct']) && $datos['comision_pct'] !== '' ? $datos['comision_pct'] : null,
+                'igv_comision' => ! array_key_exists('igv_comision', $datos) || (bool) $datos['igv_comision'],
                 'moneda' => ($datos['moneda'] ?? null) ?: 'USD',
                 'costo_por' => ($datos['costo_por'] ?? null) ?: 'grupo',
             ];
@@ -720,6 +730,7 @@ class ProgramaController extends Controller
             'precioAdulto' => 'required|numeric|min:0',
             'porcentaje_ganancia' => 'nullable|numeric|min:0|max:999.99',
             'porcentaje_igv' => 'nullable|numeric|min:0|max:100',
+            'comision_defecto' => 'nullable|numeric|min:0|max:100',
             'cantidad_pax' => 'nullable|integer|min:1|max:999',
             'cantidad_adultos' => 'nullable|integer|min:1|max:999',
             'cantidad_ninos' => 'nullable|integer|min:0|max:999',
@@ -735,6 +746,9 @@ class ProgramaController extends Controller
         }
         if (array_key_exists('porcentaje_igv', $datos)) {
             $update['porcentaje_igv'] = $datos['porcentaje_igv'];
+        }
+        if (array_key_exists('comision_defecto', $datos) && $datos['comision_defecto'] !== null) {
+            $update['comision_defecto'] = $datos['comision_defecto'];
         }
         if (array_key_exists('cantidad_adultos', $datos) && $datos['cantidad_adultos'] !== null) {
             $update['cantidad_adultos'] = max(1, (int) $datos['cantidad_adultos']);

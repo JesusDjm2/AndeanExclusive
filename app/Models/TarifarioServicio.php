@@ -121,6 +121,25 @@ class TarifarioServicio extends Model
     }
 
     /**
+     * Costo neto por pasajero para un grupo mixto: los precios fijos por persona se ponderan entre adultos y niños;
+     * los escalonados y grupales se calculan con el total de pasajeros (como en la búsqueda del modal).
+     */
+    public function costoPorPax(int $adultos, int $ninos = 0, bool $esFeriado = false): float
+    {
+        $adultos = max(1, $adultos);
+        $ninos = max(0, $ninos);
+        $pax = $adultos + $ninos;
+
+        if ($this->tipo_calculo === 'por_persona' && $this->precio_nino > 0) {
+            $total = ($adultos * (float) ($this->precio_adulto ?? 0)) + ($ninos * (float) $this->precio_nino);
+
+            return round($total / $pax, 2);
+        }
+
+        return round($this->calcularCosto($pax, $esFeriado), 2);
+    }
+
+    /**
      * Devuelve el desglose financiero completo: Costo Neto, Comisión Agencia e IGV al Fee.
      */
     public function calcularFinanciero(int $pax = 1, bool $esFeriado = false, ?string $tipoPax = 'adulto'): array

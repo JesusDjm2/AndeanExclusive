@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\TarifarioServicio;
+use App\Support\DesgloseTarifario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -142,17 +143,14 @@ class TarifarioServicioController extends Controller
             $query->where(function ($w) use ($q) {
                 $w->where('codigo', 'like', "%{$q}%")
                   ->orWhere('nombre', 'like', "%{$q}%")
-                  ->orWhere('lugares_visita', 'like', "%{$q}%");
+                  ->orWhere('lugares_visita', 'like', "%{$q}%")
+                  // Las notas guardan los códigos alternos de la hoja (HTLAPT, OLLCUS, URUAPT…).
+                  ->orWhere('notas', 'like', "%{$q}%");
             });
         }
 
         $items = $query->orderBy('id')->limit(250)->get()->map(function (TarifarioServicio $item) use ($pax, $adultos, $ninos, $feriado) {
-            if ($item->tipo_calculo === 'por_persona' && $item->precio_nino > 0) {
-                $totalCosto = ($adultos * ($item->precio_adulto ?? 0)) + ($ninos * ($item->precio_nino ?? 0));
-                $costo = $pax > 0 ? ($totalCosto / $pax) : ($item->precio_adulto ?? 0);
-            } else {
-                $costo = $item->calcularCosto($pax, $feriado);
-            }
+            $costo = $item->costoPorPax($adultos, $ninos, $feriado);
 
             return [
                 'id'              => $item->id,
@@ -175,6 +173,29 @@ class TarifarioServicioController extends Controller
 
         return response()->json([
             'items' => $items,
+        ]);
+    }
+
+    /**
+     * Partes que propone un servicio del catálogo (guía, transporte, entradas, almuerzo…) para revisarlas en el modal
+     * del itinerario antes de agregarlas como filas separadas. No modifica el catálogo.
+     */
+    public function componentes(Request $request, TarifarioServicio $tarifarioServicio): JsonResponse
+    {
+        $adultos = max(1, min(20, (int) $request->query('adultos', 2)));
+        $ninos = max(0, min(20, (int) $request->query('ninos', 0)));
+        $feriado = filter_var($request->query('feriado', false), FILTER_VALIDATE_BOOLEAN);
+
+        $desglose = (new DesgloseTarifario($tarifarioServicio, $adultos, $ninos, $feriado))->calcular();
+
+        return response()->json([
+            'codigo' => $tarifarioServicio->codigo,
+            'nombre' => $tarifarioServicio->nombre,
+            'categoria' => $tarifarioServicio->categoria,
+            'adultos' => $adultos,
+            'ninos' => $ninos,
+            'feriado' => $feriado,
+            ...$desglose,
         ]);
     }
 }

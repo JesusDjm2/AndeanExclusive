@@ -384,8 +384,39 @@ function initItinerarioServicios() {
 }
 
 // ---- Integración con Modal de Tarifario Maestro Oficial 2027 ----
+// Paso 1: elegir un servicio del catálogo. Paso 2: revisar y editar lo que incluye (guía, transporte, entradas,
+// almuerzo…); cada parte se agrega como una fila del día con su tipo y sin proveedor, para asignarlo al confirmar.
+// Lo editado en el paso 2 solo va a este programa: el catálogo no cambia.
 let filaObjetivoMaestro = null;
 let categoriaMaestroActiva = '';
+let desgloseMaestro = null;
+let servicioMaestro = null;
+
+const SIMBOLO_MONEDA = { USD: 'US$', PEN: 'S/' };
+// IGV que se suma a la comisión: el del programa (Precios & Cotización), 18 % si no está.
+const igvPrograma = () => {
+    const v = parseFloat(document.querySelector('input[name="porcentaje_igv"]')?.value);
+    return Number.isFinite(v) ? v : 18;
+};
+// Neto + comisión + IGV de la comisión (como la columna «Total» de la hoja del tarifario).
+const conComision = (neto, pct, igv) => {
+    const comision = (Number(neto) || 0) * ((Number(pct) || 0) / 100);
+    return { comision, igv: igv ? comision * (igvPrograma() / 100) : 0 };
+};
+const dosDecimales = (n) => (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
+
+function mostrarPasoMaestro(modalEl, paso) {
+    modalEl.dataset.paso = paso;
+    modalEl.querySelectorAll('[data-maestro-paso]').forEach((el) => { el.hidden = el.dataset.maestroPaso !== paso; });
+    const confirmar = modalEl.querySelector('[data-maestro-confirmar]');
+    if (confirmar) confirmar.hidden = paso !== 'desglose';
+    const pie = modalEl.querySelector('[data-maestro-pie-texto]');
+    if (pie) {
+        pie.lastChild.textContent = paso === 'desglose'
+            ? ' Cada parte marcada se agrega como un servicio del día, sin proveedor asignado.'
+            : ' Elige un servicio para revisar lo que incluye antes de agregarlo.';
+    }
+}
 
 function abrirModalTarifarioMaestro(row) {
     filaObjetivoMaestro = row;
@@ -406,19 +437,32 @@ function abrirModalTarifarioMaestro(row) {
         modalEl.querySelectorAll('[data-maestro-cat]').forEach((b) => {
             b.className = b.dataset.maestroCat === '' ? 'btn btn-xs btn-dark py-1 px-2 fw-semibold' : 'btn btn-xs btn-outline-secondary py-1 px-2';
         });
+        mostrarPasoMaestro(modalEl, 'catalogo');
 
         const bsModal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
         bsModal.show();
     }
 }
 
-function aplicarServicioMaestro(item, pax, esFeriado) {
-    if (!filaObjetivoMaestro) return;
-    const row = filaObjetivoMaestro;
+// Inserta una fila nueva del itinerario justo debajo de `ref` (la crea programa-form.js, que lleva los índices).
+function crearFilaDespues(ref) {
+    const evento = new CustomEvent('svc:crear-despues', { bubbles: true, detail: {} });
+    ref.dispatchEvent(evento);
+    return evento.detail.fila ?? null;
+}
 
+function rellenarFilaConParte(row, parte, ctx) {
     const disparar = (el) => {
         el.dispatchEvent(new Event('input', { bubbles: true }));
         el.dispatchEvent(new Event('change', { bubbles: true }));
+    };
+    const poner = (selector, valor) => {
+        const el = row.querySelector(selector);
+        if (el) {
+            el.value = valor;
+            disparar(el);
+        }
+        return el;
     };
 
     // Si estaba marcado como reservado por el cliente, reactivar modo cotización
@@ -432,81 +476,223 @@ function aplicarServicioMaestro(item, pax, esFeriado) {
         }
     }
 
-    // Nombre del servicio
-    const tituloInput = row.querySelector('[data-svc-titulo]');
-    if (tituloInput) {
-        tituloInput.value = item.nombre;
-        disparar(tituloInput);
+    poner('[data-svc-titulo]', parte.nombre);
+    poner('[data-svc-tarifario-codigo]', (parte.codigo || ctx.codigo).slice(0, 30));
+    poner('[data-svc-tipo]', parte.tipo);
+    poner('[data-svc-estimado]', parte.costo === null ? '' : dosDecimales(parte.costo));
+    // Comisión del tarifario en la fila: la Hoja de Costeo la suma al neto para el precio de venta.
+    poner('[data-svc-comision]', Number.isFinite(Number(parte.comision_pct)) ? String(Number(parte.comision_pct)) : '');
+    const igvCheck = row.querySelector('[data-svc-igv]');
+    if (igvCheck) {
+        igvCheck.checked = !!parte.igv_comision;
+        igvCheck.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    const moneda = poner('[data-svc-moneda]', ctx.moneda);
+    if (moneda) moneda.dataset.monedaAuto = '0';
+
+    // Los costos del desglose son siempre por pasajero (los grupales ya vienen prorrateados).
+    poner('[data-svc-por]', 'persona');
+    const porSelect = row.querySelector('select[id$="-por-sel"]');
+    if (porSelect) porSelect.value = 'persona';
+
+    const visible = row.querySelector('input[type="checkbox"][name$="[visible_cliente]"]');
+    if (visible) visible.checked = parte.visible_cliente;
+
+    const descripcion = row.querySelector('textarea[name$="[descripcion]"]');
+    if (descripcion && parte.descripcion && !descripcion.value.trim()) descripcion.value = parte.descripcion;
+
+    const notas = row.querySelector('textarea[name$="[notas]"]');
+    if (notas && ctx.varias) {
+        const linea = `Parte de ${ctx.codigo} · ${ctx.nombre}${parte.nota ? ` — ${parte.nota}` : ''}`;
+        if (!notas.value.includes(linea)) notas.value = notas.value.trim() ? `${notas.value.trim()}\n${linea}` : linea;
     }
 
-    // Código maestro
-    const codigoInput = row.querySelector('[data-svc-tarifario-codigo]');
-    if (codigoInput) {
-        codigoInput.value = item.codigo;
-        disparar(codigoInput);
-    }
-
-    // Auto-actualizar Tipo de Servicio según categoría del catálogo oficial
-    const categoriaToTipo = {
-        'traslado': 'traslado',
-        'tour': 'tour',
-        'trek': 'tour',
-        'boleto': 'entrada',
-        'tren': 'tren',
-        'vuelo': 'vuelo',
-        'alimentacion': 'comida',
-        'guia': 'guia',
-        'viatico': 'otro',
-        'propina': 'otro',
-        'componente': 'otro',
-        'otro': 'otro'
-    };
-    const nuevoTipo = categoriaToTipo[item.categoria] || 'tour';
-    const tipoSelect = row.querySelector('[data-svc-tipo]');
-    if (tipoSelect) {
-        tipoSelect.value = nuevoTipo;
-        disparar(tipoSelect);
-    }
-
-    // Costo estimado
-    const estInput = row.querySelector('[data-svc-estimado]');
-    if (estInput) {
-        estInput.value = item.costo_pax.toFixed(2);
-        disparar(estInput);
-    }
-
-    // Moneda
-    const monedaInput = row.querySelector('[data-svc-moneda]');
-    if (monedaInput) {
-        monedaInput.value = item.moneda || 'USD';
-        disparar(monedaInput);
-    }
-
-    // Costo por (persona vs grupo)
-    const porSelect = row.querySelector('[data-svc-por]');
-    if (porSelect) {
-        porSelect.value = item.tipo_calculo === 'por_grupo' ? 'grupo' : 'persona';
-        disparar(porSelect);
-    }
-
-    // Modo libre activo para que se vea el nombre
     modoLibre(row, true);
 
-    // Origen visual
     const origen = row.querySelector('[data-svc-origen]');
     if (origen) {
         origen.hidden = false;
-        origen.classList.remove('is-warning');
-        const iconoFeriado = esFeriado ? ' · ⭐ Feriado' : '';
-        origen.innerHTML = `<i class="fas fa-calculator text-primary me-1" aria-hidden="true"></i>Catálogo [${item.codigo}] · $${item.costo_pax.toFixed(2)} (${pax} pax${iconoFeriado})`;
+        origen.classList.toggle('is-warning', parte.costo === null);
+        const icono = document.createElement('i');
+        icono.className = 'fas fa-calculator text-primary me-1';
+        icono.setAttribute('aria-hidden', 'true');
+        const codigoParte = parte.codigo && parte.codigo !== ctx.codigo ? ` · ${parte.codigo}` : '';
+        const estado = parte.costo === null ? 'sin precio' : (parte.incluido ? 'incluido' : 'adicional');
+        const comision = `com. ${Number(parte.comision_pct) || 0}%${parte.igv_comision && Number(parte.comision_pct) ? ' + IGV' : ''}`;
+        origen.replaceChildren(icono, `Catálogo [${ctx.codigo}]${codigoParte} · ${estado} · ${comision} · ${ctx.pax} pax${ctx.feriado ? ' · ⭐ Feriado' : ''}`);
     }
+}
 
-    // Cerrar modal
-    const modalEl = document.getElementById('modalTarifarioMaestro');
-    if (modalEl && window.bootstrap) {
-        const bsModal = window.bootstrap.Modal.getInstance(modalEl);
-        bsModal?.hide();
+function textoOrigenParte(parte) {
+    if (parte.origen === 'catalogo') {
+        return parte.incluido
+            ? `Precio del catálogo${parte.codigo ? ` (${parte.codigo})` : ''} · incluido en la tarifa`
+            : `Adicional · precio del catálogo${parte.codigo ? ` (${parte.codigo})` : ''}, se suma a la tarifa`;
     }
+    if (parte.origen === 'reparto') return 'Parte de la tarifa · reparto estimado entre transporte y guía, ajústalo si lo sabes';
+    if (parte.origen === 'manual') return 'Agregada a mano · se suma a la tarifa';
+    return parte.nota || 'Sin precio en el catálogo: complétalo si tiene costo';
+}
+
+function marcarClienteParte(el, visible) {
+    const boton = el.querySelector('[data-parte-cliente]');
+    if (!boton) return;
+    boton.setAttribute('aria-pressed', visible ? 'true' : 'false');
+    boton.classList.toggle('is-active', visible);
+    boton.title = visible ? 'Visible para el cliente en el itinerario (clic para ocultar)' : 'Oculto al cliente: solo uso interno (clic para mostrar)';
+    boton.setAttribute('aria-label', boton.title);
+    const icono = boton.querySelector('i');
+    if (icono) icono.className = visible ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function crearParteMaestro(modalEl, parte, moneda) {
+    const plantilla = modalEl.querySelector('[data-maestro-parte-template]');
+    const el = plantilla.content.firstElementChild.cloneNode(true);
+    const tipo = el.querySelector('[data-parte-tipo]');
+    tipo.value = [...tipo.options].some((o) => o.value === parte.tipo) ? parte.tipo : 'otro';
+    el.querySelector('[data-parte-nombre]').value = parte.nombre || '';
+    el.querySelector('[data-parte-costo]').value = parte.costo === null || parte.costo === undefined ? '' : dosDecimales(parte.costo);
+    el.querySelector('[data-parte-moneda]').textContent = SIMBOLO_MONEDA[moneda] ?? moneda;
+    el.dataset.codigo = parte.codigo || '';
+    el.dataset.origen = parte.origen || 'manual';
+    el.dataset.incluido = parte.incluido ? '1' : '0';
+    el.dataset.descripcion = parte.descripcion || '';
+    el.dataset.nota = parte.nota || '';
+    el.dataset.igv = parte.igv_comision ? '1' : '0';
+    el.querySelector('[data-parte-comision]').value = Number.isFinite(Number(parte.comision_pct)) ? String(Number(parte.comision_pct)) : '0';
+    el.classList.toggle('is-adicional', !parte.incluido);
+    el.querySelector('[data-parte-origen]').textContent = textoOrigenParte(parte);
+    marcarClienteParte(el, !!parte.visible_cliente);
+    return el;
+}
+
+function leerPartesMaestro(modalEl) {
+    return [...modalEl.querySelectorAll('[data-maestro-partes] [data-parte]')].map((el) => {
+        const costoTxt = el.querySelector('[data-parte-costo]').value.trim();
+        return {
+            usar: el.querySelector('[data-parte-usar]').checked,
+            tipo: el.querySelector('[data-parte-tipo]').value,
+            nombre: el.querySelector('[data-parte-nombre]').value.trim(),
+            costo: costoTxt === '' ? null : Math.max(0, parseFloat(costoTxt) || 0),
+            codigo: el.dataset.codigo || null,
+            incluido: el.dataset.incluido === '1',
+            visible_cliente: el.querySelector('[data-parte-cliente]').getAttribute('aria-pressed') === 'true',
+            descripcion: el.dataset.descripcion || null,
+            nota: el.dataset.nota || null,
+            comision_pct: Math.max(0, parseFloat(el.querySelector('[data-parte-comision]').value) || 0),
+            igv_comision: el.dataset.igv === '1',
+        };
+    });
+}
+
+function actualizarResumenMaestro(modalEl) {
+    const cont = modalEl.querySelector('[data-maestro-resumen]');
+    const confirmarTexto = modalEl.querySelector('[data-maestro-confirmar-texto]');
+    const confirmar = modalEl.querySelector('[data-maestro-confirmar]');
+    if (!cont || !desgloseMaestro) return;
+
+    const simbolo = SIMBOLO_MONEDA[desgloseMaestro.moneda] ?? desgloseMaestro.moneda;
+    const dinero = (n) => `${simbolo} ${dosDecimales(n)}`;
+
+    // Precio con comisión de cada parte, junto a su origen.
+    modalEl.querySelectorAll('[data-maestro-partes] [data-parte]').forEach((el) => {
+        const destino = el.querySelector('[data-parte-venta]');
+        if (!destino) return;
+        const costoTxt = el.querySelector('[data-parte-costo]').value.trim();
+        const pct = parseFloat(el.querySelector('[data-parte-comision]').value) || 0;
+        if (costoTxt === '' || !pct) {
+            destino.textContent = '';
+            return;
+        }
+        const { comision, igv } = conComision(parseFloat(costoTxt), pct, el.dataset.igv === '1');
+        destino.textContent = `· con comisión ${dinero((parseFloat(costoTxt) || 0) + comision + igv)}`;
+    });
+
+    const partes = leerPartesMaestro(modalEl).filter((p) => p.usar);
+    const tarifa = Number(desgloseMaestro.total) || 0;
+    const incluidas = partes.filter((p) => p.incluido).reduce((s, p) => s + (p.costo ?? 0), 0);
+    const adicionales = partes.filter((p) => !p.incluido).reduce((s, p) => s + (p.costo ?? 0), 0);
+    const totalPax = incluidas + adicionales;
+    let comisionPax = 0;
+    let igvPax = 0;
+    partes.forEach((p) => {
+        const r = conComision(p.costo ?? 0, p.comision_pct, p.igv_comision);
+        comisionPax += r.comision;
+        igvPax += r.igv;
+    });
+    const ventaPax = totalPax + comisionPax + igvPax;
+    const pax = (desgloseMaestro.adultos || 0) + (desgloseMaestro.ninos || 0);
+    const diferencia = Math.round((incluidas - tarifa) * 100) / 100;
+    const sinPrecio = partes.filter((p) => p.costo === null).length;
+
+    const fila = (etiqueta, valor, clase = '') => {
+        const div = document.createElement('div');
+        div.className = `tm-desglose__fila ${clase}`;
+        const a = document.createElement('span');
+        a.textContent = etiqueta;
+        const b = document.createElement('strong');
+        b.textContent = valor;
+        div.append(a, b);
+        return div;
+    };
+
+    const nodos = [fila('Tarifa del catálogo (por pasajero)', dinero(tarifa))];
+    nodos.push(fila('Partes incluidas en la tarifa', dinero(incluidas)));
+    if (Math.abs(diferencia) >= 0.01) {
+        const aviso = document.createElement('div');
+        aviso.className = 'tm-desglose__aviso';
+        aviso.textContent = diferencia > 0
+            ? `Las partes incluidas suman ${dinero(diferencia)} más que la tarifa.`
+            : `Faltan ${dinero(-diferencia)} por repartir para llegar a la tarifa.`;
+        nodos.push(aviso);
+    }
+    if (adicionales > 0) nodos.push(fila('Adicionales', `+ ${dinero(adicionales)}`));
+    nodos.push(fila('Costo neto por pasajero', dinero(totalPax), 'is-neto'));
+    nodos.push(fila('Comisión', `+ ${dinero(comisionPax)}`));
+    if (igvPax > 0) nodos.push(fila(`IGV de la comisión (${igvPrograma()}%)`, `+ ${dinero(igvPax)}`));
+    nodos.push(fila('Precio con comisión por pasajero', dinero(ventaPax), 'is-total'));
+    if (pax > 1) nodos.push(fila(`Total para ${pax} pasajeros`, dinero(ventaPax * pax), 'is-sub'));
+    if (sinPrecio) {
+        const nota = document.createElement('div');
+        nota.className = 'tm-desglose__nota';
+        nota.textContent = `${sinPrecio} ${sinPrecio === 1 ? 'parte queda' : 'partes quedan'} sin precio: se agregan igual y se cotizan después.`;
+        nodos.push(nota);
+    }
+    cont.replaceChildren(...nodos);
+
+    const n = partes.filter((p) => p.nombre).length;
+    if (confirmarTexto) confirmarTexto.textContent = n === 1 ? 'Agregar 1 servicio al día' : `Agregar ${n} servicios al día`;
+    if (confirmar) confirmar.disabled = n === 0;
+}
+
+function aplicarDesgloseMaestro(modalEl) {
+    if (!filaObjetivoMaestro || !desgloseMaestro) return;
+    const partes = leerPartesMaestro(modalEl).filter((p) => p.usar && p.nombre);
+    if (!partes.length) return;
+
+    const ctx = {
+        codigo: desgloseMaestro.codigo,
+        nombre: desgloseMaestro.nombre,
+        moneda: desgloseMaestro.moneda || 'USD',
+        pax: (desgloseMaestro.adultos || 0) + (desgloseMaestro.ninos || 0),
+        feriado: !!desgloseMaestro.feriado,
+        varias: partes.length > 1,
+    };
+    const hora = filaObjetivoMaestro.querySelector('input[name$="[hora]"]')?.value ?? '';
+
+    let anterior = filaObjetivoMaestro;
+    partes.forEach((parte, i) => {
+        const fila = i === 0 ? anterior : crearFilaDespues(anterior);
+        if (!fila) return;
+        if (i > 0 && hora) {
+            const campoHora = fila.querySelector('input[name$="[hora]"]');
+            if (campoHora) campoHora.value = hora;
+        }
+        rellenarFilaConParte(fila, parte, ctx);
+        anterior = fila;
+    });
+
+    window.bootstrap?.Modal.getInstance(modalEl)?.hide();
 }
 
 function initModalTarifarioMaestro() {
@@ -524,6 +710,8 @@ function initModalTarifarioMaestro() {
     const listaResultados = modalEl.querySelector('[data-maestro-resultados]');
     const loadingEl = document.getElementById('maestro-loading');
     const emptyEl = document.getElementById('maestro-empty');
+    const partesEl = modalEl.querySelector('[data-maestro-partes]');
+    const partesLoading = modalEl.querySelector('[data-maestro-partes-loading]');
 
     const syncModalPax = () => {
         const adt = Math.max(1, parseInt(adtInput?.value, 10) || 1);
@@ -532,6 +720,51 @@ function initModalTarifarioMaestro() {
         if (paxInput) paxInput.value = total;
         if (totalBadge) totalBadge.textContent = `Total: ${total} Pax (${adt} Adt, ${chd} Chd)`;
         return { adt, chd, total };
+    };
+
+    // Paso 2: pide al servidor las partes propuestas para el servicio y los pasajeros actuales.
+    const cargarDesglose = async () => {
+        if (!servicioMaestro || !partesEl) return;
+        const { adt, chd, total } = syncModalPax();
+        const feriado = !!feriadoSwitch?.checked;
+
+        modalEl.querySelector('[data-maestro-desglose-codigo]').textContent = servicioMaestro.codigo;
+        modalEl.querySelector('[data-maestro-desglose-nombre]').textContent = servicioMaestro.nombre;
+        modalEl.querySelector('[data-maestro-desglose-pax]').textContent =
+            `${adt} adulto${adt === 1 ? '' : 's'} · ${chd} niño${chd === 1 ? '' : 's'} · ${total} pax${feriado ? ' · Feriado' : ''}`;
+
+        partesEl.replaceChildren();
+        modalEl.querySelector('[data-maestro-resumen]')?.replaceChildren();
+        modalEl.querySelector('[data-maestro-aviso-adicionales]').hidden = true;
+        if (partesLoading) partesLoading.hidden = false;
+        const confirmar = modalEl.querySelector('[data-maestro-confirmar]');
+        if (confirmar) confirmar.disabled = true;
+
+        try {
+            const params = new URLSearchParams({ adultos: adt, ninos: chd, feriado: feriado ? 'true' : 'false' });
+            const res = await fetch(`/tarifario-maestro/${servicioMaestro.id}/componentes?${params}`, { headers: { Accept: 'application/json' } });
+            if (!res.ok) throw new Error(String(res.status));
+            desgloseMaestro = await res.json();
+        } catch {
+            desgloseMaestro = null;
+            if (partesLoading) partesLoading.hidden = true;
+            const error = document.createElement('div');
+            error.className = 'alert alert-danger py-2 px-3 small mb-0';
+            error.textContent = 'No se pudo preparar lo que incluye este servicio. Vuelve al catálogo e inténtalo de nuevo.';
+            partesEl.replaceChildren(error);
+            return;
+        }
+
+        if (partesLoading) partesLoading.hidden = true;
+        partesEl.replaceChildren(...desgloseMaestro.partes.map((p) => crearParteMaestro(modalEl, p, desgloseMaestro.moneda)));
+        modalEl.querySelector('[data-maestro-aviso-adicionales]').hidden = !desgloseMaestro.adicionales;
+        actualizarResumenMaestro(modalEl);
+    };
+
+    const abrirDesglose = (item) => {
+        servicioMaestro = item;
+        mostrarPasoMaestro(modalEl, 'desglose');
+        cargarDesglose();
     };
 
     const renderizarItems = async () => {
@@ -604,7 +837,7 @@ function initModalTarifarioMaestro() {
                         <span class="badge ${badgeCatClass} px-2 py-1 text-capitalize">${item.categoria_label || item.categoria}</span>
                         ${item.duracion_horas ? `<span class="badge bg-light text-muted border px-2 py-1"><i class="far fa-clock me-1"></i>${item.duracion_horas}h</span>` : ''}
                     </div>
-                    <div class="fw-bold text-dark text-truncate" title="${item.nombre}">${item.nombre}</div>
+                    <div class="fw-bold text-dark tm-modal__item-titulo" title="${item.nombre}">${item.nombre}</div>
                     <small class="text-muted d-block" style="font-size: 0.75rem;">
                         ${detalleTarifa} · Comisión ${item.comision_pct}%
                     </small>
@@ -613,18 +846,19 @@ function initModalTarifarioMaestro() {
                     <div class="fs-5 fw-bold text-primary font-monospace">${item.moneda} ${item.costo_pax.toFixed(2)}</div>
                     <small class="text-muted d-block" style="font-size: 0.72rem;">costo neto unitario</small>
                     <button type="button" class="btn btn-primary btn-sm mt-1 px-3 py-1 fw-semibold shadow-sm">
-                        <i class="fas fa-check me-1"></i> Aplicar
+                        <i class="fas fa-tasks me-1"></i> Ver qué incluye
                     </button>
                 </div>
             `;
 
-            div.addEventListener('click', () => {
-                aplicarServicioMaestro(item, total, feriado === 'true');
-            });
+            div.addEventListener('click', () => abrirDesglose(item));
 
             listaResultados.append(div);
         });
     };
+
+    // Los cambios de pasajeros o feriado recalculan el paso que esté abierto.
+    const refrescar = () => (modalEl.dataset.paso === 'desglose' ? cargarDesglose() : renderizarItems());
 
     let debounceTimer = null;
     searchInput?.addEventListener('input', () => {
@@ -639,37 +873,19 @@ function initModalTarifarioMaestro() {
         }
     });
 
-    modalEl.querySelector('[data-maestro-adt-inc]')?.addEventListener('click', () => {
-        if (adtInput) {
-            adtInput.value = Math.min(20, (parseInt(adtInput.value, 10) || 1) + 1);
-            renderizarItems();
-        }
-    });
+    const ajustar = (input, delta, min) => {
+        if (!input) return;
+        input.value = Math.min(20, Math.max(min, (parseInt(input.value, 10) || min) + delta));
+        refrescar();
+    };
+    modalEl.querySelector('[data-maestro-adt-inc]')?.addEventListener('click', () => ajustar(adtInput, 1, 1));
+    modalEl.querySelector('[data-maestro-adt-dec]')?.addEventListener('click', () => ajustar(adtInput, -1, 1));
+    modalEl.querySelector('[data-maestro-chd-inc]')?.addEventListener('click', () => ajustar(chdInput, 1, 0));
+    modalEl.querySelector('[data-maestro-chd-dec]')?.addEventListener('click', () => ajustar(chdInput, -1, 0));
 
-    modalEl.querySelector('[data-maestro-adt-dec]')?.addEventListener('click', () => {
-        if (adtInput) {
-            adtInput.value = Math.max(1, (parseInt(adtInput.value, 10) || 1) - 1);
-            renderizarItems();
-        }
-    });
-
-    modalEl.querySelector('[data-maestro-chd-inc]')?.addEventListener('click', () => {
-        if (chdInput) {
-            chdInput.value = Math.min(20, (parseInt(chdInput.value, 10) || 0) + 1);
-            renderizarItems();
-        }
-    });
-
-    modalEl.querySelector('[data-maestro-chd-dec]')?.addEventListener('click', () => {
-        if (chdInput) {
-            chdInput.value = Math.max(0, (parseInt(chdInput.value, 10) || 0) - 1);
-            renderizarItems();
-        }
-    });
-
-    adtInput?.addEventListener('change', renderizarItems);
-    chdInput?.addEventListener('change', renderizarItems);
-    feriadoSwitch?.addEventListener('change', renderizarItems);
+    adtInput?.addEventListener('change', refrescar);
+    chdInput?.addEventListener('change', refrescar);
+    feriadoSwitch?.addEventListener('change', refrescar);
 
     catContainer?.querySelectorAll('[data-maestro-cat]').forEach((btn) => {
         btn.addEventListener('click', () => {
@@ -681,6 +897,44 @@ function initModalTarifarioMaestro() {
         });
     });
 
+    // Paso 2: edición de las partes
+    modalEl.querySelector('[data-maestro-volver]')?.addEventListener('click', () => {
+        mostrarPasoMaestro(modalEl, 'catalogo');
+        renderizarItems();
+    });
+
+    modalEl.querySelector('[data-maestro-parte-agregar]')?.addEventListener('click', () => {
+        if (!partesEl || !desgloseMaestro) return;
+        const nueva = crearParteMaestro(modalEl, {
+            tipo: 'otro', nombre: '', costo: null, origen: 'manual', incluido: false, visible_cliente: false,
+        }, desgloseMaestro.moneda);
+        partesEl.append(nueva);
+        nueva.querySelector('[data-parte-nombre]')?.focus();
+        actualizarResumenMaestro(modalEl);
+    });
+
+    partesEl?.addEventListener('input', () => actualizarResumenMaestro(modalEl));
+    partesEl?.addEventListener('change', (evento) => {
+        const usar = evento.target.closest('[data-parte-usar]');
+        if (usar) usar.closest('[data-parte]')?.classList.toggle('is-off', !usar.checked);
+        actualizarResumenMaestro(modalEl);
+    });
+    partesEl?.addEventListener('click', (evento) => {
+        const cliente = evento.target.closest('[data-parte-cliente]');
+        if (cliente) {
+            const parte = cliente.closest('[data-parte]');
+            marcarClienteParte(parte, cliente.getAttribute('aria-pressed') !== 'true');
+            return;
+        }
+        const quitar = evento.target.closest('[data-parte-quitar]');
+        if (quitar) {
+            quitar.closest('[data-parte]')?.remove();
+            actualizarResumenMaestro(modalEl);
+        }
+    });
+
+    modalEl.querySelector('[data-maestro-confirmar]')?.addEventListener('click', () => aplicarDesgloseMaestro(modalEl));
+
     modalEl.addEventListener('show.bs.modal', () => {
         // Inicializar número de adultos y niños según el programa
         const progAdt = document.querySelector('input[name="cantidad_adultos"]')?.value;
@@ -690,7 +944,14 @@ function initModalTarifarioMaestro() {
         if (adtInput) adtInput.value = progAdt ? Math.max(1, parseInt(progAdt, 10)) : (progPax ? Math.max(1, parseInt(progPax, 10)) : 2);
         if (chdInput) chdInput.value = progChd !== undefined && progChd !== null ? Math.max(0, parseInt(progChd, 10) || 0) : 0;
         syncModalPax();
+        mostrarPasoMaestro(modalEl, 'catalogo');
         renderizarItems();
+    });
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        desgloseMaestro = null;
+        servicioMaestro = null;
+        partesEl?.replaceChildren();
     });
 }
 

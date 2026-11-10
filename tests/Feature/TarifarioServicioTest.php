@@ -144,4 +144,62 @@ class TarifarioServicioTest extends TestCase
         $this->assertEquals(39.39, $btgItem['precio_adulto']);
         $this->assertEquals(21.21, $btgItem['precio_nino']);
     }
+
+    public function test_componentes_desglosan_el_servicio_para_el_itinerario(): void
+    {
+        $this->seed(\Database\Seeders\TarifarioAracari2027Seeder::class);
+        $user = $this->usuario('operaciones');
+        $antes = TarifarioServicio::query()->get(['codigo', 'desglose', 'precios_escalonados'])->toJson();
+        $partes = fn (string $codigo, int $adultos = 2) => $this->actingAs($user)
+            ->getJson(route('tarifario-maestro.componentes', [TarifarioServicio::where('codigo', $codigo)->value('id'), 'adultos' => $adultos]))
+            ->assertOk();
+
+        // Full Day Valle: BTG y almuerzo no caben en la tarifa (a 20 pax es menor que ambos): van como adicionales y
+        // la tarifa completa se reparte entre guía y transporte.
+        $fdawa = $partes('FDAWA');
+        $fdawa->assertJsonPath('total', 122.75)->assertJsonPath('adicionales', true);
+        $lista = collect($fdawa->json('partes'));
+        $this->assertSame(['guia', 'traslado', 'entrada', 'comida'], $lista->pluck('tipo')->all());
+        $this->assertEqualsWithDelta(122.75, $lista->where('incluido', true)->sum('costo'), 0.001);
+        $this->assertEquals(39.39, $lista->firstWhere('codigo', 'BTG')['costo']);
+        $this->assertFalse($lista->firstWhere('codigo', 'BTG')['incluido']);
+        $this->assertSame([true, false, false, false], $lista->pluck('visible_cliente')->all());
+
+        // Machu Picchu: entrada y bus caben en la tarifa; lo que sobra es del guía y la suma da la tarifa exacta.
+        $mapi = $partes('FMAPI');
+        $mapi->assertJsonPath('adicionales', false);
+        $lista = collect($mapi->json('partes'));
+        $this->assertSame(['MP-INC', 'BUS-CONSETTUR-RT'], $lista->pluck('codigo')->filter()->values()->all());
+        $this->assertEqualsWithDelta($mapi->json('total'), $lista->sum('costo'), 0.001);
+
+        // Traslado aeropuerto (hoja TRFS): transporte, representante y agua suman la tarifa; la propina va aparte.
+        $apthtl = $partes('APTHTL');
+        $lista = collect($apthtl->json('partes'));
+        $this->assertSame([10.0, 7.5, 1.3, 2.0], $lista->pluck('costo')->map(fn ($c) => (float) $c)->all());
+        $this->assertSame([true, true, true, false], $lista->pluck('incluido')->all());
+        // El representante es su propio tipo de servicio y lo reconoce el rubro «Representante» del proveedor.
+        $this->assertSame('representante', $lista[1]['tipo']);
+        $this->assertSame(['representante'], \App\Models\Servicio::tiposDeRubro('Representante'));
+        $this->assertEqualsWithDelta(18.80, $lista->where('incluido', true)->sum('costo'), 0.001);
+        // Desde 9 pax entra el 2.º representante y en feriado el representante se paga doble.
+        $this->assertContains('2.º representante · Traslado Aeropuerto Cusco <-> Hotel Cusco',
+            collect($partes('APTHTL', 9)->json('partes'))->pluck('nombre'));
+        $feriado = $this->actingAs($user)->getJson(route('tarifario-maestro.componentes',
+            [TarifarioServicio::where('codigo', 'APTHTL')->value('id'), 'adultos' => 2, 'feriado' => 'true']))->json();
+        $this->assertEquals(15.0, $feriado['partes'][1]['costo']);
+        $this->assertEqualsWithDelta(26.30, collect($feriado['partes'])->where('incluido', true)->sum('costo'), 0.001);
+
+        // Los códigos alternos de la hoja también encuentran el traslado.
+        $this->actingAs($user)->getJson(route('tarifario-maestro.buscar', ['q' => 'URUAPT']))
+            ->assertOk()->assertJsonPath('items.0.codigo', 'APTOLL');
+
+        // Un boleto se agrega entero, con su precio.
+        $lista = collect($partes('BTG')->json('partes'));
+        $this->assertCount(1, $lista);
+        $this->assertSame('entrada', $lista[0]['tipo']);
+        $this->assertEquals(39.39, $lista[0]['costo']);
+
+        // Consultar el desglose no modifica el catálogo.
+        $this->assertSame($antes, TarifarioServicio::query()->get(['codigo', 'desglose', 'precios_escalonados'])->toJson());
+    }
 }

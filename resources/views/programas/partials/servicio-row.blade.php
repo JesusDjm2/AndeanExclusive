@@ -251,6 +251,24 @@
                     <option value="grupo" @selected($v('costo_por') === 'grupo')>Por grupo</option>
                 </select>
             </div>
+            {{-- Comisión de este servicio (la trae el Tarifario Maestro); vacía = la comisión por defecto del programa. --}}
+            @php
+                $igvComision = ($s['igv_comision'] ?? null) === null || filter_var($s['igv_comision'], FILTER_VALIDATE_BOOLEAN);
+                $comisionDefecto = (float) ($programa->comision_defecto ?? 11);
+            @endphp
+            <div class="col-6 col-md-2">
+                <label class="prog-label" for="svc-{{ $i }}-comision">Comisión (%)</label>
+                <input id="svc-{{ $i }}-comision" type="number" name="{{ $name('comision_pct') }}" value="{{ $v('comision_pct') }}" step="0.01" min="0" max="100"
+                    class="form-control form-control-sm {{ $err('comision_pct') ? 'is-invalid' : '' }}" placeholder="{{ rtrim(rtrim(number_format($comisionDefecto, 2), '0'), '.') }} (programa)"
+                    title="Vacía = la comisión por defecto del programa" data-svc-comision>
+            </div>
+            <div class="col-6 col-md-2 d-flex align-items-end">
+                <input type="hidden" name="{{ $name('igv_comision') }}" value="0">
+                <label class="form-check mb-1" title="Se suma el IGV del programa sobre la comisión (las propinas no llevan)">
+                    <input type="checkbox" class="form-check-input" name="{{ $name('igv_comision') }}" value="1" @checked($igvComision) data-svc-igv>
+                    <span class="form-check-label small">IGV a la comisión</span>
+                </label>
+            </div>
             <div class="col-12 col-md-4">
                 <label class="prog-label" for="svc-{{ $i }}-punto">Punto de encuentro / recojo</label>
                 <input id="svc-{{ $i }}-punto" type="text" name="{{ $name('punto_encuentro') }}" value="{{ $v('punto_encuentro') }}" maxlength="255"
