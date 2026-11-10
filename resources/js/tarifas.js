@@ -410,6 +410,17 @@ function aplicarServicioMaestro(item, pax, esFeriado) {
         el.dispatchEvent(new Event('change', { bubbles: true }));
     };
 
+    // Si estaba marcado como reservado por el cliente, reactivar modo cotización
+    if (row.classList.contains('is-cliente-pax')) {
+        row.classList.remove('is-cliente-pax');
+        const btnCli = row.querySelector('[data-svc-toggle-cliente-pax]');
+        if (btnCli) {
+            btnCli.classList.remove('btn-info', 'text-white', 'is-active');
+            btnCli.classList.add('btn-outline-info');
+            btnCli.title = 'Marcar si este servicio fue contratado/reservado directamente por el cliente';
+        }
+    }
+
     // Nombre del servicio
     const tituloInput = row.querySelector('[data-svc-titulo]');
     if (tituloInput) {

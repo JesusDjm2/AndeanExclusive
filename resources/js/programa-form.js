@@ -243,36 +243,39 @@ function initItinerario(root) {
             const estadoSel = row.querySelector('[data-svc-estado]');
             const origen = row.querySelector('[data-svc-origen]');
 
-            const isAlreadyCli = btnCli.classList.contains('btn-info');
+            const isAlreadyCli = row.classList.contains('is-cliente-pax') || btnCli.classList.contains('is-active');
             if (!isAlreadyCli) {
+                row.classList.add('is-cliente-pax');
                 btnCli.classList.remove('btn-outline-info');
-                btnCli.classList.add('btn-info', 'text-white');
-                btnCli.title = 'Servicio reservado por el cliente (Costo $0)';
+                btnCli.classList.add('btn-info', 'text-white', 'is-active');
+                btnCli.title = 'Servicio reservado por el cliente (Haz clic para reactivar cotización)';
                 row.dataset.prevEstimado = estInput ? estInput.value : '';
                 row.dataset.prevCosto = costInput ? costInput.value : '';
+                row.dataset.prevEstado = estadoSel ? estadoSel.value : '';
                 if (estInput) { estInput.value = '0.00'; estInput.dispatchEvent(new Event('input', { bubbles: true })); }
                 if (costInput) { costInput.value = '0.00'; costInput.dispatchEvent(new Event('input', { bubbles: true })); }
                 if (estadoSel) { estadoSel.value = 'confirmado'; estadoSel.dispatchEvent(new Event('change', { bubbles: true })); }
                 if (origen) {
-                    origen.hidden = false;
-                    origen.textContent = '✔ Reservado por el cliente (Costo US$ 0.00)';
-                    origen.className = 'svc-fin__origen';
-                }
-            } else {
-                btnCli.classList.remove('btn-info', 'text-white');
-                btnCli.classList.add('btn-outline-info');
-                btnCli.title = 'Marcar si este servicio fue contratado/reservado directamente por el cliente (Costo US$ 0.00)';
-                if (estInput && row.dataset.prevEstimado !== undefined) {
-                    estInput.value = row.dataset.prevEstimado;
-                    estInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                if (costInput && row.dataset.prevCosto !== undefined) {
-                    costInput.value = row.dataset.prevCosto;
-                    costInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-                if (origen) {
                     origen.hidden = true;
                     origen.textContent = '';
+                }
+            } else {
+                row.classList.remove('is-cliente-pax');
+                btnCli.classList.remove('btn-info', 'text-white', 'is-active');
+                btnCli.classList.add('btn-outline-info');
+                btnCli.title = 'Marcar si este servicio fue contratado/reservado directamente por el cliente';
+                if (estInput) {
+                    estInput.value = (row.dataset.prevEstimado !== undefined && row.dataset.prevEstimado !== '') ? row.dataset.prevEstimado : '';
+                    estInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (!estInput.value) estInput.focus();
+                }
+                if (costInput) {
+                    costInput.value = (row.dataset.prevCosto !== undefined && row.dataset.prevCosto !== '') ? row.dataset.prevCosto : '';
+                    costInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+                if (estadoSel && row.dataset.prevEstado !== undefined && row.dataset.prevEstado !== '') {
+                    estadoSel.value = row.dataset.prevEstado;
+                    estadoSel.dispatchEvent(new Event('change', { bubbles: true }));
                 }
             }
         }

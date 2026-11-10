@@ -16,6 +16,9 @@
     // Cerrado por defecto (el itinerario se vuelve largo); se abre si hay errores dentro.
     $abierto = (bool) ($err('fecha') || $err('punto_encuentro') || $err('descripcion') || $err('notas') || $err('visible_cliente'));
     $esEstadia = ! empty($s['de_estadia']);
+    $valCostoEst = $v('costo_estimado');
+    $valCosto = $v('costo');
+    $esCeroCliente = ($valCostoEst !== null && filled($valCostoEst) && (float) $valCostoEst === 0.0 && (float) ($valCosto ?? 0) === 0.0);
     $resumen = collect([
         filled($v('punto_encuentro')) ? 'punto: ' . \Illuminate\Support\Str::limit($v('punto_encuentro'), 25) : null,
         filled($v('descripcion')) ? 'descripción cliente' : null,
@@ -23,7 +26,7 @@
         empty($s['visible_cliente'] ?? true) ? 'oculto al cliente' : null,
     ])->filter();
 @endphp
-<div class="svc-row {{ $hasAnyErr ? 'border-danger shadow-sm' : '' }}" data-svc-item @if (! empty($s['id'])) id="servicio-{{ $s['id'] }}" @endif>
+<div class="svc-row {{ $hasAnyErr ? 'border-danger shadow-sm' : '' }} {{ $esCeroCliente ? 'is-cliente-pax' : '' }}" data-svc-item @if (! empty($s['id'])) id="servicio-{{ $s['id'] }}" @endif>
     @if ($hasAnyErr)
         <div class="alert alert-danger py-1 px-2 mb-2 small d-flex align-items-center justify-content-between">
             <span><i class="fas fa-exclamation-circle me-1"></i> <strong>Error en este servicio:</strong> {{ collect($errors->get("servicios.$i.*"))->flatten()->first() }}</span>
@@ -49,9 +52,14 @@
             $libre = $err('titulo') || filled($titulo) || blank($v('proveedor_id'));
         @endphp
         <div class="svc-row__titulo">
-            <label class="prog-label" for="{{ $libre ? "svc-{$i}-titulo" : "svc-{$i}-servicio" }}" data-svc-servicio-label>
-                Servicio
-            </label>
+            <div class="d-flex align-items-center justify-content-between mb-1">
+                <label class="prog-label mb-0" for="{{ $libre ? "svc-{$i}-titulo" : "svc-{$i}-servicio" }}" data-svc-servicio-label>
+                    Servicio
+                </label>
+                <span class="svc-row__cliente-badge" data-svc-cliente-badge title="Este servicio es gestionado y abonado directamente por el pasajero">
+                    <i class="fas fa-user-check me-1" aria-hidden="true"></i>Reservado por el cliente
+                </span>
+            </div>
             <select id="svc-{{ $i }}-servicio" class="form-select form-select-sm" data-svc-servicio @if ($libre) hidden @endif>
                 @if (filled($titulo))
                     <option value="" selected>{{ $titulo }}</option>
@@ -99,18 +107,14 @@
             </select>
             @if ($err('proveedor_id'))<div class="invalid-feedback">{{ $err('proveedor_id') }}</div>@endif
         </div>
-        @php
-            $valCostoEst = $v('costo_estimado');
-            $esCeroCliente = ($valCostoEst !== null && filled($valCostoEst) && (float) $valCostoEst === 0.0 && (float) ($v('costo') ?? 0) === 0.0);
-        @endphp
         <div class="svc-row__actions">
             @unless ($esEstadia)
                 <button type="button" class="btn btn-sm btn-outline-primary" data-svc-abrir-maestro
                     title="Cotizar desde Tarifario Maestro 2027" aria-label="Tarifario Maestro 2027">
                     <i class="fas fa-calculator" aria-hidden="true"></i>
                 </button>
-                <button type="button" class="btn btn-sm {{ $esCeroCliente ? 'btn-info text-white' : 'btn-outline-info' }}" data-svc-toggle-cliente-pax
-                    title="{{ $esCeroCliente ? 'Servicio reservado por el cliente (Costo $0)' : 'Marcar si este servicio fue contratado/reservado directamente por el cliente (Costo US$ 0.00)' }}">
+                <button type="button" class="btn btn-sm {{ $esCeroCliente ? 'btn-info text-white is-active' : 'btn-outline-info' }}" data-svc-toggle-cliente-pax
+                    title="{{ $esCeroCliente ? 'Servicio reservado por el cliente (Haz clic para reactivar cotización)' : 'Marcar si este servicio fue contratado/reservado directamente por el cliente' }}">
                     <i class="fas fa-user-check" aria-hidden="true"></i>
                 </button>
             @endunless
