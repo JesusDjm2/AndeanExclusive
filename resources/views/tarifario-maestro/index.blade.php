@@ -270,11 +270,13 @@
 
             {{-- Paginación --}}
             @if ($servicios->hasPages())
-                <div class="card-footer bg-light border-top p-3 d-flex justify-content-between align-items-center">
+                <div class="card-footer bg-light border-top p-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <small class="text-muted">
                         Mostrando del {{ $servicios->firstItem() }} al {{ $servicios->lastItem() }} de {{ $servicios->total() }} servicios maestros.
                     </small>
-                    {{ $servicios->links() }}
+                    <div class="mb-0">
+                        {{ $servicios->links('pagination::bootstrap-5') }}
+                    </div>
                 </div>
             @endif
         @endif

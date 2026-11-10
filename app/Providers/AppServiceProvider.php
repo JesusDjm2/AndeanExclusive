@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Support\Permisos;
 use App\Support\ReglasDeAvisos;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\View;
@@ -18,6 +19,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Paginator::useBootstrapFive();
+
         Gate::before(fn ($user) => $user->hasRole(Permisos::ADMIN) ? true : null);
         foreach (Permisos::MATRIZ as $permiso => $roles) {
             Gate::define($permiso, fn ($user) => $user->hasAnyRole($roles));
