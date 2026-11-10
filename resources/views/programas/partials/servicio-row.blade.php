@@ -34,7 +34,7 @@
     @endif
     <input type="hidden" name="{{ $name('tarifario_codigo') }}" value="{{ $v('tarifario_codigo') }}" data-svc-tarifario-codigo>
 
-    {{-- Línea 1: Identificación y Proveedor --}}
+    {{-- Línea 1: Cotización y Servicio (Hora -> Servicio / Catálogo -> Tipo -> Proveedor Opcional) --}}
     <div class="svc-row__grid">
         <div class="svc-row__hora">
             <label class="prog-label" for="svc-{{ $i }}-hora">Hora</label>
@@ -42,17 +42,50 @@
                 class="form-control form-control-sm {{ $err('hora') ? 'is-invalid' : '' }}">
             @if ($err('hora'))<div class="invalid-feedback">{{ $err('hora') }}</div>@endif
         </div>
+
+        {{-- Servicio: se cotiza desde el Tarifario Maestro 2027, se escribe libremente o se toma de un proveedor --}}
+        @php
+            $titulo = $v('titulo');
+            $libre = $err('titulo') || filled($titulo) || blank($v('proveedor_id'));
+        @endphp
+        <div class="svc-row__titulo">
+            <label class="prog-label" for="{{ $libre ? "svc-{$i}-titulo" : "svc-{$i}-servicio" }}" data-svc-servicio-label>
+                Servicio
+            </label>
+            <select id="svc-{{ $i }}-servicio" class="form-select form-select-sm" data-svc-servicio @if ($libre) hidden @endif>
+                @if (filled($titulo))
+                    <option value="" selected>{{ $titulo }}</option>
+                @else
+                    <option value="">{{ blank($v('proveedor_id')) ? 'Escribe o elige del catálogo…' : 'Elige el servicio…' }}</option>
+                @endif
+                <option value="__maestro">⚡ Del Tarifario Maestro 2027…</option>
+                <option value="__otro">Otro servicio (escribir)…</option>
+            </select>
+            <div class="input-group input-group-sm" data-svc-titulo-libre @unless ($libre) hidden @endunless>
+                <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $titulo }}" maxlength="255"
+                    class="form-control {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Nombre o busca en catálogo…" data-svc-titulo>
+                <button type="button" class="btn btn-outline-primary fw-semibold px-2" data-svc-abrir-maestro
+                    title="Cotizar desde Tarifario Maestro Oficial 2027" aria-label="Tarifario Maestro 2027">
+                    <i class="fas fa-calculator text-primary me-1" aria-hidden="true"></i>Catálogo
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-svc-volver-lista hidden
+                    title="Elegir del tarifario del proveedor" aria-label="Elegir del tarifario del proveedor"><i class="fas fa-list-ul" aria-hidden="true"></i></button>
+                @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
+            </div>
+        </div>
+
         <div class="svc-row__tipo">
             <label class="prog-label" for="svc-{{ $i }}-tipo">Tipo</label>
             <select id="svc-{{ $i }}-tipo" name="{{ $name('tipo') }}" class="form-select form-select-sm {{ $err('tipo') ? 'is-invalid' : '' }}" data-svc-tipo>
                 @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
-                    <option value="{{ $clave }}" @selected(($v('tipo') ?: 'traslado') === $clave)>{{ $etiqueta }}</option>
+                    <option value="{{ $clave }}" @selected(($v('tipo') ?: 'tour') === $clave)>{{ $etiqueta }}</option>
                 @endforeach
             </select>
             @if ($err('tipo'))<div class="invalid-feedback">{{ $err('tipo') }}</div>@endif
         </div>
+
         <div class="svc-row__proveedor">
-            <label class="prog-label" for="svc-{{ $i }}-prov">Proveedor</label>
+            <label class="prog-label" for="svc-{{ $i }}-prov">Proveedor <span class="text-muted fw-normal text-lowercase">(opcional)</span></label>
             @if ($bloqueado)<input type="hidden" name="{{ $name('proveedor_id') }}" value="{{ $v('proveedor_id') }}">@endif
             <select id="svc-{{ $i }}-prov" @disabled($bloqueado) name="{{ $name('proveedor_id') }}" class="form-select form-select-sm {{ $err('proveedor_id') ? 'is-invalid' : '' }}" data-svc-proveedor-select>
                 <option value="">— Sin asignar —</option>
@@ -65,30 +98,6 @@
                 @endforeach
             </select>
             @if ($err('proveedor_id'))<div class="invalid-feedback">{{ $err('proveedor_id') }}</div>@endif
-        </div>
-        {{-- Servicio: se elige del tarifario del proveedor (tarifas.js lo llena) o se escribe con "Otro servicio".
-             El nombre elegido es el que ve el cliente en el PDF y en el itinerario. --}}
-        @php $titulo = $v('titulo'); $libre = $err('titulo') || (filled($titulo) && blank($v('proveedor_id'))); @endphp
-        <div class="svc-row__titulo">
-            <label class="prog-label" for="{{ $libre ? "svc-{$i}-titulo" : "svc-{$i}-servicio" }}" data-svc-servicio-label>Servicio</label>
-            <select id="svc-{{ $i }}-servicio" class="form-select form-select-sm" data-svc-servicio @if ($libre) hidden @endif>
-                @if (filled($titulo))
-                    <option value="" selected>{{ $titulo }}</option>
-                @else
-                    <option value="">{{ blank($v('proveedor_id')) ? 'Elige primero el proveedor' : 'Elige el servicio…' }}</option>
-                @endif
-                <option value="__maestro">⚡ Del Tarifario Maestro 2027…</option>
-                <option value="__otro">Otro servicio (escribir)…</option>
-            </select>
-            <div class="input-group input-group-sm" data-svc-titulo-libre @unless ($libre) hidden @endunless>
-                <input id="svc-{{ $i }}-titulo" type="text" name="{{ $name('titulo') }}" value="{{ $titulo }}" maxlength="255"
-                    class="form-control {{ $err('titulo') ? 'is-invalid' : '' }}" placeholder="Escribe el servicio" data-svc-titulo>
-                <button type="button" class="btn btn-outline-primary" data-svc-abrir-maestro
-                    title="Elegir del Tarifario Maestro 2027" aria-label="Tarifario Maestro 2027"><i class="fas fa-calculator" aria-hidden="true"></i></button>
-                <button type="button" class="btn btn-outline-secondary" data-svc-volver-lista hidden
-                    title="Elegir del tarifario del proveedor" aria-label="Elegir del tarifario del proveedor"><i class="fas fa-list-ul" aria-hidden="true"></i></button>
-                @if ($err('titulo'))<div class="invalid-feedback">{{ $err('titulo') }}</div>@endif
-            </div>
         </div>
         @php
             $valCostoEst = $v('costo_estimado');

@@ -250,14 +250,15 @@ function llenarServicios(row, tarifas, proveedorId) {
 function mostrarActual(row) {
     const select = row.querySelector('[data-svc-servicio]');
     const titulo = row.querySelector('[data-svc-titulo]')?.value.trim() ?? '';
+    const provId = row.querySelector('[data-svc-proveedor-select]')?.value;
     if (!select) return;
     const indice = (row.svcTarifas ?? []).findIndex((t) => t.concepto === titulo);
-    if (indice >= 0) {
+    if (indice >= 0 && provId) {
         select.value = String(indice);
         modoLibre(row, false);
     } else {
         select.value = '';
-        modoLibre(row, titulo !== '');
+        modoLibre(row, true);
     }
 }
 
@@ -352,6 +353,15 @@ function initItinerarioServicios() {
         row.querySelector('[data-svc-servicio]')?.focus();
     });
 
+    // Enter en el campo de texto de servicio abre la búsqueda del catálogo
+    document.addEventListener('keydown', (evento) => {
+        if (evento.key === 'Enter' && evento.target.matches('[data-svc-titulo]')) {
+            evento.preventDefault();
+            const row = evento.target.closest('[data-svc-item]');
+            if (row) abrirModalTarifarioMaestro(row);
+        }
+    });
+
     // Filas ya guardadas: carga el tarifario de su proveedor una sola vez.
     const cargarFilasExistentes = () => {
         document.querySelectorAll('[data-svc-item]').forEach((row) => {
@@ -380,6 +390,12 @@ function abrirModalTarifarioMaestro(row) {
     filaObjetivoMaestro = row;
     const modalEl = document.getElementById('modalTarifarioMaestro');
     if (modalEl && window.bootstrap) {
+        const tituloActual = row.querySelector('[data-svc-titulo]')?.value.trim() ?? '';
+        const searchInput = modalEl.querySelector('[data-maestro-search]');
+        if (searchInput && tituloActual && !tituloActual.startsWith('⚡')) {
+            searchInput.value = tituloActual;
+        }
+
         const bsModal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
         bsModal.show();
     }
@@ -406,6 +422,27 @@ function aplicarServicioMaestro(item, pax, esFeriado) {
     if (codigoInput) {
         codigoInput.value = item.codigo;
         disparar(codigoInput);
+    }
+
+    // Auto-actualizar Tipo de Servicio según categoría del catálogo oficial
+    const categoriaToTipo = {
+        'traslado': 'traslado',
+        'tour': 'tour',
+        'trek': 'tour',
+        'boleto': 'entrada',
+        'tren': 'tren',
+        'vuelo': 'vuelo',
+        'alimentacion': 'comida',
+        'guia': 'guia',
+        'viatico': 'otro',
+        'propina': 'otro',
+        'otro': 'otro'
+    };
+    const nuevoTipo = categoriaToTipo[item.categoria] || 'tour';
+    const tipoSelect = row.querySelector('[data-svc-tipo]');
+    if (tipoSelect) {
+        tipoSelect.value = nuevoTipo;
+        disparar(tipoSelect);
     }
 
     // Costo estimado

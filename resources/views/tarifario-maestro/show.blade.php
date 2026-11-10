@@ -312,27 +312,41 @@ function calcularCostoLocal(pax, feriado, tipoPax) {
         const costo = SERVICIO_DATA.costo_grupo;
         return { unitario: pax > 0 ? (costo / pax) : costo, total: costo };
     }
-    if (SERVICIO_DATA.tipo_calculo === 'escala_pax' && SERVICIO_DATA.escalonados.length > 0) {
-        // Encontrar rango
-        let match = SERVICIO_DATA.escalonados.find(r => pax >= r.min && pax <= r.max);
-        if (!match) {
-            match = SERVICIO_DATA.escalonados[SERVICIO_DATA.escalonados.length - 1];
+    if (SERVICIO_DATA.tipo_calculo === 'escala_pax' && SERVICIO_DATA.escalonados) {
+        const esc = SERVICIO_DATA.escalonados;
+        const seccion = (feriado && esc.feriado) ? esc.feriado : (esc.normal || esc);
+        if (seccion) {
+            const paxKey = String(Math.min(20, Math.max(1, pax)));
+            let costo = seccion[paxKey];
+            if (costo === undefined) {
+                const keys = Object.keys(seccion).map(Number).filter(k => !isNaN(k)).sort((a, b) => a - b);
+                let closestKey = keys[0];
+                for (let k of keys) {
+                    if (k <= pax) closestKey = k;
+                    else break;
+                }
+                costo = closestKey !== undefined ? seccion[String(closestKey)] : 0;
+            }
+            costo = parseFloat(costo) || 0;
+            return { unitario: costo, total: costo * pax };
         }
-        let costo = feriado ? (match.feriado ?? match.regular) : match.regular;
-        return { unitario: costo, total: costo * pax };
     }
     return { unitario: 0, total: 0 };
 }
 
 function actualizarSimulador() {
-    const pax = parseInt(document.getElementById('sim-pax').value, 10);
+    const paxInput = document.getElementById('sim-pax');
+    if (!paxInput) return;
+    const pax = parseInt(paxInput.value, 10) || 1;
     const feriado = document.getElementById('sim-feriado')?.checked || false;
     let tipoPax = 'adulto';
     const tipoPaxInput = document.querySelector('input[name="sim-tipo-pax"]:checked');
     if (tipoPaxInput) tipoPax = tipoPaxInput.value;
 
-    document.getElementById('sim-pax-badge').textContent = `${pax} ${pax === 1 ? 'Pax' : 'Pax'}`;
-    document.getElementById('res-grupo-detalle').textContent = `Total para ${pax} ${pax === 1 ? 'pasajero' : 'pasajeros'}`;
+    const badgeEl = document.getElementById('sim-pax-badge');
+    if (badgeEl) badgeEl.textContent = `${pax} ${pax === 1 ? 'Pax' : 'Pax'}`;
+    const detalleEl = document.getElementById('res-grupo-detalle');
+    if (detalleEl) detalleEl.textContent = `Total para ${pax} ${pax === 1 ? 'pasajero' : 'pasajeros'}`;
 
     const { unitario, total } = calcularCostoLocal(pax, feriado, tipoPax);
     const comision = unitario * (SERVICIO_DATA.comision_pct / 100);
@@ -340,13 +354,26 @@ function actualizarSimulador() {
     const ventaPax = unitario + comision + igv;
     const ventaGrupo = ventaPax * pax;
 
-    document.getElementById('res-costo-unitario').textContent = `$ ${unitario.toFixed(2)}`;
-    document.getElementById('res-fee').textContent = `$ ${(comision + igv).toFixed(2)}`;
-    document.getElementById('res-fee-detalle').textContent = `Comisión $ ${comision.toFixed(2)} + IGV $ ${igv.toFixed(2)}`;
-    document.getElementById('res-venta-pax').textContent = `$ ${ventaPax.toFixed(2)}`;
-    document.getElementById('res-venta-grupo').textContent = `$ ${ventaGrupo.toFixed(2)}`;
+    const elUnitario = document.getElementById('res-costo-unitario');
+    if (elUnitario) elUnitario.textContent = `$ ${unitario.toFixed(2)}`;
+
+    const elFee = document.getElementById('res-fee');
+    if (elFee) elFee.textContent = `$ ${(comision + igv).toFixed(2)}`;
+
+    const elFeeDetalle = document.getElementById('res-fee-detalle');
+    if (elFeeDetalle) elFeeDetalle.textContent = `Comisión $ ${comision.toFixed(2)} + IGV $ ${igv.toFixed(2)}`;
+
+    const elVentaPax = document.getElementById('res-venta-pax');
+    if (elVentaPax) elVentaPax.textContent = `$ ${ventaPax.toFixed(2)}`;
+
+    const elVentaGrupo = document.getElementById('res-venta-grupo');
+    if (elVentaGrupo) elVentaGrupo.textContent = `$ ${ventaGrupo.toFixed(2)}`;
 }
 
-document.addEventListener('DOMContentLoaded', actualizarSimulador);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', actualizarSimulador);
+} else {
+    actualizarSimulador();
+}
 </script>
 @endsection

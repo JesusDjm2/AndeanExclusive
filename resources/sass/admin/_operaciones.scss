@@ -117,16 +117,16 @@ $svc-info: #2563a8;
 
     &__grid {
         display: grid;
-        grid-template-columns: 5.5rem 8.5rem minmax(10rem, 1fr) minmax(12rem, 1.4fr) auto;
-        grid-template-areas: "hora tipo proveedor titulo acciones";
+        grid-template-columns: 5.5rem minmax(13rem, 1.6fr) 8.5rem minmax(10rem, 1fr) auto;
+        grid-template-areas: "hora titulo tipo proveedor acciones";
         gap: 0.5rem 0.6rem;
         align-items: end;
     }
 
     &__hora { grid-area: hora; }
+    &__titulo { grid-area: titulo; }
     &__tipo { grid-area: tipo; }
     &__proveedor { grid-area: proveedor; }
-    &__titulo { grid-area: titulo; }
 
     &__actions {
         grid-area: acciones;
@@ -252,10 +252,10 @@ $svc-info: #2563a8;
 
     @include media-breakpoint-down(xl) {
         &__grid {
-            grid-template-columns: 5.5rem 8.5rem 1fr auto;
+            grid-template-columns: 5.5rem 1fr auto;
             grid-template-areas:
-                "hora tipo proveedor acciones"
-                "titulo titulo titulo titulo";
+                "hora titulo acciones"
+                "tipo proveedor proveedor";
         }
 
         &__finance-grid {
@@ -265,11 +265,11 @@ $svc-info: #2563a8;
 
     @include media-breakpoint-down(md) {
         &__grid {
-            grid-template-columns: 1fr 1fr auto;
+            grid-template-columns: 1fr auto;
             grid-template-areas:
-                "hora tipo acciones"
-                "proveedor proveedor proveedor"
-                "titulo titulo titulo";
+                "hora acciones"
+                "titulo titulo"
+                "tipo proveedor";
         }
 
         &__finance-grid {
