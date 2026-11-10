@@ -41,6 +41,7 @@ class TarifarioServicioController extends Controller
             'treks'        => TarifarioServicio::where('categoria', 'trek')->count(),
             'boletos'      => TarifarioServicio::where('categoria', 'boleto')->count(),
             'alimentacion' => TarifarioServicio::where('categoria', 'alimentacion')->count(),
+            'componentes'  => TarifarioServicio::where('categoria', 'componente')->count(),
         ];
 
         return view('tarifario-maestro.index', compact('servicios', 'q', 'cat', 'stats'));

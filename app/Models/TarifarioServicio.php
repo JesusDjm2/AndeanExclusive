@@ -17,6 +17,7 @@ class TarifarioServicio extends Model
         'alimentacion' => 'Almuerzos y Picnics',
         'viatico'      => 'Viáticos Guía / Conductor',
         'propina'      => 'Cuadro de Propinas',
+        'componente'   => 'Componentes y Logística',
         'otro'         => 'Otros Servicios',
     ];
 
@@ -92,7 +93,18 @@ class TarifarioServicio extends Model
             return (float) ($this->precio_adulto ?? 0.0);
         }
 
-        $seccion = ($esFeriado && isset($tabla['feriado'])) ? $tabla['feriado'] : ($tabla['normal'] ?? $tabla);
+        if ($tipoPax === 'nino') {
+            if ($esFeriado && isset($tabla['feriado_nino'])) {
+                $seccion = $tabla['feriado_nino'];
+            } elseif (isset($tabla['nino'])) {
+                $seccion = $tabla['nino'];
+            } else {
+                $seccion = ($esFeriado && isset($tabla['feriado'])) ? $tabla['feriado'] : ($tabla['normal'] ?? $tabla);
+            }
+        } else {
+            $seccion = ($esFeriado && isset($tabla['feriado'])) ? $tabla['feriado'] : ($tabla['normal'] ?? $tabla);
+        }
+
         $paxKey = (string) min(20, $pax);
 
         if (isset($seccion[$paxKey])) {
