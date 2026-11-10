@@ -14,6 +14,7 @@ import { initPasswordToggle } from './password-toggle';
 import { initProgramaHover } from './programa-hover';
 import { initAuthVideo } from './auth-video';
 import { initPreloader } from './preloader';
+import { initAdminConstellation } from './admin-constellation';
 
 window.bootstrap = bootstrap;
 
@@ -260,4 +261,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initClienteCampos();
     initAuthVideo();
     initHistorialModal(bootstrap);
+    initAdminConstellation();
 });

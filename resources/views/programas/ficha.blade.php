@@ -1061,7 +1061,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-12 col-sm-6 col-md-2">
-                                                <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
+                                                <label class="form-label small fw-semibold text-muted">Margen extra (%):</label>
                                                 <div class="input-group">
                                                     <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-primary" id="fin-porcentaje-ganancia" value="{{ number_format((float)($programa->porcentaje_ganancia ?? 20), 1, '.', '') }}">
                                                     <span class="input-group-text bg-white fw-bold">%</span>
@@ -1262,7 +1262,7 @@
                                     <small class="text-muted d-block mt-1">Total: <strong id="modal-total-pax-lbl">{{ $programa->cantidad_pax ?: $pagantes }}</strong> personas</small>
                                 </div>
                                 <div class="col-12 col-sm-4">
-                                    <label class="form-label small fw-semibold text-muted">Margen Ganancia (%):</label>
+                                    <label class="form-label small fw-semibold text-muted">Margen extra (%):</label>
                                     <div class="input-group">
                                         <input type="number" step="0.1" min="0" max="100" class="form-control text-center fw-bold text-primary" id="modal-porcentaje-ganancia" value="{{ number_format((float)($programa->porcentaje_ganancia ?? 20), 1, '.', '') }}">
                                         <span class="input-group-text bg-white fw-bold">%</span>

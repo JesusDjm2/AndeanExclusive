@@ -42,6 +42,9 @@
     <a href="#admin-content" class="visually-hidden-focusable btn btn-primary admin-skip">Saltar al contenido</a>
 
     <div class="admin-shell">
+        {{-- Constelación Andina Interactiva (Efecto sutil de fondo solo para PC, acelerado por GPU y 0% CPU en reposo) --}}
+        <canvas id="adminTravelCanvas" class="admin-travel-canvas" aria-hidden="true"></canvas>
+
         {{-- Sidebar: panel deslizable en móvil/tablet, columna fija desde 992px --}}
         <aside class="offcanvas-lg offcanvas-start admin-sidebar" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
             <div class="admin-sidebar__brand">

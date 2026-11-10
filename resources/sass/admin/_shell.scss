@@ -11,8 +11,24 @@ $topbar-h: 4rem;
 }
 
 .admin-shell {
+    position: relative;
     display: flex;
     min-height: 100vh;
+}
+
+// Lienzo de constelación interactiva andina (fondo exclusivo para desktop PC)
+.admin-travel-canvas {
+    display: none;
+
+    @include media-breakpoint-up(lg) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        pointer-events: none;
+        z-index: 0;
+    }
 }
 
 // ---- Sidebar ------------------------------------------------------------------
@@ -32,6 +48,7 @@ $topbar-h: 4rem;
         // Bootstrap pone .offcanvas-lg transparente (!important) desde lg: se repone el fondo.
         background-color: $sidebar-bg !important;
         color: $sidebar-fg;
+        z-index: 10;
     }
 
     .offcanvas-body {
@@ -195,6 +212,8 @@ $topbar-h: 4rem;
 // ---- Main column ---------------------------------------------------------------
 
 .admin-main {
+    position: relative;
+    z-index: 1;
     display: flex;
     flex: 1 1 auto;
     flex-direction: column;
