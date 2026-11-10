@@ -112,25 +112,30 @@ class RecorridoDeUnViajeTest extends TestCase
         $this->assertTrue(Movimiento::where('usuario', 'Carla Medina')->exists());
     }
 
-    public function test_el_cliente_completa_sus_datos_y_operaciones_recibe_el_aviso(): void
+    public function test_los_datos_de_pasajeros_por_enlace_solo_los_carga_un_administrador(): void
     {
         $programa = $this->programa(['estado' => 'confirmado']);
         $pax = $programa->paxs()->create(['nombre' => 'Elena', 'fecha_nacimiento' => '1982-03-14', 'pais' => 'ES']);
-
-        $this->comoVisitaWeb()->put("/itinerario/{$programa->token}/pasajeros", ['paxs' => [
+        $datos = ['paxs' => [
             ['id' => $pax->id, 'nombre' => 'Elena', 'fecha_nacimiento' => '1982-03-14', 'pais' => 'ES', 'pasaporte' => 'XE9', 'pasaporte_vencimiento' => '2035-01-01'],
-        ]])->assertRedirect();
+        ]];
 
+        // Ni el cliente (sin sesión) ni las demás áreas: solo administración.
+        $this->comoVisitaWeb()->get("/itinerario/{$programa->token}/pasajeros")->assertForbidden();
+        $this->comoVisitaWeb()->put("/itinerario/{$programa->token}/pasajeros", $datos)->assertForbidden();
+        $this->actingAs($this->usuario('operaciones'))->get("/itinerario/{$programa->token}/pasajeros")->assertForbidden();
+
+        $this->actingAs($this->usuario('administrador'));
+        $this->get("/itinerario/{$programa->token}/pasajeros")->assertOk();
+        $this->put("/itinerario/{$programa->token}/pasajeros", $datos)->assertRedirect();
         $this->assertSame('XE9', Pax::find($pax->id)->pasaporte);
-        $this->assertTrue($this->aviso('operaciones', 'datos_cliente'));
-        $this->assertTrue($programa->tareas()->where('titulo', 'Revisar datos de pasajeros enviados por el cliente')->exists());
     }
 
-    public function test_el_formulario_del_cliente_se_cierra_al_cancelar(): void
+    public function test_el_formulario_de_pasajeros_se_cierra_al_cancelar(): void
     {
         $programa = $this->programa(['estado' => 'cancelado']);
 
-        $this->get("/itinerario/{$programa->token}/pasajeros")->assertNotFound();
+        $this->actingAs($this->usuario('administrador'))->get("/itinerario/{$programa->token}/pasajeros")->assertNotFound();
     }
 
     public function test_los_cambios_en_servicios_reservados_avisan_a_reservas(): void

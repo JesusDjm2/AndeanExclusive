@@ -4,11 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Programa;
 use App\Support\PassportFiles;
+use App\Support\Permisos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * El cliente completa los datos de sus viajeros desde el enlace privado del itinerario (sin cuenta).
+ * Datos de los viajeros desde el enlace del itinerario: solo un administrador con sesión iniciada (no el cliente).
  * Solo mientras el viaje no haya terminado ni esté cancelado. Al guardar, el equipo recibe una tarea para revisarlos.
  */
 class DatosPasajerosController extends Controller
@@ -19,7 +20,7 @@ class DatosPasajerosController extends Controller
 
     public function edit(Programa $programa)
     {
-        abort_unless(auth()->check() && auth()->user()->can('programas.gestionar'), 403, 'El registro de pasajeros está restringido al equipo de operaciones y ventas.');
+        abort_unless(auth()->user()?->hasRole(Permisos::ADMIN), 403, 'El registro de pasajeros por enlace es solo para administradores.');
         abort_unless($this->abierto($programa), 404);
         $programa->load('paxs');
 
@@ -28,7 +29,7 @@ class DatosPasajerosController extends Controller
 
     public function update(Request $request, Programa $programa)
     {
-        abort_unless(auth()->check() && auth()->user()->can('programas.gestionar'), 403, 'El registro de pasajeros está restringido al equipo de operaciones y ventas.');
+        abort_unless(auth()->user()?->hasRole(Permisos::ADMIN), 403, 'El registro de pasajeros por enlace es solo para administradores.');
         abort_unless($this->abierto($programa), 404);
 
         $isEn = $programa->lang === 'en';
