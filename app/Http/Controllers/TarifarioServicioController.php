@@ -146,7 +146,7 @@ class TarifarioServicioController extends Controller
             });
         }
 
-        $items = $query->limit(40)->get()->map(function (TarifarioServicio $item) use ($pax, $adultos, $ninos, $feriado) {
+        $items = $query->orderBy('id')->limit(250)->get()->map(function (TarifarioServicio $item) use ($pax, $adultos, $ninos, $feriado) {
             if ($item->tipo_calculo === 'por_persona' && $item->precio_nino > 0) {
                 $totalCosto = ($adultos * ($item->precio_adulto ?? 0)) + ($ninos * ($item->precio_nino ?? 0));
                 $costo = $pax > 0 ? ($totalCosto / $pax) : ($item->precio_adulto ?? 0);
@@ -155,20 +155,21 @@ class TarifarioServicioController extends Controller
             }
 
             return [
-                'id'             => $item->id,
-                'codigo'         => $item->codigo,
-                'nombre'         => $item->nombre,
-                'categoria'      => $item->categoria,
-                'tipo_calculo'   => $item->tipo_calculo,
-                'duracion_horas' => $item->duracion_horas,
-                'moneda'         => $item->moneda,
-                'costo_pax'      => round($costo, 2),
-                'comision_pct'   => (float) $item->comision_pct,
-                'precio_adulto'  => $item->precio_adulto ? (float) $item->precio_adulto : null,
-                'precio_nino'    => $item->precio_nino ? (float) $item->precio_nino : null,
-                'adultos'        => $adultos,
-                'ninos'          => $ninos,
-                'total_pax'      => $pax,
+                'id'              => $item->id,
+                'codigo'          => $item->codigo,
+                'nombre'          => $item->nombre,
+                'categoria'       => $item->categoria,
+                'categoria_label' => TarifarioServicio::CATEGORIAS[$item->categoria] ?? ucfirst($item->categoria),
+                'tipo_calculo'    => $item->tipo_calculo,
+                'duracion_horas'  => $item->duracion_horas,
+                'moneda'          => $item->moneda,
+                'costo_pax'       => round($costo, 2),
+                'comision_pct'    => (float) $item->comision_pct,
+                'precio_adulto'   => $item->precio_adulto ? (float) $item->precio_adulto : null,
+                'precio_nino'     => $item->precio_nino ? (float) $item->precio_nino : null,
+                'adultos'         => $adultos,
+                'ninos'           => $ninos,
+                'total_pax'       => $pax,
             ];
         });
 

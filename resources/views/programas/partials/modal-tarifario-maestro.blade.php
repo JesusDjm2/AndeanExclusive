@@ -81,13 +81,19 @@
 
                         {{-- Categorías --}}
                         <div class="d-flex flex-wrap gap-1 align-items-center" data-maestro-categorias>
-                            <button type="button" class="btn btn-xs btn-dark py-1 px-2 fw-semibold" data-maestro-cat="">Todos</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="tour">Tours</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="traslado">Traslados</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="boleto">Boletos</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="trek">Treks</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="alimentacion">Alimentación</button>
-                            <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="viatico">Viáticos</button>
+                            <button type="button" class="btn btn-xs btn-dark py-1 px-2 fw-semibold" data-maestro-cat="">
+                                Todos <span class="badge bg-light text-dark ms-1">{{ \App\Models\TarifarioServicio::where('activo', true)->count() }}</span>
+                            </button>
+                            @foreach (\App\Models\TarifarioServicio::CATEGORIAS as $catKey => $catLabel)
+                                @php
+                                    $cnt = \App\Models\TarifarioServicio::where('categoria', $catKey)->where('activo', true)->count();
+                                @endphp
+                                @if ($cnt > 0)
+                                    <button type="button" class="btn btn-xs btn-outline-secondary py-1 px-2" data-maestro-cat="{{ $catKey }}">
+                                        {{ $catLabel }} <span class="badge bg-light text-muted border ms-1">{{ $cnt }}</span>
+                                    </button>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
                 </div>

@@ -230,8 +230,9 @@ function llenarServicios(row, tarifas, proveedorId) {
     const tipo = row.querySelector('[data-svc-tipo]')?.value;
     const orden = tarifas.map((t, i) => i).sort((a, b) => Number(tarifas[b].tipo_servicio === tipo) - Number(tarifas[a].tipo_servicio === tipo));
 
-    const aviso = !proveedorId ? 'Elige primero el proveedor' : (tarifas.length ? 'Elige el servicio…' : 'Sin tarifas: escribe el servicio');
+    const aviso = !proveedorId ? 'Elige o busca en el catálogo…' : (tarifas.length ? 'Elige el servicio…' : 'Sin tarifas del proveedor');
     const opciones = [new Option(aviso, '')];
+    opciones.push(new Option('⚡ Del Tarifario Maestro 2027…', '__maestro'));
     orden.forEach((i) => {
         const t = tarifas[i];
         const detalle = t.unidad_detalle ? ` · ${t.unidad_detalle}` : '';
@@ -392,9 +393,19 @@ function abrirModalTarifarioMaestro(row) {
     if (modalEl && window.bootstrap) {
         const tituloActual = row.querySelector('[data-svc-titulo]')?.value.trim() ?? '';
         const searchInput = modalEl.querySelector('[data-maestro-search]');
-        if (searchInput && tituloActual && !tituloActual.startsWith('⚡')) {
-            searchInput.value = tituloActual;
+        if (searchInput) {
+            if (tituloActual && !tituloActual.startsWith('⚡')) {
+                searchInput.value = tituloActual;
+            } else {
+                searchInput.value = '';
+            }
         }
+
+        // Resetear a "Todos" para mostrar todo el catálogo
+        categoriaMaestroActiva = '';
+        modalEl.querySelectorAll('[data-maestro-cat]').forEach((b) => {
+            b.className = b.dataset.maestroCat === '' ? 'btn btn-xs btn-dark py-1 px-2 fw-semibold' : 'btn btn-xs btn-outline-secondary py-1 px-2';
+        });
 
         const bsModal = window.bootstrap.Modal.getInstance(modalEl) || new window.bootstrap.Modal(modalEl);
         bsModal.show();
@@ -447,6 +458,7 @@ function aplicarServicioMaestro(item, pax, esFeriado) {
         'guia': 'guia',
         'viatico': 'otro',
         'propina': 'otro',
+        'componente': 'otro',
         'otro': 'otro'
     };
     const nuevoTipo = categoriaToTipo[item.categoria] || 'tour';
@@ -567,6 +579,9 @@ function initModalTarifarioMaestro() {
                 boleto: 'bg-warning-subtle text-warning-emphasis border border-warning-subtle',
                 alimentacion: 'bg-secondary-subtle text-secondary border border-secondary-subtle',
                 viatico: 'bg-dark-subtle text-dark border',
+                propina: 'bg-success-subtle text-success border border-success-subtle',
+                componente: 'bg-primary-subtle text-primary border border-primary-subtle',
+                otro: 'bg-light text-dark border',
             }[item.categoria] || 'bg-light text-dark border';
 
             let detalleTarifa = '';
@@ -586,7 +601,7 @@ function initModalTarifarioMaestro() {
                 <div class="flex-grow-1 min-w-0">
                     <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
                         <span class="badge bg-dark font-monospace text-white px-2 py-1">${item.codigo}</span>
-                        <span class="badge ${badgeCatClass} px-2 py-1 text-capitalize">${item.categoria}</span>
+                        <span class="badge ${badgeCatClass} px-2 py-1 text-capitalize">${item.categoria_label || item.categoria}</span>
                         ${item.duracion_horas ? `<span class="badge bg-light text-muted border px-2 py-1"><i class="far fa-clock me-1"></i>${item.duracion_horas}h</span>` : ''}
                     </div>
                     <div class="fw-bold text-dark text-truncate" title="${item.nombre}">${item.nombre}</div>

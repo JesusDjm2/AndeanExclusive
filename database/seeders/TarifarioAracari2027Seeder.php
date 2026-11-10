@@ -1102,7 +1102,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-HUCHUY',
                 'categoria' => 'trek',
-                'nombre' => 'óPóaótóaóbóaómóbóaó ótóoó óHóuócóhóuóyó óQóoósóqóoó óTóróeókó',
+                'nombre' => 'Patabamba to Huchuy Qosqo Trek',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1124,7 +1124,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-WAYLLABAMBA',
                 'categoria' => 'trek',
-                'nombre' => 'óCóhóiónócóhóeóróoó ó-ó óHóuóaóyólólóaóbóaómóbóaó óTóróeókó',
+                'nombre' => 'Chinchero - Huayllabamba Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1146,7 +1146,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-MARAS-MORAY',
                 'categoria' => 'trek',
-                'nombre' => 'óMóaóróaósó ó&ó óMóoóróaóyó óTóróeókó',
+                'nombre' => 'Maras & Moray Trek',
                 'duracion_horas' => 7.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1168,7 +1168,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-04',
                 'categoria' => 'trek',
-                'nombre' => 'óTóiópóóónó óTóróeókó',
+                'nombre' => 'Tipón Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1186,7 +1186,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-PUMAMARCA',
                 'categoria' => 'trek',
-                'nombre' => 'óPóuómóaómóaórócóaó óHóiókóeó',
+                'nombre' => 'Pumamarca Hike',
                 'duracion_horas' => 6.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1206,7 +1206,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-JOURNEY-ANDES',
                 'categoria' => 'trek',
-                'nombre' => 'óJóoóuórónóeóyó ótóoó ótóhóeó óhóeóaórótó óoófó ótóhóeó óAónódóeósó',
+                'nombre' => 'Journey to the Heart of the Andes',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1226,7 +1226,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-PATACANCHA-WILLOQ',
                 'categoria' => 'trek',
-                'nombre' => 'óPóaótóaócóaónócóhóaó óoó óWóiólólóoóqó',
+                'nombre' => 'Patacancha o Willoq Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1246,7 +1246,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'PALCOYO',
                 'categoria' => 'trek',
-                'nombre' => 'óFóDó óPóaólócóoóyóoó',
+                'nombre' => 'FD Palcoyo (Montaña de Colores)',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1266,7 +1266,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'HUMANTAY',
                 'categoria' => 'trek',
-                'nombre' => 'óHóiókóeó ótóoó óHóuómóaónótóaóyó ó óFóuólóló ódóaóyó',
+                'nombre' => 'Hike to Humantay - Full Day',
                 'duracion_horas' => 12.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1286,7 +1286,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-REAL-SACRED-VALLEY',
                 'categoria' => 'trek',
-                'nombre' => 'óTóHóEó óRóEóAóLó óSóAóCóRóEóDó óVóAóLóLóEóYó',
+                'nombre' => 'The Real Sacred Valley',
                 'duracion_horas' => 9.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1308,7 +1308,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-ANCASMARCA',
                 'categoria' => 'trek',
-                'nombre' => 'óAónócóaósómóaórócóaó',
+                'nombre' => 'Ancasmarca Trek',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1326,7 +1326,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-MAUKALLACTA',
                 'categoria' => 'trek',
-                'nombre' => 'óFóDó óMóAóUóKóAóLóLóAóCóTóAó',
+                'nombre' => 'FD Maukallacta',
                 'duracion_horas' => 10.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1350,7 +1350,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-13',
                 'categoria' => 'trek',
-                'nombre' => 'óJóoóuórónóeóyó ótóoó ótóhóeó óHóeóaórótó óoófó ótóhóeó óAónódóeósó',
+                'nombre' => 'Journey to the Heart of the Andes (Ruta Alternativa)',
                 'duracion_horas' => 8.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1370,7 +1370,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-MIRADOR-CHONTA',
                 'categoria' => 'trek',
-                'nombre' => 'óFóuólóló ódóaóyó óMóióróaódóoóró ódóeó óCóhóoónótóaó',
+                'nombre' => 'Full Day Mirador de Chonta',
                 'duracion_horas' => 12.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
@@ -1390,7 +1390,7 @@ class TarifarioAracari2027Seeder extends Seeder
             [
                 'codigo' => 'TREK-PATAKANCHA-XP',
                 'categoria' => 'trek',
-                'nombre' => 'óPóAóTóAóKóAóNóCóHóAó óEóXóPóEóRóIóEóNóCóEó óFóDó',
+                'nombre' => 'Patakancha Experience FD',
                 'duracion_horas' => 9.0,
                 'tipo_calculo' => 'escala_pax',
                 'comision_pct' => 11.00,
