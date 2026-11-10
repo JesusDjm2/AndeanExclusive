@@ -284,6 +284,13 @@
             color: #f1f5f9 !important;
             border: 1px solid #334155 !important;
         }
+        &.bg-dark,
+        &.bg-dark-subtle,
+        &.text-bg-dark {
+            background-color: #0f172a !important;
+            color: #f8fafc !important;
+            border: 1px solid #334155 !important;
+        }
         &.text-primary { color: #93c5fd !important; }
         &.text-secondary { color: #e2e8f0 !important; }
         &.text-info { color: #7dd3fc !important; }

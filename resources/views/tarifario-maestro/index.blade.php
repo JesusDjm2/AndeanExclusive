@@ -137,12 +137,12 @@
             <div class="d-flex flex-wrap gap-1 mt-3 pt-2 border-top align-items-center">
                 <span class="small text-muted me-2 fw-semibold" style="font-size: 0.75rem;"><i class="fas fa-tags me-1"></i>Filtro:</span>
                 <a href="{{ route('tarifario-maestro.index', array_filter(['q' => $q])) }}"
-                   class="badge text-decoration-none {{ $cat === '' ? 'bg-dark text-white' : 'bg-light text-secondary border' }} py-1 px-2">
+                   class="tm-filter-pill {{ $cat === '' ? 'is-active' : '' }}">
                     Todos
                 </a>
                 @foreach (\App\Models\TarifarioServicio::CATEGORIAS as $slug => $nombre)
                     <a href="{{ route('tarifario-maestro.index', array_filter(['cat' => $slug, 'q' => $q])) }}"
-                       class="badge text-decoration-none {{ $cat === $slug ? 'bg-dark text-white' : 'bg-light text-secondary border' }} py-1 px-2">
+                       class="tm-filter-pill {{ $cat === $slug ? 'is-active' : '' }}">
                         {{ $nombre }}
                     </a>
                 @endforeach

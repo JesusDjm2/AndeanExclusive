@@ -737,3 +737,53 @@
     }
 }
 
+// Píldoras de filtro rápido del Tarifario Maestro
+.tm-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    transition: all 0.15s ease-in-out;
+    background-color: var(--ae-surface-2, #f1f5f9);
+    color: var(--ae-ink-soft, #64748b) !important;
+    border: 1px solid var(--ae-border-soft, #e2e8f0);
+    line-height: 1.2;
+
+    &:hover {
+        background-color: var(--ae-surface, #e2e8f0);
+        color: var(--ae-ink, #0f172a) !important;
+        border-color: var(--ae-border, #cbd5e1);
+    }
+
+    &.is-active {
+        background-color: #0284c7 !important;
+        color: #ffffff !important;
+        border-color: #0284c7 !important;
+        font-weight: 600;
+        box-shadow: 0 1px 3px rgba(2, 132, 199, 0.25);
+    }
+}
+
+[data-bs-theme="dark"] .tm-filter-pill {
+    background-color: #1e293b;
+    color: #94a3b8 !important;
+    border-color: #334155;
+
+    &:hover {
+        background-color: #334155;
+        color: #f8fafc !important;
+        border-color: #475569;
+    }
+
+    &.is-active {
+        background-color: #38bdf8 !important;
+        color: #0f172a !important;
+        border-color: #38bdf8 !important;
+        font-weight: 700;
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+    }
+}
+
