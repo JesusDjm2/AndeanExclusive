@@ -14,19 +14,19 @@ class TarifarioServicioTest extends TestCase
 
         $tour = TarifarioServicio::where('codigo', 'HINARC')->firstOrFail();
 
-        // 1 pasajero normal: $152.78
+        // 1 pasajero normal: $152.78 (Catálogo Maestro contiene costos netos de proveedor: comisión 0%)
         $calc1 = $tour->calcularFinanciero(1, false);
         $this->assertEquals(152.78, $calc1['costo_neto']);
-        $this->assertEquals(16.81, $calc1['comision_monto']); // 11%
-        $this->assertEquals(3.03, $calc1['igv_monto']);        // 18% al fee
-        $this->assertEquals(172.61, $calc1['total_venta']);
+        $this->assertEquals(0.00, $calc1['comision_monto']);
+        $this->assertEquals(0.00, $calc1['igv_monto']);
+        $this->assertEquals(152.78, $calc1['total_venta']);
 
         // 4 pasajeros normal: $59.56
         $calc4 = $tour->calcularFinanciero(4, false);
         $this->assertEquals(59.56, $calc4['costo_neto']);
-        $this->assertEquals(6.55, $calc4['comision_monto']);
-        $this->assertEquals(1.18, $calc4['igv_monto']);
-        $this->assertEquals(67.29, $calc4['total_venta']);
+        $this->assertEquals(0.00, $calc4['comision_monto']);
+        $this->assertEquals(0.00, $calc4['igv_monto']);
+        $this->assertEquals(59.56, $calc4['total_venta']);
 
         // 4 pasajeros feriado: $75.81
         $calc4Feriado = $tour->calcularFinanciero(4, true);
@@ -61,12 +61,16 @@ class TarifarioServicioTest extends TestCase
             ->assertSee('Tarifario Maestro de Servicios')
             ->assertSee('BTG');
 
-        // Filtrado por categoría tours muestra HINARC y FDAWA
+        // Filtrado por categoría tours muestra FDAWA y permite buscar HINARC
         $this->actingAs($user)
             ->get(route('tarifario-maestro.index', ['cat' => 'tour']))
             ->assertOk()
-            ->assertSee('HINARC')
             ->assertSee('FDAWA');
+
+        $this->actingAs($user)
+            ->get(route('tarifario-maestro.index', ['cat' => 'tour', 'q' => 'HINARC']))
+            ->assertOk()
+            ->assertSee('HINARC');
 
         $tour = TarifarioServicio::where('codigo', 'FDAWA')->firstOrFail();
 
@@ -154,16 +158,13 @@ class TarifarioServicioTest extends TestCase
             ->getJson(route('tarifario-maestro.componentes', [TarifarioServicio::where('codigo', $codigo)->value('id'), 'adultos' => $adultos]))
             ->assertOk();
 
-        // Full Day Valle: BTG y almuerzo no caben en la tarifa (a 20 pax es menor que ambos): van como adicionales y
-        // la tarifa completa se reparte entre guía y transporte.
+        // Full Day Valle (FDAWA): sincronizado con desglose oficial (transporte, viático, guía, snacks, bastones).
         $fdawa = $partes('FDAWA');
-        $fdawa->assertJsonPath('total', 122.75)->assertJsonPath('adicionales', true);
+        $fdawa->assertJsonPath('total', 122.75);
         $lista = collect($fdawa->json('partes'));
-        $this->assertSame(['guia', 'traslado', 'entrada', 'comida'], $lista->pluck('tipo')->all());
         $this->assertEqualsWithDelta(122.75, $lista->where('incluido', true)->sum('costo'), 0.001);
-        $this->assertEquals(39.39, $lista->firstWhere('codigo', 'BTG')['costo']);
-        $this->assertFalse($lista->firstWhere('codigo', 'BTG')['incluido']);
-        $this->assertSame([true, false, false, false], $lista->pluck('visible_cliente')->all());
+        $this->assertSame(['traslado', 'viatico', 'guia', 'alimentacion', 'componente', 'alimentacion', 'guia'], $lista->pluck('tipo')->all());
+        $this->assertSame([true, false, false, false, false, false, false], $lista->pluck('visible_cliente')->all());
 
         // Machu Picchu: entrada y bus caben en la tarifa; lo que sobra es del guía y la suma da la tarifa exacta.
         $mapi = $partes('FMAPI');

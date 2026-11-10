@@ -62,13 +62,13 @@ class ComisionPorServicioTest extends TestCase
             TarifarioServicio::where('codigo', 'APTHTL')->value('id'), 'adultos' => 2,
         ]))->assertOk()->json('partes'));
 
-        // Transporte, representante y agua comisionan 11 % + IGV; la propina de maleteros no comisiona.
-        $this->assertSame([11.0, 11.0, 11.0, 0.0], $partes->pluck('comision_pct')->map(fn ($c) => (float) $c)->all());
-        $this->assertSame([true, true, true, false], $partes->pluck('igv_comision')->all());
+        // El Tarifario Maestro contiene costos netos de proveedor (0% comisión). La propina no comisiona.
+        $this->assertSame([0.0, 0.0, 0.0, 0.0], $partes->pluck('comision_pct')->map(fn ($c) => (float) $c)->all());
+        $this->assertSame([false, false, false, false], $partes->pluck('igv_comision')->all());
 
-        // Como la hoja: 18.80 neto + 2.07 comisión + 0.37 IGV + 2.00 propina = 23.24.
+        // Neto 18.80 + 2.00 propina = 20.80.
         $venta = $partes->sum(fn ($p) => $p['costo'] * (1 + $p['comision_pct'] / 100 * ($p['igv_comision'] ? 1.18 : 1)));
-        $this->assertEqualsWithDelta(23.24, $venta, 0.01);
+        $this->assertEqualsWithDelta(20.80, $venta, 0.01);
     }
 
     public function test_un_programa_nuevo_empieza_con_comision_de_11(): void
