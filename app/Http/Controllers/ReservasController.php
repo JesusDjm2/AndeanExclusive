@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MensajeProveedor;
 use App\Models\Proveedor;
 use App\Models\Servicio;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * Bandeja del área de reservas: todos los servicios a gestionar con los proveedores, por estado,
- * con su situación de pago y acciones rápidas (solicitar, confirmar, pagar, ver historial) e individuales o en lote.
+ * mensajería integrada (hilo y esperando respuesta), con su situación de pago y acciones rápidas.
  */
 class ReservasController extends Controller
 {
@@ -19,6 +21,7 @@ class ReservasController extends Controller
         'por_reservar' => ['Por reservar', ['pendiente']],
         'solicitados' => ['Solicitados', ['solicitado']],
         'confirmados' => ['Confirmados', ['confirmado']],
+        'mensajes' => ['Mensajes a proveedores', []],
         'cancelados' => ['Cancelados', ['cancelado']],
     ];
 
@@ -37,6 +40,17 @@ class ReservasController extends Controller
         $periodo = array_key_exists((string) $request->input('periodo'), self::PERIODOS) ? $request->input('periodo') : '30';
         $hoy = Carbon::today();
 
+        // Esperando respuesta: servicios solicitados cuyo último mensaje fue nuestro.
+        $esperando = Servicio::query()
+            ->where('estado', 'solicitado')
+            ->whereHas('mensajes')
+            ->with(['programa:id,codigo,nombre', 'proveedor:id,nombre', 'mensajes' => fn ($q) => $q->latest()->limit(1)])
+            ->get()
+            ->filter(fn (Servicio $s) => $s->mensajes->first()?->direccion === 'enviado')
+            ->sortBy(fn (Servicio $s) => $s->mensajes->first()->created_at)
+            ->values();
+        $esperandoCount = $esperando->count();
+
         // Filtros comunes (periodo, proveedor, búsqueda) para contar cada bandeja con los mismos criterios.
         $base = Servicio::query()
             ->whereHas('programa', fn ($q) => $q->where('estado', '!=', 'cancelado')->where('plantilla', false))
@@ -53,20 +67,45 @@ class ReservasController extends Controller
                     ->orWhereHas('programa', fn ($p) => $p->where('codigo', 'like', $term)->orWhere('nombre', 'like', $term)));
             });
 
-        $conteos = collect(self::BANDEJAS)->map(fn ($b) => (clone $base)->whereIn('estado', $b[1])->count());
+        $conteos = collect(self::BANDEJAS)->map(function ($b, $key) use ($base, $esperandoCount) {
+            if ($key === 'mensajes') {
+                return $esperandoCount;
+            }
+            return (clone $base)->whereIn('estado', $b[1])->count();
+        });
 
         // Sin bandeja elegida: abrir la primera con trabajo pendiente (por reservar → solicitados → confirmados).
         if (! $request->filled('bandeja')) {
             $bandeja = collect(['sin_asignar', 'por_reservar', 'solicitados', 'confirmados'])->first(fn ($b) => $conteos[$b] > 0) ?? 'sin_asignar';
         }
 
-        $servicios = (clone $base)
-            ->whereIn('estado', self::BANDEJAS[$bandeja][1])
-            ->with(['programa.paxs', 'programa.cliente', 'proveedor', 'pagos'])->withCount('mensajes')
-            ->when($periodo === 'pasados', fn ($q) => $q->orderByDesc('fecha'), fn ($q) => $q->orderBy('fecha'))
-            ->orderByRaw('hora IS NULL, hora')
-            ->paginate(40)
-            ->withQueryString();
+        if ($bandeja === 'mensajes') {
+            $mensajes = MensajeProveedor::query()
+                ->with(['proveedor:id,nombre', 'servicio:id,titulo,fecha,estado,programa_id', 'programa:id,codigo,nombre', 'user:id,name'])
+                ->when($request->filled('proveedor_id'), fn ($q) => $q->where('proveedor_id', $request->integer('proveedor_id')))
+                ->when(array_key_exists((string) $request->input('tipo'), MensajeProveedor::TIPOS), fn ($q) => $q->where('tipo', $request->input('tipo')))
+                ->when($request->filled('q'), function ($q) use ($request) {
+                    $term = '%' . trim($request->input('q')) . '%';
+                    $q->where(fn ($w) => $w->where('asunto', 'like', $term)
+                        ->orWhereHas('programa', fn ($p) => $p->where('codigo', 'like', $term)->orWhere('nombre', 'like', $term))
+                        ->orWhereHas('servicio', fn ($s) => $s->where('titulo', 'like', $term)));
+                })
+                ->latest()->orderByDesc('id')
+                ->paginate(25)->withQueryString();
+
+            $proveedoresMensajes = Proveedor::query()->whereHas('mensajes')->orderBy('nombre')->get(['id', 'nombre']);
+            $servicios = new LengthAwarePaginator([], 0, 40);
+        } else {
+            $mensajes = new LengthAwarePaginator([], 0, 25);
+            $proveedoresMensajes = collect();
+            $servicios = (clone $base)
+                ->whereIn('estado', self::BANDEJAS[$bandeja][1])
+                ->with(['programa.paxs', 'programa.cliente', 'proveedor', 'pagos'])->withCount('mensajes')
+                ->when($periodo === 'pasados', fn ($q) => $q->orderByDesc('fecha'), fn ($q) => $q->orderBy('fecha'))
+                ->orderByRaw('hora IS NULL, hora')
+                ->paginate(40)
+                ->withQueryString();
+        }
 
         // Urgentes: sin confirmar y faltan 3 días o menos (el aviso lleva a la bandeja donde están).
         $urgentesPorEstado = Servicio::query()->operables()->abiertos()
@@ -81,7 +120,7 @@ class ReservasController extends Controller
 
         $proveedores = Proveedor::query()->with('categoria:id,nombre')->orderBy('nombre')->get(['id', 'nombre', 'categoria_id']);
 
-        return view('reservas.index', compact('bandeja', 'periodo', 'conteos', 'servicios', 'urgentes', 'bandejaUrgentes', 'proveedores'));
+        return view('reservas.index', compact('bandeja', 'periodo', 'conteos', 'servicios', 'urgentes', 'bandejaUrgentes', 'proveedores', 'esperando', 'esperandoCount', 'mensajes', 'proveedoresMensajes'));
     }
 
     /** Acción en lote sobre varios servicios: marcarlos como solicitados o cancelados. */

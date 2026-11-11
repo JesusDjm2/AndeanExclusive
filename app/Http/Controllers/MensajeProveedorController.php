@@ -14,31 +14,7 @@ class MensajeProveedorController extends Controller
 {
     public function index(Request $request)
     {
-        $mensajes = MensajeProveedor::query()
-            ->with(['proveedor:id,nombre', 'servicio:id,titulo,fecha,estado,programa_id', 'programa:id,codigo,nombre', 'user:id,name'])
-            ->when($request->filled('proveedor_id'), fn ($q) => $q->where('proveedor_id', $request->integer('proveedor_id')))
-            ->when(array_key_exists((string) $request->input('tipo'), MensajeProveedor::TIPOS), fn ($q) => $q->where('tipo', $request->input('tipo')))
-            ->when($request->filled('q'), function ($q) use ($request) {
-                $term = '%' . trim($request->input('q')) . '%';
-                $q->where(fn ($w) => $w->where('asunto', 'like', $term)
-                    ->orWhereHas('programa', fn ($p) => $p->where('codigo', 'like', $term)->orWhere('nombre', 'like', $term)));
-            })
-            ->latest()->orderByDesc('id')
-            ->paginate(25)->withQueryString();
-
-        // Esperando respuesta: servicios solicitados cuyo último mensaje fue nuestro.
-        $esperando = Servicio::query()
-            ->where('estado', 'solicitado')
-            ->whereHas('mensajes')
-            ->with(['programa:id,codigo,nombre', 'proveedor:id,nombre', 'mensajes' => fn ($q) => $q->latest()->limit(1)])
-            ->get()
-            ->filter(fn (Servicio $s) => $s->mensajes->first()?->direccion === 'enviado')
-            ->sortBy(fn (Servicio $s) => $s->mensajes->first()->created_at)
-            ->values();
-
-        $proveedores = Proveedor::query()->whereHas('mensajes')->orderBy('nombre')->get(['id', 'nombre']);
-
-        return view('mensajes.index', compact('mensajes', 'esperando', 'proveedores'));
+        return redirect()->route('reservas.index', array_merge(['bandeja' => 'mensajes'], $request->all()));
     }
 
     public function crear(Request $request, Servicio $servicio)
