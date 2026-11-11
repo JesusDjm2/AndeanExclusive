@@ -87,13 +87,22 @@ class CorreoReservas
      * Envía el mensaje y lo deja en el hilo del servicio. Devuelve el mensaje guardado (con 'error' si el envío falló:
      * en ese caso el servicio no cambia de estado).
      */
-    public static function enviar(Servicio $servicio, string $tipo, string $para, string $asunto, string $cuerpo, bool $conOrden, ?User $usuario): MensajeProveedor
-    {
+    public static function enviar(
+        Servicio $servicio,
+        string $tipo,
+        string $para,
+        string $asunto,
+        string $cuerpo,
+        bool $conOrden,
+        ?User $usuario,
+        ?string $cc = null,
+        ?array $archivoInfo = null
+    ): MensajeProveedor {
         $servicio->loadMissing(['programa.paxs', 'programa.cliente', 'programa.agentes', 'proveedor.categoria']);
-        $adjunto = null;
+        $ordenAdjunta = null;
         if ($conOrden) {
             $html = View::make('servicios.voucher', ['servicio' => $servicio, 'programa' => $servicio->programa])->render();
-            $adjunto = [Pdf::desdeHtml($html), "orden-de-servicio-{$servicio->programa->codigo}-{$servicio->id}.pdf"];
+            $ordenAdjunta = [Pdf::desdeHtml($html), "orden-de-servicio-{$servicio->programa->codigo}-{$servicio->id}.pdf"];
         }
 
         $mensaje = new MensajeProveedor([
@@ -104,16 +113,30 @@ class CorreoReservas
             'direccion' => 'enviado',
             'tipo' => $tipo,
             'para' => $para,
+            'cc' => $cc,
             'asunto' => $asunto,
             'cuerpo' => $cuerpo,
             'con_orden' => $conOrden,
+            'adjunto_nombre' => $archivoInfo['nombre'] ?? null,
+            'adjunto_ruta' => $archivoInfo['ruta'] ?? null,
         ]);
 
         try {
             [$correoReservas] = self::remitente();
-            $mailable = (new MensajeProveedorMailable($asunto, $cuerpo, $adjunto))->bcc($correoReservas);
+            $mailable = (new MensajeProveedorMailable($asunto, $cuerpo, $ordenAdjunta, $archivoInfo))->bcc($correoReservas);
+
+            // Destinatarios principales
+            $paraEmails = array_values(array_filter(array_map('trim', explode(',', $para))));
+
+            // Destinatarios en copia (CC)
+            $ccEmails = $cc ? array_values(array_filter(array_map('trim', explode(',', $cc)))) : [];
+
             $mailer = filled(config('mail.mailers.reservas.host')) ? Mail::mailer('reservas') : Mail::mailer();
-            $mailer->to($para, $servicio->proveedor?->nombre)->send($mailable);
+            $pendingMail = $mailer->to($paraEmails, $servicio->proveedor?->nombre);
+            if ($ccEmails) {
+                $pendingMail->cc($ccEmails);
+            }
+            $pendingMail->send($mailable);
         } catch (Throwable $e) {
             report($e);
             $mensaje->error = mb_substr($e->getMessage(), 0, 250);

@@ -15,8 +15,16 @@ class MensajeProveedorMailable extends Mailable
 {
     use Queueable;
 
-    /** @param array{0: string, 1: string}|null $orden  [contenido del PDF, nombre del archivo] */
-    public function __construct(public string $asunto, public string $cuerpo, private ?array $orden = null) {}
+    /**
+     * @param array{0: string, 1: string}|null $orden          [contenido del PDF, nombre del archivo]
+     * @param array{nombre: string, ruta: string, full_path: string}|null $adjunto  [archivo subido desde PC]
+     */
+    public function __construct(
+        public string $asunto,
+        public string $cuerpo,
+        private ?array $orden = null,
+        private ?array $adjunto = null
+    ) {}
 
     public function envelope(): Envelope
     {
@@ -38,6 +46,16 @@ class MensajeProveedorMailable extends Mailable
 
     public function attachments(): array
     {
-        return $this->orden ? [Attachment::fromData(fn () => $this->orden[0], $this->orden[1])->withMime('application/pdf')] : [];
+        $attachments = [];
+
+        if ($this->orden) {
+            $attachments[] = Attachment::fromData(fn () => $this->orden[0], $this->orden[1])->withMime('application/pdf');
+        }
+
+        if ($this->adjunto && !empty($this->adjunto['full_path']) && file_exists($this->adjunto['full_path'])) {
+            $attachments[] = Attachment::fromPath($this->adjunto['full_path'])->as($this->adjunto['nombre']);
+        }
+
+        return $attachments;
     }
 }

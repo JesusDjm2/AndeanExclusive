@@ -41,9 +41,9 @@
     <div class="msg-layout">
         <div class="msg-layout__main">
             @if (! $proveedor)
-                <div class="card dash-card"><div class="admin-empty"><i class="fas fa-user-plus" aria-hidden="true"></i> Este servicio no tiene proveedor: asígnalo en la Bandeja de Reservas para poder escribirle.</div></div>
+                <div class="card dash-card"><div class="admin-empty"><i class="fas fa-user-plus" aria-hidden="true"></i> Este servicio no tiene proveedor: asígnalo en Reservas para poder escribirle.</div></div>
             @elseif ($gestiona)
-                <form method="POST" action="{{ route('servicios.mensaje.enviar', $servicio) }}" class="card dash-card msg-compose" data-msg-compose>
+                <form method="POST" action="{{ route('servicios.mensaje.enviar', $servicio) }}" class="card dash-card msg-compose" enctype="multipart/form-data" data-msg-compose>
                     @csrf
                     <div class="msg-compose__types" role="radiogroup" aria-label="Tipo de mensaje">
                         @foreach (\App\Support\CorreoReservas::PLANTILLAS as $clave => [$etiqueta, $conOrden, $efecto])
@@ -59,17 +59,28 @@
                     <div class="msg-compose__body">
                         <div class="row g-2">
                             <div class="col-md-7">
-                                <label for="msg-para" class="prog-label">Para</label>
-                                <input id="msg-para" type="email" name="para" value="{{ old('para', $proveedor->correo) }}" required maxlength="255"
-                                    class="form-control @error('para') is-invalid @enderror" placeholder="correo@proveedor.com">
+                                <label for="msg-para" class="prog-label">Para <small class="text-muted fw-normal">(uno o varios correos separados por coma)</small></label>
+                                <input id="msg-para" type="text" name="para" value="{{ old('para', $proveedor->correo) }}" required maxlength="500"
+                                    class="form-control @error('para') is-invalid @enderror" placeholder="correo@proveedor.com, reservas@proveedor.com">
                                 @unless ($correoValido)
                                     <small class="text-warning-emphasis"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> El proveedor no tiene un correo válido en su ficha.
                                         @can('proveedores.gestionar')<a href="{{ route('proveedors.edit', $proveedor) }}">Agregarlo</a>@endcan</small>
                                 @endunless
+                                @error('para')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-md-5">
                                 <span class="prog-label d-block">De</span>
                                 <div class="msg-compose__from">{{ config('mail.reservas.name') }} &lt;{{ config('mail.reservas.address') }}&gt;</div>
+                            </div>
+                            <div class="col-12">
+                                <label for="msg-cc" class="prog-label">C.C. / Con Copia <small class="text-muted fw-normal">(opcional, separar múltiples correos con coma)</small></label>
+                                <input id="msg-cc" type="text" name="cc" value="{{ old('cc') }}" maxlength="500"
+                                    class="form-control @error('cc') is-invalid @enderror" placeholder="ejemplo: operaciones@andeanexclusivetours.com, reservas2@proveedor.com">
+                                @error('cc')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                             <div class="col-12">
                                 <label for="msg-asunto" class="prog-label">Asunto</label>
@@ -78,7 +89,7 @@
                             </div>
                             <div class="col-12">
                                 <label for="msg-cuerpo" class="prog-label">Mensaje</label>
-                                <textarea id="msg-cuerpo" name="cuerpo" rows="14" required maxlength="10000"
+                                <textarea id="msg-cuerpo" name="cuerpo" rows="13" required maxlength="10000"
                                     class="form-control msg-compose__text @error('cuerpo') is-invalid @enderror" data-msg-cuerpo>{{ old('cuerpo', $plantillas[$actual]['cuerpo']) }}</textarea>
                             </div>
                         </div>
@@ -86,13 +97,27 @@
 
                     <div class="msg-compose__footer">
                         <div class="msg-compose__options">
-                            <label class="form-check mb-0">
+                            <label class="form-check mb-2">
                                 <input type="hidden" name="con_orden" value="0">
                                 <input type="checkbox" class="form-check-input" name="con_orden" value="1" data-msg-orden
                                     @checked(old('con_orden', \App\Support\CorreoReservas::PLANTILLAS[$actual][1] ? '1' : '0') === '1')>
-                                <span class="form-check-label"><i class="fas fa-file-pdf text-danger" aria-hidden="true"></i> Adjuntar la orden de servicio (PDF con pasajeros)</span>
+                                <span class="form-check-label"><i class="fas fa-file-pdf text-danger" aria-hidden="true"></i> Adjuntar la orden de servicio oficial (PDF con lista de pasajeros)</span>
                             </label>
-                            <small class="msg-compose__efecto" data-msg-efecto>{{ $efectos[\App\Support\CorreoReservas::PLANTILLAS[$actual][2]] ?? '' }}</small>
+
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <label for="msg-archivo" class="btn btn-sm btn-outline-secondary text-nowrap mb-0 cursor-pointer">
+                                    <i class="fas fa-paperclip me-1 text-primary"></i> Adjuntar archivo desde tu PC
+                                </label>
+                                <input type="file" name="archivo_adjunto" id="msg-archivo" class="form-control form-control-sm"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.webp,.zip"
+                                    onchange="document.getElementById('msg-file-selected').textContent = this.files[0] ? this.files[0].name : '';">
+                                <small id="msg-file-selected" class="text-muted text-truncate fw-semibold" style="max-width: 250px;"></small>
+                            </div>
+                            @error('archivo_adjunto')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
+
+                            <small class="msg-compose__efecto d-block mt-2" data-msg-efecto>{{ $efectos[\App\Support\CorreoReservas::PLANTILLAS[$actual][2]] ?? '' }}</small>
                         </div>
                         <button type="submit" class="btn btn-primary" data-msg-enviar>
                             <i class="fas fa-paper-plane me-1" aria-hidden="true"></i> Enviar al proveedor
@@ -180,8 +205,14 @@
                         @endif
                         <footer class="msg-bubble__foot">
                             {{ $mensaje->user?->name ?? 'Sistema' }}
-                            @if ($mensaje->para) · a {{ $mensaje->para }} @endif
-                            @if ($mensaje->con_orden) · <i class="fas fa-paperclip" aria-hidden="true"></i> orden adjunta @endif
+                            @if ($mensaje->para) · a <strong>{{ $mensaje->para }}</strong> @endif
+                            @if ($mensaje->cc) · <span title="Con copia"><i class="fas fa-copy me-1"></i>CC: {{ $mensaje->cc }}</span> @endif
+                            @if ($mensaje->con_orden) · <i class="fas fa-file-pdf text-danger" aria-hidden="true"></i> orden oficial @endif
+                            @if ($mensaje->adjunto_nombre)
+                                · <a href="{{ route('mensajes.adjunto', $mensaje) }}" class="badge bg-light text-dark border text-decoration-none" title="Descargar archivo adjunto">
+                                    <i class="fas fa-paperclip text-primary me-1"></i> {{ $mensaje->adjunto_nombre }}
+                                </a>
+                            @endif
                             @if ($mensaje->fallido)<span class="msg-bubble__error" title="{{ $mensaje->error }}"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> No se envió</span>@endif
                         </footer>
                     </article>

@@ -139,7 +139,13 @@
                                 <span class="msg-list__meta">
                                     {{ $mensaje->programa?->codigo }}@if ($mensaje->servicio) · {{ $mensaje->servicio->titulo }}@endif
                                     · {{ $mensaje->user?->name ?? 'Sistema' }}
-                                    @if ($mensaje->con_orden) · <i class="fas fa-paperclip" aria-hidden="true"></i> orden adjunta @endif
+                                    @if ($mensaje->cc) · <span title="Con copia: {{ $mensaje->cc }}"><i class="fas fa-copy text-muted"></i> CC: {{ \Illuminate\Support\Str::limit($mensaje->cc, 28) }}</span> @endif
+                                    @if ($mensaje->con_orden) · <i class="fas fa-file-pdf text-danger"></i> orden oficial @endif
+                                    @if ($mensaje->adjunto_nombre)
+                                        · <a href="{{ route('mensajes.adjunto', $mensaje) }}" class="badge bg-light text-dark border text-decoration-none" title="Descargar {{ $mensaje->adjunto_nombre }}">
+                                            <i class="fas fa-paperclip text-primary me-1"></i> {{ \Illuminate\Support\Str::limit($mensaje->adjunto_nombre, 25) }}
+                                        </a>
+                                    @endif
                                     @if ($mensaje->fallido) · <span class="text-danger"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> No se envió</span> @endif
                                 </span>
                             </div>

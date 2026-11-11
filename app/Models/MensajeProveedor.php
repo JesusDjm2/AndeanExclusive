@@ -12,7 +12,7 @@ class MensajeProveedor extends Model
 
     protected $fillable = [
         'proveedor_id', 'servicio_id', 'programa_id', 'user_id', 'direccion', 'tipo',
-        'para', 'asunto', 'cuerpo', 'con_orden', 'resultado', 'error',
+        'para', 'cc', 'asunto', 'cuerpo', 'con_orden', 'adjunto_nombre', 'adjunto_ruta', 'resultado', 'error',
     ];
 
     protected $casts = ['con_orden' => 'boolean'];

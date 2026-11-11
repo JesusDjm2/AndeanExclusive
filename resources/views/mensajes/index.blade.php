@@ -9,7 +9,7 @@
 @section('contenido')
     <div class="ae-admin-page-header">
         <h1 class="ae-admin-page-title"><i class="fas fa-fw fa-envelope-open-text"></i> Mensajes a proveedores</h1>
-        <small class="ae-admin-page-desc">Lo que Reservas envía desde {{ config('mail.reservas.address') }} y las respuestas registradas. Para escribir, abre el servicio desde la Bandeja de Reservas.</small>
+        <small class="ae-admin-page-desc">Lo que Reservas envía desde {{ config('mail.reservas.address') }} y las respuestas registradas. Para escribir, abre el servicio desde Reservas.</small>
     </div>
 
     @if ($esperando->isNotEmpty())
@@ -55,7 +55,7 @@
     </form>
 
     @if ($mensajes->isEmpty())
-        <div class="card dash-card"><div class="admin-empty"><i class="fas fa-inbox" aria-hidden="true"></i> Todavía no hay mensajes con esos filtros. Escribe a un proveedor desde un servicio de la Bandeja de Reservas.</div></div>
+        <div class="card dash-card"><div class="admin-empty"><i class="fas fa-inbox" aria-hidden="true"></i> Todavía no hay mensajes con esos filtros. Escribe a un proveedor desde un servicio de Reservas.</div></div>
     @else
         <div class="card dash-card">
             <ul class="msg-list">

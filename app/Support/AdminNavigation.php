@@ -39,7 +39,7 @@ class AdminNavigation
             'label' => 'Reservas y Proveedores',
             'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad'],
             'items' => [
-                ['label' => 'Bandeja de Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*', 'mensajes.*', 'servicios.mensaje']],
+                ['label' => 'Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*', 'mensajes.*', 'servicios.mensaje']],
                 ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
                 ['label' => 'Categorías', 'icon' => 'fa-layer-group', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
             ],

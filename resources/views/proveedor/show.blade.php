@@ -366,7 +366,7 @@
                             </footer>
                         </article>
                     @empty
-                        <p class="msg-thread__empty">Todavía no hay mensajes. Se escribe al proveedor desde cada servicio en la Bandeja de Reservas.</p>
+                        <p class="msg-thread__empty">Todavía no hay mensajes. Se escribe al proveedor desde cada servicio en Reservas.</p>
                     @endforelse
                 </div>
 

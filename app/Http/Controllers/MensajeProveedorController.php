@@ -7,6 +7,7 @@ use App\Models\Proveedor;
 use App\Models\Servicio;
 use App\Support\CorreoReservas;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 /** Mensajería de Reservas con los proveedores: bandeja, redacción por servicio y respuestas registradas. */
@@ -46,26 +47,83 @@ class MensajeProveedorController extends Controller
 
         $datos = $request->validate([
             'tipo' => ['required', Rule::in(array_keys(CorreoReservas::PLANTILLAS))],
-            'para' => 'required|email:rfc|max:255',
+            'para' => 'required|string|max:500',
+            'cc' => 'nullable|string|max:500',
             'asunto' => 'required|string|max:255',
             'cuerpo' => 'required|string|max:10000',
             'con_orden' => 'nullable|boolean',
+            'archivo_adjunto' => 'nullable|file|max:20480',
         ], [
-            'para.required' => 'Indica el correo del proveedor.',
-            'para.email' => 'El correo del proveedor no es válido.',
+            'para.required' => 'Indica al menos un correo de destinatario.',
             'asunto.required' => 'Escribe el asunto.',
             'cuerpo.required' => 'Escribe el mensaje.',
+            'archivo_adjunto.max' => 'El archivo adjunto no puede superar los 20 MB.',
         ]);
 
+        // Procesar destinatarios principales
+        $paraList = array_values(array_filter(array_map('trim', preg_split('/[,;]+/', $datos['para']))));
+        if (empty($paraList)) {
+            return back()->withInput()->withErrors(['para' => 'Indica al menos un correo válido.']);
+        }
+        foreach ($paraList as $email) {
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                return back()->withInput()->withErrors(['para' => "El correo destinatario «{$email}» no tiene un formato válido."]);
+            }
+        }
+
+        // Procesar destinatarios en copia (CC)
+        $ccList = [];
+        if (! empty($datos['cc'])) {
+            $ccList = array_values(array_filter(array_map('trim', preg_split('/[,;]+/', $datos['cc']))));
+            foreach ($ccList as $email) {
+                if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    return back()->withInput()->withErrors(['cc' => "El correo en copia «{$email}» no tiene un formato válido."]);
+                }
+            }
+        }
+
+        // Procesar archivo adjunto desde PC
+        $archivoInfo = null;
+        if ($request->hasFile('archivo_adjunto') && $request->file('archivo_adjunto')->isValid()) {
+            $file = $request->file('archivo_adjunto');
+            $originalName = $file->getClientOriginalName();
+            $path = $file->store('mensajes_adjuntos', 'local');
+            $archivoInfo = [
+                'nombre' => $originalName,
+                'ruta' => $path,
+                'full_path' => storage_path('app/' . $path),
+            ];
+        }
+
         $mensaje = CorreoReservas::enviar(
-            $servicio, $datos['tipo'], trim($datos['para']), $datos['asunto'], $datos['cuerpo'], $request->boolean('con_orden'), $request->user(),
+            servicio: $servicio,
+            tipo: $datos['tipo'],
+            para: implode(', ', $paraList),
+            asunto: $datos['asunto'],
+            cuerpo: $datos['cuerpo'],
+            conOrden: $request->boolean('con_orden'),
+            usuario: $request->user(),
+            cc: $ccList ? implode(', ', $ccList) : null,
+            archivoInfo: $archivoInfo,
         );
 
         if ($mensaje->fallido) {
             return back()->withInput()->with('error', 'No se pudo enviar el correo: el mensaje quedó guardado como no enviado. Revisa la configuración de reservas@ o inténtalo de nuevo.');
         }
 
-        return redirect()->route('servicios.mensaje', $servicio)->with('success', MensajeProveedor::TIPOS[$datos['tipo']] . " enviada a {$datos['para']}.");
+        return redirect()->route('servicios.mensaje', $servicio)->with('success', MensajeProveedor::TIPOS[$datos['tipo']] . ' enviado exitosamente.');
+    }
+
+    public function descargarAdjunto(MensajeProveedor $mensaje)
+    {
+        if (! $mensaje->adjunto_ruta || ! Storage::disk('local')->exists($mensaje->adjunto_ruta)) {
+            abort(404, 'El archivo adjunto no existe o fue removido.');
+        }
+
+        return Storage::disk('local')->download(
+            $mensaje->adjunto_ruta,
+            $mensaje->adjunto_nombre ?: basename($mensaje->adjunto_ruta)
+        );
     }
 
     public function respuesta(Request $request, Servicio $servicio)

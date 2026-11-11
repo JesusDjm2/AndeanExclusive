@@ -129,6 +129,7 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::get('servicios/{servicio}/mensaje', [MensajeProveedorController::class, 'crear'])->name('servicios.mensaje');
         Route::post('servicios/{servicio}/mensaje', [MensajeProveedorController::class, 'enviar'])->name('servicios.mensaje.enviar');
         Route::post('servicios/{servicio}/respuesta', [MensajeProveedorController::class, 'respuesta'])->name('servicios.mensaje.respuesta');
+        Route::get('mensajes-proveedores/{mensaje}/adjunto', [MensajeProveedorController::class, 'descargarAdjunto'])->name('mensajes.adjunto');
         Route::get('programas/por-periodo', [ProgramaController::class, 'porPeriodo'])->name('programas.por-periodo');
         Route::get('programas/{programa}/pdf', [ProgramaController::class, 'exportPdf'])->name('programas.pdf');
         Route::get('programas/{programa}/historial', [ProgramaController::class, 'historial'])->name('programas.historial');
