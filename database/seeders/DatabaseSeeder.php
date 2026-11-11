@@ -18,9 +18,11 @@ class DatabaseSeeder extends Seeder
             AnioSeeder::class,
             PeruProveedoresHotelesSeeder::class,
             TarifarioAracari2027Seeder::class,
+            TarifaSeeder::class,
             AgenteSeeder::class,
             ProgramaSeeder::class,
             ConsultaSeeder::class,
+            MensajeProveedorSeeder::class,
             AvisosSeeder::class,
             MovimientoSeeder::class,
         ]);

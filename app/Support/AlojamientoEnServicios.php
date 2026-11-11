@@ -52,11 +52,12 @@ class AlojamientoEnServicios
     private static function crear(HabitacionFecha $estadia): void
     {
         $importe = $estadia->reservado_cliente ? 0.0 : self::importe($estadia);
+        $proveedor = $estadia->habitacion?->proveedor ?? self::proveedorDe($estadia->habitacion?->hotel);
         $servicio = $estadia->programa->servicios()->create([
             'tipo' => 'alojamiento',
             'fecha' => $estadia->fecha_ingreso,
             'titulo' => self::titulo($estadia),
-            'proveedor_id' => self::proveedorDe($estadia->habitacion?->hotel)?->id,
+            'proveedor_id' => $proveedor?->id,
             'estado' => $estadia->reservado_cliente ? 'confirmado' : 'pendiente',
             'visible_cliente' => false,
             'costo_estimado' => $importe,
@@ -106,23 +107,23 @@ class AlojamientoEnServicios
         return "Alojamiento: {$estadia->habitacion?->hotel?->nombre} · {$estadia->etiqueta} · {$noches}{$notaCliente}";
     }
 
-    /** El hotel se paga como un proveedor más: la primera vez se crea su ficha de proveedor con sus mismos datos. */
-    public static function proveedorDe(?Hotel $hotel): ?Proveedor
+    /** El hotel se paga como un proveedor más. Retorna el proveedor directo o lo busca/crea. */
+    public static function proveedorDe(mixed $hotel): ?Proveedor
     {
         if (! $hotel) {
             return null;
         }
-        if ($hotel->proveedor) {
+        if ($hotel instanceof Proveedor) {
+            return $hotel;
+        }
+        if (isset($hotel->proveedor)) {
             return $hotel->proveedor;
         }
 
         $categoria = Categoria::firstOrCreate(['nombre' => 'Hoteles']);
-        $proveedor = Proveedor::firstOrCreate(['nombre' => $hotel->nombre], [
-            'categoria_id' => $categoria->id, 'ruc' => $hotel->ruc, 'direccion' => $hotel->direccion,
-            'telefono' => (string) $hotel->telefono, 'correo' => (string) $hotel->correo,
+        return Proveedor::firstOrCreate(['nombre' => $hotel->nombre], [
+            'categoria_id' => $categoria->id, 'ruc' => $hotel->ruc ?? null, 'direccion' => $hotel->direccion ?? null,
+            'telefono' => (string) ($hotel->telefono ?? ''), 'correo' => (string) ($hotel->correo ?? ''),
         ]);
-        $hotel->forceFill(['proveedor_id' => $proveedor->id])->saveQuietly();
-
-        return $proveedor;
     }
 }

@@ -205,9 +205,9 @@ class TarifaController extends Controller
         }
 
         if ($esHabitacion) {
-            $habitacion = Habitacion::with('hotel')->find($datos['habitacion_id']);
-            $hotelProvId = $habitacion?->hotel?->proveedor_id;
-            $nombreHotel = $habitacion?->hotel?->nombre ?? 'Hotel';
+            $habitacion = Habitacion::with('proveedor')->find($datos['habitacion_id']);
+            $hotelProvId = $habitacion?->proveedor_id;
+            $nombreHotel = $habitacion?->proveedor?->nombre ?? 'Hotel';
             $tipoHab = $habitacion?->tipo ?? 'Habitación';
 
             return array_merge($datos, [
@@ -225,7 +225,11 @@ class TarifaController extends Controller
     {
         return [
             'tarifa' => $tarifa,
-            'hoteles' => Hotel::with(['habitaciones' => fn ($q) => $q->orderBy('tipo')])->orderBy('nombre')->get(),
+            'hoteles' => Proveedor::whereHas('categoria', fn ($q) => $q->where('nombre', 'like', '%Hotel%'))
+                ->orWhereHas('habitaciones')
+                ->with(['habitaciones' => fn ($q) => $q->orderBy('tipo')])
+                ->orderBy('nombre')
+                ->get(),
             'proveedores' => Proveedor::orderBy('nombre')->get(['id', 'nombre']),
         ];
     }

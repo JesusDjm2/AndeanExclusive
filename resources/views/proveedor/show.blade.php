@@ -133,10 +133,10 @@
                         </div>
                         <div class="card-body p-3">
                             <div class="row g-3">
-                                @if ($proveedor->hotel?->img)
+                                @if ($proveedor->img)
                                     <div class="col-md-3">
                                         <div class="position-relative rounded overflow-hidden shadow-sm border" style="height: 160px;">
-                                            <img src="{{ asset($proveedor->hotel->img) }}" alt="{{ $proveedor->nombre }}"
+                                            <img src="{{ asset($proveedor->img) }}" alt="{{ $proveedor->nombre }}"
                                                 class="w-100 h-100" style="object-fit: cover; cursor: pointer;"
                                                 data-bs-toggle="modal" data-bs-target="#modalFotoPreview">
                                             <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white small px-2 py-1 text-center">
@@ -145,9 +145,9 @@
                                         </div>
                                     </div>
                                 @endif
-                                <div class="{{ $proveedor->hotel?->img ? 'col-md-9' : 'col-12' }}">
+                                <div class="{{ $proveedor->img ? 'col-md-9' : 'col-12' }}">
                                     @php
-                                        $habitaciones = $proveedor->hotel?->habitaciones ?? collect();
+                                        $habitaciones = $proveedor->habitaciones ?? collect();
                                     @endphp
                                     @if ($habitaciones->isEmpty())
                                         <div class="p-4 text-center text-muted bg-light rounded border">
@@ -424,7 +424,7 @@
 
                                 @if ($esHotel)
                                     @php
-                                        $habsHotel = $proveedor->hotel?->habitaciones ?? collect();
+                                        $habsHotel = $proveedor->habitaciones ?? collect();
                                     @endphp
                                     @if ($habsHotel->isNotEmpty())
                                         <div class="mb-2">
@@ -647,10 +647,10 @@
                                     <label for="hotel-foto-file" class="form-label fw-semibold small">Selecciona una imagen (JPG, PNG o WebP, máx 5MB):</label>
                                     <input type="file" id="hotel-foto-file" name="img" accept=".jpg,.jpeg,.png,.webp" required class="form-control">
                                 </div>
-                                @if ($proveedor->hotel?->img)
+                                @if ($proveedor->img)
                                     <div class="text-center p-2 bg-light rounded border">
                                         <small class="text-muted d-block mb-2">Foto actual:</small>
-                                        <img src="{{ asset($proveedor->hotel->img) }}" alt="Foto actual" class="img-thumbnail" style="max-height: 120px;">
+                                        <img src="{{ asset($proveedor->img) }}" alt="Foto actual" class="img-thumbnail" style="max-height: 120px;">
                                     </div>
                                 @endif
                             </div>
@@ -665,7 +665,7 @@
                 </div>
             </div>
 
-            @if ($proveedor->hotel?->img)
+            @if ($proveedor->img)
                 {{-- Modal Preview de la Foto --}}
                 <div class="modal fade" id="modalFotoPreview" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -675,7 +675,7 @@
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                             </div>
                             <div class="modal-body text-center p-3">
-                                <img src="{{ asset($proveedor->hotel->img) }}" alt="{{ $proveedor->nombre }}" class="img-fluid rounded">
+                                <img src="{{ asset($proveedor->img) }}" alt="{{ $proveedor->nombre }}" class="img-fluid rounded">
                             </div>
                         </div>
                     </div>

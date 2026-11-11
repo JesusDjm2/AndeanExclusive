@@ -193,7 +193,11 @@ class ProgramaController extends Controller
             'agentes' => Agente::orderBy('nombre')->get(),
             'proveedoresPorCategoria' => Proveedor::with('categoria')->orderBy('nombre')->get(['id', 'nombre', 'categoria_id', 'telefono'])
                 ->groupBy(fn ($proveedor) => $proveedor->categoria->nombre ?? 'Sin categoría')->sortKeys(),
-            'hoteles' => Hotel::with(['habitaciones' => fn ($q) => $q->orderBy('tipo')])->orderBy('nombre')->get(),
+            'hoteles' => Proveedor::whereHas('categoria', fn ($q) => $q->where('nombre', 'like', '%Hotel%'))
+                ->orWhereHas('habitaciones')
+                ->with(['habitaciones' => fn ($q) => $q->orderBy('tipo')])
+                ->orderBy('nombre')
+                ->get(),
             'estados' => Programa::ESTADOS,
             'clientes' => Cliente::orderBy('nombre')->get(['id', 'nombre', 'empresa', 'email']),
             'siguienteCodigo' => Programa::siguienteCodigo(),

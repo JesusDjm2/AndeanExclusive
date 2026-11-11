@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Habitacion;
-use App\Models\Hotel;
 use App\Models\Proveedor;
 use App\Models\Tarifa;
 use Illuminate\Database\Seeder;
@@ -70,18 +69,18 @@ class TarifaSeeder extends Seeder
         ];
 
         foreach ($tarifasHabitaciones as $th) {
-            $hotel = Hotel::where('nombre', $th['hotel'])->first();
+            $hotel = Proveedor::where('nombre', $th['hotel'])->first();
             if (! $hotel) {
                 continue;
             }
-            $hab = Habitacion::where('hotel_id', $hotel->id)->where('tipo', $th['hab'])->first();
+            $hab = Habitacion::where('proveedor_id', $hotel->id)->where('tipo', $th['hab'])->first();
             if (! $hab) {
                 continue;
             }
 
             Tarifa::create([
                 'habitacion_id' => $hab->id,
-                'proveedor_id' => $hotel->proveedor_id,
+                'proveedor_id' => $hotel->id,
                 'concepto' => "Alojamiento: {$hotel->nombre} · {$hab->tipo}",
                 'desde' => $desde,
                 'hasta' => $hasta,

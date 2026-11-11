@@ -2,33 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Hotel extends Model
+/**
+ * @deprecated Los hoteles ahora se gestionan directamente como Proveedor con categoría "Hoteles".
+ * Esta clase se mantiene como alias de compatibilidad para evitar roturas en referencias legadas.
+ */
+class Hotel extends Proveedor
 {
-    use \App\Models\Concerns\RegistraMovimientos;
-
-    protected $fillable = [
-        'nombre',
-        'ruc',
-        'direccion',
-        'telefono',
-        'correo',
-        'img',
-        'detalles',
-    ];
-
-    public function proveedor()
-    {
-        return $this->belongsTo(Proveedor::class);
-    }
-
-    public function programas()
-    {
-        return $this->belongsToMany(Programa::class, 'hotel_programa');
-    }
-    public function habitaciones()
-    {
-        return $this->hasMany(Habitacion::class);
-    }
+    protected $table = 'proveedors';
 }

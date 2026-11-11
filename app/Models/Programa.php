@@ -368,10 +368,10 @@ public function paxs()
         $this->loadMissing('habitacionesFechas.habitacion.hotel');
 
         return $this->habitacionesFechas
-            ->filter(fn (HabitacionFecha $e) => $e->habitacion?->hotel)
+            ->filter(fn (HabitacionFecha $e) => $e->habitacion?->proveedor ?? $e->habitacion?->hotel)
             ->sortBy(fn (HabitacionFecha $e) => [$e->fecha_ingreso === null, (string) $e->fecha_ingreso, $e->id])
-            ->groupBy(fn (HabitacionFecha $e) => $e->habitacion->hotel_id)
-            ->map(fn ($estadias) => ['hotel' => $estadias->first()->habitacion->hotel, 'estadias' => $estadias->values()]);
+            ->groupBy(fn (HabitacionFecha $e) => $e->habitacion?->proveedor_id ?? $e->habitacion?->hotel_id)
+            ->map(fn ($estadias) => ['hotel' => $estadias->first()->habitacion?->proveedor ?? $estadias->first()->habitacion?->hotel, 'estadias' => $estadias->values()]);
     }
 
     public function anio()
@@ -563,7 +563,7 @@ public function paxs()
             // Noche del día: las estadías cuyo ingreso es ese día o antes y la salida es posterior (un grupo puede dividirse en dos hoteles).
             $hoteles = $this->habitacionesFechas
                 ->filter(fn ($hf) => $hf->fecha_ingreso && $hf->fecha_salida && $hf->fecha_ingreso <= $clave && $hf->fecha_salida > $clave)
-                ->map(fn ($hf) => $hf->habitacion?->hotel?->nombre)->filter()->unique();
+                ->map(fn ($hf) => $hf->habitacion?->proveedor?->nombre ?? $hf->habitacion?->hotel?->nombre)->filter()->unique();
             $registroDia = $diasPorFecha->get($clave);
             $dias->push([
                 'numero' => $n,

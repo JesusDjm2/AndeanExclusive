@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Categoria;
 use App\Models\Habitacion;
-use App\Models\Hotel;
 use App\Models\Proveedor;
 use Illuminate\Database\Seeder;
 
@@ -544,16 +543,15 @@ class PeruProveedoresHotelesSeeder extends Seeder
             ],
         ];
 
-        // Limpiar hoteles y proveedores demo anteriores
-        Hotel::where('nombre', 'like', 'DEMO%')->orWhere('nombre', 'like', '%demo%')->delete();
+        // Limpiar proveedores demo anteriores
         Proveedor::where('nombre', 'like', 'DEMO%')->delete();
 
         foreach ($hotelesData as $hd) {
             $habitaciones = $hd['habitaciones'];
             unset($hd['habitaciones']);
 
-            // Crear o vincular su ficha de proveedor
-            $proveedorHotel = Proveedor::firstOrCreate(
+            // Crear o vincular su ficha de proveedor (que es el hotel centralizado)
+            $proveedorHotel = Proveedor::updateOrCreate(
                 ['nombre' => $hd['nombre']],
                 [
                     'categoria_id' => $categorias['hoteles']->id,
@@ -562,17 +560,13 @@ class PeruProveedoresHotelesSeeder extends Seeder
                     'telefono' => $hd['telefono'],
                     'correo' => $hd['correo'],
                     'detalles' => $hd['detalles'],
+                    'img' => $hd['img'] ?? null,
                 ]
-            );
-
-            $hotel = Hotel::updateOrCreate(
-                ['nombre' => $hd['nombre']],
-                array_merge($hd, ['proveedor_id' => $proveedorHotel->id])
             );
 
             foreach ($habitaciones as $hab) {
                 Habitacion::firstOrCreate(
-                    ['hotel_id' => $hotel->id, 'tipo' => $hab['tipo']],
+                    ['proveedor_id' => $proveedorHotel->id, 'tipo' => $hab['tipo']],
                     ['capacidad' => $hab['capacidad']]
                 );
             }

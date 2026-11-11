@@ -16,22 +16,35 @@ class Proveedor extends Model
         'ruc' => ['nullable', 'regex:/^\d{1,11}$/'],
     ];
 
-    protected $fillable = ['nombre', 'categoria_id', 'direccion', 'ruc',  'telefono', 'correo', 'detalles'];
+    protected $fillable = ['nombre', 'categoria_id', 'direccion', 'ruc', 'telefono', 'correo', 'detalles', 'img'];
 
     public function categoria()
     {
         return $this->belongsTo(Categoria::class);
     }
 
+    public function habitaciones()
+    {
+        return $this->hasMany(Habitacion::class, 'proveedor_id');
+    }
+
+    /**
+     * Alias de compatibilidad hacia sí mismo para vistas o métodos legados que referencian $proveedor->hotel.
+     */
     public function hotel()
     {
-        return $this->hasOne(Hotel::class);
+        return $this->hasOne(Proveedor::class, 'id', 'id');
+    }
+
+    public function getHotelAttribute()
+    {
+        return $this;
     }
 
     public function getEsHotelAttribute(): bool
     {
         return str_contains(mb_strtolower($this->categoria?->nombre ?? ''), 'hotel')
-            || $this->hotel()->exists();
+            || $this->habitaciones()->exists();
     }
 
     public function programas()

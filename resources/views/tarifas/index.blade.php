@@ -107,8 +107,8 @@
                                     {{ $tarifa->de_quien }}
                                     @if ($tarifa->proveedor_id)
                                         <a href="{{ route('proveedors.show', $tarifa->proveedor_id) }}" class="ms-1 text-primary small" title="Ver ficha del proveedor"><i class="fas fa-external-link-alt"></i></a>
-                                    @elseif ($tarifa->habitacion?->hotel_id)
-                                        <a href="{{ route('hotel.show', $tarifa->habitacion->hotel_id) }}" class="ms-1 text-primary small" title="Ver ficha del hotel"><i class="fas fa-external-link-alt"></i></a>
+                                    @elseif ($tarifa->habitacion?->proveedor_id)
+                                        <a href="{{ route('proveedors.show', $tarifa->habitacion->proveedor_id) }}" class="ms-1 text-primary small" title="Ver ficha del hotel"><i class="fas fa-external-link-alt"></i></a>
                                     @endif
                                 </td>
                                 <td>

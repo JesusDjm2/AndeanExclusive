@@ -177,10 +177,10 @@
                                     <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
                                         {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
                                     </span>
-                                    @if ($proveedor->hotel && $proveedor->hotel->habitaciones->isNotEmpty())
+                                    @if ($proveedor->habitaciones->isNotEmpty())
                                         <div class="mt-1">
                                             <span class="badge rounded-pill" style="background: rgba(6, 182, 212, 0.12); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem;">
-                                                <i class="fas fa-bed me-1"></i> {{ $proveedor->hotel->habitaciones->count() }} habs.
+                                                <i class="fas fa-bed me-1"></i> {{ $proveedor->habitaciones->count() }} habs.
                                             </span>
                                         </div>
                                     @endif
@@ -296,10 +296,10 @@
                                             <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
                                                 {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
                                             </span>
-                                            @if ($proveedor->hotel && $proveedor->hotel->habitaciones->isNotEmpty())
+                                            @if ($proveedor->habitaciones->isNotEmpty())
                                                 <div class="mt-1">
                                                     <span class="badge rounded-pill" style="background: rgba(6, 182, 212, 0.12); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem;">
-                                                        <i class="fas fa-bed me-1"></i> {{ $proveedor->hotel->habitaciones->count() }} {{ $proveedor->hotel->habitaciones->count() === 1 ? 'hab.' : 'habs.' }}
+                                                        <i class="fas fa-bed me-1"></i> {{ $proveedor->habitaciones->count() }} {{ $proveedor->habitaciones->count() === 1 ? 'hab.' : 'habs.' }}
                                                     </span>
                                                 </div>
                                             @endif

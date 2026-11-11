@@ -8,7 +8,6 @@ use App\Models\Anio;
 use App\Models\Cliente;
 use App\Models\Habitacion;
 use App\Models\HabitacionFecha;
-use App\Models\Hotel;
 use App\Models\Mes;
 use App\Models\Notificacion;
 use App\Models\Pago;
@@ -59,8 +58,12 @@ class ProgramaSeeder extends Seeder
                 Servicio::whereIn('id', $serviciosIds)->delete();
             }
 
-            DB::table('hotel_programa')->whereIn('programa_id', $idsPrograma)->delete();
-            DB::table('habitacion_programa')->whereIn('programa_id', $idsPrograma)->delete();
+            if (\Illuminate\Support\Facades\Schema::hasTable('hotel_programa')) {
+                DB::table('hotel_programa')->whereIn('programa_id', $idsPrograma)->delete();
+            }
+            if (\Illuminate\Support\Facades\Schema::hasTable('habitacion_programa')) {
+                DB::table('habitacion_programa')->whereIn('programa_id', $idsPrograma)->delete();
+            }
             DB::table('agente_programa')->whereIn('programa_id', $idsPrograma)->delete();
             Programa::withoutGlobalScope('sin_plantillas')->delete();
             DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -79,7 +82,7 @@ class ProgramaSeeder extends Seeder
         $usuarioAdmin = \App\Models\User::first();
 
         $proveedores = Proveedor::all()->keyBy('nombre');
-        $hoteles = Hotel::with('habitaciones')->get()->keyBy('nombre');
+        $hoteles = Proveedor::with('habitaciones')->get()->keyBy('nombre');
         $tarifarios = TarifarioServicio::all()->keyBy('codigo');
 
         $hoy = Carbon::today();
@@ -120,8 +123,9 @@ class ProgramaSeeder extends Seeder
                 ],
                 'hoteles' => ['Belmond Hotel Monasterio', 'Belmond Sanctuary Lodge'],
                 'habitaciones' => [
-                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 4, 'costo_noche' => 650.00],
+                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 2, 'costo_noche' => 650.00],
                     ['hotel' => 'Belmond Sanctuary Lodge', 'tipo' => 'Mountain View Deluxe Room', 'noches' => 2, 'costo_noche' => 1650.00],
+                    ['hotel' => 'Belmond Hotel Monasterio', 'tipo' => 'Deluxe King con Oxígeno Enriquecido', 'noches' => 3, 'costo_noche' => 650.00],
                 ],
                 'paxes' => [
                     [
@@ -167,10 +171,10 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 2, 'hora' => '08:30', 'codigo' => 'FDAWA', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'CF-TRANS-1002', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '09:30', 'codigo' => 'BTG', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'confirmacion' => 'CF-TKT-3003', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '13:00', 'codigo' => 'ALM-CHUNCHO', 'prov' => 'Hacienda Huayoccari Restaurant & Private Museum', 'confirmacion' => 'CF-REST-3002', 'estado' => 'confirmado'],
-                    ['dia' => 3, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-98124', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '09:05', 'codigo' => 'TREN-HB-POROY-MAPI', 'prov' => 'PeruRail S.A.', 'confirmacion' => 'TK-HB-98124', 'estado' => 'confirmado'],
                     ['dia' => 3, 'hora' => '13:30', 'codigo' => 'VIAT-MAPI', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'TK-REST-501', 'estado' => 'confirmado'],
                     ['dia' => 4, 'hora' => '06:30', 'codigo' => 'BUS-CONSETTUR-RT', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'TK-BUS-849102', 'estado' => 'confirmado'],
-                    ['dia' => 4, 'hora' => '17:50', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Machu Picchu → Poroy (Cena)', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-HB-98125', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '17:50', 'codigo' => 'TREN-HB-MAPI-POROY', 'prov' => 'PeruRail S.A.', 'confirmacion' => 'TK-HB-98125', 'estado' => 'confirmado'],
                     ['dia' => 7, 'hora' => '13:00', 'codigo' => 'APTHTL', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'CF-TRANS-1003', 'estado' => 'confirmado'],
                 ],
                 'pagos' => [
@@ -179,14 +183,14 @@ class ProgramaSeeder extends Seeder
                 ],
             ],
 
-            // 2. EN CURSO HOY (Día 2 de viaje - Familia Suiza en Tambo del Inka) - 3 Pax
+            // 2. INICIA HOY (Día 0 de viaje - Familia Suiza en Tambo del Inka) - 3 Pax
             [
                 'codigo' => 'AET-2026-0102',
                 'nombre' => 'Imperio Incaico de Lujo: Cusco, Valle Sagrado & Machu Picchu 6D/5N',
                 'estado' => 'confirmado',
                 'plantilla' => false,
-                'inicio' => $hoy->copy()->subDay()->toDateString(),
-                'fin' => $hoy->copy()->addDays(4)->toDateString(),
+                'inicio' => $hoy->toDateString(),
+                'fin' => $hoy->copy()->addDays(5)->toDateString(),
                 'lang' => 'en',
                 'precioAdulto' => '4200.00',
                 'precioChild' => '0.00',
@@ -194,10 +198,10 @@ class ProgramaSeeder extends Seeder
                 'tipo_cambio' => '3.750',
                 'suplemento_individual' => '0.00',
                 'habitaciones_individuales' => 0,
-                'llegada_vuelo' => 'LA2015',
-                'llegada_at' => $hoy->copy()->subDay()->setTime(11, 20),
-                'salida_vuelo' => 'LA2038',
-                'salida_at' => $hoy->copy()->addDays(4)->setTime(15, 45),
+                'llegada_vuelo' => 'LA2015 (LATAM)',
+                'llegada_at' => $hoy->copy()->setTime(10, 45),
+                'salida_vuelo' => 'LA2038 (LATAM)',
+                'salida_at' => $hoy->copy()->addDays(5)->setTime(16, 30),
                 'cliente' => [
                     'tipo' => 'directo',
                     'nombre' => 'Charles Dupont',
@@ -232,9 +236,11 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 1, 'hora' => '09:00', 'codigo' => 'FDCHIM', 'prov' => 'Sacred Valley Private Drivers', 'confirmacion' => 'CF-TR-202', 'estado' => 'confirmado'],
                     ['dia' => 1, 'hora' => '09:30', 'codigo' => 'BTP', 'prov' => 'Dirección Desconcentrada de Cultura de Cusco (DDC)', 'confirmacion' => 'CF-TKT-202', 'estado' => 'confirmado'],
                     ['dia' => 1, 'hora' => '13:00', 'codigo' => 'ALM-URUBAMBA', 'prov' => 'Hacienda Huayoccari Restaurant & Private Museum', 'confirmacion' => 'CF-REST-202', 'estado' => 'confirmado'],
-                    ['dia' => 2, 'hora' => '06:50', 'tipo' => 'tren', 'titulo' => 'Tren Vistadome Observatory Urubamba → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 185.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => 'TK-VO-55102', 'estado' => 'confirmado'],
+                    ['dia' => 1, 'hora' => '15:30', 'codigo' => 'TRK-VALLE-LARES', 'prov' => 'Lic. Mateo Yupanqui Escalante (Guía Alta Montaña & Trekking)', 'confirmacion' => null, 'estado' => 'cancelado'],
+                    ['dia' => 2, 'hora' => '06:50', 'codigo' => 'TREN-VISTADOME-OBS', 'prov' => 'PeruRail S.A.', 'confirmacion' => 'TK-VO-55102', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '09:30', 'codigo' => 'BUS-CONSETTUR-RT', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'BUS-CON-4819', 'estado' => 'confirmado'],
                     ['dia' => 3, 'hora' => '09:00', 'codigo' => 'FDOLLM', 'prov' => 'Sacred Valley Private Drivers', 'confirmacion' => 'CF-TR-203', 'estado' => 'confirmado'],
+                    ['dia' => 3, 'hora' => '16:00', 'codigo' => 'OTR-CONCIERGE-VIP', 'estado' => 'sin_asignar'],
                     ['dia' => 4, 'hora' => '09:00', 'codigo' => 'HINARC', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'confirmacion' => 'CF-GU-203', 'estado' => 'confirmado'],
                     ['dia' => 5, 'hora' => '13:00', 'codigo' => 'APTHTL', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'CF-TR-204', 'estado' => 'confirmado'],
                 ],
@@ -291,8 +297,10 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 0, 'hora' => '10:30', 'codigo' => 'APTHTL', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'CF-TR-301', 'estado' => 'confirmado'],
                     ['dia' => 1, 'hora' => '09:00', 'codigo' => '4CUZCH', 'prov' => 'Perú Expert Cultural Guides S.A.C.', 'confirmacion' => 'CF-TOUR-302', 'estado' => 'confirmado'],
                     ['dia' => 2, 'hora' => '09:30', 'codigo' => 'CEREM-VALLE', 'prov' => 'Perú Expert Cultural Guides S.A.C.', 'confirmacion' => 'CF-CER-303', 'estado' => 'confirmado'],
+                    ['dia' => 2, 'hora' => '16:30', 'codigo' => 'CEREM-PACHAMAMA-SANCTUARY', 'prov' => 'Perú Expert Cultural Guides S.A.C.', 'confirmacion' => null, 'estado' => 'cancelado'],
                     ['dia' => 3, 'hora' => '08:00', 'codigo' => 'TREK-MARAS-MORAY', 'prov' => 'Sacred Valley Private Drivers', 'confirmacion' => 'CF-TRK-304', 'estado' => 'confirmado'],
                     ['dia' => 3, 'hora' => '13:00', 'codigo' => 'ALM-CUCHARA-PALO', 'prov' => 'Hacienda Huayoccari Restaurant & Private Museum', 'confirmacion' => 'CF-REST-305', 'estado' => 'confirmado'],
+                    ['dia' => 4, 'hora' => '16:00', 'codigo' => 'OTR-OXIGENO-PORTATIL', 'estado' => 'sin_asignar'],
                     ['dia' => 5, 'hora' => '12:00', 'codigo' => 'APTHTL', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => 'CF-TR-306', 'estado' => 'solicitado'],
                 ],
                 'pagos' => [
@@ -348,7 +356,7 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 1, 'hora' => '10:00', 'codigo' => 'CEREM-CUSCO', 'prov' => 'Perú Expert Cultural Guides S.A.C.', 'confirmacion' => null, 'estado' => 'solicitado', 'pago_solicitado' => true],
                     ['dia' => 2, 'hora' => '09:00', 'codigo' => 'HOUTSK', 'prov' => 'AGOTUR Cusco (Asociación de Guías Oficiales)', 'confirmacion' => null, 'estado' => 'solicitado'],
                     ['dia' => 2, 'hora' => '13:00', 'codigo' => 'ALM-CUCHARA-PALO', 'prov' => 'Chicha por Gastón Acurio - Cusco', 'confirmacion' => null, 'estado' => 'pendiente'],
-                    ['dia' => 3, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham Poroy → Machu Picchu', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'solicitado', 'pago_solicitado' => true],
+                    ['dia' => 3, 'hora' => '09:05', 'codigo' => 'TREN-HB-POROY-MAPI', 'prov' => 'PeruRail S.A.', 'confirmacion' => null, 'estado' => 'solicitado', 'pago_solicitado' => true],
                     ['dia' => 4, 'hora' => '06:30', 'codigo' => 'BUS-CONSETTUR-RT', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => null, 'estado' => 'pendiente'],
                     ['dia' => 4, 'hora' => '13:00', 'codigo' => 'VIAT-MAPI', 'prov' => 'VIP Executive Transports Cusco S.A.C.', 'confirmacion' => null, 'estado' => 'pendiente'],
                 ],
@@ -701,7 +709,7 @@ class ProgramaSeeder extends Seeder
                     ['dia' => 2, 'hora' => '08:30', 'codigo' => 'FDAWA', 'estado' => 'pendiente'],
                     ['dia' => 2, 'hora' => '09:30', 'codigo' => 'BTG', 'estado' => 'pendiente'],
                     ['dia' => 2, 'hora' => '13:00', 'codigo' => 'ALM-CHUNCHO', 'estado' => 'pendiente'],
-                    ['dia' => 3, 'hora' => '09:05', 'tipo' => 'tren', 'titulo' => 'Tren Belmond Hiram Bingham', 'prov' => 'PeruRail S.A.', 'costo' => 580.00, 'moneda' => 'USD', 'por' => 'persona', 'confirmacion' => null, 'estado' => 'pendiente'],
+                    ['dia' => 3, 'hora' => '09:05', 'codigo' => 'TREN-HB-POROY-MAPI', 'prov' => 'PeruRail S.A.', 'confirmacion' => null, 'estado' => 'pendiente'],
                     ['dia' => 4, 'hora' => '06:30', 'codigo' => 'BUS-CONSETTUR-RT', 'estado' => 'pendiente'],
                     ['dia' => 4, 'hora' => '17:00', 'codigo' => 'APTHTL', 'estado' => 'pendiente'],
                 ],
@@ -751,6 +759,43 @@ class ProgramaSeeder extends Seeder
                 ],
                 'pagos' => [],
             ],
+
+            // 13. COTIZACIÓN ABIERTA CON FECHAS POR DEFINIR (Pestaña "Sin fechas") - 2 Pax
+            [
+                'codigo' => 'AET-COT-OPEN27',
+                'nombre' => 'Gran Travesía Andina & Amazonía de Lujo (Fechas Abiertas 2027)',
+                'estado' => 'cotizacion',
+                'plantilla' => false,
+                'inicio' => null,
+                'fin' => null,
+                'lang' => 'en',
+                'precioAdulto' => '6200.00',
+                'precioChild' => '0.00',
+                'porcentaje_ganancia' => '22.00',
+                'tipo_cambio' => '3.750',
+                'suplemento_individual' => '800.00',
+                'habitaciones_individuales' => 0,
+                'cliente' => [
+                    'tipo' => 'directo',
+                    'nombre' => 'Baroness Evelyn Rothschild',
+                    'empresa' => 'Rothschild Heritage Foundation',
+                    'email' => 'evelyn.rothschild@rothschild-foundation.org.uk',
+                    'telefono' => '+44 20 7280 5000',
+                    'pais' => 'GB',
+                    'idioma' => 'en',
+                    'origen' => 'web',
+                    'notas' => 'Solicitud de propuesta de viaje exclusivo con fechas flexibles para primavera u otoño 2027. Todos los servicios calculados sobre la base oficial Aracari.',
+                ],
+                'hoteles' => ['Belmond Hotel Monasterio', 'Belmond Sanctuary Lodge'],
+                'habitaciones' => [],
+                'paxes' => [
+                    ['nombre' => 'Baroness Evelyn Rothschild', 'fecha_nacimiento' => '1958-04-18', 'sexo' => 'F', 'pais' => 'GB', 'pasaporte' => 'GB89201948', 'pasaporte_vencimiento' => '2030-05-12', 'dieta' => 'vegetariana'],
+                    ['nombre' => 'James Alexander Rothschild', 'fecha_nacimiento' => '1960-09-24', 'sexo' => 'M', 'pais' => 'GB', 'pasaporte' => 'GB89201949', 'pasaporte_vencimiento' => '2030-05-12', 'dieta' => 'ninguna'],
+                ],
+                'itinerario' => [],
+                'servicios' => [],
+                'pagos' => [],
+            ],
         ];
 
         // -------------------------------------------------------------
@@ -778,10 +823,10 @@ class ProgramaSeeder extends Seeder
                 $clienteId = $cliente->id;
             }
 
-            $inicio = Carbon::parse($def['inicio']);
-            $fin = Carbon::parse($def['fin']);
-            $anio = $anios->get($inicio->year) ?? Anio::firstOrCreate(['anio' => $inicio->year]);
-            $mes = $meses->get($inicio->month) ?? Mes::firstOrCreate(['numero' => $inicio->month], ['nombre' => $inicio->locale('es')->monthName]);
+            $inicio = ! empty($def['inicio']) ? Carbon::parse($def['inicio']) : null;
+            $fin = ! empty($def['fin']) ? Carbon::parse($def['fin']) : null;
+            $anio = $inicio ? ($anios->get($inicio->year) ?? Anio::firstOrCreate(['anio' => $inicio->year])) : null;
+            $mes = $inicio ? ($meses->get($inicio->month) ?? Mes::firstOrCreate(['numero' => $inicio->month], ['nombre' => $inicio->locale('es')->monthName])) : null;
 
             $cerrado = ! empty($def['cerrado']);
             $programa = Programa::withoutGlobalScope('sin_plantillas')->create([
@@ -790,8 +835,8 @@ class ProgramaSeeder extends Seeder
                 'estado' => $def['estado'],
                 'plantilla' => $def['plantilla'],
                 'cliente_id' => $clienteId,
-                'inicio' => $def['inicio'],
-                'fin' => $def['fin'],
+                'inicio' => $inicio?->toDateString(),
+                'fin' => $fin?->toDateString(),
                 'lang' => $def['lang'],
                 'precioAdulto' => $def['precioAdulto'],
                 'precioChild' => $def['precioChild'],
@@ -803,9 +848,9 @@ class ProgramaSeeder extends Seeder
                 'llegada_at' => $def['llegada_at'] ?? null,
                 'salida_vuelo' => $def['salida_vuelo'] ?? null,
                 'salida_at' => $def['salida_at'] ?? null,
-                'confirmado_at' => $def['estado'] === 'confirmado' ? $inicio->copy()->subDays(65) : null,
-                'itinerario_visto_at' => $def['estado'] === 'confirmado' ? $inicio->copy()->subDays(66) : null,
-                'cerrado_at' => $cerrado ? $fin->copy()->addDay() : null,
+                'confirmado_at' => ($def['estado'] === 'confirmado' && $inicio) ? $inicio->copy()->subDays(65) : null,
+                'itinerario_visto_at' => ($def['estado'] === 'confirmado' && $inicio) ? $inicio->copy()->subDays(66) : null,
+                'cerrado_at' => ($cerrado && $fin) ? $fin->copy()->addDay() : null,
                 'cerrado_por' => $cerrado ? $usuarioAdmin?->id : null,
                 'anio_id' => $anio?->id,
                 'mes_id' => $mes?->id,
@@ -817,20 +862,8 @@ class ProgramaSeeder extends Seeder
                 $programa->agentes()->syncWithoutDetaching([$agenteDefault->id]);
             }
 
-            // Asociar hoteles en tabla pivote
-            if (! empty($def['hoteles'])) {
-                foreach ($def['hoteles'] as $hNombre) {
-                    if (isset($hoteles[$hNombre])) {
-                        DB::table('hotel_programa')->insertOrIgnore([
-                            'hotel_id' => $hoteles[$hNombre]->id,
-                            'programa_id' => $programa->id,
-                        ]);
-                    }
-                }
-            }
-
             // Alojamiento y noches
-            if (! empty($def['habitaciones'])) {
+            if (! empty($def['habitaciones']) && $inicio) {
                 $diasOffset = 0;
                 foreach ($def['habitaciones'] as $habData) {
                     $hModel = $hoteles->get($habData['hotel']);
@@ -894,7 +927,7 @@ class ProgramaSeeder extends Seeder
             }
 
             // Días de itinerario
-            if (! empty($def['itinerario'])) {
+            if (! empty($def['itinerario']) && $inicio) {
                 foreach ($def['itinerario'] as $diaData) {
                     $fechaDia = $inicio->copy()->addDays($diaData['dia'])->toDateString();
                     $programa->dias()->create([
@@ -906,7 +939,7 @@ class ProgramaSeeder extends Seeder
             }
 
             // Servicios diarios basados en Tarifario Maestro
-            if (! empty($def['servicios'])) {
+            if (! empty($def['servicios']) && $inicio) {
                 $paxCount = max(1, count($def['paxes'] ?? []));
 
                 foreach ($def['servicios'] as $servData) {
@@ -920,7 +953,7 @@ class ProgramaSeeder extends Seeder
 
                     $tipo = $servData['tipo'] ?? ($ts ? match ($ts->categoria) {
                         'traslado' => 'traslado',
-                        'boleto' => 'entrada',
+                        'boleto' => str_starts_with($ts->codigo, 'TREN-') ? 'tren' : 'entrada',
                         'alimentacion' => 'comida',
                         'ceremonia', 'trek' => 'actividad',
                         default => 'tour',
@@ -1053,7 +1086,7 @@ class ProgramaSeeder extends Seeder
             }
 
             // Checklist de tareas operativas para programas confirmados
-            if ($programa->estado === 'confirmado' && ! $programa->plantilla) {
+            if ($programa->estado === 'confirmado' && ! $programa->plantilla && $inicio) {
                 $checklistDef = [
                     ['titulo' => 'Reconfirmar restricciones dietéticas y alergias con restaurantes', 'dias_antes' => 6, 'completada' => false],
                     ['titulo' => 'Enviar briefing final, vouchers y contacto de chofer al cliente', 'dias_antes' => 5, 'completada' => false],
@@ -1070,6 +1103,28 @@ class ProgramaSeeder extends Seeder
                         'fecha_limite' => $inicio->copy()->subDays($tData['dias_antes'])->toDateString(),
                         'completada_at' => $completada ? $inicio->copy()->subDays($tData['dias_antes'] + 1) : null,
                         'completada_por' => $completada ? $usuarioAdmin?->id : null,
+                    ]);
+                }
+            }
+
+            // Notificaciones registradas de comunicación con el cliente
+            if ($programa->cliente && ! $programa->plantilla) {
+                $refFecha = $inicio ?? $hoy;
+                $programa->notificaciones()->create([
+                    'tipo' => 'deposito',
+                    'email' => $programa->cliente->email,
+                    'automatica' => false,
+                    'enviada_por' => $usuarioAdmin?->id,
+                    'created_at' => $refFecha->copy()->subDays(60),
+                ]);
+
+                if ($programa->estado === 'confirmado') {
+                    $programa->notificaciones()->create([
+                        'tipo' => 'datos_pax',
+                        'email' => $programa->cliente->email,
+                        'automatica' => true,
+                        'enviada_por' => null,
+                        'created_at' => $refFecha->copy()->subDays(45),
                     ]);
                 }
             }

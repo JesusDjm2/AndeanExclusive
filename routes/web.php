@@ -17,7 +17,6 @@ use App\Http\Controllers\EstagController;
 use App\Http\Controllers\EsTourController;
 use App\Http\Controllers\HabitacionController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\HotelController;
 use App\Http\Controllers\MovimientoController;
 use App\Http\Controllers\ImagenController;
 use App\Http\Controllers\PagoController;
@@ -161,12 +160,18 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::get('paxs/{pax}/pasaporte', [PaxController::class, 'pasaporte'])->name('paxs.pasaporte');
         Route::resource('clientes', ClienteController::class)->except('show')->names('clientes');
         Route::resource('paxs', PaxController::class)->names('paxs');
-        Route::post('hoteles/rapido', [HotelController::class, 'rapido'])->name('hotel.rapido');
+        Route::post('hoteles/rapido', [ProveedorController::class, 'hotelRapido'])->name('hotel.rapido');
+        Route::get('hoteles/{id}', function ($id) {
+            return redirect()->route('proveedors.show', $id);
+        })->name('hotel.show');
         Route::get('hoteles', function () {
             $cat = \App\Models\Categoria::where('nombre', 'like', '%hotel%')->first();
             return redirect()->route('proveedors.index', $cat ? ['categoria_id' => $cat->id] : []);
         })->name('hotel.index');
-        Route::resource('hoteles', HotelController::class)->except(['index'])->names('hotel')->parameters(['hoteles' => 'hotel']);
+        Route::any('hoteles/{any}', function () {
+            $cat = \App\Models\Categoria::where('nombre', 'like', '%hotel%')->first();
+            return redirect()->route('proveedors.index', $cat ? ['categoria_id' => $cat->id] : []);
+        })->where('any', '.*');
         Route::resource('habitaciones', HabitacionController::class)->names('habitacion');
     });
 });

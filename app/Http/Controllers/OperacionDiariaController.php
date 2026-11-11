@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Hotel;
 use App\Models\Programa;
+use App\Models\Proveedor;
 use App\Models\Servicio;
 use App\Support\Pdf;
 use Illuminate\Http\Request;
@@ -17,14 +17,14 @@ class OperacionDiariaController extends Controller
     /** Lista de huéspedes para el hotel. Con ?hotel=ID, solo la de ese hotel. */
     public function rooming(Request $request, Programa $programa)
     {
-        $programa->load(['paxs', 'cliente', 'habitacionesFechas.habitacion.hotel']);
+        $programa->load(['paxs', 'cliente', 'habitacionesFechas.habitacion.proveedor']);
         $estadias = $programa->habitacionesFechas->whereNotNull('fecha_ingreso')
-            ->when($request->integer('hotel'), fn ($c, $hotel) => $c->filter(fn ($e) => $e->habitacion?->hotel_id === $hotel))
-            ->sortBy('fecha_ingreso')->groupBy(fn ($e) => $e->habitacion?->hotel_id);
+            ->when($request->integer('hotel'), fn ($c, $hotel) => $c->filter(fn ($e) => ($e->habitacion?->proveedor_id) === $hotel))
+            ->sortBy('fecha_ingreso')->groupBy(fn ($e) => $e->habitacion?->proveedor_id);
         abort_if($estadias->isEmpty(), 404);
 
         $html = View::make('programas.rooming', [
-            'programa' => $programa, 'hoteles' => Hotel::findMany($estadias->keys())->keyBy('id'), 'estadias' => $estadias,
+            'programa' => $programa, 'hoteles' => Proveedor::findMany($estadias->keys())->keyBy('id'), 'estadias' => $estadias,
             'pasaportes' => $request->user()->can('pasaportes.ver'),
         ])->render();
 

@@ -17,7 +17,7 @@ class ProveedorController extends Controller
         $q = trim((string) $request->input('q'));
 
         $proveedors = Proveedor::query()
-            ->with(['categoria', 'hotel.habitaciones'])
+            ->with(['categoria', 'habitaciones'])
             ->when($categoriaId, fn ($query) => $query->where('categoria_id', $categoriaId))
             ->when($q !== '', function ($query) use ($q) {
                 $wildcard = '%' . addcslashes($q, '%_\\') . '%';
@@ -60,7 +60,7 @@ class ProveedorController extends Controller
     {
         $proveedor = Proveedor::with([
             'categoria',
-            'hotel.habitaciones.tarifas',
+            'habitaciones.tarifas',
             'tarifas' => fn ($q) => $q->conPrioridadTemporada(),
         ])->findOrFail($id);
 
@@ -87,17 +87,6 @@ class ProveedorController extends Controller
         $proveedor->detalles = $request->get('detalles');
         $proveedor->save();
 
-        if ($proveedor->hotel) {
-            $proveedor->hotel->update([
-                'nombre' => $proveedor->nombre,
-                'ruc' => $proveedor->ruc,
-                'direccion' => $proveedor->direccion,
-                'telefono' => $proveedor->telefono,
-                'correo' => $proveedor->correo,
-                'detalles' => $proveedor->detalles,
-            ]);
-        }
-
         return redirect()->route('proveedors.index')
             ->with('success', 'Proveedor actualizado exitosamente.');
     }
@@ -112,7 +101,7 @@ class ProveedorController extends Controller
     }
 
     /**
-     * Registra una nueva habitación en el hotel asociado al proveedor.
+     * Registra una nueva habitación directamente en el hotel / proveedor.
      */
     public function habitacionStore(Request $request, Proveedor $proveedor)
     {
@@ -121,16 +110,7 @@ class ProveedorController extends Controller
             'capacidad' => 'required|integer|min:1|max:20',
         ]);
 
-        $hotel = $proveedor->hotel ?: Hotel::create([
-            'nombre' => $proveedor->nombre,
-            'proveedor_id' => $proveedor->id,
-            'ruc' => $proveedor->ruc,
-            'direccion' => $proveedor->direccion,
-            'telefono' => $proveedor->telefono,
-            'correo' => $proveedor->correo,
-        ]);
-
-        $habitacion = $hotel->habitaciones()->create([
+        $habitacion = $proveedor->habitaciones()->create([
             'tipo' => trim($data['tipo']),
             'capacidad' => (int) $data['capacidad'],
         ]);
@@ -156,7 +136,7 @@ class ProveedorController extends Controller
     }
 
     /**
-     * Actualiza la foto de portada del hotel.
+     * Actualiza la foto de portada del hotel / proveedor.
      */
     public function hotelFoto(Request $request, Proveedor $proveedor)
     {
@@ -164,23 +144,63 @@ class ProveedorController extends Controller
             'img' => 'required|' . SubidaImagenes::regla(),
         ], SubidaImagenes::mensajes(['img']));
 
-        $hotel = $proveedor->hotel ?: Hotel::create([
-            'nombre' => $proveedor->nombre,
-            'proveedor_id' => $proveedor->id,
-            'ruc' => $proveedor->ruc,
-            'direccion' => $proveedor->direccion,
-            'telefono' => $proveedor->telefono,
-            'correo' => $proveedor->correo,
-        ]);
-
-        if ($hotel->img && file_exists(public_path($hotel->img))) {
-            @unlink(public_path($hotel->img));
+        if ($proveedor->img && file_exists(public_path($proveedor->img))) {
+            @unlink(public_path($proveedor->img));
         }
 
         $nombre = SubidaImagenes::guardar($request->file('img'), 'img/programas/hoteles', uniqid() . '_');
-        $hotel->update(['img' => 'img/programas/hoteles/' . $nombre]);
+        $proveedor->update(['img' => 'img/programas/hoteles/' . $nombre]);
 
         return redirect()->route('proveedors.show', $proveedor->id)
             ->with('success', 'Foto de portada del hotel actualizada.');
+    }
+
+    /**
+     * Registro rápido de hotel y habitación inicial desde modal en programas.
+     */
+    public function hotelRapido(Request $request)
+    {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:255',
+            'direccion' => 'nullable|string|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'correo' => 'nullable|email|max:255',
+            'habitacion_tipo' => 'nullable|string|max:100',
+            'habitacion_capacidad' => 'nullable|integer|min:1|max:20',
+        ]);
+
+        $categoriaHotel = Categoria::firstOrCreate(['nombre' => 'Hoteles']);
+        $proveedor = Proveedor::firstOrCreate(
+            ['nombre' => trim($data['nombre'])],
+            [
+                'categoria_id' => $categoriaHotel->id,
+                'direccion' => $data['direccion'] ?? null,
+                'telefono' => $data['telefono'] ?? '',
+                'correo' => $data['correo'] ?? 'reservas@' . \Illuminate\Support\Str::slug($data['nombre']) . '.com',
+            ]
+        );
+
+        $tipo = trim($data['habitacion_tipo'] ?? '') ?: 'Estándar / Doble';
+        $capacidad = (int) ($data['habitacion_capacidad'] ?? 2) ?: 2;
+
+        $habitacion = $proveedor->habitaciones()->firstOrCreate([
+            'tipo' => $tipo,
+        ], [
+            'capacidad' => $capacidad,
+        ]);
+
+        return response()->json([
+            'ok' => true,
+            'hotel' => [
+                'id' => $proveedor->id,
+                'nombre' => $proveedor->nombre,
+            ],
+            'habitacion' => [
+                'id' => $habitacion->id,
+                'tipo' => $habitacion->tipo,
+                'capacidad' => $habitacion->capacidad,
+                'texto' => "{$proveedor->nombre} · {$habitacion->tipo} ({$habitacion->capacidad} " . ($habitacion->capacidad === 1 ? 'persona' : 'personas') . ")",
+            ],
+        ]);
     }
 }
