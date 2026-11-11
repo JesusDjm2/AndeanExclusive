@@ -38,13 +38,13 @@ class HomeController extends Controller
             'blogsEs' => Esblog::count(),
             'blogsMissingEs' => Enblog::doesntHave('esblog')->count(),
             'imagenes' => \App\Models\Imagen::count(),
-            'categoriasEn' => \App\Models\Category::count(),
-            'categoriasEs' => \App\Models\Categoria::count(),
+            'categoriasEn' => \App\Models\TourCategory::count(),
+            'categoriasEs' => \App\Models\EsCategoria::count(),
             'tagsEn' => \App\Models\Entag::count(),
             'tagsEs' => \App\Models\Estag::count(),
             'lastTour' => Tour::latest('updated_at')->first(['nombre', 'updated_at']),
             'lastBlog' => Enblog::latest('updated_at')->first(['nombre', 'updated_at']),
-            'lastImagen' => \App\Models\Imagen::latest('updated_at')->first(['nombre', 'updated_at']),
+            'lastImagen' => \App\Models\Imagen::latest('updated_at')->first(['img', 'updated_at']),
         ];
 
         // El rol branding está estrictamente limitado a la administración de contenidos públicos.

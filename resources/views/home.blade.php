@@ -238,7 +238,7 @@
                         </div>
                         @if ($content['lastImagen'])
                             <div class="small text-muted">
-                                <i class="far fa-clock me-1"></i> Última imagen: <strong>{{ $content['lastImagen']->nombre }}</strong> ({{ $content['lastImagen']->updated_at?->locale('es')->diffForHumans() }})
+                                <i class="far fa-clock me-1"></i> Última imagen: <strong>{{ basename($content['lastImagen']->img) }}</strong> ({{ $content['lastImagen']->updated_at?->locale('es')->diffForHumans() }})
                             </div>
                         @endif
                     </div>
