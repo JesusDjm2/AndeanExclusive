@@ -166,6 +166,41 @@
     font-weight: 600;
 }
 
+// ---- Chips, pastillas y controles segmentados activos (Global) ----
+.ae-chip,
+.ae-segmented-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--ae-ink-soft);
+    background: var(--ae-surface-2);
+    border: 1px solid var(--ae-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    user-select: none;
+
+    &:hover {
+        border-color: var(--ae-border-strong);
+        color: var(--ae-ink);
+    }
+
+    &.is-active,
+    &:has(input:checked) {
+        background-color: var(--ae-active-bg) !important;
+        border-color: var(--ae-active-border) !important;
+        color: var(--ae-active-color) !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+
+        i, strong, span, small {
+            color: inherit !important;
+        }
+    }
+}
+
 // ---- Estado vacío -----------------------------------------------------------------
 
 .admin-empty {

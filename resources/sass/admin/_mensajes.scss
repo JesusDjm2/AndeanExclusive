@@ -103,13 +103,17 @@
     }
 
     &.is-active {
-        color: var(--ae-surface);
-        background: var(--ae-ink);
+        color: var(--ae-active-color) !important;
+        background: var(--ae-active-bg) !important;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 
+        i {
+            color: inherit !important;
+        }
+
         .msg-tab-pill {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
+            background: var(--ae-active-pill-bg) !important;
+            color: var(--ae-active-color) !important;
         }
     }
 }
@@ -189,10 +193,14 @@
     }
 
     input:checked + span {
-        color: #ffffff;
-        background: var(--ae-ink);
-        border-color: var(--ae-ink);
+        color: var(--ae-active-color) !important;
+        background: var(--ae-active-bg) !important;
+        border-color: var(--ae-active-border) !important;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+        i, strong, span {
+            color: inherit !important;
+        }
     }
 
     &:hover span {
@@ -202,9 +210,13 @@
 
     &--danger {
         input:checked + span {
-            background: var(--ae-danger);
-            border-color: var(--ae-danger);
-            color: #ffffff;
+            background: var(--ae-danger) !important;
+            border-color: var(--ae-danger) !important;
+            color: #ffffff !important;
+
+            i, strong, span {
+                color: #ffffff !important;
+            }
         }
     }
 }
@@ -608,9 +620,10 @@
     }
 
     input:checked + &__content {
-        border-color: var(--ae-ink);
+        border-color: var(--ae-active-border);
         background: var(--ae-surface-2);
-        box-shadow: 0 0 0 2px var(--ae-ink);
+        box-shadow: 0 0 0 2px var(--ae-active-border);
+        color: var(--ae-ink);
     }
 
     // Variantes por resultado

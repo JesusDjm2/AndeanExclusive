@@ -52,6 +52,13 @@
     --ae-shadow-lg: 0 10px 25px -5px rgba(15, 23, 42, 0.07), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
     --ae-inverse: #{$color-ink};          // paneles oscuros destacados (presupuesto)
     --ae-inverse-border: transparent;
+
+    // Estados activos / seleccionados para chips, pastillas y segmented controls (Tema Claro)
+    --ae-active-bg: #0f172a;
+    --ae-active-color: #ffffff;
+    --ae-active-border: #0f172a;
+    --ae-active-pill-bg: rgba(255, 255, 255, 0.2);
+    --ae-active-pill-color: #ffffff;
 }
 
 @mixin ae-theme-dark {
@@ -93,6 +100,13 @@
     --ae-shadow-lg: 0 12px 34px rgba(0, 0, 0, 0.5);
     --ae-inverse: #020617;
     --ae-inverse-border: #2a384c;
+
+    // Estados activos / seleccionados para chips, pastillas y segmented controls (Tema Oscuro)
+    --ae-active-bg: #f8fafc;
+    --ae-active-color: #0f172a;
+    --ae-active-border: #f8fafc;
+    --ae-active-pill-bg: rgba(15, 23, 42, 0.14);
+    --ae-active-pill-color: #0f172a;
 }
 
 :root,
@@ -355,6 +369,34 @@
 
     // Editor CKEditor 4
     .cke { border-color: var(--ae-border) !important; border-radius: $border-radius; overflow: hidden; }
+
+    // Chips, radiogroups y pastillas activas en modo oscuro: garantiza alto contraste y legibilidad absoluta
+    [role="radiogroup"] {
+        input:checked + span,
+        input:checked + label {
+            background-color: var(--ae-active-bg) !important;
+            border-color: var(--ae-active-border) !important;
+            color: var(--ae-active-color) !important;
+
+            i, strong, span, em {
+                color: inherit !important;
+            }
+        }
+    }
+
+    // Pastillas y botones seleccionados generales
+    .nav-pills .nav-link.active,
+    .btn-group > .btn-check:checked + .btn,
+    .btn-check:checked + .btn-outline-dark,
+    .btn-check:checked + .btn-dark {
+        background-color: var(--ae-active-bg) !important;
+        border-color: var(--ae-active-border) !important;
+        color: var(--ae-active-color) !important;
+
+        i, strong, span {
+            color: inherit !important;
+        }
+    }
 
     // SweetAlert2 (Modales, Confirmaciones y Toasts de copiado) en MODO OSCURO
     .swal2-container {
