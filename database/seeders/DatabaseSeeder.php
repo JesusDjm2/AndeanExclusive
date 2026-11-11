@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
             MesSeeder::class,
             AnioSeeder::class,
             PeruProveedoresHotelesSeeder::class,
-            TarifaSeeder::class,
+            TarifarioAracari2027Seeder::class,
             AgenteSeeder::class,
             ProgramaSeeder::class,
             ConsultaSeeder::class,

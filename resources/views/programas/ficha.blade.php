@@ -8,6 +8,7 @@
 @php
     $canEdit = auth()->user()?->can('programas.gestionar');
     $verCotizacion = auth()->user()?->can('cotizacion.ver');
+    $canTareas = auth()->user()?->can('tareas.gestionar');
     $inicio = $programa->inicio ? \Carbon\Carbon::parse($programa->inicio) : null;
     $fin = $programa->fin ? \Carbon\Carbon::parse($programa->fin) : null;
     $duracion = $programa->duracionDias();
@@ -237,47 +238,65 @@
         </div>
     </div>
 
-    {{-- Navegación por Pestañas Ejecutivas --}}
-    <div class="card border-0 shadow-sm rounded-3 mb-4">
-        <div class="card-header bg-transparent border-bottom p-0">
-            <ul class="nav nav-tabs card-header-tabs m-0 px-3 border-0" id="fichaTab" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active py-3 px-3 fw-semibold" id="tab-itinerario-btn" data-bs-toggle="tab" data-bs-target="#tab-itinerario" type="button" role="tab">
-                        <i class="fas fa-route me-2 text-primary"></i> Itinerario & Servicios ({{ $programa->servicios->count() }})
+    {{-- Navegación por Pestañas Ejecutivas con Ayuda Visual Cromática --}}
+    <div class="card ficha-tabs-card mb-4">
+        <div class="ficha-tabs-header">
+            <ul class="nav ficha-nav-tabs" id="fichaTab" role="tablist">
+                <li class="nav-item ficha-nav-item" role="presentation">
+                    <button class="ficha-tab-btn tab-theme-itinerario active" id="tab-itinerario-btn" data-bs-toggle="tab" data-bs-target="#tab-itinerario" type="button" role="tab" aria-controls="tab-itinerario" aria-selected="true">
+                        <span class="ficha-tab-icon"><i class="fas fa-route"></i></span>
+                        <span class="ficha-tab-text">Itinerario & Servicios</span>
+                        <span class="ficha-tab-badge">{{ $programa->servicios->count() }}</span>
                     </button>
                 </li>
                 @if ($verCotizacion)
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link py-3 px-3 fw-semibold text-success" id="tab-costeo-excel-btn" data-bs-toggle="tab" data-bs-target="#tab-costeo-excel" type="button" role="tab">
-                            <i class="fas fa-file-excel me-2 text-success"></i> Hoja de Costeo & Cotizador
+                    <li class="nav-item ficha-nav-item" role="presentation">
+                        <button class="ficha-tab-btn tab-theme-costeo" id="tab-costeo-excel-btn" data-bs-toggle="tab" data-bs-target="#tab-costeo-excel" type="button" role="tab" aria-controls="tab-costeo-excel" aria-selected="false">
+                            <span class="ficha-tab-icon"><i class="fas fa-file-excel"></i></span>
+                            <span class="ficha-tab-text">Hoja de Costeo & Cotizador</span>
+                            <span class="ficha-tab-badge">Excel</span>
                         </button>
                     </li>
                 @endif
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-3 fw-semibold" id="tab-pasajeros-btn" data-bs-toggle="tab" data-bs-target="#tab-pasajeros" type="button" role="tab">
-                        <i class="fas fa-users me-2 text-primary"></i> Pasajeros & Rooming ({{ $programa->paxs->count() }})
+                <li class="nav-item ficha-nav-item" role="presentation">
+                    <button class="ficha-tab-btn tab-theme-pasajeros" id="tab-pasajeros-btn" data-bs-toggle="tab" data-bs-target="#tab-pasajeros" type="button" role="tab" aria-controls="tab-pasajeros" aria-selected="false">
+                        <span class="ficha-tab-icon"><i class="fas fa-user-friends"></i></span>
+                        <span class="ficha-tab-text">Pasajeros & Rooming</span>
+                        <span class="ficha-tab-badge">{{ $programa->paxs->count() }}</span>
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-3 fw-semibold" id="tab-logistica-btn" data-bs-toggle="tab" data-bs-target="#tab-logistica" type="button" role="tab">
-                        <i class="fas fa-plane-departure me-2 text-primary"></i> Vuelos & Hoteles
+                <li class="nav-item ficha-nav-item" role="presentation">
+                    <button class="ficha-tab-btn tab-theme-logistica" id="tab-logistica-btn" data-bs-toggle="tab" data-bs-target="#tab-logistica" type="button" role="tab" aria-controls="tab-logistica" aria-selected="false">
+                        <span class="ficha-tab-icon"><i class="fas fa-plane-departure"></i></span>
+                        <span class="ficha-tab-text">Vuelos & Hoteles</span>
+                        @if ($programa->tieneVuelos())
+                            <span class="ficha-tab-badge"><i class="fas fa-check"></i></span>
+                        @else
+                            <span class="ficha-tab-badge"><i class="fas fa-clock"></i></span>
+                        @endif
                     </button>
                 </li>
                 @if ($verCotizacion)
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link py-3 px-3 fw-semibold" id="tab-finanzas-btn" data-bs-toggle="tab" data-bs-target="#tab-finanzas" type="button" role="tab">
-                            <i class="fas fa-coins me-2 text-primary"></i> Pagos & Costos
+                    <li class="nav-item ficha-nav-item" role="presentation">
+                        <button class="ficha-tab-btn tab-theme-finanzas" id="tab-finanzas-btn" data-bs-toggle="tab" data-bs-target="#tab-finanzas" type="button" role="tab" aria-controls="tab-finanzas" aria-selected="false">
+                            <span class="ficha-tab-icon"><i class="fas fa-coins"></i></span>
+                            <span class="ficha-tab-text">Pagos & Costos</span>
+                            <span class="ficha-tab-badge">{{ $c['estado'] === 'pagado' ? '100%' : $c['porcentaje'] . '%' }}</span>
                         </button>
                     </li>
                 @endif
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-3 fw-semibold" id="tab-tareas-btn" data-bs-toggle="tab" data-bs-target="#tab-tareas" type="button" role="tab">
-                        <i class="fas fa-tasks me-2 text-primary"></i> Tareas ({{ $tareasResumen['total'] }})
+                <li class="nav-item ficha-nav-item" role="presentation">
+                    <button class="ficha-tab-btn tab-theme-tareas" id="tab-tareas-btn" data-bs-toggle="tab" data-bs-target="#tab-tareas" type="button" role="tab" aria-controls="tab-tareas" aria-selected="false">
+                        <span class="ficha-tab-icon"><i class="fas fa-clipboard-check"></i></span>
+                        <span class="ficha-tab-text">Tareas</span>
+                        <span class="ficha-tab-badge" data-tab-tareas-badge>{{ $tareasResumen['pendientes'] > 0 ? $tareasResumen['pendientes'] . ' pend.' : $tareasResumen['total'] }}</span>
                     </button>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link py-3 px-3 fw-semibold" id="tab-bitacora-btn" data-bs-toggle="tab" data-bs-target="#tab-bitacora" type="button" role="tab">
-                        <i class="fas fa-stream me-2 text-primary"></i> Bitácora & Historial ({{ $movimientos->count() }})
+                <li class="nav-item ficha-nav-item" role="presentation">
+                    <button class="ficha-tab-btn tab-theme-bitacora" id="tab-bitacora-btn" data-bs-toggle="tab" data-bs-target="#tab-bitacora" type="button" role="tab" aria-controls="tab-bitacora" aria-selected="false">
+                        <span class="ficha-tab-icon"><i class="fas fa-history"></i></span>
+                        <span class="ficha-tab-text">Bitácora & Historial</span>
+                        <span class="ficha-tab-badge">{{ $movimientos->count() }}</span>
                     </button>
                 </li>
             </ul>
@@ -1152,45 +1171,151 @@
 
                 {{-- TAB 5: Tareas Operativas --}}
                 <div class="tab-pane fade" id="tab-tareas" role="tabpanel">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h3 class="h6 fw-bold text-uppercase text-muted mb-0">Checklist Operativo del Grupo</h3>
-                        <span class="badge text-bg-light border">{{ $tareasResumen['pendientes'] }} pendientes de {{ $tareasResumen['total'] }}</span>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3 pb-2 border-bottom">
+                        <div>
+                            <h3 class="h6 fw-bold text-uppercase text-muted mb-1">
+                                <i class="fas fa-clipboard-check text-primary me-2"></i>Checklist Operativo del Grupo
+                            </h3>
+                            <p class="small text-muted mb-0">Control de hitos críticos con fecha límite (entradas, trenes, vuelos y confirmaciones).</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary-subtle text-secondary border px-3 py-2 fs-7" data-tareas-count-badge>
+                                {{ $tareasResumen['pendientes'] }} pendientes de {{ $tareasResumen['total'] }}
+                            </span>
+                            @if ($canTareas)
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#collapseNuevaTarea" aria-expanded="false" aria-controls="collapseNuevaTarea">
+                                    <i class="fas fa-plus me-1"></i> Nueva tarea
+                                </button>
+                            @endif
+                        </div>
                     </div>
 
-                    @if ($programa->tareas->isNotEmpty())
-                        <div class="list-group">
-                            @foreach ($programa->tareas as $tarea)
-                                <div class="list-group-item d-flex align-items-center justify-content-between py-3">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="text-{{ $tarea->completada_at ? 'success' : 'muted' }} fs-5">
-                                            <i class="fas fa-{{ $tarea->completada_at ? 'check-circle' : 'circle' }}"></i>
-                                        </span>
-                                        <div>
-                                            <div class="fw-semibold {{ $tarea->completada_at ? 'text-decoration-line-through text-muted' : 'text-dark' }}">
-                                                {{ $tarea->titulo }}
-                                            </div>
-                                            <small class="text-muted">
-                                                @if ($tarea->responsable)
-                                                    <i class="fas fa-user-check me-1"></i> {{ $tarea->responsable->name }} ·
-                                                @endif
-                                                @if ($tarea->fecha_limite)
-                                                    <i class="fas fa-calendar-day me-1"></i> Límite: {{ \Carbon\Carbon::parse($tarea->fecha_limite)->format('d/m/Y') }}
-                                                @endif
-                                            </small>
+                    @if ($canTareas)
+                        <div class="collapse mb-4" id="collapseNuevaTarea">
+                            <div class="card card-body bg-light-subtle border p-3 rounded-3">
+                                <form action="{{ route('programas.tareas.store', $programa) }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="volver" value="ficha">
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-12 col-md-5">
+                                            <label class="form-label small fw-semibold mb-1">Descripción de la tarea *</label>
+                                            <input type="text" name="titulo" class="form-control form-control-sm" placeholder="Ej. Reconfirmar guía bilingüe para Machu Picchu" required>
+                                        </div>
+                                        <div class="col-12 col-md-3">
+                                            <label class="form-label small fw-semibold mb-1">Fecha límite</label>
+                                            <input type="date" name="fecha_limite" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-12 col-md-2">
+                                            <label class="form-label small fw-semibold mb-1">Notas (opcional)</label>
+                                            <input type="text" name="notas" class="form-control form-control-sm" placeholder="Detalles extra">
+                                        </div>
+                                        <div class="col-12 col-md-2">
+                                            <button type="submit" class="btn btn-sm btn-primary w-100">
+                                                <i class="fas fa-save me-1"></i> Guardar
+                                            </button>
                                         </div>
                                     </div>
-                                    <div>
-                                        <span class="badge {{ $tarea->completada_at ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning-emphasis' }}">
-                                            {{ $tarea->completada_at ? 'Completada' : 'Pendiente' }}
-                                        </span>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if ($programa->tareas->isNotEmpty())
+                        <div class="tareas-checklist-wrapper">
+                            @foreach ($programa->tareas as $tarea)
+                                @php
+                                    $isHecha = (bool) $tarea->completada_at;
+                                    $situacion = $tarea->situacion();
+                                @endphp
+                                <div class="tarea-item {{ $isHecha ? 'is-completada' : '' }}" data-tarea-row="{{ $tarea->id }}">
+                                    <div class="d-flex align-items-center gap-3 flex-grow-1">
+                                        @if ($canTareas)
+                                            <form action="{{ route('programas.tareas.toggle', [$programa, $tarea]) }}" method="POST" class="m-0 d-inline">
+                                                @csrf
+                                                @method('PATCH')
+                                                <input type="hidden" name="volver" value="ficha">
+                                                <button type="button" 
+                                                    class="tarea-toggle-btn"
+                                                    data-tarea-toggle
+                                                    data-action="{{ route('programas.tareas.toggle', [$programa, $tarea]) }}"
+                                                    data-tarea-id="{{ $tarea->id }}"
+                                                    title="{{ $isHecha ? 'Clic para reabrir tarea' : 'Clic para marcar como completada' }}"
+                                                    aria-label="{{ $isHecha ? 'Reabrir tarea' : 'Marcar como completada' }}">
+                                                    <i class="{{ $isHecha ? 'fas fa-check-circle fs-4 text-success' : 'far fa-circle fs-4 text-muted' }}"></i>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="tarea-toggle-btn" title="Solo Operaciones, Reservas o Contabilidad pueden modificar tareas">
+                                                <i class="{{ $isHecha ? 'fas fa-check-circle fs-4 text-success' : 'far fa-circle fs-4 text-muted' }}"></i>
+                                            </span>
+                                        @endif
+
+                                        <div class="flex-grow-1">
+                                            <div class="tarea-title {{ $isHecha ? 'text-decoration-line-through text-muted' : '' }}">
+                                                {{ $tarea->titulo }}
+                                            </div>
+                                            <div class="tarea-meta">
+                                                @if ($isHecha)
+                                                    <span class="text-success small">
+                                                        <i class="fas fa-check-double me-1"></i>
+                                                        Hecha {{ $tarea->completada_at->locale('es')->isoFormat('D MMM') }}
+                                                        @if ($tarea->completadaPor) por <strong>{{ $tarea->completadaPor->name }}</strong> @endif
+                                                    </span>
+                                                @elseif ($tarea->fecha_limite)
+                                                    <span class="small {{ $situacion === 'vencida' ? 'text-danger fw-bold' : ($situacion === 'proxima' ? 'text-warning-emphasis fw-semibold' : 'text-muted') }}">
+                                                        <i class="fas fa-calendar-day me-1"></i>
+                                                        {{ $situacion === 'vencida' ? 'Venció el' : 'Límite:' }} {{ \Carbon\Carbon::parse($tarea->fecha_limite)->format('d/m/Y') }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted small"><i class="fas fa-infinity me-1"></i> Sin fecha límite</span>
+                                                @endif
+
+                                                @if ($tarea->notas)
+                                                    <span class="text-muted small">· {{ $tarea->notas }}</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center gap-2">
+                                        @if ($isHecha)
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1 tarea-badge">
+                                                <i class="fas fa-check me-1"></i> Hecha
+                                            </span>
+                                        @elseif ($situacion === 'vencida')
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1 tarea-badge">
+                                                <i class="fas fa-exclamation-triangle me-1"></i> Vencida
+                                            </span>
+                                        @elseif ($situacion === 'proxima')
+                                            <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-1 tarea-badge">
+                                                <i class="far fa-clock me-1"></i> Por vencer
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 tarea-badge">
+                                                <i class="far fa-circle me-1"></i> Pendiente
+                                            </span>
+                                        @endif
+
+                                        @if ($canTareas)
+                                            <form action="{{ route('programas.tareas.destroy', [$programa, $tarea]) }}" method="POST" class="d-inline ms-1"
+                                                onsubmit="return confirm('¿Seguro que deseas eliminar esta tarea?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <input type="hidden" name="volver" value="ficha">
+                                                <button type="submit" class="btn btn-sm btn-link text-muted p-1 hover-danger" title="Eliminar tarea" aria-label="Eliminar tarea">
+                                                    <i class="fas fa-trash-alt fs-7"></i>
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
                         </div>
                     @else
-                        <div class="text-center py-4 text-muted border rounded-3">
-                            <i class="fas fa-tasks fa-2x mb-2 text-secondary opacity-50"></i>
-                            <p class="mb-0">No hay tareas operativas asignadas a este programa.</p>
+                        <div class="text-center py-5 text-muted border rounded-3 bg-light-subtle">
+                            <i class="fas fa-clipboard-check fa-3x mb-3 text-secondary opacity-50"></i>
+                            <h4 class="h6 fw-semibold text-muted">No hay tareas operativas asignadas</h4>
+                            <p class="small text-muted mb-0">Crea una nueva tarea para llevar el control de los hitos del viaje.</p>
                         </div>
                     @endif
                 </div>
@@ -1321,6 +1446,392 @@
 
 @push('styles')
 <style>
+/* ==========================================================================
+   FICHA EJECUTIVA: NAVEGACIÓN POR PESTAÑAS Y SISTEMA CROMÁTICO SENIOR
+   ========================================================================== */
+
+.ficha-tabs-card {
+    background: var(--ae-surface, #ffffff);
+    border: 1px solid var(--ae-border, #e2e8f0) !important;
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.05), 0 2px 6px -2px rgba(15, 23, 42, 0.03);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+[data-bs-theme="dark"] .ficha-tabs-card {
+    background: var(--ae-surface, #0f172a);
+    border-color: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.ficha-tabs-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #cbd5e1;
+    padding: 0.5rem 0.75rem 0;
+}
+
+[data-bs-theme="dark"] .ficha-tabs-header {
+    background: #090d16;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ficha-nav-tabs {
+    border-bottom: none !important;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+    padding: 0;
+}
+
+.ficha-nav-item {
+    margin-bottom: 0;
+}
+
+.ficha-tab-btn {
+    position: relative;
+    border: 1px solid transparent !important;
+    border-bottom: none !important;
+    border-radius: 12px 12px 0 0 !important;
+    padding: 0.7rem 1.05rem !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    color: var(--ae-ink-soft, #475569) !important;
+    background: transparent !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    text-decoration: none !important;
+}
+
+/* Hover en pestaña inactiva */
+.ficha-tab-btn:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.8) !important;
+    color: var(--ae-ink, #0f172a) !important;
+    border-color: rgba(203, 213, 225, 0.7) !important;
+    transform: translateY(-1px);
+}
+
+[data-bs-theme="dark"] .ficha-tab-btn:hover:not(.active) {
+    background: rgba(30, 41, 59, 0.7) !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Pestaña Activa */
+.ficha-tab-btn.active {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    border-color: #cbd5e1 #cbd5e1 #ffffff !important;
+    box-shadow: 0 -4px 14px -2px rgba(15, 23, 42, 0.06);
+    margin-bottom: -1px !important;
+    z-index: 3;
+}
+
+[data-bs-theme="dark"] .ficha-tab-btn.active {
+    background: var(--ae-surface, #0f172a) !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.12) rgba(255, 255, 255, 0.12) var(--ae-surface, #0f172a) !important;
+    box-shadow: 0 -4px 16px -2px rgba(0, 0, 0, 0.6);
+}
+
+/* Línea indicadora superior con acento cromático */
+.ficha-tab-btn.active::before {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: 8px;
+    right: 8px;
+    height: 3px;
+    border-radius: 4px;
+    background: var(--tab-accent, var(--ae-interactive, #2563eb));
+    box-shadow: 0 1px 6px var(--tab-accent-glow, rgba(37, 99, 235, 0.35));
+}
+
+/* Icono con contenedor temático */
+.ficha-tab-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    background: var(--tab-icon-bg, rgba(100, 116, 139, 0.12));
+    color: var(--tab-accent, #64748b);
+    transition: all 0.22s ease;
+    flex-shrink: 0;
+}
+
+.ficha-tab-btn:hover .ficha-tab-icon,
+.ficha-tab-btn.active .ficha-tab-icon {
+    background: var(--tab-accent);
+    color: #ffffff !important;
+    transform: scale(1.06);
+}
+
+/* Badge contador */
+.ficha-tab-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+    background: var(--tab-badge-bg, rgba(100, 116, 139, 0.1));
+    color: var(--tab-accent, #475569);
+    line-height: 1;
+    letter-spacing: 0.02em;
+    border: 1px solid var(--tab-badge-border, transparent);
+    transition: all 0.22s ease;
+}
+
+.ficha-tab-btn.active .ficha-tab-badge {
+    background: var(--tab-badge-bg-active, var(--tab-badge-bg));
+    border-color: var(--tab-accent);
+}
+
+/* ==========================================================================
+   PALETAS Y AYUDA VISUAL POR PESTAÑA (Color Coded Visual Aids)
+   ========================================================================== */
+
+/* 1. Itinerario & Servicios: Cyan / Sky Andino */
+.tab-theme-itinerario {
+    --tab-accent: #0284c7;
+    --tab-accent-glow: rgba(2, 132, 199, 0.35);
+    --tab-icon-bg: rgba(2, 132, 199, 0.12);
+    --tab-badge-bg: rgba(2, 132, 199, 0.1);
+    --tab-badge-border: rgba(2, 132, 199, 0.25);
+    --tab-badge-bg-active: rgba(2, 132, 199, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-itinerario {
+    --tab-accent: #38bdf8;
+    --tab-accent-glow: rgba(56, 189, 248, 0.35);
+    --tab-icon-bg: rgba(56, 189, 248, 0.16);
+    --tab-badge-bg: rgba(56, 189, 248, 0.14);
+    --tab-badge-border: rgba(56, 189, 248, 0.3);
+    --tab-badge-bg-active: rgba(56, 189, 248, 0.24);
+}
+
+/* 2. Hoja de Costeo & Cotizador: Esmeralda / Excel */
+.tab-theme-costeo {
+    --tab-accent: #059669;
+    --tab-accent-glow: rgba(5, 150, 105, 0.35);
+    --tab-icon-bg: rgba(5, 150, 105, 0.12);
+    --tab-badge-bg: rgba(5, 150, 105, 0.1);
+    --tab-badge-border: rgba(5, 150, 105, 0.25);
+    --tab-badge-bg-active: rgba(5, 150, 105, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-costeo {
+    --tab-accent: #34d399;
+    --tab-accent-glow: rgba(52, 211, 153, 0.35);
+    --tab-icon-bg: rgba(52, 211, 153, 0.16);
+    --tab-badge-bg: rgba(52, 211, 153, 0.14);
+    --tab-badge-border: rgba(52, 211, 153, 0.3);
+    --tab-badge-bg-active: rgba(52, 211, 153, 0.24);
+}
+
+/* 3. Pasajeros & Rooming: Violeta / Zafiro Imperial */
+.tab-theme-pasajeros {
+    --tab-accent: #7c3aed;
+    --tab-accent-glow: rgba(124, 58, 237, 0.35);
+    --tab-icon-bg: rgba(124, 58, 237, 0.12);
+    --tab-badge-bg: rgba(124, 58, 237, 0.1);
+    --tab-badge-border: rgba(124, 58, 237, 0.25);
+    --tab-badge-bg-active: rgba(124, 58, 237, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-pasajeros {
+    --tab-accent: #a78bfa;
+    --tab-accent-glow: rgba(167, 139, 250, 0.35);
+    --tab-icon-bg: rgba(167, 139, 250, 0.16);
+    --tab-badge-bg: rgba(167, 139, 250, 0.14);
+    --tab-badge-border: rgba(167, 139, 250, 0.3);
+    --tab-badge-bg-active: rgba(167, 139, 250, 0.24);
+}
+
+/* 4. Vuelos & Hoteles: Ámbar Cálido / Dorado Andino */
+.tab-theme-logistica {
+    --tab-accent: #d97706;
+    --tab-accent-glow: rgba(217, 119, 6, 0.35);
+    --tab-icon-bg: rgba(217, 119, 6, 0.12);
+    --tab-badge-bg: rgba(217, 119, 6, 0.1);
+    --tab-badge-border: rgba(217, 119, 6, 0.25);
+    --tab-badge-bg-active: rgba(217, 119, 6, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-logistica {
+    --tab-accent: #fbbf24;
+    --tab-accent-glow: rgba(251, 191, 36, 0.35);
+    --tab-icon-bg: rgba(251, 191, 36, 0.16);
+    --tab-badge-bg: rgba(251, 191, 36, 0.14);
+    --tab-badge-border: rgba(251, 191, 36, 0.3);
+    --tab-badge-bg-active: rgba(251, 191, 36, 0.24);
+}
+
+/* 5. Pagos & Costos: Teal / Finanzas */
+.tab-theme-finanzas {
+    --tab-accent: #0d9488;
+    --tab-accent-glow: rgba(13, 148, 136, 0.35);
+    --tab-icon-bg: rgba(13, 148, 136, 0.12);
+    --tab-badge-bg: rgba(13, 148, 136, 0.1);
+    --tab-badge-border: rgba(13, 148, 136, 0.25);
+    --tab-badge-bg-active: rgba(13, 148, 136, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-finanzas {
+    --tab-accent: #2dd4bf;
+    --tab-accent-glow: rgba(45, 212, 191, 0.35);
+    --tab-icon-bg: rgba(45, 212, 191, 0.16);
+    --tab-badge-bg: rgba(45, 212, 191, 0.14);
+    --tab-badge-border: rgba(45, 212, 191, 0.3);
+    --tab-badge-bg-active: rgba(45, 212, 191, 0.24);
+}
+
+/* 6. Tareas: Índigo / Checklist Operativo */
+.tab-theme-tareas {
+    --tab-accent: #4f46e5;
+    --tab-accent-glow: rgba(79, 70, 229, 0.35);
+    --tab-icon-bg: rgba(79, 70, 229, 0.12);
+    --tab-badge-bg: rgba(79, 70, 229, 0.1);
+    --tab-badge-border: rgba(79, 70, 229, 0.25);
+    --tab-badge-bg-active: rgba(79, 70, 229, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-tareas {
+    --tab-accent: #818cf8;
+    --tab-accent-glow: rgba(129, 140, 248, 0.35);
+    --tab-icon-bg: rgba(129, 140, 248, 0.16);
+    --tab-badge-bg: rgba(129, 140, 248, 0.14);
+    --tab-badge-border: rgba(129, 140, 248, 0.3);
+    --tab-badge-bg-active: rgba(129, 140, 248, 0.24);
+}
+
+/* 7. Bitácora & Historial: Slate / Pizarra Ejecutivo */
+.tab-theme-bitacora {
+    --tab-accent: #64748b;
+    --tab-accent-glow: rgba(100, 116, 139, 0.3);
+    --tab-icon-bg: rgba(100, 116, 139, 0.12);
+    --tab-badge-bg: rgba(100, 116, 139, 0.1);
+    --tab-badge-border: rgba(100, 116, 139, 0.25);
+    --tab-badge-bg-active: rgba(100, 116, 139, 0.18);
+}
+[data-bs-theme="dark"] .tab-theme-bitacora {
+    --tab-accent: #94a3b8;
+    --tab-accent-glow: rgba(148, 163, 184, 0.3);
+    --tab-icon-bg: rgba(148, 163, 184, 0.16);
+    --tab-badge-bg: rgba(148, 163, 184, 0.14);
+    --tab-badge-border: rgba(148, 163, 184, 0.3);
+    --tab-badge-bg-active: rgba(148, 163, 184, 0.24);
+}
+
+/* ==========================================================================
+   CHECKLIST OPERATIVO DE TAREAS INTERACTIVO SENIOR
+   ========================================================================== */
+
+.tarea-item {
+    border: 1px solid var(--ae-border, #e2e8f0);
+    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    margin-bottom: 0.65rem;
+    background: var(--ae-surface, #ffffff);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tarea-item:hover {
+    border-color: var(--ae-border-strong, #cbd5e1);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+    transform: translateY(-1px);
+}
+
+[data-bs-theme="dark"] .tarea-item {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.07);
+}
+
+[data-bs-theme="dark"] .tarea-item:hover {
+    background: var(--ae-surface-2, #1e293b);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* Estado completada */
+.tarea-item.is-completada {
+    background: rgba(22, 163, 74, 0.03) !important;
+    border-color: rgba(22, 163, 74, 0.22) !important;
+}
+
+[data-bs-theme="dark"] .tarea-item.is-completada {
+    background: rgba(74, 222, 128, 0.03) !important;
+    border-color: rgba(74, 222, 128, 0.18) !important;
+}
+
+/* Botón interactivo de toggle */
+.tarea-toggle-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: var(--ae-ink-soft, #94a3b8);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.tarea-toggle-btn:hover {
+    color: #16a34a !important;
+    background: rgba(22, 163, 74, 0.1);
+    transform: scale(1.12);
+}
+
+.tarea-item.is-completada .tarea-toggle-btn {
+    color: #16a34a;
+}
+
+[data-bs-theme="dark"] .tarea-item.is-completada .tarea-toggle-btn {
+    color: #4ade80;
+}
+
+.tarea-title {
+    font-size: 0.94rem;
+    font-weight: 600;
+    color: var(--ae-ink, #0f172a);
+    transition: all 0.2s ease;
+}
+
+.tarea-item.is-completada .tarea-title {
+    text-decoration: line-through;
+    opacity: 0.65;
+    color: var(--ae-ink-soft, #64748b) !important;
+}
+
+.tarea-meta {
+    font-size: 0.8rem;
+    color: var(--ae-ink-soft, #64748b);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 0.2rem;
+}
+
+.hover-danger {
+    transition: all 0.15s ease;
+}
+.hover-danger:hover {
+    color: #ef4444 !important;
+    transform: scale(1.15);
+}
+
 /* Hoja de costeo: los fondos salen de variables para que el texto se lea en tema claro y oscuro. */
 .excel-costeo-table {
     --excel-dia-bg: #eaf1fb;
@@ -1786,6 +2297,99 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    });
+
+    // Persistencia y Navegación por Hash/URL para Pestañas
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedTab = urlParams.get('tab') || window.location.hash.replace('#', '').replace('tab-', '');
+    if (requestedTab) {
+        const tabTrigger = document.querySelector(`#tab-${requestedTab}-btn`) || document.querySelector(`[data-bs-target="#tab-${requestedTab}"]`);
+        if (tabTrigger && typeof bootstrap !== 'undefined') {
+            bootstrap.Tab.getOrCreateInstance(tabTrigger).show();
+        }
+    }
+
+    // Actualizar hash en la URL al cambiar de pestaña
+    document.querySelectorAll('#fichaTab .ficha-tab-btn').forEach(btn => {
+        btn.addEventListener('shown.bs.tab', function (e) {
+            const target = e.target.getAttribute('data-bs-target');
+            if (target && history.replaceState) {
+                const tabName = target.replace('#tab-', '').replace('#', '');
+                history.replaceState(null, null, `#tab-${tabName}`);
+            }
+        });
+    });
+
+    // Toggle reactivo e instantáneo para Tareas Operativas
+    document.querySelectorAll('[data-tarea-toggle]').forEach(btn => {
+        btn.addEventListener('click', async function (e) {
+            e.preventDefault();
+            const tareaItem = this.closest('.tarea-item');
+            const url = this.dataset.action;
+            const icon = this.querySelector('i');
+            const badge = tareaItem ? tareaItem.querySelector('.tarea-badge') : null;
+            const title = tareaItem ? tareaItem.querySelector('.tarea-title') : null;
+
+            if (!tareaItem || !url) return;
+
+            // UI Optimista instantánea
+            const wasCompletada = tareaItem.classList.contains('is-completada');
+            const isNowCompletada = !wasCompletada;
+
+            tareaItem.classList.toggle('is-completada', isNowCompletada);
+            if (icon) {
+                icon.className = isNowCompletada ? 'fas fa-check-circle fs-4 text-success' : 'far fa-circle fs-4 text-muted';
+            }
+            if (title) {
+                if (isNowCompletada) {
+                    title.classList.add('text-decoration-line-through', 'text-muted');
+                } else {
+                    title.classList.remove('text-decoration-line-through', 'text-muted');
+                }
+            }
+            if (badge) {
+                if (isNowCompletada) {
+                    badge.className = 'badge bg-success-subtle text-success border border-success-subtle px-2 py-1 tarea-badge';
+                    badge.innerHTML = '<i class="fas fa-check me-1"></i> Hecha';
+                } else {
+                    badge.className = 'badge bg-secondary-subtle text-secondary border border-secondary-subtle px-2 py-1 tarea-badge';
+                    badge.innerHTML = '<i class="far fa-circle me-1"></i> Pendiente';
+                }
+            }
+
+            try {
+                const resp = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await resp.json();
+                if (data.ok) {
+                    // Sincronizar contadores en la vista
+                    const countBadge = document.querySelector('[data-tareas-count-badge]');
+                    if (countBadge && data.pendientes !== undefined) {
+                        countBadge.textContent = `${data.pendientes} pendientes de ${data.total}`;
+                    }
+                    const tabBadge = document.querySelector('[data-tab-tareas-badge]');
+                    if (tabBadge && data.total !== undefined) {
+                        tabBadge.textContent = data.pendientes > 0 ? `${data.pendientes} pend.` : `${data.total}`;
+                    }
+                } else {
+                    // Revertir si falló
+                    tareaItem.classList.toggle('is-completada', wasCompletada);
+                    if (icon) icon.className = wasCompletada ? 'fas fa-check-circle fs-4 text-success' : 'far fa-circle fs-4 text-muted';
+                }
+            } catch (err) {
+                console.error('Error toggling tarea:', err);
+                // Revertir
+                tareaItem.classList.toggle('is-completada', wasCompletada);
+                if (icon) icon.className = wasCompletada ? 'fas fa-check-circle fs-4 text-success' : 'far fa-circle fs-4 text-muted';
+            }
+        });
     });
 });
 </script>
