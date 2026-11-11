@@ -28,15 +28,16 @@ export function initPreloader() {
     window.aeDismissPreloader = hidePreloader;
 
     const isAuthPage = document.body.classList.contains('auth-page');
+    const hasHeroVideo = !!document.querySelector('.hero[data-hero-video-id]');
 
-    if (isAuthPage) {
-        // En la pantalla de login/auth, el preloader se mantiene visible
-        // hasta que el video empiece a reproducirse activamente (onPlayerStateChange == PLAYING)
-        // para que la transición sea cinemática y sin cortes.
-        // Timeout de seguridad de 4.5s por si el usuario tiene mala conexión o bloqueador de anuncios.
-        setTimeout(hidePreloader, 4500);
+    if (isAuthPage || hasHeroVideo) {
+        // En la pantalla de login/auth o en la landing page con video hero:
+        // el preloader se mantiene visible hasta que el video empiece a reproducirse
+        // activamente (onPlayerStateChange == PLAYING) y se llame a aeDismissPreloader.
+        // Timeout de seguridad de 7s por si hay mala conexión o bloqueador de anuncios.
+        setTimeout(hidePreloader, 7000);
     } else {
-        // En las vistas normales del panel administrativo:
+        // En las vistas normales sin video de fondo:
         if (document.readyState === 'complete') {
             setTimeout(hidePreloader, 350);
         } else {

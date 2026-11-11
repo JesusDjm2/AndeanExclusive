@@ -9,9 +9,11 @@ import { initTourDetail } from './tour-detail';
 import { initToc } from './toc';
 import { initCollectionFilter } from './collection-filter';
 import { initHeroVideo } from './hero-video';
+import { initPreloader } from './preloader';
 
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.remove('no-js');
+    initPreloader();
     initNav();
     initAnimations();
     initPublicForms();

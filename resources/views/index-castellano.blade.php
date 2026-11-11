@@ -1,19 +1,40 @@
 @php
     $locale = 'es';
     $altRoute = 'index';
+    $hasPreloader = true;
 @endphp
 @extends('layouts.public')
 
 @section('metas')
     @include('layouts.seo-head', ['locale' => 'es', 'page' => 'home', 'og_image' => '/img/machupicchu.png'])
+
+    {{-- Preconexión ultra-rápida a los servidores y CDN de YouTube --}}
+    <link rel="preconnect" href="https://www.youtube.com" crossorigin>
+    <link rel="preconnect" href="https://s.ytimg.com" crossorigin>
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+    <link rel="dns-prefetch" href="https://www.youtube.com">
+    <link rel="dns-prefetch" href="https://s.ytimg.com">
+    <link rel="dns-prefetch" href="https://i.ytimg.com">
+
+    {{-- Bootstrap anticipado de la API de YouTube para carga inmediata idéntico al panel de login --}}
+    <script>
+        window.YT_API_READY = false;
+        window.onYouTubeIframeAPIReady = function() {
+            window.YT_API_READY = true;
+            if (typeof window.aeInitHeroVideo === 'function') {
+                window.aeInitHeroVideo();
+            }
+        };
+    </script>
+    <script src="https://www.youtube.com/iframe_api"></script>
 @endsection
 
 @section('contenido')
-    <section class="hero" data-hero-video-id="9mS_91IgqbA">
+    <section class="hero" data-hero-video-id="B_8bbKn3amE">
         <div class="hero__media" data-parallax-container>
             <picture class="hero__poster">
                 <source media="(max-width: 768px)" srcset="{{ asset('img/responsive/machupicchu-mobile.webp') }}" type="image/webp">
-                <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" decoding="async" data-parallax="12" data-breathe>
+                <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" decoding="async" data-parallax="12">
             </picture>
             <div class="hero__video-wrap" id="hero-video-wrap" aria-hidden="true">
                 <div id="hero-yt-player"></div>
@@ -27,16 +48,6 @@
                 exclusivas y de lujo, hechas a tu medida.
             </p>
             @include('layouts.partials.form-consulta-rapida', ['locale' => 'es'])
-        </div>
-
-        {{-- Controles discretos del video de fondo (solo PC) --}}
-        <div class="hero-video-controls" id="hero-video-controls" aria-label="Controles del video de fondo" hidden>
-            <button type="button" class="hero-video-btn" id="hero-video-toggle" title="Pausar video" aria-label="Pausar o reanudar video" data-label-play="Reanudar video" data-label-pause="Pausar video">
-                <i class="fa fa-pause" id="hero-video-icon" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="hero-video-btn" id="hero-audio-toggle" title="Activar audio" aria-label="Activar o silenciar audio" data-label-mute="Silenciar audio" data-label-unmute="Activar audio">
-                <i class="fa fa-volume-off" id="hero-audio-icon" aria-hidden="true"></i>
-            </button>
         </div>
     </section>
 

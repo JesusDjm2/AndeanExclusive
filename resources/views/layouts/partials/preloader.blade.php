@@ -1,8 +1,8 @@
 {{--
     Andean Exclusive - Pantalla de Carga y Transición Cinemática (Senior UI/UX)
-    Logotipo oficial, eslogan de marca y animación fluida para login y dashboard
+    Logotipo oficial, eslogan de marca y animación fluida para login, dashboard y landing page.
 --}}
-<div id="ae-preloader" class="ae-preloader" aria-hidden="false" role="status" aria-label="Cargando panel de gestión Andean Exclusive">
+<div id="ae-preloader" class="ae-preloader" aria-hidden="false" role="status" aria-label="{{ ($locale ?? 'es') === 'en' ? 'Loading Andean Exclusive Tours' : 'Cargando Andean Exclusive Tours' }}">
     <div class="ae-preloader__backdrop" aria-hidden="true"></div>
     <div class="ae-preloader__content">
         {{-- Logotipo Principal con resplandor sutil --}}
@@ -24,7 +24,7 @@
         {{-- Micro-indicador de estado --}}
         <div class="ae-preloader__status">
             <span class="ae-preloader__status-dot"></span>
-            <span class="ae-preloader__status-text">Cargando experiencia exclusiva</span>
+            <span class="ae-preloader__status-text">{{ ($locale ?? 'es') === 'en' ? 'Loading exclusive experience' : 'Cargando experiencia exclusiva' }}</span>
         </div>
     </div>
 </div>

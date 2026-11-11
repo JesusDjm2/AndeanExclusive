@@ -36,6 +36,10 @@
     </script>
 </head>
 <body>
+    @if(!empty($hasPreloader))
+        @include('layouts.partials.preloader', ['locale' => $locale])
+    @endif
+
     @include('layouts.partials.public-header', ['locale' => $locale, 'altRoute' => $altRoute ?? null, 'altUrl' => $altUrl ?? null])
 
     <main>
