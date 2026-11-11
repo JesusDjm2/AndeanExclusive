@@ -19,7 +19,6 @@ class AdminNavigation
             'items' => [
                 ['label' => 'Inicio', 'icon' => 'fa-tachometer-alt', 'route' => 'home', 'active' => ['home']],
                 ['label' => 'Notificaciones', 'icon' => 'fa-bell', 'route' => 'avisos.index', 'active' => ['avisos.*'], 'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad']],
-                ['label' => 'Ayuda', 'icon' => 'fa-question-circle', 'route' => 'ayuda.index', 'active' => ['ayuda.*']],
             ],
         ],
         [
