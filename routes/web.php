@@ -64,7 +64,7 @@ Route::middleware(['web', 'guest', 'panel.es'])->group(function () {
 });
 
 // Solo usuarios con un rol asignado entran al panel (una cuenta sin rol no ve nada).
-Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabilidad|reservas'])->group(function () {
+Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabilidad|reservas|branding'])->group(function () {
     Route::middleware('role:administrador')->group(function () {
         Route::resource('users', UserController::class)->names('users');
         Route::get('copias-de-seguridad', [RespaldoController::class, 'index'])->name('respaldos.index');

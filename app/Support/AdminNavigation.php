@@ -18,12 +18,13 @@ class AdminNavigation
             'label' => null,
             'items' => [
                 ['label' => 'Inicio', 'icon' => 'fa-tachometer-alt', 'route' => 'home', 'active' => ['home']],
-                ['label' => 'Notificaciones', 'icon' => 'fa-bell', 'route' => 'avisos.index', 'active' => ['avisos.*']],
+                ['label' => 'Notificaciones', 'icon' => 'fa-bell', 'route' => 'avisos.index', 'active' => ['avisos.*'], 'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad']],
                 ['label' => 'Ayuda', 'icon' => 'fa-question-circle', 'route' => 'ayuda.index', 'active' => ['ayuda.*']],
             ],
         ],
         [
             'label' => 'Comercial y Operaciones',
+            'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad'],
             'items' => [
                 ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
                 ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.*']],
@@ -36,6 +37,7 @@ class AdminNavigation
         ],
         [
             'label' => 'Reservas y Proveedores',
+            'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad'],
             'items' => [
                 ['label' => 'Bandeja de Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
                 ['label' => 'Mensajes a proveedores', 'icon' => 'fa-envelope-open-text', 'route' => 'mensajes.index', 'active' => ['mensajes.*', 'servicios.mensaje']],
@@ -45,6 +47,7 @@ class AdminNavigation
         ],
         [
             'label' => 'Finanzas y Contabilidad',
+            'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad'],
             'items' => [
                 ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
                 ['label' => 'Reportes', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
@@ -53,7 +56,7 @@ class AdminNavigation
         ],
         [
             'label' => 'Sitio web',
-            'roles' => ['administrador'],
+            'roles' => ['administrador', 'branding'],
             'items' => [
                 ['label' => 'Tours', 'icon' => 'fa-map-marked-alt', 'langs' => [['EN', 'tours.index', ['tours.*']], ['ES', 'estours.index', ['estours.*']]]],
                 ['label' => 'Categorías de tours', 'icon' => 'fa-layer-group', 'langs' => [['EN', 'categories.index', ['categories.*']], ['ES', 'categorias.index', ['categorias.*']]]],
@@ -63,7 +66,7 @@ class AdminNavigation
         ],
         [
             'label' => 'Medios',
-            'roles' => ['administrador'],
+            'roles' => ['administrador', 'branding'],
             'items' => [
                 ['label' => 'Imágenes', 'icon' => 'fa-images', 'route' => 'imagenes.index', 'active' => ['imagenes.*']],
             ],
@@ -91,12 +94,17 @@ class AdminNavigation
                 continue;
             }
 
-            foreach ($group['items'] as $i => $item) {
+            $filteredItems = [];
+            foreach ($group['items'] as $item) {
+                if (isset($item['roles']) && ! $user?->hasAnyRole($item['roles'])) {
+                    continue;
+                }
+
                 if (isset($item['langs'])) {
                     foreach ($item['langs'] as $l => [$code, $route, $patterns]) {
-                        $group['items'][$i]['langs'][$l][3] = $request->routeIs(...$patterns);
+                        $item['langs'][$l][3] = $request->routeIs(...$patterns);
                     }
-                    $activeLang = collect($group['items'][$i]['langs'])->first(fn ($lang) => $lang[3]);
+                    $activeLang = collect($item['langs'])->first(fn ($lang) => $lang[3]);
                     $isActive = $activeLang !== null;
                     $label = $item['label'] . ($activeLang ? ' ' . $activeLang[0] : '');
                 } else {
@@ -104,12 +112,15 @@ class AdminNavigation
                     $label = $item['label'];
                 }
 
-                $group['items'][$i]['isActive'] = $isActive;
+                $item['isActive'] = $isActive;
                 if ($isActive) {
                     $crumb = array_values(array_filter([$group['label'], $label]));
                 }
+
+                $filteredItems[] = $item;
             }
 
+            $group['items'] = $filteredItems;
             $groups[] = $group;
         }
 

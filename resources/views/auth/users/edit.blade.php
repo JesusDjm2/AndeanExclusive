@@ -86,7 +86,7 @@
                             </h5>
 
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6 col-lg-3">
+                                <div class="col-md-6 col-lg-4">
                                     <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'administrador' ? 'border-primary bg-primary-subtle' : '' }}">
                                         <input type="radio" name="role" value="administrador" class="visually-hidden" @checked($currentRole === 'administrador')>
                                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -99,7 +99,7 @@
                                     </label>
                                 </div>
 
-                                <div class="col-md-6 col-lg-3">
+                                <div class="col-md-6 col-lg-4">
                                     <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'operaciones' ? 'border-primary bg-primary-subtle' : '' }}">
                                         <input type="radio" name="role" value="operaciones" class="visually-hidden" @checked($currentRole === 'operaciones')>
                                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -112,7 +112,7 @@
                                     </label>
                                 </div>
 
-                                <div class="col-md-6 col-lg-3">
+                                <div class="col-md-6 col-lg-4">
                                     <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'reservas' ? 'border-primary bg-primary-subtle' : '' }}">
                                         <input type="radio" name="role" value="reservas" class="visually-hidden" @checked($currentRole === 'reservas')>
                                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -125,7 +125,7 @@
                                     </label>
                                 </div>
 
-                                <div class="col-md-6 col-lg-3">
+                                <div class="col-md-6 col-lg-4">
                                     <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'contabilidad' ? 'border-primary bg-primary-subtle' : '' }}">
                                         <input type="radio" name="role" value="contabilidad" class="visually-hidden" @checked($currentRole === 'contabilidad')>
                                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -134,6 +134,19 @@
                                         </div>
                                         <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
                                             Cuentas por pagar, cobros, margen de ganancia real y reportes financieros.
+                                        </small>
+                                    </label>
+                                </div>
+
+                                <div class="col-md-6 col-lg-4">
+                                    <label class="card h-100 p-3 border cursor-pointer position-relative role-card {{ $currentRole === 'branding' ? 'border-primary bg-primary-subtle' : '' }}">
+                                        <input type="radio" name="role" value="branding" class="visually-hidden" @checked($currentRole === 'branding')>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-paint-brush fs-5" style="color: #8b5cf6;"></i>
+                                            <strong class="d-block">Branding & Web</strong>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 0.76rem; line-height: 1.35;">
+                                            Gestión exclusiva de contenido público: Tours (EN/ES), Blog (EN/ES), Categorías, Tags e Imágenes. Sin acceso a programas.
                                         </small>
                                     </label>
                                 </div>

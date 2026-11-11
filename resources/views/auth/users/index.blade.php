@@ -68,6 +68,16 @@
                     <div class="ae-stat-card__lbl">Reservas & Finanzas</div>
                 </div>
             </div>
+
+            <div class="ae-stat-card">
+                <div class="ae-stat-card__icon ae-stat-card__icon--gold">
+                    <i class="fas fa-paint-brush"></i>
+                </div>
+                <div>
+                    <div class="ae-stat-card__val">{{ $rolesCount['branding'] ?? 0 }}</div>
+                    <div class="ae-stat-card__lbl">Branding & Web</div>
+                </div>
+            </div>
         </div>
 
         {{-- Filtros y buscador --}}
@@ -181,6 +191,10 @@
                                         @elseif ($roleName === 'contabilidad')
                                             <span class="badge bg-success-subtle text-success border border-success-subtle">
                                                 <i class="fas fa-calculator me-1"></i> Contabilidad
+                                            </span>
+                                        @elseif ($roleName === 'branding')
+                                            <span class="badge border" style="background-color: rgba(139, 92, 246, 0.12); color: #7c3aed; border-color: rgba(139, 92, 246, 0.25) !important;">
+                                                <i class="fas fa-paint-brush me-1"></i> Branding & Web
                                             </span>
                                         @else
                                             <span class="badge bg-secondary-subtle text-secondary border">

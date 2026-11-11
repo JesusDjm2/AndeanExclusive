@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 class Permisos
 {
     public const ADMIN = 'administrador';
+    public const BRANDING = 'branding';
 
     /** Rol => nombre del área. */
     public const AREAS = [
@@ -19,6 +20,7 @@ class Permisos
         'operaciones' => 'Operaciones',
         'reservas' => 'Reservas',
         'contabilidad' => 'Contabilidad',
+        self::BRANDING => 'Branding',
     ];
 
     /** Permiso => roles que lo tienen (además del administrador, que los tiene todos). */
@@ -39,12 +41,23 @@ class Permisos
         'tareas.gestionar' => ['operaciones', 'reservas', 'contabilidad'],
         'avisos.usar' => ['operaciones', 'reservas', 'contabilidad'],
         'agentes.gestionar' => [],
-        'contenido.gestionar' => [],
+        'contenido.gestionar' => [self::BRANDING],
         'usuarios.gestionar' => [],
     ];
 
     /** Permiso => rutas que exige. Las consultas (GET) no se listan: están abiertas a todas las áreas. */
     private const RUTAS = [
+        'contenido.gestionar' => [
+            'tours.*',
+            'categories.*',
+            'estours.*',
+            'categorias.*',
+            'entags.*',
+            'enblogs.*',
+            'estags.*',
+            'esblogs.*',
+            'imagenes.*',
+        ],
         'programas.gestionar' => [
             'programas.create', 'programas.store', 'programas.update', 'programas.enviar-correo', 'programas.notificaciones.store',
             'programas.duplicar', 'programas.duplicar.store', 'programas.plantilla.store', 'programas.plantilla.destroy',
@@ -83,6 +96,17 @@ class Permisos
         }
         if (! $ruta) {
             return false;
+        }
+
+        // El rol branding está estrictamente limitado a páginas públicas y recursos de medios (nada de programas ni finanzas)
+        if ($user->hasRole(self::BRANDING)) {
+            $rutasPermitidas = [
+                'home',
+                'tours.*', 'categories.*', 'estours.*', 'categorias.*',
+                'enblogs.*', 'esblogs.*', 'entags.*', 'estags.*',
+                'imagenes.*', 'ayuda.*',
+            ];
+            return Str::is($rutasPermitidas, $ruta);
         }
 
         $esConsulta = in_array($metodo, ['GET', 'HEAD'], true)

@@ -26,6 +26,60 @@ class HomeController extends Controller
     public function index()
     {
         $today = Carbon::today();
+        $user = auth()->user();
+        $isBranding = $user && $user->hasRole('branding');
+
+        // Salud del contenido web: piezas sin su versión en el otro idioma, medios y taxonomías.
+        $content = [
+            'toursEn' => Tour::count(),
+            'toursEs' => Estour::count(),
+            'toursMissingEs' => Tour::doesntHave('estour')->count(),
+            'blogsEn' => Enblog::count(),
+            'blogsEs' => Esblog::count(),
+            'blogsMissingEs' => Enblog::doesntHave('esblog')->count(),
+            'imagenes' => \App\Models\Imagen::count(),
+            'categoriasEn' => \App\Models\Category::count(),
+            'categoriasEs' => \App\Models\Categoria::count(),
+            'tagsEn' => \App\Models\Entag::count(),
+            'tagsEs' => \App\Models\Estag::count(),
+            'lastTour' => Tour::latest('updated_at')->first(['nombre', 'updated_at']),
+            'lastBlog' => Enblog::latest('updated_at')->first(['nombre', 'updated_at']),
+            'lastImagen' => \App\Models\Imagen::latest('updated_at')->first(['nombre', 'updated_at']),
+        ];
+
+        // El rol branding está estrictamente limitado a la administración de contenidos públicos.
+        // No ejecuta consultas ni recibe datos confidenciales de la operación de viajes o finanzas.
+        if ($isBranding) {
+            $ongoing = collect();
+            $upcoming = collect();
+            $stats = [
+                'ongoing' => 0,
+                'travelersOnTrip' => 0,
+                'next30' => 0,
+                'thisMonth' => 0,
+                'year' => 0,
+                'paxYear' => 0,
+                'cotizaciones' => 0,
+                'saldoPendiente' => 0,
+            ];
+            $cobros = collect();
+            $operacion = [
+                'hoy' => 0,
+                'manana' => 0,
+                'porConfirmar' => 0,
+                'pagosVencidos' => 0,
+                'pagosSolicitados' => 0,
+            ];
+            $tareas = collect();
+            $avisosCliente = collect();
+            $consultasNuevas = 0;
+            $months = collect();
+            $anios = collect();
+            $meses = collect();
+            $ultimosMovimientos = collect();
+
+            return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'isBranding'));
+        }
 
         $ongoing = Programa::query()
             ->withCount('paxs')
@@ -99,23 +153,11 @@ class HomeController extends Controller
             'current' => $m === $today->month,
         ]);
 
-        // Salud del contenido web: piezas sin su versión en el otro idioma.
-        $content = [
-            'toursEn' => Tour::count(),
-            'toursEs' => Estour::count(),
-            'toursMissingEs' => Tour::doesntHave('estour')->count(),
-            'blogsEn' => Enblog::count(),
-            'blogsEs' => Esblog::count(),
-            'blogsMissingEs' => Enblog::doesntHave('esblog')->count(),
-            'lastTour' => Tour::latest('updated_at')->first(['nombre', 'updated_at']),
-            'lastBlog' => Enblog::latest('updated_at')->first(['nombre', 'updated_at']),
-        ];
-
         $anios = Anio::query()->orderByDesc('anio')->get();
         $meses = Mes::query()->orderBy('numero')->get();
 
         $ultimosMovimientos = \App\Models\Movimiento::query()->with('programa:id,codigo')->latest()->orderByDesc('id')->limit(8)->get();
 
-        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas'));
+        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'isBranding'));
     }
 }

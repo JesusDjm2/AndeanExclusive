@@ -31,6 +31,7 @@ class UserController extends Controller
             'operaciones' => User::whereHas('roles', fn ($r) => $r->where('name', 'operaciones'))->count(),
             'reservas' => User::whereHas('roles', fn ($r) => $r->where('name', 'reservas'))->count(),
             'contabilidad' => User::whereHas('roles', fn ($r) => $r->where('name', 'contabilidad'))->count(),
+            'branding' => User::whereHas('roles', fn ($r) => $r->where('name', 'branding'))->count(),
         ];
 
         return view('auth.users.index', compact('users', 'totalCount', 'rolesCount', 'q'));
