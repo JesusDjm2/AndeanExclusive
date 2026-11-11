@@ -119,16 +119,28 @@ $topbar-h: 4rem;
     align-items: center;
     gap: 0.25rem;
     border-radius: $border-radius;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
 
-    &:hover { background: rgba(255, 255, 255, 0.06); }
+    &:hover:not(.is-active) {
+        background: rgba(255, 255, 255, 0.06);
+
+        .admin-nav__link i {
+            color: rgba(56, 189, 248, 0.75);
+        }
+    }
 
     &.is-active {
-        background: rgba(255, 255, 255, 0.10);
-        box-shadow: inset 3px 0 0 var(--ae-gold);
+        background: rgba(2, 132, 199, 0.14);
+        box-shadow: inset 3.5px 0 0 rgb(2, 132, 199);
 
-        .admin-nav__link { color: $white; font-weight: 600; }
-        .admin-nav__link i { color: var(--ae-gold); }
+        .admin-nav__link {
+            color: $white;
+            font-weight: 600;
+        }
+
+        .admin-nav__link i {
+            color: #38bdf8;
+        }
     }
 }
 
@@ -154,7 +166,7 @@ $topbar-h: 4rem;
     &:hover { color: $white; }
 
     &:focus-visible {
-        outline: 2px solid rgba(255, 255, 255, 0.5);
+        outline: 2px solid rgba(2, 132, 199, 0.6);
         outline-offset: -2px;
         border-radius: $border-radius;
     }
@@ -177,12 +189,16 @@ $topbar-h: 4rem;
     letter-spacing: 0.04em;
     text-decoration: none;
 
-    &:hover { border-color: rgba(255, 255, 255, 0.45); color: $white; }
+    &:hover {
+        border-color: rgba(56, 189, 248, 0.6);
+        color: $white;
+    }
 
     &.is-active {
-        border-color: var(--ae-gold);
-        background: var(--ae-gold);
-        color: #0f172a;
+        border-color: rgb(2, 132, 199);
+        background: rgb(2, 132, 199);
+        color: #ffffff;
+        box-shadow: 0 1px 4px rgba(2, 132, 199, 0.35);
     }
 }
 
