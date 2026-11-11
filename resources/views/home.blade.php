@@ -40,7 +40,8 @@
         @elseif ($canEdit)
             <div class="dash-hero__actions">
                 <a href="{{ route('programas.create') }}" class="btn btn-primary"><i class="fas fa-plus" aria-hidden="true"></i> Nuevo programa</a>
-                <a href="{{ route('paxs.create') }}" class="btn btn-outline-primary"><i class="fas fa-user-plus" aria-hidden="true"></i> Nuevo pasajero</a>
+                <a href="{{ route('tarifario-maestro.index') }}" class="btn btn-outline-primary"><i class="fas fa-calculator" aria-hidden="true"></i> Cotizador Rápido</a>
+                <a href="{{ route('reservas.index') }}" class="btn btn-outline-secondary"><i class="fas fa-calendar-check" aria-hidden="true"></i> Reservas</a>
             </div>
         @endif
     </div>
@@ -59,6 +60,149 @@
             <button type="button" class="btn btn-sm btn-link" data-ayuda-bienvenida-cerrar>Ya entendí</button>
         </div>
     </div>
+
+    @unless ($isBranding)
+        {{-- Barra de Acciones Inmediatas (One-Click) --}}
+        <div class="dash-quick-bar" role="navigation" aria-label="Acciones inmediatas">
+            <a href="{{ route('programas.create') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--primary">
+                    <i class="fas fa-folder-plus" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Nuevo Programa</strong>
+                    <small>Crear itinerario & pax</small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ route('tarifario-maestro.index') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--gold">
+                    <i class="fas fa-calculator" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Cotizador Rápido</strong>
+                    <small>Costeo & tarifas</small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ route('reservas.index') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--teal">
+                    <i class="fas fa-calendar-check" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Reservas</strong>
+                    <small>Gestión & seguimiento</small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ route('operaciones.index') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--purple">
+                    <i class="fas fa-clipboard-list" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Hoja de Operaciones</strong>
+                    <small>Día a día & vouchers</small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+
+            <a href="{{ route('consultas.index') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--amber">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Consultas Web</strong>
+                    <small>{{ $consultasNuevas > 0 ? "{$consultasNuevas} nuevas por responder" : 'Bandeja al día' }}</small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+        </div>
+
+        {{-- Radar de Alertas Críticas e Inmediatas --}}
+        <section class="dash-radar-card" aria-label="Radar de Alertas Inmediatas">
+            <div class="dash-radar-card__head">
+                <h2>
+                    <i class="fas fa-satellite-dish" aria-hidden="true"></i>
+                    Radar de Alertas Inmediatas
+                    @if ($totalAlertas > 0)
+                        <span class="badge text-bg-danger ms-2">{{ $totalAlertas }}</span>
+                    @endif
+                </h2>
+                <small class="text-muted"><i class="fas fa-sync-alt me-1"></i>En tiempo real</small>
+            </div>
+
+            @if ($totalAlertas > 0)
+                <div class="dash-radar-card__grid">
+                    @if (!empty($alertasRadar['servicios_urgentes']))
+                        <a href="{{ route('reservas.index') }}" class="dash-radar-item dash-radar-item--danger">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['servicios_urgentes'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Servicios próx. sin confirmar</strong>
+                                <small>En los próximos 3 días</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['consultas']))
+                        <a href="{{ route('consultas.index') }}" class="dash-radar-item dash-radar-item--info">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['consultas'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Consultas web pendientes</strong>
+                                <small>Leads nuevos por atender</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['mensajes_esperando']))
+                        <a href="{{ route('reservas.index') }}" class="dash-radar-item dash-radar-item--warn">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['mensajes_esperando'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Proveedores por responder</strong>
+                                <small>Solicitudes enviadas en espera</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['pagos_vencidos']))
+                        <a href="{{ route('cuentas.index', ['filtro' => 'vencidas']) }}" class="dash-radar-item dash-radar-item--danger">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['pagos_vencidos'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Pagos a proveedores vencidos</strong>
+                                <small>Servicios prestados sin pagar</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['pagos_solicitados']))
+                        <a href="{{ route('cuentas.index', ['filtro' => 'solicitadas']) }}" class="dash-radar-item dash-radar-item--warn">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['pagos_solicitados'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Pagos solicitados por Reservas</strong>
+                                <small>Pendientes por autorizar</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['cobros_vencidos']))
+                        <a href="#dash-cobros" class="dash-radar-item dash-radar-item--danger">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['cobros_vencidos'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Saldos por cobrar vencidos</strong>
+                                <small>Cobros a clientes pendientes</small>
+                            </div>
+                        </a>
+                    @endif
+                </div>
+            @else
+                <div class="d-flex align-items-center gap-2 text-success py-1">
+                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                    <span><strong>Todo al día:</strong> No hay servicios urgentes por confirmar ni pagos o cobros vencidos hoy.</span>
+                </div>
+            @endif
+        </section>
+    @endunless
 
     {{-- Indicadores principales --}}
     @if ($isBranding)
@@ -276,67 +420,124 @@
         </div>
     @else
         <div class="dash-grid">
-            {{-- Viajes en curso y próximos --}}
-            <section class="card dash-card dash-grid__main" aria-labelledby="dash-upcoming">
-                <div class="card-header dash-card__header">
-                    <h2 id="dash-upcoming" class="dash-card__title">Próximos viajes</h2>
-                    <a href="{{ route('programas.index') }}" class="btn btn-sm btn-link">Ver todos <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
-                </div>
-
-                @if ($ongoing->isNotEmpty())
-                    <div class="dash-ongoing">
-                        <p class="dash-ongoing__label"><span class="dash-dot" aria-hidden="true"></span> En curso</p>
-                        @foreach ($ongoing as $programa)
-                            <a href="{{ route('itinerario', $programa) }}" class="dash-ongoing__item" target="_blank" rel="noopener">
-                                <strong>{{ $programa->nombre }}</strong>
-                                <span>Regresa {{ \Carbon\Carbon::parse($programa->fin)->locale('es')->isoFormat('D MMM') }} · {{ $programa->paxs_count }} pax</span>
-                            </a>
-                        @endforeach
-                    </div>
-                @endif
-
-                @if ($upcoming->isEmpty())
-                    <div class="admin-empty">
-                        <i class="fas fa-route" aria-hidden="true"></i>
-                        No hay programas próximos registrados.
-                    </div>
-                @else
-                    <ul class="trip-list">
-                        @foreach ($upcoming as $programa)
-                            @php
-                                $daysLeft = (int) $today->diffInDays(\Carbon\Carbon::parse($programa->inicio));
-                                $urgency = $daysLeft <= 7 ? 'soon' : ($daysLeft <= 30 ? 'near' : 'later');
-                            @endphp
-                            <li class="trip">
-                                <div class="trip__when trip__when--{{ $urgency }}">
-                                    <span class="trip__day">{{ \Carbon\Carbon::parse($programa->inicio)->format('d') }}</span>
-                                    <span class="trip__month">{{ \Carbon\Carbon::parse($programa->inicio)->locale('es')->isoFormat('MMM') }}</span>
-                                </div>
-                                <div class="trip__body">
-                                    <p class="trip__name">{{ $programa->nombre }}</p>
-                                    <p class="trip__meta">
-                                        <span><i class="far fa-calendar" aria-hidden="true"></i> {{ $range($programa) }}</span>
-                                        <span><i class="fas fa-users" aria-hidden="true"></i> {{ $programa->paxs_count }} pax</span>
-                                        @if ($programa->agentes->isNotEmpty())
-                                            <span class="d-none d-md-inline"><i class="fas fa-user-tie" aria-hidden="true"></i> {{ $programa->agentes->pluck('nombre')->implode(', ') }}</span>
-                                        @endif
-                                    </p>
-                                </div>
-                                <div class="trip__side">
-                                    <span class="badge trip__badge trip__badge--{{ $urgency }}">
-                                        {{ $daysLeft === 0 ? 'Hoy' : ($daysLeft === 1 ? 'Mañana' : 'En ' . $daysLeft . ' días') }}
+            <div class="dash-grid__main">
+                @if ($serviciosHoy->isNotEmpty())
+                    {{-- Operación de hoy en vivo --}}
+                    <section class="card dash-card dash-today-card" aria-labelledby="dash-today-live">
+                        <div class="card-header dash-card__header">
+                            <h2 id="dash-today-live" class="dash-card__title">
+                                <i class="fas fa-sun text-warning me-2" aria-hidden="true"></i> Operación de hoy en vivo
+                                <span class="badge text-bg-primary ms-2">{{ $operacion['hoy'] }} {{ $operacion['hoy'] === 1 ? 'servicio' : 'servicios' }}</span>
+                            </h2>
+                            <a href="{{ route('operaciones.index') }}" class="btn btn-sm btn-link">Ver hoja completa <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                        </div>
+                        <div class="dash-today-card__list">
+                            @foreach ($serviciosHoy as $svc)
+                                <div class="dash-today-item">
+                                    <span class="dash-today-item__time">
+                                        <i class="far fa-clock me-1"></i>{{ $svc->hora ? \Carbon\Carbon::parse($svc->hora)->format('H:i') : 'Todo el día' }}
                                     </span>
-                                    <span class="badge text-bg-light">{{ strtoupper($programa->lang ?: 'es') }}</span>
-                                    <div class="trip__actions">
-                                        <a href="{{ route('itinerario', $programa) }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener" title="Ver itinerario del cliente" aria-label="Ver itinerario de {{ $programa->nombre }}"><i class="fas fa-eye" aria-hidden="true"></i></a>
-                                        <a href="{{ route('programas.edit', $programa) }}" class="btn btn-sm btn-outline-primary" title="Editar" aria-label="Editar {{ $programa->nombre }}"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                    <div class="dash-today-item__title">
+                                        <strong>{{ $svc->concepto ?: ($svc->servicio_nombre ?? 'Servicio') }}</strong>
+                                        <small>
+                                            @if ($svc->programa)
+                                                <a href="{{ route('programas.edit', $svc->programa_id) }}" class="text-decoration-none">
+                                                    <strong>{{ $svc->programa->codigo }}</strong> · {{ $svc->programa->nombre }}
+                                                </a>
+                                            @endif
+                                            @if ($svc->proveedor)
+                                                · <span class="text-muted"><i class="fas fa-building" aria-hidden="true"></i> {{ $svc->proveedor->nombre }}</span>
+                                            @endif
+                                        </small>
+                                    </div>
+                                    <div class="dash-today-item__meta">
+                                        @php
+                                            $badgeClass = match($svc->estado) {
+                                                'confirmado' => 'text-bg-success',
+                                                'solicitado' => 'text-bg-warning',
+                                                'cancelado' => 'text-bg-danger',
+                                                default => 'text-bg-secondary'
+                                            };
+                                        @endphp
+                                        <span class="badge {{ $badgeClass }}">{{ ucfirst(str_replace('_', ' ', $svc->estado)) }}</span>
+                                        <a href="{{ route('servicios.voucher', $svc) }}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Descargar Voucher" target="_blank" rel="noopener">
+                                            <i class="fas fa-ticket-alt" aria-hidden="true"></i>
+                                        </a>
                                     </div>
                                 </div>
-                            </li>
-                        @endforeach
-                    </ul>
+                            @endforeach
+                        </div>
+                    </section>
                 @endif
-            </section>
+
+                {{-- Viajes en curso y próximos --}}
+                <section class="card dash-card" aria-labelledby="dash-upcoming">
+                    <div class="card-header dash-card__header">
+                        <h2 id="dash-upcoming" class="dash-card__title">Próximos viajes</h2>
+                        <a href="{{ route('programas.index') }}" class="btn btn-sm btn-link">Ver todos <i class="fas fa-arrow-right" aria-hidden="true"></i></a>
+                    </div>
+
+                    @if ($ongoing->isNotEmpty())
+                        <div class="dash-ongoing">
+                            <p class="dash-ongoing__label"><span class="dash-dot" aria-hidden="true"></span> En curso</p>
+                            @foreach ($ongoing as $programa)
+                                <a href="{{ route('itinerario', $programa) }}" class="dash-ongoing__item" target="_blank" rel="noopener">
+                                    <strong>{{ $programa->nombre }}</strong>
+                                    <span>Regresa {{ \Carbon\Carbon::parse($programa->fin)->locale('es')->isoFormat('D MMM') }} · {{ $programa->paxs_count }} pax</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+
+                    @if ($upcoming->isEmpty())
+                        <div class="admin-empty">
+                            <i class="fas fa-route" aria-hidden="true"></i>
+                            No hay programas próximos registrados.
+                        </div>
+                    @else
+                        <ul class="trip-list">
+                            @foreach ($upcoming as $programa)
+                                @php
+                                    $daysLeft = (int) $today->diffInDays(\Carbon\Carbon::parse($programa->inicio));
+                                    $urgency = $daysLeft <= 7 ? 'soon' : ($daysLeft <= 30 ? 'near' : 'later');
+                                @endphp
+                                <li class="trip">
+                                    <div class="trip__when trip__when--{{ $urgency }}">
+                                        <span class="trip__day">{{ \Carbon\Carbon::parse($programa->inicio)->format('d') }}</span>
+                                        <span class="trip__month">{{ \Carbon\Carbon::parse($programa->inicio)->locale('es')->isoFormat('MMM') }}</span>
+                                    </div>
+                                    <div class="trip__body">
+                                        <p class="trip__name">{{ $programa->nombre }}</p>
+                                        <p class="trip__meta">
+                                            <span><i class="far fa-calendar" aria-hidden="true"></i> {{ $range($programa) }}</span>
+                                            <span><i class="fas fa-users" aria-hidden="true"></i> {{ $programa->paxs_count }} pax</span>
+                                            @if ($programa->agentes->isNotEmpty())
+                                                <span class="d-none d-md-inline"><i class="fas fa-user-tie" aria-hidden="true"></i> {{ $programa->agentes->pluck('nombre')->implode(', ') }}</span>
+                                            @endif
+                                            @if (!empty($programa->semaforo_texto))
+                                                <span class="trip-health trip-health--{{ $programa->semaforo }}">
+                                                    <i class="fas {{ $programa->semaforo === 'listo' ? 'fa-check-circle' : ($programa->semaforo === 'alerta' ? 'fa-exclamation-triangle' : 'fa-info-circle') }}" aria-hidden="true"></i>
+                                                    {{ $programa->semaforo_texto }}
+                                                </span>
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="trip__side">
+                                        <span class="badge trip__badge trip__badge--{{ $urgency }}">
+                                            {{ $daysLeft === 0 ? 'Hoy' : ($daysLeft === 1 ? 'Mañana' : 'En ' . $daysLeft . ' días') }}
+                                        </span>
+                                        <span class="badge text-bg-light">{{ strtoupper($programa->lang ?: 'es') }}</span>
+                                        <div class="trip__actions">
+                                            <a href="{{ route('itinerario', $programa) }}" class="btn btn-sm btn-outline-secondary" target="_blank" rel="noopener" title="Ver itinerario del cliente" aria-label="Ver itinerario de {{ $programa->nombre }}"><i class="fas fa-eye" aria-hidden="true"></i></a>
+                                            <a href="{{ route('programas.edit', $programa) }}" class="btn btn-sm btn-outline-primary" title="Editar" aria-label="Editar {{ $programa->nombre }}"><i class="fas fa-pen" aria-hidden="true"></i></a>
+                                        </div>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
+                </section>
+            </div>
 
             <div class="dash-grid__side">
                 {{-- Operación: servicios del día y pendientes con fecha límite --}}

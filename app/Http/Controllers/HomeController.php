@@ -73,12 +73,15 @@ class HomeController extends Controller
             $tareas = collect();
             $avisosCliente = collect();
             $consultasNuevas = 0;
+            $serviciosHoy = collect();
+            $alertasRadar = [];
+            $totalAlertas = 0;
             $months = collect();
             $anios = collect();
             $meses = collect();
             $ultimosMovimientos = collect();
 
-            return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'isBranding'));
+            return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'isBranding'));
         }
 
         $ongoing = Programa::query()
@@ -90,12 +93,38 @@ class HomeController extends Controller
 
         $upcoming = Programa::query()
             ->withCount('paxs')
-            ->with('agentes:id,nombre')
+            ->with([
+                'agentes:id,nombre',
+                'cliente:id,nombre,empresa',
+                'servicios' => fn ($q) => $q->select('id', 'programa_id', 'estado'),
+            ])
             ->where('estado', '!=', 'cancelado')
             ->whereDate('inicio', '>', $today)
             ->orderBy('inicio')
-            ->take(8)
-            ->get();
+            ->take(6)
+            ->get()
+            ->map(function (Programa $p) use ($today) {
+                $diasFaltantes = (int) $today->diffInDays(\Carbon\Carbon::parse($p->inicio));
+                $abiertos = $p->servicios->whereIn('estado', ['sin_asignar', 'pendiente', 'solicitado'])->count();
+                $totalSvc = $p->servicios->count();
+
+                $p->dias_faltantes = $diasFaltantes;
+                $p->servicios_abiertos = $abiertos;
+                $p->servicios_total = $totalSvc;
+
+                if ($diasFaltantes <= 7 && $abiertos > 0) {
+                    $p->semaforo = 'alerta';
+                    $p->semaforo_texto = "¡Urgente! {$abiertos} sin confirmar";
+                } elseif ($abiertos > 0) {
+                    $p->semaforo = 'atencion';
+                    $p->semaforo_texto = "{$abiertos} pendientes";
+                } else {
+                    $p->semaforo = 'listo';
+                    $p->semaforo_texto = "100% confirmado";
+                }
+
+                return $p;
+            });
 
         $stats = [
             'ongoing' => $ongoing->count(),
@@ -142,6 +171,39 @@ class HomeController extends Controller
         $avisosCliente = Recordatorios::porEnviar();
         $consultasNuevas = \App\Models\Consulta::where('estado', 'nueva')->count();
 
+        // Operación de hoy (primeros servicios en vivo para el monitor diario)
+        $serviciosHoy = Servicio::query()
+            ->operables()
+            ->whereDate('fecha', $today)
+            ->with(['programa.paxs', 'proveedor'])
+            ->orderByRaw('hora IS NULL, hora')
+            ->orderBy('id')
+            ->take(6)
+            ->get();
+
+        // Alertas urgentes del Radar de Acción Inmediata
+        $serviciosUrgentes3d = Servicio::query()
+            ->operables()
+            ->whereIn('estado', ['sin_asignar', 'pendiente', 'solicitado'])
+            ->whereDate('fecha', '>=', $today)
+            ->whereDate('fecha', '<=', $today->copy()->addDays(3))
+            ->count();
+
+        $mensajesEsperando = Servicio::query()
+            ->where('estado', 'solicitado')
+            ->whereHas('mensajes', fn ($q) => $q->where('direccion', 'enviado'))
+            ->count();
+
+        $alertasRadar = [
+            'consultas' => $consultasNuevas,
+            'servicios_urgentes' => $serviciosUrgentes3d,
+            'mensajes_esperando' => $mensajesEsperando,
+            'pagos_solicitados' => $operacion['pagosSolicitados'],
+            'pagos_vencidos' => $operacion['pagosVencidos'],
+            'cobros_vencidos' => $cobros->filter(fn ($item) => !empty($item['cobro']['saldoVencido']))->count(),
+        ];
+        $totalAlertas = array_sum($alertasRadar);
+
         // Programas por mes del año en curso (gráfico de barras en CSS, sin librerías).
         $perMonth = Programa::query()
             ->whereYear('inicio', $today->year)
@@ -158,6 +220,6 @@ class HomeController extends Controller
 
         $ultimosMovimientos = \App\Models\Movimiento::query()->with('programa:id,codigo')->latest()->orderByDesc('id')->limit(8)->get();
 
-        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'isBranding'));
+        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'isBranding'));
     }
 }

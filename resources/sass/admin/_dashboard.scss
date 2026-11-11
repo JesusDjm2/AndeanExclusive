@@ -491,3 +491,297 @@
 
     strong { color: $color-ink; }
 }
+
+// ==========================================================================
+// Extensiones Senior: Centro de Mando Ejecutivo (Acciones Rápidas + Radar)
+// ==========================================================================
+
+// Barra de acciones inmediatas (One-Click Actions)
+.dash-quick-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.dash-quick-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    background: var(--ae-surface);
+    border: 1px solid var(--ae-border);
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--ae-ink);
+    box-shadow: var(--ae-shadow);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &__icon {
+        flex: 0 0 38px;
+        height: 38px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+
+        &--primary { background: rgba(37, 99, 235, 0.1); color: var(--ae-interactive); }
+        &--gold { background: var(--ae-gold-soft); color: var(--ae-gold-text); }
+        &--teal { background: rgba(13, 148, 136, 0.1); color: #0d9488; }
+        &--purple { background: rgba(109, 40, 217, 0.1); color: var(--ae-violet); }
+        &--amber { background: rgba(245, 158, 11, 0.1); color: var(--ae-warn); }
+    }
+
+    &__text {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        strong {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--ae-ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        small {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--ae-ink-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &__arrow {
+        color: var(--ae-border-strong);
+        font-size: 0.75rem;
+        transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    &:hover {
+        transform: translateY(-2px);
+        border-color: var(--ae-border-strong);
+        box-shadow: var(--ae-shadow-lg);
+
+        .dash-quick-btn__icon {
+            transform: scale(1.08);
+        }
+
+        .dash-quick-btn__arrow {
+            color: var(--ae-interactive);
+            transform: translateX(3px);
+        }
+    }
+}
+
+// Radar de Alertas Urgentes
+.dash-radar-card {
+    background: var(--ae-surface);
+    border: 1px solid var(--ae-border);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--ae-shadow);
+
+    &__head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.85rem;
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.88rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--ae-ink);
+            margin: 0;
+
+            i {
+                color: var(--ae-danger);
+            }
+        }
+    }
+
+    &__grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.65rem;
+    }
+}
+
+.dash-radar-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    border: 1px solid var(--ae-border-soft);
+    background: var(--ae-surface-2);
+    text-decoration: none;
+    color: var(--ae-ink);
+    transition: all 0.15s ease;
+
+    &__count {
+        flex: 0 0 28px;
+        height: 28px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    &__info {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        strong {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--ae-ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        small {
+            display: block;
+            font-size: 0.72rem;
+            color: var(--ae-ink-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &--danger {
+        border-left: 3px solid var(--ae-danger);
+        .dash-radar-item__count { background: rgba(220, 38, 38, 0.12); color: var(--ae-danger); }
+    }
+
+    &--warn {
+        border-left: 3px solid var(--ae-warn);
+        .dash-radar-item__count { background: rgba(245, 158, 11, 0.12); color: var(--ae-warn); }
+    }
+
+    &--info {
+        border-left: 3px solid var(--ae-interactive);
+        .dash-radar-item__count { background: rgba(37, 99, 235, 0.12); color: var(--ae-interactive); }
+    }
+
+    &:hover {
+        background: var(--ae-hover);
+        border-color: var(--ae-border-strong);
+        transform: translateX(2px);
+    }
+}
+
+// Widget Operación en Vivo de Hoy
+.dash-today-card {
+    margin-bottom: 1.5rem;
+
+    &__list {
+        display: grid;
+        gap: 0.5rem;
+        padding: 0.85rem 1rem;
+    }
+}
+
+.dash-today-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    background: var(--ae-surface);
+    border: 1px solid var(--ae-border-soft);
+    border-radius: 8px;
+    font-size: 0.84rem;
+    transition: all 0.15s ease;
+
+    &:hover {
+        border-color: var(--ae-border-strong);
+        background: var(--ae-hover);
+    }
+
+    &__time {
+        font-family: inherit;
+        font-size: 0.76rem;
+        font-weight: 700;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        background: var(--ae-surface-2);
+        border: 1px solid var(--ae-border-soft);
+        color: var(--ae-ink);
+        white-space: nowrap;
+    }
+
+    &__title {
+        flex: 1 1 200px;
+        min-width: 0;
+
+        strong {
+            display: block;
+            color: var(--ae-ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        small {
+            display: block;
+            color: var(--ae-ink-soft);
+            font-size: 0.74rem;
+        }
+    }
+
+    &__meta {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto;
+    }
+}
+
+// Semáforo de salud en Próximos Viajes
+.trip-health {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.18rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 999px;
+
+    &--listo {
+        background: rgba(22, 163, 74, 0.1);
+        color: var(--ae-success);
+        border: 1px solid rgba(22, 163, 74, 0.25);
+    }
+
+    &--atencion {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--ae-warn);
+        border: 1px solid rgba(245, 158, 11, 0.25);
+    }
+
+    &--alerta {
+        background: rgba(220, 38, 38, 0.1);
+        color: var(--ae-danger);
+        border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+}
