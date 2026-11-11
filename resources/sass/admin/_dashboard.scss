@@ -530,6 +530,7 @@
         &--primary { background: rgba(37, 99, 235, 0.1); color: var(--ae-interactive); }
         &--gold { background: var(--ae-gold-soft); color: var(--ae-gold-text); }
         &--teal { background: rgba(13, 148, 136, 0.1); color: #0d9488; }
+        &--emerald { background: rgba(16, 185, 129, 0.12); color: #059669; }
         &--purple { background: rgba(109, 40, 217, 0.1); color: var(--ae-violet); }
         &--amber { background: rgba(245, 158, 11, 0.1); color: var(--ae-warn); }
     }
@@ -783,5 +784,261 @@
         background: rgba(220, 38, 38, 0.1);
         color: var(--ae-danger);
         border: 1px solid rgba(220, 38, 38, 0.25);
+    }
+}
+
+// ==========================================================================
+// Módulo de Finanzas & Contabilidad Ejecutiva
+// ==========================================================================
+.dash-fin-card {
+    background: var(--ae-surface);
+    border: 1px solid var(--ae-border);
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--ae-shadow);
+    overflow: hidden;
+
+    &__header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.85rem 1.2rem;
+        border-bottom: 1px solid var(--ae-border-soft);
+        background: var(--ae-surface-2);
+    }
+
+    &__title {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.92rem;
+        font-weight: 700;
+        margin: 0;
+        color: var(--ae-ink);
+
+        i {
+            color: #d97706;
+        }
+    }
+
+    &__links {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        font-size: 0.82rem;
+
+        a {
+            color: var(--ae-interactive);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+
+            &:hover {
+                text-decoration: underline;
+                color: var(--ae-accent-text);
+            }
+        }
+    }
+
+    // Grid de los 3 pilares financieros
+    &__kpis {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1px;
+        background: var(--ae-border-soft);
+        border-bottom: 1px solid var(--ae-border-soft);
+    }
+
+    &__kpi {
+        background: var(--ae-surface);
+        padding: 1rem 1.15rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        position: relative;
+        text-decoration: none;
+        color: var(--ae-ink);
+        transition: background 0.15s ease;
+
+        &:hover {
+            background: var(--ae-hover);
+        }
+
+        &-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--ae-ink-soft);
+        }
+
+        &-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--ae-ink);
+            font-variant-numeric: tabular-nums;
+            margin-top: 0.15rem;
+        }
+
+        &-sub {
+            font-size: 0.76rem;
+            color: var(--ae-ink-soft);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        &--danger {
+            border-left: 3px solid var(--ae-danger);
+            .dash-fin-card__kpi-value { color: var(--ae-danger); }
+        }
+
+        &--warn {
+            border-left: 3px solid var(--ae-warn);
+            .dash-fin-card__kpi-value { color: var(--ae-warn); }
+        }
+
+        &--teal {
+            border-left: 3px solid #0d9488;
+            .dash-fin-card__kpi-value { color: #0d9488; }
+        }
+    }
+
+    // Listados de acción rápida financiera (Proveedores por pagar + Cobros por vencer)
+    &__split {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+
+        @media (max-width: 991px) {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    &__col {
+        padding: 1rem 1.15rem;
+
+        &:first-child {
+            border-right: 1px solid var(--ae-border-soft);
+
+            @media (max-width: 991px) {
+                border-right: none;
+                border-bottom: 1px solid var(--ae-border-soft);
+            }
+        }
+    }
+
+    &__col-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--ae-ink-soft);
+        margin-bottom: 0.75rem;
+
+        a {
+            text-transform: none;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--ae-interactive);
+            font-size: 0.76rem;
+
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    &__list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    &__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        background: var(--ae-surface-2);
+        border: 1px solid var(--ae-border-soft);
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--ae-ink);
+        transition: all 0.15s ease;
+
+        &:hover {
+            background: var(--ae-hover);
+            border-color: var(--ae-border-strong);
+            transform: translateX(2px);
+        }
+    }
+
+    &__item-main {
+        flex: 1 1 auto;
+        min-width: 0;
+
+        strong {
+            display: block;
+            color: var(--ae-ink);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.83rem;
+        }
+
+        small {
+            display: block;
+            color: var(--ae-ink-soft);
+            font-size: 0.73rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    &__item-side {
+        flex: 0 0 auto;
+        text-align: right;
+
+        .dash-fin-amount {
+            display: block;
+            font-weight: 800;
+            color: var(--ae-ink);
+            font-variant-numeric: tabular-nums;
+            font-size: 0.86rem;
+
+            &--danger { color: var(--ae-danger); }
+            &--warn { color: var(--ae-warn); }
+            &--success { color: var(--ae-success); }
+        }
+
+        .dash-fin-badge {
+            font-size: 0.7rem;
+            display: block;
+            color: var(--ae-ink-soft);
+            font-weight: 600;
+
+            &.is-overdue {
+                color: var(--ae-danger);
+            }
+        }
     }
 }

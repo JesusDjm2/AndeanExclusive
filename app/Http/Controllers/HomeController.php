@@ -8,6 +8,8 @@ use App\Models\Esblog;
 use App\Models\Estour;
 use App\Models\Mes;
 use App\Models\Pax;
+use App\Models\Pago;
+use App\Models\ProveedorPago;
 use App\Models\Programa;
 use App\Models\Servicio;
 use App\Models\Tarea;
@@ -76,12 +78,17 @@ class HomeController extends Controller
             $serviciosHoy = collect();
             $alertasRadar = [];
             $totalAlertas = 0;
+            $contabilidad = [
+                'porPagar' => ['vencidasCount' => 0, 'vencidasUSD' => 0, 'vencidasPEN' => 0, 'semanaCount' => 0, 'semanaUSD' => 0, 'semanaPEN' => 0, 'solicitadasCount' => 0, 'solicitadasUSD' => 0, 'solicitadasPEN' => 0, 'totalPendientesCount' => 0, 'topVencidos' => collect(), 'solicitadosItems' => collect()],
+                'porCobrar' => ['vencidosCount' => 0, 'vencidosUSD' => 0, 'proximosCount' => 0, 'proximosUSD' => 0, 'totalPendienteUSD' => 0, 'itemsVencidos' => collect()],
+                'flujoMes' => ['ingresosUSD' => 0, 'egresosUSD' => 0, 'egresosPEN' => 0, 'pagosCount' => 0],
+            ];
             $months = collect();
             $anios = collect();
             $meses = collect();
             $ultimosMovimientos = collect();
 
-            return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'isBranding'));
+            return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'contabilidad', 'isBranding'));
         }
 
         $ongoing = Programa::query()
@@ -181,6 +188,58 @@ class HomeController extends Controller
             ->take(6)
             ->get();
 
+        // Contabilidad y Finanzas: Cuentas por pagar, por cobrar y flujo de tesorería del mes
+        $serviciosPorPagar = Servicio::query()
+            ->deudas()
+            ->whereNull('pagado_at')
+            ->with(['proveedor:id,nombre,categoria_id', 'pagos', 'programa:id,codigo,nombre'])
+            ->get();
+
+        $pagosVencidos = $serviciosPorPagar->filter(fn ($s) => $s->fecha && Carbon::parse($s->fecha)->lt($today));
+        $pagosSemana = $serviciosPorPagar->filter(fn ($s) => $s->fecha && Carbon::parse($s->fecha)->gte($today) && Carbon::parse($s->fecha)->lte($today->copy()->addDays(7)));
+        $pagosSolicitados = Servicio::query()->solicitudesPago()->with(['proveedor:id,nombre', 'programa:id,codigo,nombre'])->get();
+
+        $pagosMesProveedor = ProveedorPago::query()
+            ->whereYear('fecha', $today->year)
+            ->whereMonth('fecha', $today->month)
+            ->get();
+
+        $ingresosMesUSD = (float) Pago::query()
+            ->whereYear('fecha', $today->year)
+            ->whereMonth('fecha', $today->month)
+            ->sum('monto');
+
+        $contabilidad = [
+            'porPagar' => [
+                'vencidasCount' => $pagosVencidos->count(),
+                'vencidasUSD' => (float) $pagosVencidos->where('moneda', 'USD')->sum(fn ($s) => $s->saldo_proveedor),
+                'vencidasPEN' => (float) $pagosVencidos->where('moneda', 'PEN')->sum(fn ($s) => $s->saldo_proveedor),
+                'semanaCount' => $pagosSemana->count(),
+                'semanaUSD' => (float) $pagosSemana->where('moneda', 'USD')->sum(fn ($s) => $s->saldo_proveedor),
+                'semanaPEN' => (float) $pagosSemana->where('moneda', 'PEN')->sum(fn ($s) => $s->saldo_proveedor),
+                'solicitadasCount' => $pagosSolicitados->count(),
+                'solicitadasUSD' => (float) $pagosSolicitados->where('moneda', 'USD')->sum(fn ($s) => $s->saldo_proveedor),
+                'solicitadasPEN' => (float) $pagosSolicitados->where('moneda', 'PEN')->sum(fn ($s) => $s->saldo_proveedor),
+                'totalPendientesCount' => $serviciosPorPagar->count(),
+                'topVencidos' => $pagosVencidos->sortBy('fecha')->take(5)->values(),
+                'solicitadosItems' => $pagosSolicitados->take(3)->values(),
+            ],
+            'porCobrar' => [
+                'vencidosCount' => $cobros->filter(fn ($item) => !empty($item['cobro']['saldoVencido']))->count(),
+                'vencidosUSD' => (float) $cobros->filter(fn ($item) => !empty($item['cobro']['saldoVencido']))->sum(fn ($item) => $item['cobro']['saldo']),
+                'proximosCount' => $cobros->filter(fn ($item) => empty($item['cobro']['saldoVencido']))->count(),
+                'proximosUSD' => (float) $cobros->filter(fn ($item) => empty($item['cobro']['saldoVencido']))->sum(fn ($item) => $item['cobro']['saldo']),
+                'totalPendienteUSD' => (float) $cobros->sum(fn ($item) => $item['cobro']['saldo']),
+                'itemsVencidos' => $cobros->filter(fn ($item) => !empty($item['cobro']['saldoVencido']))->sortBy(fn ($item) => $item['cobro']['vencimientoSaldo'])->take(5)->values(),
+            ],
+            'flujoMes' => [
+                'ingresosUSD' => $ingresosMesUSD,
+                'egresosUSD' => (float) $pagosMesProveedor->where('moneda', 'USD')->sum('monto'),
+                'egresosPEN' => (float) $pagosMesProveedor->where('moneda', 'PEN')->sum('monto'),
+                'pagosCount' => $pagosMesProveedor->count(),
+            ],
+        ];
+
         // Alertas urgentes del Radar de Acción Inmediata
         $serviciosUrgentes3d = Servicio::query()
             ->operables()
@@ -198,9 +257,10 @@ class HomeController extends Controller
             'consultas' => $consultasNuevas,
             'servicios_urgentes' => $serviciosUrgentes3d,
             'mensajes_esperando' => $mensajesEsperando,
-            'pagos_solicitados' => $operacion['pagosSolicitados'],
-            'pagos_vencidos' => $operacion['pagosVencidos'],
-            'cobros_vencidos' => $cobros->filter(fn ($item) => !empty($item['cobro']['saldoVencido']))->count(),
+            'pagos_vencidos' => $contabilidad['porPagar']['vencidasCount'],
+            'pagos_solicitados' => $contabilidad['porPagar']['solicitadasCount'],
+            'pagos_semana' => $contabilidad['porPagar']['semanaCount'],
+            'cobros_vencidos' => $contabilidad['porCobrar']['vencidosCount'],
         ];
         $totalAlertas = array_sum($alertasRadar);
 
@@ -220,6 +280,6 @@ class HomeController extends Controller
 
         $ultimosMovimientos = \App\Models\Movimiento::query()->with('programa:id,codigo')->latest()->orderByDesc('id')->limit(8)->get();
 
-        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'isBranding'));
+        return view('home', compact('ultimosMovimientos', 'today', 'ongoing', 'upcoming', 'stats', 'months', 'content', 'anios', 'meses', 'cobros', 'operacion', 'tareas', 'avisosCliente', 'consultasNuevas', 'serviciosHoy', 'alertasRadar', 'totalAlertas', 'contabilidad', 'isBranding'));
     }
 }

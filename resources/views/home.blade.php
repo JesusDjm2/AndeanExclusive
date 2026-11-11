@@ -108,6 +108,25 @@
                 <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
             </a>
 
+            <a href="{{ route('cuentas.index') }}" class="dash-quick-btn">
+                <div class="dash-quick-btn__icon dash-quick-btn__icon--emerald">
+                    <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
+                </div>
+                <div class="dash-quick-btn__text">
+                    <strong>Cuentas por Pagar</strong>
+                    <small>
+                        @if ($contabilidad['porPagar']['vencidasCount'] > 0)
+                            <span class="text-danger fw-bold">{{ $contabilidad['porPagar']['vencidasCount'] }} vencidas</span>
+                        @elseif ($contabilidad['porPagar']['solicitadasCount'] > 0)
+                            <span class="text-warning fw-bold">{{ $contabilidad['porPagar']['solicitadasCount'] }} solicitadas</span>
+                        @else
+                            Proveedores al día
+                        @endif
+                    </small>
+                </div>
+                <i class="fas fa-chevron-right dash-quick-btn__arrow" aria-hidden="true"></i>
+            </a>
+
             <a href="{{ route('consultas.index') }}" class="dash-quick-btn">
                 <div class="dash-quick-btn__icon dash-quick-btn__icon--amber">
                     <i class="fas fa-inbox" aria-hidden="true"></i>
@@ -170,7 +189,12 @@
                             <span class="dash-radar-item__count">{{ $alertasRadar['pagos_vencidos'] }}</span>
                             <div class="dash-radar-item__info">
                                 <strong>Pagos a proveedores vencidos</strong>
-                                <small>Servicios prestados sin pagar</small>
+                                <small>
+                                    ${{ number_format($contabilidad['porPagar']['vencidasUSD'], 0) }} USD
+                                    @if ($contabilidad['porPagar']['vencidasPEN'] > 0)
+                                        · S/ {{ number_format($contabilidad['porPagar']['vencidasPEN'], 0) }}
+                                    @endif
+                                </small>
                             </div>
                         </a>
                     @endif
@@ -179,18 +203,28 @@
                         <a href="{{ route('cuentas.index', ['filtro' => 'solicitadas']) }}" class="dash-radar-item dash-radar-item--warn">
                             <span class="dash-radar-item__count">{{ $alertasRadar['pagos_solicitados'] }}</span>
                             <div class="dash-radar-item__info">
-                                <strong>Pagos solicitados por Reservas</strong>
-                                <small>Pendientes por autorizar</small>
+                                <strong>Adelantos pedidos por Reservas</strong>
+                                <small>${{ number_format($contabilidad['porPagar']['solicitadasUSD'], 0) }} USD · Desembolso urgente</small>
                             </div>
                         </a>
                     @endif
 
                     @if (!empty($alertasRadar['cobros_vencidos']))
-                        <a href="#dash-cobros" class="dash-radar-item dash-radar-item--danger">
+                        <a href="#dash-finanzas" class="dash-radar-item dash-radar-item--danger">
                             <span class="dash-radar-item__count">{{ $alertasRadar['cobros_vencidos'] }}</span>
                             <div class="dash-radar-item__info">
-                                <strong>Saldos por cobrar vencidos</strong>
-                                <small>Cobros a clientes pendientes</small>
+                                <strong>Saldos de clientes vencidos</strong>
+                                <small>${{ number_format($contabilidad['porCobrar']['vencidosUSD'], 0) }} USD por cobrar</small>
+                            </div>
+                        </a>
+                    @endif
+
+                    @if (!empty($alertasRadar['pagos_semana']))
+                        <a href="{{ route('cuentas.index', ['filtro' => 'semana']) }}" class="dash-radar-item dash-radar-item--info">
+                            <span class="dash-radar-item__count">{{ $alertasRadar['pagos_semana'] }}</span>
+                            <div class="dash-radar-item__info">
+                                <strong>Pagos a proveedores en 7 días</strong>
+                                <small>${{ number_format($contabilidad['porPagar']['semanaUSD'], 0) }} USD programados</small>
                             </div>
                         </a>
                     @endif
@@ -537,6 +571,211 @@
                         </ul>
                     @endif
                 </section>
+
+                {{-- Módulo Ejecutivo de Finanzas & Contabilidad --}}
+                <section class="card dash-card dash-fin-card" id="dash-finanzas" aria-labelledby="dash-finanzas-title">
+                    <div class="dash-fin-card__header">
+                        <h2 id="dash-finanzas-title" class="dash-fin-card__title">
+                            <i class="fas fa-coins text-warning" aria-hidden="true"></i> Finanzas & Contabilidad
+                            @if ($contabilidad['porPagar']['vencidasCount'] > 0 || $contabilidad['porCobrar']['vencidosCount'] > 0)
+                                <span class="badge text-bg-danger ms-2">Requiere atención</span>
+                            @else
+                                <span class="badge text-bg-success ms-2">Al día</span>
+                            @endif
+                        </h2>
+                        <div class="dash-fin-card__links">
+                            <a href="{{ route('cuentas.index') }}">
+                                <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> Cuentas por pagar
+                            </a>
+                            <a href="{{ route('reportes.index') }}">
+                                <i class="fas fa-chart-line" aria-hidden="true"></i> Reportes & márgenes
+                            </a>
+                        </div>
+                    </div>
+
+                    {{-- 3 Pilares Financieros: Por pagar, Por cobrar, Flujo mes --}}
+                    <div class="dash-fin-card__kpis">
+                        {{-- 1. Por pagar a proveedores --}}
+                        <a href="{{ route('cuentas.index', ['filtro' => $contabilidad['porPagar']['vencidasCount'] > 0 ? 'vencidas' : 'pendientes']) }}"
+                           class="dash-fin-card__kpi {{ $contabilidad['porPagar']['vencidasCount'] > 0 ? 'dash-fin-card__kpi--danger' : ($contabilidad['porPagar']['solicitadasCount'] > 0 ? 'dash-fin-card__kpi--warn' : 'dash-fin-card__kpi--teal') }}">
+                            <div class="dash-fin-card__kpi-header">
+                                <span>Por Pagar a Proveedores</span>
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+                            </div>
+                            <div class="dash-fin-card__kpi-value">
+                                ${{ number_format($contabilidad['porPagar']['vencidasUSD'], 0) }}
+                                @if ($contabilidad['porPagar']['vencidasPEN'] > 0)
+                                    <small class="fs-6 text-muted">/ S/ {{ number_format($contabilidad['porPagar']['vencidasPEN'], 0) }}</small>
+                                @endif
+                            </div>
+                            <div class="dash-fin-card__kpi-sub">
+                                @if ($contabilidad['porPagar']['vencidasCount'] > 0)
+                                    <span class="text-danger fw-bold"><i class="fas fa-exclamation-triangle"></i> {{ $contabilidad['porPagar']['vencidasCount'] }} servicios vencidos</span>
+                                @else
+                                    <span class="text-success"><i class="fas fa-check"></i> Sin deudas vencidas</span>
+                                @endif
+                                @if ($contabilidad['porPagar']['solicitadasCount'] > 0)
+                                    <span>· {{ $contabilidad['porPagar']['solicitadasCount'] }} solicitada</span>
+                                @endif
+                                @if ($contabilidad['porPagar']['semanaCount'] > 0)
+                                    <span>· {{ $contabilidad['porPagar']['semanaCount'] }} en 7 días</span>
+                                @endif
+                            </div>
+                        </a>
+
+                        {{-- 2. Por cobrar a clientes --}}
+                        <div class="dash-fin-card__kpi {{ $contabilidad['porCobrar']['vencidosCount'] > 0 ? 'dash-fin-card__kpi--danger' : 'dash-fin-card__kpi--teal' }}">
+                            <div class="dash-fin-card__kpi-header">
+                                <span>Por Cobrar a Clientes</span>
+                                <i class="fas fa-users" aria-hidden="true"></i>
+                            </div>
+                            <div class="dash-fin-card__kpi-value">
+                                ${{ number_format($contabilidad['porCobrar']['vencidosUSD'], 0) }}
+                            </div>
+                            <div class="dash-fin-card__kpi-sub">
+                                @if ($contabilidad['porCobrar']['vencidosCount'] > 0)
+                                    <span class="text-danger fw-bold"><i class="fas fa-clock"></i> {{ $contabilidad['porCobrar']['vencidosCount'] }} programas con saldo vencido</span>
+                                @else
+                                    <span class="text-success"><i class="fas fa-check"></i> Cobranza al día</span>
+                                @endif
+                                @if ($contabilidad['porCobrar']['proximosCount'] > 0)
+                                    <span>· {{ $contabilidad['porCobrar']['proximosCount'] }} por vencer (${{ number_format($contabilidad['porCobrar']['proximosUSD'], 0) }})</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- 3. Flujo de Tesorería del Mes --}}
+                        <a href="{{ route('reportes.index') }}" class="dash-fin-card__kpi dash-fin-card__kpi--teal">
+                            <div class="dash-fin-card__kpi-header">
+                                <span>Tesorería de {{ ucfirst($today->locale('es')->isoFormat('MMMM')) }}</span>
+                                <i class="fas fa-receipt" aria-hidden="true"></i>
+                            </div>
+                            <div class="dash-fin-card__kpi-value">
+                                ${{ number_format($contabilidad['flujoMes']['ingresosUSD'], 0) }}
+                                <small class="fs-6 text-muted">cobrado</small>
+                            </div>
+                            <div class="dash-fin-card__kpi-sub">
+                                <span>Pagado a proveedores: <strong>${{ number_format($contabilidad['flujoMes']['egresosUSD'], 0) }}</strong></span>
+                                @if ($contabilidad['flujoMes']['egresosPEN'] > 0)
+                                    <span>/ S/ {{ number_format($contabilidad['flujoMes']['egresosPEN'], 0) }}</span>
+                                @endif
+                                <span class="text-muted">({{ $contabilidad['flujoMes']['pagosCount'] }} pagos)</span>
+                            </div>
+                        </a>
+                    </div>
+
+                    {{-- Split de Urgencias: Proveedores por pagar vs Cobros vencidos --}}
+                    <div class="dash-fin-card__split">
+                        {{-- Columna Izquierda: Urgencias con Proveedores --}}
+                        <div class="dash-fin-card__col">
+                            <div class="dash-fin-card__col-title">
+                                <span><i class="fas fa-file-invoice text-danger me-1"></i> Proveedores Prioritarios</span>
+                                <a href="{{ route('cuentas.index', ['filtro' => 'vencidas']) }}">Ver todas ({{ $contabilidad['porPagar']['vencidasCount'] }}) →</a>
+                            </div>
+
+                            @if ($contabilidad['porPagar']['topVencidos']->isEmpty() && $contabilidad['porPagar']['solicitadosItems']->isEmpty())
+                                <div class="admin-empty py-3">
+                                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                    No hay pagos vencidos ni solicitados pendientes.
+                                </div>
+                            @else
+                                <ul class="dash-fin-card__list">
+                                    {{-- Solicitados por Reservas (urgentes por desembolsar) --}}
+                                    @foreach ($contabilidad['porPagar']['solicitadosItems'] as $s)
+                                        <li class="dash-fin-card__item">
+                                            <div class="dash-fin-card__item-main">
+                                                <strong>
+                                                    <span class="badge text-bg-warning me-1">Adelanto</span>
+                                                    {{ $s->proveedor?->nombre ?? 'Proveedor' }}
+                                                </strong>
+                                                <small>
+                                                    {{ $s->concepto ?: 'Servicio' }} ·
+                                                    @if ($s->programa)
+                                                        <a href="{{ route('programas.edit', $s->programa_id) }}" class="text-decoration-none">{{ $s->programa->codigo }}</a>
+                                                    @endif
+                                                </small>
+                                            </div>
+                                            <div class="dash-fin-card__item-side">
+                                                <span class="dash-fin-amount dash-fin-amount--warn">
+                                                    {{ $s->moneda === 'PEN' ? 'S/' : '$' }}{{ number_format($s->saldo_proveedor, 0) }}
+                                                </span>
+                                                <a href="{{ route('cuentas.index', ['filtro' => 'solicitadas', 'proveedor_id' => $s->proveedor_id]) }}" class="btn btn-sm btn-outline-warning py-0 px-2 mt-1" style="font-size: 0.72rem;">
+                                                    Pagar
+                                                </a>
+                                            </div>
+                                        </li>
+                                    @endforeach
+
+                                    {{-- Vencidos prioritarios --}}
+                                    @foreach ($contabilidad['porPagar']['topVencidos'] as $s)
+                                        <li class="dash-fin-card__item">
+                                            <div class="dash-fin-card__item-main">
+                                                <strong>{{ $s->proveedor?->nombre ?? 'Proveedor' }}</strong>
+                                                <small>
+                                                    {{ $s->concepto ?: 'Servicio' }} ·
+                                                    @if ($s->programa)
+                                                        <a href="{{ route('programas.edit', $s->programa_id) }}" class="text-decoration-none">{{ $s->programa->codigo }}</a>
+                                                    @endif
+                                                </small>
+                                            </div>
+                                            <div class="dash-fin-card__item-side">
+                                                <span class="dash-fin-amount dash-fin-amount--danger">
+                                                    {{ $s->moneda === 'PEN' ? 'S/' : '$' }}{{ number_format($s->saldo_proveedor, 0) }}
+                                                </span>
+                                                <span class="dash-fin-badge is-overdue">
+                                                    {{ \Carbon\Carbon::parse($s->fecha)->locale('es')->isoFormat('D MMM') }}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+
+                        {{-- Columna Derecha: Clientes con Saldo Vencido --}}
+                        <div class="dash-fin-card__col">
+                            <div class="dash-fin-card__col-title">
+                                <span><i class="fas fa-hand-holding-usd text-warning me-1"></i> Cobranza a Clientes</span>
+                                <span class="badge text-bg-secondary">{{ $contabilidad['porCobrar']['vencidosCount'] }} vencidos</span>
+                            </div>
+
+                            @if ($contabilidad['porCobrar']['itemsVencidos']->isEmpty())
+                                <div class="admin-empty py-3">
+                                    <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                    Todos los clientes están al día con sus pagos.
+                                </div>
+                            @else
+                                <ul class="dash-fin-card__list">
+                                    @foreach ($contabilidad['porCobrar']['itemsVencidos'] as ['programa' => $programa, 'cobro' => $cobro])
+                                        <li class="dash-fin-card__item">
+                                            <div class="dash-fin-card__item-main">
+                                                <strong>
+                                                    <a href="{{ route('programas.edit', [$programa, 'tab' => 'pagos']) }}" class="text-decoration-none text-reset">
+                                                        {{ $programa->codigo }} · {{ $programa->nombre }}
+                                                    </a>
+                                                </strong>
+                                                <small>
+                                                    @if ($programa->cliente)
+                                                        <i class="far fa-user me-1"></i>{{ $programa->cliente->nombre }} ·
+                                                    @endif
+                                                    Inicia: {{ \Carbon\Carbon::parse($programa->inicio)->locale('es')->isoFormat('D MMM YYYY') }}
+                                                </small>
+                                            </div>
+                                            <div class="dash-fin-card__item-side">
+                                                <span class="dash-fin-amount dash-fin-amount--danger">
+                                                    ${{ number_format($cobro['saldo'], 0) }}
+                                                </span>
+                                                <span class="dash-fin-badge is-overdue">
+                                                    Venció {{ $cobro['vencimientoSaldo']?->locale('es')->isoFormat('D MMM') }}
+                                                </span>
+                                            </div>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    </div>
+                </section>
             </div>
 
             <div class="dash-grid__side">
@@ -629,31 +868,7 @@
                     </section>
                 @endif
 
-                {{-- Cobros por gestionar --}}
-                <section class="card dash-card" aria-labelledby="dash-cobros">
-                    <div class="card-header dash-card__header">
-                        <h2 id="dash-cobros" class="dash-card__title">Cobros por gestionar</h2>
-                        <span class="badge text-bg-light">{{ $stats['cotizaciones'] }} {{ $stats['cotizaciones'] === 1 ? 'cotización abierta' : 'cotizaciones abiertas' }}</span>
-                    </div>
-                    @if ($cobros->isEmpty())
-                        <div class="admin-empty py-4"><i class="fas fa-check-circle" aria-hidden="true"></i> Sin saldos por vencer en 30 días.</div>
-                    @else
-                        <ul class="cobro-list">
-                            @foreach ($cobros->take(6) as ['programa' => $programa, 'cobro' => $cobro])
-                                <li class="cobro-list__item">
-                                    <a href="{{ route('programas.edit', [$programa, 'tab' => 'pagos']) }}" class="cobro-list__link">
-                                        <span class="cobro-list__name">{{ $programa->nombre }}</span>
-                                        <span class="cobro-list__due {{ $cobro['saldoVencido'] ? 'is-overdue' : '' }}">
-                                            {{ $cobro['saldoVencido'] ? 'Vencido' : 'Vence' }} {{ $cobro['vencimientoSaldo']->locale('es')->isoFormat('D MMM') }}
-                                        </span>
-                                    </a>
-                                    <span class="cobro-list__amount">${{ number_format($cobro['saldo'], 0) }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <p class="cobro-list__total">Saldo pendiente: <strong>${{ number_format($stats['saldoPendiente'], 2) }}</strong></p>
-                    @endif
-                </section>
+
 
                 {{-- Últimos movimientos de todas las áreas --}}
                 <section class="card dash-card" aria-labelledby="dash-movimientos">
