@@ -19,5 +19,9 @@ class Habitacion extends Model
     public function habitacionFechas()
     {
         return $this->hasMany(HabitacionFecha::class);
+    }
+    public function tarifas()
+    {
+        return $this->hasMany(Tarifa::class)->conPrioridadTemporada();
     } 
 }

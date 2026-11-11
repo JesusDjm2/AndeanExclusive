@@ -108,6 +108,9 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
             ->names('tarifario-maestro')
             ->parameters(['tarifario-maestro' => 'tarifarioServicio']);
         Route::resource('proveedors', ProveedorController::class)->names('proveedors');
+        Route::post('proveedores/{proveedor}/habitaciones', [ProveedorController::class, 'habitacionStore'])->name('proveedors.habitaciones.store');
+        Route::delete('proveedores/{proveedor}/habitaciones/{habitacion}', [ProveedorController::class, 'habitacionDestroy'])->name('proveedors.habitaciones.destroy');
+        Route::post('proveedores/{proveedor}/hotel-foto', [ProveedorController::class, 'hotelFoto'])->name('proveedors.hotel.foto');
         Route::resource('categorias-Proveedores', CategoriaController::class)->names('categoriasproveedor');
         Route::resource('agentes', AgenteController::class)->names('agentes');
         Route::post('consultas/{consulta}/cotizar', [ConsultaController::class, 'cotizar'])->name('consultas.cotizar');
@@ -159,7 +162,11 @@ Route::middleware(['panel.es', 'auth', 'role:administrador|operaciones|contabili
         Route::resource('clientes', ClienteController::class)->except('show')->names('clientes');
         Route::resource('paxs', PaxController::class)->names('paxs');
         Route::post('hoteles/rapido', [HotelController::class, 'rapido'])->name('hotel.rapido');
-        Route::resource('hoteles', HotelController::class)->names('hotel')->parameters(['hoteles' => 'hotel']);
+        Route::get('hoteles', function () {
+            $cat = \App\Models\Categoria::where('nombre', 'like', '%hotel%')->first();
+            return redirect()->route('proveedors.index', $cat ? ['categoria_id' => $cat->id] : []);
+        })->name('hotel.index');
+        Route::resource('hoteles', HotelController::class)->except(['index'])->names('hotel')->parameters(['hoteles' => 'hotel']);
         Route::resource('habitaciones', HabitacionController::class)->names('habitacion');
     });
 });

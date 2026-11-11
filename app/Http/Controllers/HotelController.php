@@ -220,6 +220,8 @@ class HotelController extends Controller
             'correo' => $data['correo'] ?? null,
         ]);
 
+        \App\Support\AlojamientoEnServicios::proveedorDe($hotel);
+
         $tipo = trim($data['habitacion_tipo'] ?? '') ?: 'Estándar / Doble';
         $capacidad = (int) ($data['habitacion_capacidad'] ?? 2) ?: 2;
 

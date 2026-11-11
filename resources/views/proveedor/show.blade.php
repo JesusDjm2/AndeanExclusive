@@ -109,6 +109,122 @@
                     </div>
                 </div>
 
+                {{-- Si es un Hotel: Sección Exclusiva de Alojamiento y Habitaciones Boutique --}}
+                @if ($proveedor->es_hotel)
+                    <div class="card card-outline card-info shadow-sm mb-4 border-0 rounded-3 overflow-hidden">
+                        <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h4 class="card-title mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                                    <i class="fas fa-hotel text-info"></i>
+                                    Alojamiento & Habitaciones Boutique
+                                </h4>
+                                <small class="text-muted">Tipos de habitación para este hotel, sus capacidades y las tarifas asignadas.</small>
+                            </div>
+                            @can('proveedores.gestionar')
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalFotoHotel">
+                                        <i class="fas fa-camera me-1"></i> Foto de portada
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-info text-white" data-bs-toggle="modal" data-bs-target="#modalNuevaHabitacion">
+                                        <i class="fas fa-plus me-1"></i> Nueva Habitación
+                                    </button>
+                                </div>
+                            @endcan
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row g-3">
+                                @if ($proveedor->hotel?->img)
+                                    <div class="col-md-3">
+                                        <div class="position-relative rounded overflow-hidden shadow-sm border" style="height: 160px;">
+                                            <img src="{{ asset($proveedor->hotel->img) }}" alt="{{ $proveedor->nombre }}"
+                                                class="w-100 h-100" style="object-fit: cover; cursor: pointer;"
+                                                data-bs-toggle="modal" data-bs-target="#modalFotoPreview">
+                                            <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-75 text-white small px-2 py-1 text-center">
+                                                <i class="fas fa-expand me-1"></i> Ver foto
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="{{ $proveedor->hotel?->img ? 'col-md-9' : 'col-12' }}">
+                                    @php
+                                        $habitaciones = $proveedor->hotel?->habitaciones ?? collect();
+                                    @endphp
+                                    @if ($habitaciones->isEmpty())
+                                        <div class="p-4 text-center text-muted bg-light rounded border">
+                                            <i class="fas fa-bed fa-2x text-secondary opacity-50 mb-2"></i>
+                                            <p class="mb-2 fw-medium">No hay tipos de habitación registrados todavía para este hotel.</p>
+                                            <small class="text-muted d-block mb-3">Registra habitaciones (ej. Standard, Suite, Matrimonial) para que Operaciones pueda elegirlas al armar un viaje.</small>
+                                            @can('proveedores.gestionar')
+                                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#modalNuevaHabitacion">
+                                                    <i class="fas fa-plus me-1"></i> Agregar primera habitación
+                                                </button>
+                                            @endcan
+                                        </div>
+                                    @else
+                                        <div class="row g-2">
+                                            @foreach ($habitaciones as $hab)
+                                                @php
+                                                    $tarifasHab = $proveedor->tarifas->where('habitacion_id', $hab->id);
+                                                @endphp
+                                                <div class="col-sm-6 col-lg-4">
+                                                    <div class="p-3 bg-light rounded-3 border h-100 d-flex flex-column justify-content-between">
+                                                        <div>
+                                                            <div class="d-flex justify-content-between align-items-start gap-1 mb-1">
+                                                                <h6 class="fw-bold text-dark mb-0 fs-6">{{ $hab->tipo }}</h6>
+                                                                @can('proveedores.gestionar')
+                                                                    <form action="{{ route('proveedors.habitaciones.destroy', [$proveedor->id, $hab->id]) }}" method="POST"
+                                                                        onsubmit="return confirm('¿Seguro que deseas eliminar la habitación «{{ $hab->tipo }}»?');" class="d-inline">
+                                                                        @csrf
+                                                                        @method('DELETE')
+                                                                        <button type="submit" class="btn btn-link text-danger p-0 border-0" title="Eliminar habitación">
+                                                                            <i class="fas fa-times"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                @endcan
+                                                            </div>
+                                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                                <span class="badge bg-secondary-subtle text-secondary border">
+                                                                    <i class="fas {{ $hab->capacidad > 1 ? 'fa-user-friends' : 'fa-user' }} me-1"></i>
+                                                                    {{ $hab->capacidad }} {{ $hab->capacidad === 1 ? 'persona' : 'personas' }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="pt-2 border-top mt-2">
+                                                            @if ($tarifasHab->isNotEmpty())
+                                                                @foreach ($tarifasHab as $tarifaHab)
+                                                                    <div class="d-flex justify-content-between align-items-center small mb-1">
+                                                                        <span class="text-muted text-truncate" style="max-width: 140px;" title="{{ $tarifaHab->temporada_texto }}">
+                                                                            {{ $tarifaHab->es_fija ? 'Fija' : ($tarifaHab->nombre_especial ?: 'Temporada') }}:
+                                                                        </span>
+                                                                        <strong class="text-success font-monospace">
+                                                                            {{ \App\Models\Servicio::formatoMonto((float) $tarifaHab->precio, $tarifaHab->moneda) }}
+                                                                        </strong>
+                                                                    </div>
+                                                                @endforeach
+                                                            @else
+                                                                <div class="d-flex justify-content-between align-items-center">
+                                                                    <small class="text-muted fst-italic">Sin tarifa asignada</small>
+                                                                    @can('proveedores.gestionar')
+                                                                        <button type="button" class="btn btn-xs btn-outline-success py-0 px-2 btn-tarifa-rapida-hab"
+                                                                            data-hab-id="{{ $hab->id }}" data-hab-tipo="{{ $hab->tipo }}">
+                                                                            + Tarifa
+                                                                        </button>
+                                                                    @endcan
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- Tarifario y Servicios Propios de este Proveedor --}}
                 <div class="card card-outline card-success shadow-sm">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2 py-3">
@@ -162,6 +278,13 @@
                                             <tr>
                                                 <td class="fw-semibold text-dark">
                                                     {{ $tarifa->concepto }}
+                                                    @if ($tarifa->habitacion)
+                                                        <div class="mt-1">
+                                                            <span class="badge rounded-pill" style="background: rgba(6, 182, 212, 0.12); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem;">
+                                                                <i class="fas fa-bed me-1"></i> Habitación: {{ $tarifa->habitacion->tipo }} ({{ $tarifa->habitacion->capacidad }} pax)
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                 </td>
                                                 <td>
                                                     @if ($tarifa->unidad_detalle)
@@ -255,11 +378,20 @@
     @can('proveedores.gestionar')
         @php
             $cat = \Illuminate\Support\Str::lower($proveedor->categoria->nombre ?? '');
+            $esHotel = $proveedor->es_hotel;
             $esTransporte = str_contains($cat, 'transporte');
             $esGuia = str_contains($cat, 'guia') || str_contains($cat, 'guía');
             $esRestaurante = str_contains($cat, 'restaurante') || str_contains($cat, 'gastr');
             $esEntradasTren = str_contains($cat, 'tren') || str_contains($cat, 'bus') || str_contains($cat, 'entrada') || str_contains($cat, 'boleto');
-            $modoDefecto = ($esRestaurante || $esEntradasTren) ? 'persona' : 'grupo';
+            $modoDefecto = $esHotel ? 'noche' : (($esRestaurante || $esEntradasTren) ? 'persona' : 'grupo');
+            $tipoPorRubro = match (true) {
+                $esHotel => 'alojamiento',
+                $esTransporte => 'traslado',
+                $esGuia => 'guia',
+                $esRestaurante => 'comida',
+                $esEntradasTren => 'entrada',
+                default => ''
+            };
         @endphp
         <div class="modal fade" id="modalNuevaTarifa" tabindex="-1" aria-labelledby="modalNuevaTarifaLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -268,6 +400,7 @@
                         @csrf
                         <input type="hidden" name="tipo" value="proveedor">
                         <input type="hidden" name="proveedor_id" value="{{ $proveedor->id }}">
+                        <input type="hidden" name="habitacion_id" id="modal-tar-habitacion-id" value="">
                         <input type="hidden" name="retorno" value="proveedor">
 
                         <div class="modal-header bg-dark text-white py-3">
@@ -289,7 +422,31 @@
                                     <i class="fas fa-magic text-warning me-1"></i> Sugerencias con 1 clic para {{ $proveedor->categoria->nombre ?? 'este proveedor' }}:
                                 </span>
 
-                                @if ($esTransporte)
+                                @if ($esHotel)
+                                    @php
+                                        $habsHotel = $proveedor->hotel?->habitaciones ?? collect();
+                                    @endphp
+                                    @if ($habsHotel->isNotEmpty())
+                                        <div class="mb-2">
+                                            <span class="small text-muted me-1">Vincular a habitación existente:</span>
+                                            @foreach ($habsHotel as $habH)
+                                                <button type="button" class="btn btn-xs btn-outline-info me-1 mb-1 btn-chip-hotel"
+                                                    data-hab-id="{{ $habH->id }}"
+                                                    data-hab-tipo="{{ $habH->tipo }}"
+                                                    data-concepto="Alojamiento: {{ $proveedor->nombre }} · {{ $habH->tipo }}">
+                                                    <i class="fas fa-bed me-1"></i> {{ $habH->tipo }}
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <span class="small text-muted me-1">Conceptos sugeridos:</span>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="noche" data-tipo="alojamiento" data-val="Alojamiento: {{ $proveedor->nombre }} · Habitación Standard">Standard</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="noche" data-tipo="alojamiento" data-val="Alojamiento: {{ $proveedor->nombre }} · Suite Deluxe">Suite Deluxe</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="noche" data-tipo="alojamiento" data-val="Alojamiento: {{ $proveedor->nombre }} · Junior Suite">Junior Suite</button>
+                                        <button type="button" class="btn btn-xs btn-outline-primary me-1 mb-1 btn-chip" data-target="concepto" data-mode="noche" data-tipo="alojamiento" data-val="Alojamiento: {{ $proveedor->nombre }} · Suite Presidencial">Presidencial</button>
+                                    </div>
+                                @elseif ($esTransporte)
                                     <div class="mb-2">
                                         <span class="small text-muted me-1">Tipo de Vehículo:</span>
                                         <button type="button" class="btn btn-xs btn-outline-secondary me-1 mb-1 btn-chip" data-target="unidad" data-val="Van H1 (1-4 pax)">Van H1 (1-4 pax)</button>
@@ -355,26 +512,22 @@
 
                             <div class="row g-3">
                                 <div class="col-md-5">
-                                    <label for="modal-tar-concepto" class="form-label fw-semibold small">Servicio / Ruta / Experiencia <span class="text-danger">*</span></label>
-                                    <input type="text" id="modal-tar-concepto" name="concepto" required maxlength="255" class="form-control" placeholder="Ej. Traslado Aeropuerto ⇄ Hotel, Almuerzo Buffet, etc.">
+                                    <label for="modal-tar-concepto" class="form-label fw-semibold small">Servicio / Ruta / Habitación <span class="text-danger">*</span></label>
+                                    <input type="text" id="modal-tar-concepto" name="concepto" required maxlength="255" class="form-control" placeholder="Ej. Traslado Aeropuerto ⇄ Hotel, Alojamiento Suite Presidencial, etc.">
                                 </div>
-                                {{-- El tipo deja que el itinerario aplique sola esta tarifa cuando el proveedor tiene varias. --}}
-                                @php
-                                    $tipoPorRubro = match (true) { $esTransporte => 'traslado', $esGuia => 'guia', $esRestaurante => 'comida', $esEntradasTren => 'entrada', default => '' };
-                                @endphp
                                 <div class="col-md-3">
                                     <label for="modal-tar-tipo" class="form-label fw-semibold small">Tipo de servicio</label>
                                     <select id="modal-tar-tipo" name="tipo_servicio" class="form-select">
                                         <option value="">Sin especificar</option>
                                         @foreach (\App\Models\Servicio::TIPOS as $clave => [$etiqueta])
-                                            @continue($clave === 'alojamiento')
+                                            @continue(!$esHotel && $clave === 'alojamiento')
                                             <option value="{{ $clave }}" @selected($tipoPorRubro === $clave)>{{ $etiqueta }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="modal-tar-unidad" class="form-label fw-semibold small">Detalle / Unidad (opcional)</label>
-                                    <input type="text" id="modal-tar-unidad" name="unidad_detalle" maxlength="100" class="form-control" placeholder="Ej. Van H1, Inglés, Buffet, etc.">
+                                    <input type="text" id="modal-tar-unidad" name="unidad_detalle" maxlength="100" class="form-control" placeholder="Ej. Van H1, King Bed con Balcón, Desayuno buffet...">
                                 </div>
 
                                 {{-- Switch Tarifa Fija vs Temporada --}}
@@ -415,6 +568,7 @@
                                 <div class="col-sm-4">
                                     <label for="modal-tar-por" class="form-label fw-semibold small">Modalidad de Cobro</label>
                                     <select id="modal-tar-por" name="por" class="form-select">
+                                        <option value="noche" @selected($modoDefecto === 'noche')>Por Noche (Habitación / Alojamiento)</option>
                                         <option value="grupo" @selected($modoDefecto === 'grupo')>Por Grupo (Vehículo / Guía)</option>
                                         <option value="persona" @selected($modoDefecto === 'persona')>Por Persona (Almuerzo / Entrada)</option>
                                     </select>
@@ -422,7 +576,7 @@
 
                                 <div class="col-12">
                                     <label for="modal-tar-notas" class="form-label fw-semibold small">Notas internas / Condiciones (opcional)</label>
-                                    <input type="text" id="modal-tar-notas" name="notas" maxlength="255" class="form-control form-control-sm" placeholder="Ej. Mínimo 2 paxs, no incluye propinas, incluye agua mineral...">
+                                    <input type="text" id="modal-tar-notas" name="notas" maxlength="255" class="form-control form-control-sm" placeholder="Ej. Mínimo 2 noches, no incluye propinas, incluye desayuno buffet...">
                                 </div>
                             </div>
                         </div>
@@ -437,6 +591,97 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal Nueva Habitación para Hotel --}}
+        @if ($proveedor->es_hotel)
+            <div class="modal fade" id="modalNuevaHabitacion" tabindex="-1" aria-labelledby="modalNuevaHabitacionLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <form action="{{ route('proveedors.habitaciones.store', $proveedor->id) }}" method="POST">
+                            @csrf
+                            <div class="modal-header bg-dark text-white py-3">
+                                <h5 class="modal-title fw-bold text-white mb-0" id="modalNuevaHabitacionLabel">
+                                    <i class="fas fa-bed text-info me-2"></i>Nueva Habitación para {{ $proveedor->nombre }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <label for="hab-tipo" class="form-label fw-semibold small">Tipo / Nombre de la Habitación <span class="text-danger">*</span></label>
+                                    <input type="text" id="hab-tipo" name="tipo" required maxlength="100" class="form-control" placeholder="Ej. Deluxe King con Balcón, Casita Suite, etc.">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="hab-capacidad" class="form-label fw-semibold small">Capacidad Máxima de Pasajeros <span class="text-danger">*</span></label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-users text-muted"></i></span>
+                                        <input type="number" id="hab-capacidad" name="capacidad" min="1" max="20" value="2" required class="form-control">
+                                        <span class="input-group-text">personas</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-info text-white">
+                                    <i class="fas fa-save me-1"></i> Guardar Habitación
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Modal Subir / Cambiar Foto de Portada del Hotel --}}
+            <div class="modal fade" id="modalFotoHotel" tabindex="-1" aria-labelledby="modalFotoHotelLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <form action="{{ route('proveedors.hotel.foto', $proveedor->id) }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="modal-header bg-dark text-white py-3">
+                                <h5 class="modal-title fw-bold text-white mb-0" id="modalFotoHotelLabel">
+                                    <i class="fas fa-camera text-info me-2"></i>Foto de Portada del Hotel
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <div class="mb-3">
+                                    <label for="hotel-foto-file" class="form-label fw-semibold small">Selecciona una imagen (JPG, PNG o WebP, máx 5MB):</label>
+                                    <input type="file" id="hotel-foto-file" name="img" accept=".jpg,.jpeg,.png,.webp" required class="form-control">
+                                </div>
+                                @if ($proveedor->hotel?->img)
+                                    <div class="text-center p-2 bg-light rounded border">
+                                        <small class="text-muted d-block mb-2">Foto actual:</small>
+                                        <img src="{{ asset($proveedor->hotel->img) }}" alt="Foto actual" class="img-thumbnail" style="max-height: 120px;">
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="modal-footer bg-light">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-upload me-1"></i> Subir Foto
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            @if ($proveedor->hotel?->img)
+                {{-- Modal Preview de la Foto --}}
+                <div class="modal fade" id="modalFotoPreview" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content border-0 shadow-lg bg-dark">
+                            <div class="modal-header border-0 pb-0">
+                                <h5 class="modal-title text-white fw-bold">{{ $proveedor->nombre }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body text-center p-3">
+                                <img src="{{ asset($proveedor->hotel->img) }}" alt="{{ $proveedor->nombre }}" class="img-fluid rounded">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        @endif
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -463,12 +708,13 @@
 
                 switchFija.addEventListener('change', syncFija);
 
-                // Chips rápidos
+                // Chips rápidos generales
                 modal.querySelectorAll('.btn-chip').forEach(btn => {
                     btn.addEventListener('click', function () {
                         const target = this.dataset.target;
                         const val = this.dataset.val;
                         const mode = this.dataset.mode;
+                        const tipo = this.dataset.tipo;
 
                         if (target === 'concepto') {
                             const input = modal.querySelector('#modal-tar-concepto');
@@ -482,6 +728,54 @@
                             const selectPor = modal.querySelector('#modal-tar-por');
                             if (selectPor) selectPor.value = mode;
                         }
+
+                        if (tipo) {
+                            const selectTipo = modal.querySelector('#modal-tar-tipo');
+                            if (selectTipo) selectTipo.value = tipo;
+                        }
+                    });
+                });
+
+                // Chips para habitaciones de hotel
+                modal.querySelectorAll('.btn-chip-hotel').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const habId = this.dataset.habId;
+                        const concepto = this.dataset.concepto;
+
+                        const inputHabId = modal.querySelector('#modal-tar-habitacion-id');
+                        if (inputHabId) inputHabId.value = habId;
+
+                        const inputConcepto = modal.querySelector('#modal-tar-concepto');
+                        if (inputConcepto) inputConcepto.value = concepto;
+
+                        const selectPor = modal.querySelector('#modal-tar-por');
+                        if (selectPor) selectPor.value = 'noche';
+
+                        const selectTipo = modal.querySelector('#modal-tar-tipo');
+                        if (selectTipo) selectTipo.value = 'alojamiento';
+                    });
+                });
+
+                // Botones rápidos "+ Tarifa" dentro de cada tarjeta de habitación
+                document.querySelectorAll('.btn-tarifa-rapida-hab').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const habId = this.dataset.habId;
+                        const habTipo = this.dataset.habTipo;
+
+                        const inputHabId = modal.querySelector('#modal-tar-habitacion-id');
+                        if (inputHabId) inputHabId.value = habId;
+
+                        const inputConcepto = modal.querySelector('#modal-tar-concepto');
+                        if (inputConcepto) inputConcepto.value = 'Alojamiento: {{ $proveedor->nombre }} · ' + habTipo;
+
+                        const selectPor = modal.querySelector('#modal-tar-por');
+                        if (selectPor) selectPor.value = 'noche';
+
+                        const selectTipo = modal.querySelector('#modal-tar-tipo');
+                        if (selectTipo) selectTipo.value = 'alojamiento';
+
+                        const bsModal = new bootstrap.Modal(modal);
+                        bsModal.show();
                     });
                 });
             });

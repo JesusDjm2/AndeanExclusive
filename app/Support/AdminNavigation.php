@@ -40,7 +40,6 @@ class AdminNavigation
                 ['label' => 'Bandeja de Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*']],
                 ['label' => 'Mensajes a proveedores', 'icon' => 'fa-envelope-open-text', 'route' => 'mensajes.index', 'active' => ['mensajes.*', 'servicios.mensaje']],
                 ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
-                ['label' => 'Hoteles', 'icon' => 'fa-hotel', 'route' => 'hotel.index', 'active' => ['hotel.*', 'habitacion.*']],
                 ['label' => 'Categorías', 'icon' => 'fa-layer-group', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
             ],
         ],

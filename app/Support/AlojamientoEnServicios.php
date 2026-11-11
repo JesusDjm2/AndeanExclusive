@@ -107,7 +107,7 @@ class AlojamientoEnServicios
     }
 
     /** El hotel se paga como un proveedor más: la primera vez se crea su ficha de proveedor con sus mismos datos. */
-    private static function proveedorDe(?Hotel $hotel): ?Proveedor
+    public static function proveedorDe(?Hotel $hotel): ?Proveedor
     {
         if (! $hotel) {
             return null;

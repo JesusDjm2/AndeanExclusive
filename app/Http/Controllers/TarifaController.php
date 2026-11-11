@@ -204,9 +204,21 @@ class TarifaController extends Controller
             $datos['hasta'] = null;
         }
 
-        return array_merge($datos, $esHabitacion
-            ? ['proveedor_id' => null, 'concepto' => null, 'por' => 'noche']
-            : ['habitacion_id' => null]);
+        if ($esHabitacion) {
+            $habitacion = Habitacion::with('hotel')->find($datos['habitacion_id']);
+            $hotelProvId = $habitacion?->hotel?->proveedor_id;
+            $nombreHotel = $habitacion?->hotel?->nombre ?? 'Hotel';
+            $tipoHab = $habitacion?->tipo ?? 'Habitación';
+
+            return array_merge($datos, [
+                'proveedor_id' => $hotelProvId,
+                'concepto' => "Alojamiento: {$nombreHotel} · {$tipoHab}",
+                'tipo_servicio' => 'alojamiento',
+                'por' => 'noche',
+            ]);
+        }
+
+        return array_merge($datos, ['habitacion_id' => null]);
     }
 
     private function catalogos(Tarifa $tarifa): array

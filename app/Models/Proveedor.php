@@ -23,6 +23,17 @@ class Proveedor extends Model
         return $this->belongsTo(Categoria::class);
     }
 
+    public function hotel()
+    {
+        return $this->hasOne(Hotel::class);
+    }
+
+    public function getEsHotelAttribute(): bool
+    {
+        return str_contains(mb_strtolower($this->categoria?->nombre ?? ''), 'hotel')
+            || $this->hotel()->exists();
+    }
+
     public function programas()
     {
         return $this->belongsToMany(Programa::class, 'servicios')->distinct();

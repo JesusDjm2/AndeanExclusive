@@ -87,6 +87,11 @@
 
         {{-- Pestañas rápidas por categoría tipo pills (scroll horizontal en móvil) --}}
         @if ($categorias->isNotEmpty())
+            @php
+                $catActual = $categorias->firstWhere('id', request('categoria_id'));
+                $esVistaHoteles = $catActual && str_contains(mb_strtolower($catActual->nombre), 'hotel');
+            @endphp
+
             <div class="d-flex align-items-center gap-1 overflow-auto pb-2 mb-3 text-nowrap" style="scrollbar-width: thin;">
                 <a href="{{ route('proveedors.index', array_filter(['q' => request('q')])) }}"
                     class="btn btn-sm {{ !request('categoria_id') ? 'btn-primary' : 'btn-outline-secondary bg-white' }} rounded-pill py-1 px-3">
@@ -94,8 +99,10 @@
                 </a>
                 @foreach ($categorias as $cat)
                     @if ($cat->proveedors_count > 0 || (string) request('categoria_id') === (string) $cat->id)
+                        @php $esCatHotel = str_contains(mb_strtolower($cat->nombre), 'hotel'); @endphp
                         <a href="{{ route('proveedors.index', array_filter(['categoria_id' => $cat->id, 'q' => request('q')])) }}"
-                            class="btn btn-sm {{ (string) request('categoria_id') === (string) $cat->id ? 'btn-primary' : 'btn-outline-secondary bg-white' }} rounded-pill py-1 px-3">
+                            class="btn btn-sm {{ (string) request('categoria_id') === (string) $cat->id ? 'btn-primary' : ($esCatHotel ? 'btn-outline-info bg-white' : 'btn-outline-secondary bg-white') }} rounded-pill py-1 px-3">
+                            @if ($esCatHotel) <i class="fas fa-hotel me-1 text-info"></i> @endif
                             {{ $cat->nombre }}
                             <span class="badge {{ (string) request('categoria_id') === (string) $cat->id ? 'bg-white text-primary' : 'bg-secondary' }} rounded-pill ms-1">
                                 {{ $cat->proveedors_count }}
@@ -104,6 +111,30 @@
                     @endif
                 @endforeach
             </div>
+
+            @if ($esVistaHoteles)
+                <div class="card border-0 mb-3 rounded-3 shadow-sm" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.98)); color: #f8fafc; border-left: 4px solid #06b6d4 !important;">
+                    <div class="card-body p-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(6, 182, 212, 0.18); color: #06b6d4;">
+                                <i class="fas fa-hotel fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2">
+                                    Catálogo de Hoteles & Alojamiento Boutique
+                                    <span class="badge rounded-pill bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-monospace" style="font-size: 0.72rem;">Centralizado</span>
+                                </h6>
+                                <small class="text-white-50">Consulta habitaciones, capacidades, tarifas por temporada y contactos directos de reservas sin duplicidad.</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-secondary-subtle text-light border border-secondary px-3 py-2 rounded-pill">
+                                <i class="fas fa-bed me-1 text-info"></i> {{ $proveedors->total() }} hoteles aliados
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @endif
         @endif
 
         {{-- Estado vacío --}}
@@ -142,9 +173,18 @@
                                         <small class="text-muted font-monospace d-block">RUC: {{ $proveedor->ruc }}</small>
                                     @endif
                                 </div>
-                                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
-                                    {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
-                                </span>
+                                <div class="text-end">
+                                    <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
+                                        {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
+                                    </span>
+                                    @if ($proveedor->hotel && $proveedor->hotel->habitaciones->isNotEmpty())
+                                        <div class="mt-1">
+                                            <span class="badge rounded-pill" style="background: rgba(6, 182, 212, 0.12); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem;">
+                                                <i class="fas fa-bed me-1"></i> {{ $proveedor->hotel->habitaciones->count() }} habs.
+                                            </span>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
 
                             @if ($proveedor->detalles)
@@ -256,6 +296,13 @@
                                             <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle rounded-pill">
                                                 {{ $proveedor->categoria?->nombre ?? 'Sin categoría' }}
                                             </span>
+                                            @if ($proveedor->hotel && $proveedor->hotel->habitaciones->isNotEmpty())
+                                                <div class="mt-1">
+                                                    <span class="badge rounded-pill" style="background: rgba(6, 182, 212, 0.12); color: #0891b2; border: 1px solid rgba(6, 182, 212, 0.3); font-size: 0.72rem;">
+                                                        <i class="fas fa-bed me-1"></i> {{ $proveedor->hotel->habitaciones->count() }} {{ $proveedor->hotel->habitaciones->count() === 1 ? 'hab.' : 'habs.' }}
+                                                    </span>
+                                                </div>
+                                            @endif
                                         </td>
                                         <td class="font-monospace small">
                                             {{ $proveedor->ruc ?: '—' }}
