@@ -28,10 +28,7 @@ class AdminNavigation
                 ['label' => 'Consultas', 'icon' => 'fa-inbox', 'route' => 'consultas.index', 'active' => ['consultas.*']],
                 ['label' => 'Programas', 'icon' => 'fa-suitcase-rolling', 'route' => 'programas.index', 'active' => ['programas.*']],
                 ['label' => 'Tarifario Maestro', 'icon' => 'fa-calculator', 'route' => 'tarifario-maestro.index', 'active' => ['tarifario-maestro.*']],
-                ['label' => 'Clientes', 'icon' => 'fa-address-book', 'route' => 'clientes.index', 'active' => ['clientes.*']],
-                ['label' => 'Pasajeros', 'icon' => 'fa-users', 'route' => 'paxs.index', 'active' => ['paxs.*']],
                 ['label' => 'Hoja de operaciones', 'icon' => 'fa-clipboard-check', 'route' => 'operaciones.index', 'active' => ['operaciones.*']],
-                ['label' => 'Agentes / Counters', 'icon' => 'fa-user-tie', 'route' => 'agentes.index', 'active' => ['agentes.*']],
             ],
         ],
         [
@@ -39,8 +36,7 @@ class AdminNavigation
             'roles' => ['administrador', 'operaciones', 'reservas', 'contabilidad'],
             'items' => [
                 ['label' => 'Reservas', 'icon' => 'fa-concierge-bell', 'route' => 'reservas.index', 'active' => ['reservas.*', 'mensajes.*', 'servicios.mensaje']],
-                ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*']],
-                ['label' => 'Categorías', 'icon' => 'fa-layer-group', 'route' => 'categoriasproveedor.index', 'active' => ['categoriasproveedor.*']],
+                ['label' => 'Proveedores', 'icon' => 'fa-handshake', 'route' => 'proveedors.index', 'active' => ['proveedors.*', 'categoriasproveedor.*']],
             ],
         ],
         [
@@ -49,7 +45,6 @@ class AdminNavigation
             'items' => [
                 ['label' => 'Cuentas por pagar', 'icon' => 'fa-file-invoice-dollar', 'route' => 'cuentas.index', 'active' => ['cuentas.*']],
                 ['label' => 'Reportes', 'icon' => 'fa-chart-bar', 'route' => 'reportes.index', 'active' => ['reportes.*']],
-                ['label' => 'Movimientos', 'icon' => 'fa-stream', 'route' => 'movimientos.index', 'active' => ['movimientos.*']],
             ],
         ],
         [
@@ -60,12 +55,6 @@ class AdminNavigation
                 ['label' => 'Categorías de tours', 'icon' => 'fa-layer-group', 'langs' => [['EN', 'categories.index', ['categories.*']], ['ES', 'categorias.index', ['categorias.*']]]],
                 ['label' => 'Blog', 'icon' => 'fa-pen-nib', 'langs' => [['EN', 'enblogs.index', ['enblogs.*']], ['ES', 'esblogs.index', ['esblogs.*']]]],
                 ['label' => 'Etiquetas', 'icon' => 'fa-hashtag', 'langs' => [['EN', 'entags.index', ['entags.*']], ['ES', 'estags.index', ['estags.*']]]],
-            ],
-        ],
-        [
-            'label' => 'Medios',
-            'roles' => ['administrador', 'branding'],
-            'items' => [
                 ['label' => 'Imágenes', 'icon' => 'fa-images', 'route' => 'imagenes.index', 'active' => ['imagenes.*']],
             ],
         ],
@@ -74,6 +63,8 @@ class AdminNavigation
             'roles' => ['administrador'],
             'items' => [
                 ['label' => 'Usuarios', 'icon' => 'fa-user-shield', 'route' => 'users.index', 'active' => ['users.*']],
+                ['label' => 'Agentes / Counters', 'icon' => 'fa-user-tie', 'route' => 'agentes.index', 'active' => ['agentes.*']],
+                ['label' => 'Movimientos', 'icon' => 'fa-stream', 'route' => 'movimientos.index', 'active' => ['movimientos.*']],
                 ['label' => 'Copias de seguridad', 'icon' => 'fa-database', 'route' => 'respaldos.index', 'active' => ['respaldos.*']],
             ],
         ],
