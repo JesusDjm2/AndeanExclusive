@@ -8,13 +8,15 @@
 @section('metas')
     @include('layouts.seo-head', ['locale' => 'es', 'page' => 'home', 'og_image' => '/img/machupicchu.png'])
 
-    {{-- Preconexión ultra-rápida a los servidores y CDN de YouTube --}}
+    {{-- Preconexión ultra-rápida a los servidores y CDN de YouTube y Google Video --}}
     <link rel="preconnect" href="https://www.youtube.com" crossorigin>
     <link rel="preconnect" href="https://s.ytimg.com" crossorigin>
     <link rel="preconnect" href="https://i.ytimg.com" crossorigin>
+    <link rel="preconnect" href="https://googlevideo.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://s.ytimg.com">
     <link rel="dns-prefetch" href="https://i.ytimg.com">
+    <link rel="dns-prefetch" href="https://googlevideo.com">
 
     {{-- Bootstrap anticipado de la API de YouTube para carga inmediata idéntico al panel de login --}}
     <script>
@@ -37,7 +39,15 @@
                 <img src="{{ asset('img/machupicchu.webp') }}" alt="Machu Picchu, Cusco - Perú" loading="eager" fetchpriority="high" decoding="async" data-parallax="12">
             </picture>
             <div class="hero__video-wrap" id="hero-video-wrap" aria-hidden="true">
-                <div id="hero-yt-player"></div>
+                <iframe
+                    id="hero-yt-player"
+                    src="https://www.youtube.com/embed/B_8bbKn3amE?enablejsapi=1&autoplay=1&mute=1&controls=0&loop=1&playlist=B_8bbKn3amE&playsinline=1&rel=0&iv_load_policy=3&modestbranding=1&disablekb=1&fs=0&origin={{ url('/') }}"
+                    title="Peru Travel Hero Video"
+                    frameborder="0"
+                    allow="autoplay; encrypted-media; picture-in-picture"
+                    tabindex="-1"
+                    aria-hidden="true">
+                </iframe>
             </div>
         </div>
         <div class="hero__content">

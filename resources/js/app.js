@@ -11,9 +11,12 @@ import { initCollectionFilter } from './collection-filter';
 import { initHeroVideo } from './hero-video';
 import { initPreloader } from './preloader';
 
+// Inicialización anticipada de preloader y video hero
+initPreloader();
+initHeroVideo();
+
 document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.classList.remove('no-js');
-    initPreloader();
     initNav();
     initAnimations();
     initPublicForms();
@@ -24,5 +27,4 @@ document.addEventListener('DOMContentLoaded', () => {
     initTourDetail();
     initToc();
     initCollectionFilter();
-    initHeroVideo();
 });

@@ -53,16 +53,16 @@ export function initHeroVideo() {
         // Cuando YouTube confirma reproducción activa
         if (event.data === window.YT.PlayerState.PLAYING) {
             if (!hero.classList.contains('is-video-active')) {
-                // La interfaz de inicio de YouTube (botones de rebobinado, play y título)
-                // tarda exactamente ~3.5s en auto-ocultarse por completo.
-                // Mantenemos tanto el preloader como la fotografía del poster activos durante 3.8s
-                // para que la disolución revele el video cuando ya esté 100% limpio y en movimiento.
+                // Con el <iframe> incrustado directamente en el HTML del servidor,
+                // el video arranca de inmediato en paralelo con la carga de la página.
+                // A los 3.2s de reproducción activa, los controles iniciales de YouTube
+                // ya se han auto-ocultado por completo detrás del preloader de lujo.
                 setTimeout(() => {
                     hero.classList.add('is-video-active');
                     if (typeof window.aeDismissPreloader === 'function') {
                         window.aeDismissPreloader();
                     }
-                }, 3800);
+                }, 3200);
             }
         } else if (event.data === window.YT.PlayerState.ENDED) {
             // Bucle de respaldo continuo
@@ -79,25 +79,8 @@ export function initHeroVideo() {
 
         isCreated = true;
         try {
+            // Vinculación directa al <iframe> ya renderizado en el HTML
             player = new window.YT.Player('hero-yt-player', {
-                videoId: videoId,
-                playerVars: {
-                    autoplay: 1,
-                    controls: 0,
-                    mute: 1,
-                    loop: 1,
-                    playlist: videoId,
-                    playsinline: 1,
-                    rel: 0,
-                    showinfo: 0,
-                    modestbranding: 1,
-                    disablekb: 1,
-                    fs: 0,
-                    iv_load_policy: 3,
-                    enablejsapi: 1,
-                    origin: window.location.origin,
-                    widget_referrer: window.location.origin
-                },
                 events: {
                     onReady: onPlayerReady,
                     onStateChange: onPlayerStateChange
