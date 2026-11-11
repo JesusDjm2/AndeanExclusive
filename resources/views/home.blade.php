@@ -27,7 +27,7 @@
             @if ($isBranding)
                 <p class="dash-hero__lead">Panel de gestión de marca, contenidos web, tours, blogs y galería de medios.</p>
             @else
-                <p class="dash-hero__lead">Este es el resumen de la operación y del sitio web.</p>
+                <p class="dash-hero__lead">Centro de mando de operaciones, reservas y finanzas.</p>
             @endif
         </div>
         @if ($isBranding)
@@ -52,14 +52,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
         </div>
     @endif
-
-    <div class="ayuda-bienvenida" data-ayuda-bienvenida hidden>
-        <p><strong>¿Primera vez aquí?</strong> En cada pantalla, el botón <strong>?</strong> de arriba explica lo que estás viendo y cómo hacerlo.</p>
-        <div class="ayuda-bienvenida__acciones">
-            <a href="{{ route('ayuda.index') }}" class="btn btn-sm btn-primary">Ver la ayuda</a>
-            <button type="button" class="btn btn-sm btn-link" data-ayuda-bienvenida-cerrar>Ya entendí</button>
-        </div>
-    </div>
 
     @unless ($isBranding)
         {{-- Barra de Acciones Inmediatas (One-Click) --}}
@@ -899,95 +891,7 @@
                     </div>
                 </section>
 
-                {{-- Búsqueda por periodo --}}
-                <section class="card dash-card" aria-labelledby="dash-filter">
-                    <div class="card-header dash-card__header">
-                        <h2 id="dash-filter" class="dash-card__title">Buscar programas</h2>
-                    </div>
-                    <div class="card-body">
-                        <form method="GET" action="{{ route('programas.index') }}" class="row g-2">
-                            <div class="col-6">
-                                <label for="dash-anio" class="form-label small">Año</label>
-                                <select id="dash-anio" name="anio_id" class="form-select form-select-sm">
-                                    <option value="">Todos</option>
-                                    @foreach ($anios as $anio)
-                                        <option value="{{ $anio->id }}" @selected((int) $anio->anio === $today->year)>{{ $anio->anio }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-6">
-                                <label for="dash-mes" class="form-label small">Mes</label>
-                                <select id="dash-mes" name="mes_id" class="form-select form-select-sm">
-                                    <option value="">Todos</option>
-                                    @foreach ($meses as $mes)
-                                        <option value="{{ $mes->id }}">{{ $mes->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="btn btn-primary btn-sm w-100"><i class="fas fa-search" aria-hidden="true"></i> Ver programas</button>
-                            </div>
-                        </form>
-                    </div>
-                </section>
             </div>
         </div>
-    @endif
-
-    {{-- Estado del sitio web (para administradores) --}}
-    @if ($isAdmin)
-        <section class="card dash-card mt-4" aria-labelledby="dash-content">
-            <div class="card-header dash-card__header">
-                <h2 id="dash-content" class="dash-card__title">Contenido del sitio web</h2>
-                <a href="{{ route('index') }}" class="btn btn-sm btn-link" target="_blank" rel="noopener">Ver sitio <i class="fas fa-external-link-alt" aria-hidden="true"></i></a>
-            </div>
-            <div class="card-body">
-                <div class="content-health">
-                    <div class="content-health__item">
-                        <p class="content-health__label">Tours</p>
-                        <p class="content-health__value">{{ $content['toursEn'] }} <small>EN</small> · {{ $content['toursEs'] }} <small>ES</small></p>
-                        @if ($content['toursMissingEs'])
-                            <a href="{{ route('tours.index') }}" class="content-health__warn"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {{ $content['toursMissingEs'] }} sin versión en español</a>
-                        @else
-                            <span class="content-health__ok"><i class="fas fa-check-circle" aria-hidden="true"></i> Todos traducidos</span>
-                        @endif
-                        <div class="content-health__links">
-                            <a href="{{ route('tours.create') }}">+ Tour EN</a>
-                            <a href="{{ route('estours.create') }}">+ Tour ES</a>
-                        </div>
-                    </div>
-                    <div class="content-health__item">
-                        <p class="content-health__label">Blog</p>
-                        <p class="content-health__value">{{ $content['blogsEn'] }} <small>EN</small> · {{ $content['blogsEs'] }} <small>ES</small></p>
-                        @if ($content['blogsMissingEs'])
-                            <a href="{{ route('esblogs.index') }}" class="content-health__warn"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> {{ $content['blogsMissingEs'] }} artículos EN sin versión ES vinculada</a>
-                        @else
-                            <span class="content-health__ok"><i class="fas fa-check-circle" aria-hidden="true"></i> Todos traducidos</span>
-                        @endif
-                        <div class="content-health__links">
-                            <a href="{{ route('enblogs.create') }}">+ Artículo EN</a>
-                            <a href="{{ route('esblogs.create') }}">+ Artículo ES</a>
-                        </div>
-                    </div>
-                    <div class="content-health__item">
-                        <p class="content-health__label">Imágenes y Medios</p>
-                        <p class="content-health__value">{{ $content['imagenes'] }} <small>imágenes</small></p>
-                        <div class="content-health__links">
-                            <a href="{{ route('imagenes.index') }}">Ver galería</a>
-                            <a href="{{ route('imagenes.create') }}">+ Subir imagen</a>
-                        </div>
-                    </div>
-                    <div class="content-health__item">
-                        <p class="content-health__label">Última actualización</p>
-                        @if ($content['lastTour'])
-                            <p class="content-health__recent"><i class="fas fa-map-marked-alt" aria-hidden="true"></i> {{ $content['lastTour']->nombre }} <small>{{ $content['lastTour']->updated_at?->locale('es')->diffForHumans() }}</small></p>
-                        @endif
-                        @if ($content['lastBlog'])
-                            <p class="content-health__recent"><i class="fas fa-pen-nib" aria-hidden="true"></i> {{ $content['lastBlog']->nombre }} <small>{{ $content['lastBlog']->updated_at?->locale('es')->diffForHumans() }}</small></p>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </section>
     @endif
 @endsection
