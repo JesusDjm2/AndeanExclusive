@@ -20,11 +20,10 @@ export function initHeroVideo() {
         return;
     }
 
-    // Solo para pantallas de escritorio (>= 992px)
-    const mediaQuery = window.matchMedia('(min-width: 992px)');
+    // Activo para tablets y pantallas de escritorio (>= 768px)
+    const mediaQuery = window.matchMedia('(min-width: 768px)');
     if (!mediaQuery.matches) {
-        // En pantallas móviles (< 992px) no cargamos el video de YouTube (ahorro de datos/batería)
-        // Desvanecemos el preloader de marca tras breve bienvenida para revelar la foto móvil
+        // En celulares (< 768px) no cargamos video: mantenemos la fotografía optimizada para móviles
         if (typeof window.aeDismissPreloader === 'function') {
             setTimeout(window.aeDismissPreloader, 400);
         }
